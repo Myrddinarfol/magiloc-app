@@ -1,0 +1,670 @@
+import React, { useState, useEffect } from 'react';
+import { equipmentData as initialData } from './data/equipments';
+import CSVImporter from './components/CSVImporter';
+import './App.css';
+
+function App() {
+  // Clés pour le stockage local
+  const STORAGE_KEY = 'magiloc-equipment-data';
+  const AUTH_KEY = 'magiloc-authenticated';
+  const NOTES_KEY = 'magiloc-notes-seen';
+
+  // États pour l'authentification et les notes
+  const [showReleaseNotes, setShowReleaseNotes] = useState(() => {
+    return !localStorage.getItem(NOTES_KEY);
+  });
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem(AUTH_KEY) === 'true';
+  });
+  const [password, setPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
+  // États existants
+  const [equipmentData, setEquipmentData] = useState(() => {
+    const savedData = localStorage.getItem(STORAGE_KEY);
+    if (savedData) {
+      try {
+        return JSON.parse(savedData);
+      } catch (error) {
+        console.error('Erreur lors du chargement des données:', error);
+        return initialData;
+      }
+    }
+    return initialData;
+  });
+
+  const [currentPage, setCurrentPage] = useState('dashboard');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedEquipment, setSelectedEquipment] = useState(null);
+  const [showImporter, setShowImporter] = useState(false);
+
+  // Sauvegarde automatique des données
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(equipmentData));
+  }, [equipmentData]);
+
+  // Gestion des notes de mise à jour
+  const handleNotesAccepted = () => {
+    localStorage.setItem(NOTES_KEY, 'true');
+    setShowReleaseNotes(false);
+  };
+
+  // Gestion de l'authentification
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (password === 'MAGILOC25') {
+      localStorage.setItem(AUTH_KEY, 'true');
+      setIsAuthenticated(true);
+      setPasswordError('');
+    } else {
+      setPasswordError('Mot de passe incorrect');
+      setPassword('');
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem(AUTH_KEY);
+    setIsAuthenticated(false);
+    setPassword('');
+  };
+
+  // Fonctions existantes
+  const handleDataImported = (newData) => {
+    setEquipmentData(newData);
+    setShowImporter(false);
+    alert(`${newData.length} équipements importés avec succès !`);
+  };
+
+  const handleResetData = () => {
+    if (window.confirm('Êtes-vous sûr de vouloir réinitialiser toutes les données ? Cette action est irréversible.')) {
+      setEquipmentData(initialData);
+      localStorage.removeItem(STORAGE_KEY);
+      alert('Données réinitialisées !');
+    }
+  };
+
+  // Calcul des statistiques globales
+  const stats = {
+    total: equipmentData.length,
+    enLocation: equipmentData.filter(eq => eq.disponibilite === 'En Location').length,
+    surParc: equipmentData.filter(eq => eq.disponibilite === 'Sur Parc').length,
+    enMaintenance: equipmentData.filter(eq => eq.disponibilite === 'En Maintenance').length,
+    enOffre: equipmentData.filter(eq => eq.disponibilite === 'En Offre de Prix').length
+  };
+
+  // Filtrage selon la page actuelle
+  const getFilteredData = () => {
+    let filtered = equipmentData;
+    
+    switch (currentPage) {
+      case 'en-location':
+        filtered = equipmentData.filter(eq => eq.disponibilite === 'En Location');
+        break;
+      case 'en-offre':
+        filtered = equipmentData.filter(eq => eq.disponibilite === 'En Offre de Prix');
+        break;
+      case 'maintenance':
+        filtered = equipmentData.filter(eq => eq.disponibilite === 'En Maintenance');
+        break;
+      default:
+        filtered = equipmentData;
+    }
+
+    if (searchTerm) {
+      filtered = filtered.filter(equipment =>
+        equipment.designation.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        equipment.numeroSerie.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (equipment.client && equipment.client.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+
+    return filtered;
+  };
+
+  // Fonctions pour obtenir les classes de statut et d'état
+  const getStatusClass = (status) => {
+    switch (status) {
+      case 'Sur Parc': return 'status-sur-parc';
+      case 'En Location': return 'status-en-location';
+      case 'En Maintenance': return 'status-en-maintenance';
+      case 'En Offre de Prix': return 'status-en-offre';
+      default: return '';
+    }
+  };
+
+  const getEtatClass = (etat) => {
+    switch (etat) {
+      case 'Bon': return 'etat-bon';
+      case 'Moyen': return 'etat-moyen';
+      case 'Vieillissant': return 'etat-vieillissant';
+      case 'Neuf': return 'etat-neuf';
+      default: return '';
+    }
+  };
+
+  // Notes de mise à jour
+  const ReleaseNotes = () => (
+    <div className="release-notes-overlay">
+      <div className="release-notes-modal">
+        <div className="release-notes-header">
+          <h2>🚀 MagiLoc v1.0 - Notes de mise à jour</h2>
+          <p>Nouvelles fonctionnalités et améliorations</p>
+        </div>
+        
+        <div className="release-notes-content">
+          <div className="release-section">
+            <h3>✨ Nouvelles fonctionnalités</h3>
+            <ul>
+              <li>Import CSV automatique pour votre parc existant</li>
+              <li>Tableau de bord avec statistiques en temps réel</li>
+              <li>Gestion complète des équipements par statut</li>
+              <li>Recherche avancée multi-critères</li>
+              <li>Persistence des données localement</li>
+            </ul>
+          </div>
+          
+          <div className="release-section">
+            <h3>🎨 Interface</h3>
+            <ul>
+              <li>Thème sombre moderne avec accents rouges</li>
+              <li>Navigation intuitive par sidebar</li>
+              <li>Interface responsive (PC, tablette, mobile)</li>
+              <li>Fiches détaillées des équipements</li>
+            </ul>
+          </div>
+          
+          <div className="release-section">
+            <h3>📊 Gestion des données</h3>
+            <ul>
+              <li>Sauvegarde automatique des modifications</li>
+              <li>Fonction de réinitialisation sécurisée</li>
+              <li>Import de votre fichier CSV existant</li>
+              <li>Gestion des statuts : Sur Parc, En Location, Maintenance, Offre</li>
+            </ul>
+          </div>
+          
+          <div className="release-section">
+            <h3>🔜 Prochainement</h3>
+            <ul>
+              <li>Processus de retour automatique</li>
+              <li>Planning interactif des locations</li>
+              <li>Gestion des workflows complets</li>
+              <li>Export et rapports</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div className="release-notes-footer">
+          <button onClick={handleNotesAccepted} className="btn btn-primary btn-lg">
+            Continuer vers l'application
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Écran d'authentification
+  const LoginScreen = () => (
+    <div className="login-overlay">
+      <div className="login-modal">
+        <div className="login-header">
+          <h2>🔐 Authentification MagiLoc</h2>
+          <p>Accès sécurisé au système de gestion</p>
+        </div>
+        
+        <form onSubmit={handleLogin} className="login-form">
+          <div className="form-group">
+            <label htmlFor="password">Mot de passe :</label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={`form-input ${passwordError ? 'error' : ''}`}
+              placeholder="Entrez le mot de passe"
+              autoFocus
+            />
+            {passwordError && (
+              <div className="error-message">{passwordError}</div>
+            )}
+          </div>
+          
+          <button type="submit" className="btn btn-primary btn-lg">
+            Se connecter
+          </button>
+        </form>
+        
+        <div className="login-footer">
+          <p>© 2025 MagiLoc - Gestion Parc Location COUERON</p>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Navigation latérale avec déconnexion
+  const Sidebar = () => (
+    <div className="sidebar">
+      <h2>MagiLoc</h2>
+      
+      <nav>
+        <button
+          onClick={() => setCurrentPage('dashboard')}
+          className={`nav-button ${currentPage === 'dashboard' ? 'active' : ''}`}
+        >
+          📊 Tableau de bord
+        </button>
+        
+        <button
+          onClick={() => setCurrentPage('parc-loc')}
+          className={`nav-button ${currentPage === 'parc-loc' ? 'active' : ''}`}
+        >
+          🏭 Parc LOC
+        </button>
+        
+        <button
+          onClick={() => setCurrentPage('en-location')}
+          className={`nav-button ${currentPage === 'en-location' ? 'active' : ''}`}
+        >
+          🚚 En Location ({stats.enLocation})
+        </button>
+        
+        <button
+          onClick={() => setCurrentPage('planning')}
+          className={`nav-button ${currentPage === 'planning' ? 'active' : ''}`}
+        >
+          📅 Planning
+        </button>
+        
+        <button
+          onClick={() => setCurrentPage('en-offre')}
+          className={`nav-button ${currentPage === 'en-offre' ? 'active' : ''}`}
+        >
+          💰 Offres de prix ({stats.enOffre})
+        </button>
+        
+        <button
+          onClick={() => setCurrentPage('maintenance')}
+          className={`nav-button ${currentPage === 'maintenance' ? 'active' : ''}`}
+        >
+          🔧 Maintenance ({stats.enMaintenance})
+        </button>
+      </nav>
+
+      <div className="sidebar-bottom">
+        <button
+          onClick={() => setShowImporter(!showImporter)}
+          className="import-button"
+        >
+          📁 Importer CSV
+        </button>
+        
+        <button
+          onClick={handleResetData}
+          className="reset-button"
+        >
+          🔄 Réinitialiser
+        </button>
+        
+        <button
+          onClick={handleLogout}
+          className="logout-button"
+        >
+          🚪 Déconnexion
+        </button>
+      </div>
+    </div>
+  );
+
+  // Tableau de bord principal
+  const Dashboard = () => (
+    <div className="dashboard">
+      <h1>Tableau de bord - Parc Location COUERON</h1>
+      
+      <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-number">{stats.total}</div>
+          <div className="stat-label">Total Équipements</div>
+        </div>
+        
+        <div className="stat-card">
+          <div className="stat-number primary">{stats.enLocation}</div>
+          <div className="stat-label">En Location</div>
+          <div className="stat-percentage primary">{((stats.enLocation/stats.total)*100).toFixed(1)}%</div>
+        </div>
+        
+        <div className="stat-card">
+          <div className="stat-number success">{stats.surParc}</div>
+          <div className="stat-label">Disponibles</div>
+          <div className="stat-percentage success">{((stats.surParc/stats.total)*100).toFixed(1)}%</div>
+        </div>
+        
+        <div className="stat-card">
+          <div className="stat-number danger">{stats.enMaintenance}</div>
+          <div className="stat-label">En Maintenance</div>
+          <div className="stat-percentage danger">{((stats.enMaintenance/stats.total)*100).toFixed(1)}%</div>
+        </div>
+        
+        <div className="stat-card">
+          <div className="stat-number warning">{stats.enOffre}</div>
+          <div className="stat-label">En Offre</div>
+          <div className="stat-percentage warning">{((stats.enOffre/stats.total)*100).toFixed(1)}%</div>
+        </div>
+      </div>
+
+      <div className="dashboard-grid">
+        <div className="dashboard-card alerts">
+          <h3>⚠️ Alertes</h3>
+          <div className="alert-item">
+            <span className="alert-label">Retards de retour: </span>
+            {equipmentData.filter(eq => eq.disponibilite === 'En Location' && eq.finLocationTheorique).length}
+          </div>
+          <div className="alert-item">
+            <span className="alert-label">VGP à prévoir: </span>
+            {equipmentData.filter(eq => eq.prochainVGP).length}
+          </div>
+        </div>
+        
+        <div className="dashboard-card">
+          <h3>🚀 Actions rapides</h3>
+          <div className="actions-grid">
+            <button
+              onClick={() => setCurrentPage('en-location')}
+              className="btn btn-primary"
+            >
+              Voir les locations en cours
+            </button>
+            <button
+              onClick={() => setCurrentPage('maintenance')}
+              className="btn btn-danger"
+            >
+              Gérer la maintenance
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Fonction pour obtenir le titre de la page
+  const getPageTitle = () => {
+    switch (currentPage) {
+      case 'dashboard': return 'Tableau de bord';
+      case 'parc-loc': return 'Parc Location - Tous les équipements';
+      case 'en-location': return 'Équipements en location';
+      case 'planning': return 'Planning des locations';
+      case 'en-offre': return 'Offres de prix en cours';
+      case 'maintenance': return 'Équipements en maintenance';
+      default: return 'MagiLoc';
+    }
+  };
+
+  // Vue liste
+  const ListView = () => {
+    const filteredData = getFilteredData();
+    
+    return (
+      <div>
+        <div className="page-header">
+          <h1 className="page-title">{getPageTitle()}</h1>
+        </div>
+        
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Rechercher par désignation, n° série ou client..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+        </div>
+
+        <div className="table-container">
+          <div className="table-wrapper">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Équipement</th>
+                  <th>N° Série</th>
+                  <th>Statut</th>
+                  <th>Client</th>
+                  <th>Dates</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredData.map((equipment) => (
+                  <tr key={equipment.id}>
+                    <td>
+                      <div className="equipment-name">
+                        {equipment.designation} {equipment.cmu}
+                      </div>
+                      <div className="equipment-details">
+                        {equipment.marque} {equipment.modele}
+                      </div>
+                    </td>
+                    <td>
+                      <span className="serial-number">{equipment.numeroSerie}</span>
+                    </td>
+                    <td>
+                      <span className={`status-badge ${getStatusClass(equipment.disponibilite)}`}>
+                        {equipment.disponibilite}
+                      </span>
+                    </td>
+                    <td>{equipment.client || '-'}</td>
+                    <td>
+                      {equipment.debutLocation && (
+                        <div>
+                          <div>Début: {equipment.debutLocation}</div>
+                          {equipment.finLocationTheorique && (
+                            <div>Fin: {equipment.finLocationTheorique}</div>
+                          )}
+                        </div>
+                      )}
+                    </td>
+                    <td>
+                      <button
+                        onClick={() => setSelectedEquipment(equipment)}
+                        className="btn btn-primary btn-sm"
+                      >
+                        Détails
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {filteredData.length === 0 && (
+          <div className="empty-state">
+            Aucun équipement trouvé.
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Planning
+  const Planning = () => (
+    <div>
+      <h1 className="page-title">Planning des locations</h1>
+      <div className="planning-placeholder">
+        <h3>Planning interactif</h3>
+        <p>Cette fonctionnalité sera développée dans les prochaines étapes</p>
+        <button
+          onClick={() => setCurrentPage('en-location')}
+          className="btn btn-primary"
+        >
+          Voir les locations en cours
+        </button>
+      </div>
+    </div>
+  );
+
+  // Vue détaillée
+  const DetailView = () => (
+    <div>
+      <button
+        onClick={() => setSelectedEquipment(null)}
+        className="btn btn-gray"
+        style={{ marginBottom: '20px' }}
+      >
+        ← Retour
+      </button>
+      
+      <div className="detail-view">
+        <div className="detail-header">
+          <h2 className="detail-title">{selectedEquipment.designation} {selectedEquipment.cmu}</h2>
+          <span className={`status-badge detail-status ${getStatusClass(selectedEquipment.disponibilite)}`}>
+            {selectedEquipment.disponibilite}
+          </span>
+        </div>
+
+        <div className="detail-grid">
+          <div className="detail-section">
+            <h3>Informations techniques</h3>
+            <div className="detail-item">
+              <span className="detail-label">Modèle:</span>
+              <span className="detail-value">{selectedEquipment.modele || 'N/A'}</span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-label">Marque:</span>
+              <span className="detail-value">{selectedEquipment.marque || 'N/A'}</span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-label">Longueur:</span>
+              <span className="detail-value">{selectedEquipment.longueur || 'N/A'}</span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-label">N° Série:</span>
+              <span className="detail-value serial-number">{selectedEquipment.numeroSerie}</span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-label">Prix HT/J:</span>
+              <span className="detail-value">{selectedEquipment.prixHT ? `${selectedEquipment.prixHT} €` : 'N/A'}</span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-label">État:</span>
+              <span className={`detail-value ${getEtatClass(selectedEquipment.etat)}`}>
+                {selectedEquipment.etat}
+              </span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-label">Infos:</span>
+              <span className="detail-value">{selectedEquipment.infosComplementaires || 'N/A'}</span>
+            </div>
+          </div>
+
+          <div className="detail-section">
+            <h3>Location & Maintenance</h3>
+            <div className="detail-item">
+              <span className="detail-label">Client:</span>
+              <span className="detail-value">{selectedEquipment.client || 'N/A'}</span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-label">Début location:</span>
+              <span className="detail-value">{selectedEquipment.debutLocation || 'N/A'}</span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-label">Fin théorique:</span>
+              <span className="detail-value">{selectedEquipment.finLocationTheorique || 'N/A'}</span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-label">Rentré le:</span>
+              <span className="detail-value">{selectedEquipment.rentreeLe || 'N/A'}</span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-label">N° Offre:</span>
+              <span className="detail-value">{selectedEquipment.numeroOffre || 'N/A'}</span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-label">Notes:</span>
+              <span className="detail-value">{selectedEquipment.notesLocation || 'N/A'}</span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-label">Motif maintenance:</span>
+              <span className="detail-value">{selectedEquipment.motifMaintenance || 'N/A'}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="vgp-section">
+          <h3>Contrôles VGP</h3>
+          <div className="vgp-grid">
+            <div className="vgp-item">
+              <span className="vgp-label">Certificat:</span>
+              <span className="vgp-value">{selectedEquipment.certificat || 'N/A'}</span>
+            </div>
+            <div className="vgp-item">
+              <span className="vgp-label">Dernier VGP:</span>
+              <span className="vgp-value">{selectedEquipment.dernierVGP || 'N/A'}</span>
+            </div>
+            <div className="vgp-item">
+              <span className="vgp-label">Prochain VGP:</span>
+              <span className="vgp-value">{selectedEquipment.prochainVGP || 'N/A'}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="actions-container">
+          {selectedEquipment.disponibilite === 'En Location' && (
+            <button className="btn btn-success btn-lg">
+              Effectuer le retour
+            </button>
+          )}
+          <button className="btn btn-primary btn-lg">
+            Modifier
+          </button>
+          <button className="btn btn-warning btn-lg">
+            Créer une offre
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Contenu principal selon la page
+  const renderMainContent = () => {
+    if (selectedEquipment) {
+      return <DetailView />;
+    }
+
+    switch (currentPage) {
+      case 'dashboard':
+        return <Dashboard />;
+      case 'planning':
+        return <Planning />;
+      default:
+        return <ListView />;
+    }
+  };
+
+  // Rendu conditionnel selon l'état
+  if (showReleaseNotes) {
+    return <ReleaseNotes />;
+  }
+
+  if (!isAuthenticated) {
+    return <LoginScreen />;
+  }
+
+  // Application principale
+  return (
+    <div className="app">
+      <Sidebar />
+      
+      <div className="main-content">
+        {showImporter && (
+          <div style={{ marginBottom: '20px' }}>
+            <CSVImporter onDataImported={handleDataImported} />
+          </div>
+        )}
+        
+        {renderMainContent()}
+      </div>
+    </div>
+  );
+}
+
+export default App;
