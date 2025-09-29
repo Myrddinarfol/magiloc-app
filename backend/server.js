@@ -16,7 +16,7 @@ initDb();
 app.use(cors({
   origin: [
     'http://localhost:3000',  // Développement local
-    'https://magiloc-backend.onrender.com',  // Backend lui-même
+    'https://magiloc-backend.onrender.com',  // Backend Render
     /\.vercel\.app$/  // Tous les domaines Vercel
   ],
   credentials: true,
@@ -35,12 +35,11 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "OK", timestamp: new Date().toISOString() });
 });
 
-// Route équipements
+// Route équipements → renvoie camelCase
 app.get("/api/equipment", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM equipments ORDER BY id");
 
-    // Convertit snake_case → camelCase
     const equipments = result.rows.map(eq => ({
       id: eq.id,
       designation: eq.designation,
@@ -55,7 +54,7 @@ app.get("/api/equipment", async (req, res) => {
       certificat: eq.certificat,
       dernierVGP: eq.dernier_vgp,
       prochainVGP: eq.prochain_vgp,
-      disponibilite: eq.statut,
+      disponibilite: eq.statut,   // ⚡ mappé vers "statut"
       client: eq.client,
       debutLocation: eq.debut_location,
       finLocationTheorique: eq.fin_location_theorique,
@@ -72,8 +71,7 @@ app.get("/api/equipment", async (req, res) => {
   }
 });
 
-
-// Route pour ajouter un équipement
+// Route pour ajouter un équipement rapide
 app.post("/api/equipment", async (req, res) => {
   try {
     const { designation, numero_serie } = req.body;
@@ -96,48 +94,50 @@ app.post("/api/equipment/import", async (req, res) => {
     const equipments = req.body;
     console.log(`📥 Import de ${equipments.length} équipements`);
 
-    // Utilise une transaction pour tout importer d'un coup
     const client = await pool.connect();
-    
     try {
-      await client.query('BEGIN');
-      
+      await client.query("BEGIN");
+
       for (const eq of equipments) {
         await client.query(
-          `INSERT INTO equipments (designation, cmu, modele, marque, longueur, 
-           infos_complementaires, numero_serie, prix_ht_jour, etat, 
-           certificat, dernier_vgp, prochain_vgp, statut) 
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-           ON CONFLICT (numero_serie) DO UPDATE SET
-           designation = EXCLUDED.designation,
-           cmu = EXCLUDED.cmu,
-           modele = EXCLUDED.modele`,
+          `INSERT INTO equipments (
+            designation, cmu, modele, marque, longueur, 
+            infos_complementaires, numero_serie, prix_ht_jour, etat, 
+            certificat, dernier_vgp, prochain_vgp, statut
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+          ON CONFLICT (numero_serie) DO UPDATE SET
+            designation = EXCLUDED.designation,
+            cmu = EXCLUDED.cmu,
+            modele = EXCLUDED.modele,
+            statut = EXCLUDED.statut;`,   // ✅ point-virgule ici
           [
             eq.designation, eq.cmu, eq.modele, eq.marque, eq.longueur,
             eq.infosComplementaires, eq.numeroSerie, eq.prixHT, eq.etat,
-            eq.certificat, eq.dernierVGP, eq.prochainVGP, eq.disponibilite
+            eq.certificat, eq.dernierVGP, eq.prochainVGP, eq.statut
           ]
         );
       }
-      
-      await client.query('COMMIT');
+
+      await client.query("COMMIT");
       console.log(`✅ ${equipments.length} équipements importés`);
-      
-      res.json({ 
-        success: true, 
-        message: `✅ ${equipments.length} équipements importés avec succès` 
+      res.json({
+        success: true,
+        message: `✅ ${equipments.length} équipements importés avec succès`
       });
-      
+
     } catch (err) {
-      await client.query('ROLLBACK');
+      await client.query("ROLLBACK");
       throw err;
     } finally {
       client.release();
     }
-    
+
   } catch (err) {
     console.error("❌ Erreur import:", err.message);
-    res.status(500).json({ error: "Erreur lors de l'import", details: err.message });
+    res.status(500).json({
+      error: "Erreur lors de l'import",
+      details: err.message
+    });
   }
 });
 
