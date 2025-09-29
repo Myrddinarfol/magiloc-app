@@ -39,12 +39,39 @@ app.get("/api/health", (req, res) => {
 app.get("/api/equipment", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM equipments ORDER BY id");
-    res.json(result.rows);
+
+    // Convertit snake_case → camelCase
+    const equipments = result.rows.map(eq => ({
+      id: eq.id,
+      designation: eq.designation,
+      cmu: eq.cmu,
+      modele: eq.modele,
+      marque: eq.marque,
+      longueur: eq.longueur,
+      infosComplementaires: eq.infos_complementaires,
+      numeroSerie: eq.numero_serie,
+      prixHT: eq.prix_ht_jour,
+      etat: eq.etat,
+      certificat: eq.certificat,
+      dernierVGP: eq.dernier_vgp,
+      prochainVGP: eq.prochain_vgp,
+      disponibilite: eq.statut,
+      client: eq.client,
+      debutLocation: eq.debut_location,
+      finLocationTheorique: eq.fin_location_theorique,
+      rentreeLe: eq.rentree_le,
+      numeroOffre: eq.numero_offre,
+      notesLocation: eq.notes_location,
+      motifMaintenance: eq.motif_maintenance
+    }));
+
+    res.json(equipments);
   } catch (err) {
     console.error("❌ Erreur DB:", err.message);
     res.status(500).json({ error: "Erreur base de données" });
   }
 });
+
 
 // Route pour ajouter un équipement
 app.post("/api/equipment", async (req, res) => {
