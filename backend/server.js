@@ -1,14 +1,18 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-
 import pool, { initDb } from "./database/db.js";
 
 dotenv.config();
 console.log("DEBUG DATABASE_URL:", process.env.DATABASE_URL);
 
-const cors = require('cors');
+const app = express();
+const PORT = process.env.PORT || 5000;
 
+// Init DB
+initDb();
+
+// Middleware CORS configuré
 app.use(cors({
   origin: [
     'http://localhost:3000',  // Développement local
@@ -20,14 +24,6 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-const app = express();
-const PORT = process.env.PORT || 5000;
-
-// Init DB
-initDb();
-
-// Middleware
-app.use(cors());
 app.use(express.json());
 
 // Routes de base
@@ -39,10 +35,10 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "OK", timestamp: new Date().toISOString() });
 });
 
-// Route équipements (lecture des 5 premiers)
-app.get("/equipments", async (req, res) => {
+// Route équipements
+app.get("/api/equipment", async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM equipments LIMIT 5");
+    const result = await pool.query("SELECT * FROM equipments ORDER BY id");
     res.json(result.rows);
   } catch (err) {
     console.error("❌ Erreur DB:", err.message);
@@ -50,8 +46,8 @@ app.get("/equipments", async (req, res) => {
   }
 });
 
-// Route pour ajouter un équipement test
-app.post("/equipments/add", async (req, res) => {
+// Route pour ajouter un équipement
+app.post("/api/equipment", async (req, res) => {
   try {
     const { designation, numero_serie } = req.body;
 
