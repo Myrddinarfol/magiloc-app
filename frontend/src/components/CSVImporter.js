@@ -32,7 +32,7 @@ function CSVImporter({ onDataImported }) {
           longueur: row['Longeur Chaîne/Câble'] || row['LONGUEUR'] || '',
           infosComplementaires: row['Infos Complémentaires'] || row['INFOS'] || '',
           numeroSerie: row['Numéro de Série'] || row['N° SERIE'] || '',
-          disponibilite: row['Disponibilité'] || row['ETAT'] || 'Sur Parc',
+          statut: row['Statut'] || 'Sur Parc',
           debutLocation: row['Début Location'] || '',
           finLocationTheorique: row['Fin de Location Théorique'] || '',
           rentreeLe: row['Rentré Le'] || '',
