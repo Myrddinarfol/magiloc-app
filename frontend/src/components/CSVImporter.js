@@ -22,7 +22,7 @@ function CSVImporter({ onDataImported }) {
       complete: async (results) => {
         console.log('📄 Données CSV parsées:', results.data.length, 'lignes');
         
-        // Transformation des données avec nettoyage du prix
+        // Transformation des données
         const transformedData = results.data.map((row, index) => ({
           id: index + 1,
           designation: row['Désignation'] || row['DESIGNATION'] || '',
@@ -32,7 +32,8 @@ function CSVImporter({ onDataImported }) {
           longueur: row['Longeur Chaîne/Câble'] || row['LONGUEUR'] || '',
           infosComplementaires: row['Infos Complémentaires'] || row['INFOS'] || '',
           numeroSerie: row['Numéro de Série'] || row['N° SERIE'] || '',
-          disponibilite: row['Disponibilité'] || row['ETAT'] || 'Sur Parc',
+          // CORRECTION : cherche la colonne "Statut" en priorité
+          disponibilite: row['Statut'] || row['statut'] || row['STATUT'] || row['Disponibilité'] || row['DISPONIBILITÉ'] || 'Sur Parc',
           debutLocation: row['Début Location'] || '',
           finLocationTheorique: row['Fin de Location Théorique'] || '',
           rentreeLe: row['Rentré Le'] || '',
