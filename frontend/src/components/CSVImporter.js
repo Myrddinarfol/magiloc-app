@@ -22,7 +22,7 @@ function CSVImporter({ onDataImported }) {
       complete: async (results) => {
         console.log('📄 Données CSV parsées:', results.data.length, 'lignes');
         
-        // Transformation des données
+        // Transformation des données avec nettoyage du prix
         const transformedData = results.data.map((row, index) => ({
           id: index + 1,
           designation: row['Désignation'] || row['DESIGNATION'] || '',
@@ -32,7 +32,7 @@ function CSVImporter({ onDataImported }) {
           longueur: row['Longeur Chaîne/Câble'] || row['LONGUEUR'] || '',
           infosComplementaires: row['Infos Complémentaires'] || row['INFOS'] || '',
           numeroSerie: row['Numéro de Série'] || row['N° SERIE'] || '',
-          statut: row['Statut'] || 'Sur Parc',
+          disponibilite: row['Disponibilité'] || row['ETAT'] || 'Sur Parc',
           debutLocation: row['Début Location'] || '',
           finLocationTheorique: row['Fin de Location Théorique'] || '',
           rentreeLe: row['Rentré Le'] || '',
@@ -48,7 +48,6 @@ function CSVImporter({ onDataImported }) {
         }));
 
         try {
-          // Envoi au backend
           console.log('📤 Envoi des données au backend...');
           const response = await fetch(`${API_URL}/api/equipment/import`, {
             method: 'POST',
@@ -65,15 +64,12 @@ function CSVImporter({ onDataImported }) {
           const result = await response.json();
           console.log('✅ Import réussi:', result);
 
-          // Notifie le parent
           onDataImported(transformedData);
           alert(`✅ ${transformedData.length} équipements importés avec succès !`);
           
         } catch (err) {
           console.error('❌ Erreur:', err);
-          setError('Erreur lors de l\'envoi au serveur. Les données sont sauvegardées localement.');
-          
-          // Fallback : sauvegarde locale si le backend ne répond pas
+          setError('Erreur lors de l\'envoi au serveur.');
           onDataImported(transformedData);
         } finally {
           setIsLoading(false);
@@ -117,19 +113,19 @@ function CSVImporter({ onDataImported }) {
       
       {isLoading && (
         <p style={{ color: '#2563eb', marginTop: '10px', fontWeight: 'bold' }}>
-          ⏳ Import en cours vers la base de données...
+          Import en cours vers la base de données...
         </p>
       )}
       
       {fileName && !isLoading && !error && (
         <p style={{ color: '#16a34a', marginTop: '10px', fontWeight: 'bold' }}>
-          ✅ Fichier importé : {fileName}
+          Fichier importé : {fileName}
         </p>
       )}
 
       {error && (
         <p style={{ color: '#dc2626', marginTop: '10px', fontWeight: 'bold' }}>
-          ⚠️ {error}
+          {error}
         </p>
       )}
     </div>
