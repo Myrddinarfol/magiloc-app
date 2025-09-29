@@ -39,7 +39,7 @@ function CSVImporter({ onDataImported }) {
           client: row['Client'] || '',
           numeroOffre: row['N° OFFRE'] || '',
           notesLocation: row['NOTES LOCATION'] || '',
-          prixHT: row['Prix HT/J'] || '',
+          prixHT: (row['Prix HT/J'] || '').replace(/[€\s]/g, '').replace(',', '.') || null,
           etat: row['État'] || 'Moyen',
           motifMaintenance: row['Motif de Maintenance'] || '',
           certificat: row['Certificat / V-TIC'] || '',
