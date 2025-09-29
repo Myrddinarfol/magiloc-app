@@ -30,27 +30,33 @@ function App() {
 
   // Chargement des données depuis l'API
   useEffect(() => {
-    const loadEquipments = async () => {
-      try {
-        console.log('🔍 Chargement depuis:', `${API_URL}/api/equipment`);
-        const response = await fetch(`${API_URL}/api/equipment`);
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log('✅ Données reçues:', data.length, 'équipements');
-          setEquipmentData(data);
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        } else {
-          console.warn('⚠️ Backend inaccessible, fallback localStorage');
-          loadFromLocalStorage();
-        }
-      } catch (error) {
-        console.error('❌ Erreur API:', error);
-        loadFromLocalStorage();
-      } finally {
-        setIsLoading(false);
+  const loadEquipments = async () => {
+    try {
+      console.log('🔍 Chargement depuis:', `${API_URL}/api/equipment`);
+      const response = await fetch(`${API_URL}/api/equipment`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Données reçues:', data.length, 'équipements');
+        setEquipmentData(data);
+      } else {
+        console.error('⚠️ Backend inaccessible');
+        setEquipmentData([]);
       }
-    };
+    } catch (error) {
+      console.error('❌ Erreur API:', error);
+      setEquipmentData([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isAuthenticated) {
+    loadEquipments();
+  } else {
+    setIsLoading(false);
+  }
+}, [isAuthenticated, API_URL]);
 
     const loadFromLocalStorage = () => {
       const savedData = localStorage.getItem(STORAGE_KEY);
@@ -67,13 +73,6 @@ function App() {
       setIsLoading(false);
     }
   }, [isAuthenticated, API_URL]);
-
-  // Sauvegarde automatique dans localStorage
-  useEffect(() => {
-    if (equipmentData.length > 0) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(equipmentData));
-    }
-  }, [equipmentData]);
 
   // Gestion des notes de mise à jour
   const handleNotesAccepted = () => {
@@ -101,11 +100,27 @@ function App() {
   };
 
   // Fonctions existantes
-  const handleDataImported = (newData) => {
-    setEquipmentData(newData);
-    setShowImporter(false);
-    alert(`${newData.length} équipements importés avec succès !`);
-  };
+const handleDataImported = async (newData) => {
+  setEquipmentData(newData);
+  setShowImporter(false);
+  
+  // Vide localStorage pour forcer le rechargement depuis l'API
+  localStorage.removeItem(STORAGE_KEY);
+  
+  alert(`${newData.length} équipements importés avec succès !`);
+  
+  // Recharge depuis l'API pour synchroniser
+  try {
+    const response = await fetch(`${API_URL}/api/equipment`);
+    if (response.ok) {
+      const freshData = await response.json();
+      setEquipmentData(freshData);
+      console.log('✅ Données rechargées depuis PostgreSQL');
+    }
+  } catch (err) {
+    console.error('⚠️ Erreur rechargement:', err);
+  }
+};
 
   const handleResetData = () => {
     if (window.confirm('Êtes-vous sûr de vouloir réinitialiser toutes les données ? Cette action est irréversible.')) {
