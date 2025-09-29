@@ -15,9 +15,9 @@ initDb();
 // Middleware CORS configuré
 app.use(cors({
   origin: [
-    'http://localhost:3000',  // Développement local
-    'https://magiloc-backend.onrender.com',  // Backend Render
-    /\.vercel\.app$/  // Tous les domaines Vercel
+    'http://localhost:3000',
+    'https://magiloc-backend.onrender.com',
+    /\.vercel\.app$/
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -35,43 +35,99 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "OK", timestamp: new Date().toISOString() });
 });
 
-// Route équipements → renvoie camelCase
+// Route pour récupérer tous les équipements
 app.get("/api/equipment", async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM equipments ORDER BY id");
-
-    const equipments = result.rows.map(eq => ({
-      id: eq.id,
-      designation: eq.designation,
-      cmu: eq.cmu,
-      modele: eq.modele,
-      marque: eq.marque,
-      longueur: eq.longueur,
-      infosComplementaires: eq.infos_complementaires,
-      numeroSerie: eq.numero_serie,
-      prixHT: eq.prix_ht_jour,
-      etat: eq.etat,
-      certificat: eq.certificat,
-      dernierVGP: eq.dernier_vgp,
-      prochainVGP: eq.prochain_vgp,
-      disponibilite: eq.statut,   // ⚡ mappé vers "statut"
-      client: eq.client,
-      debutLocation: eq.debut_location,
-      finLocationTheorique: eq.fin_location_theorique,
-      rentreeLe: eq.rentree_le,
-      numeroOffre: eq.numero_offre,
-      notesLocation: eq.notes_location,
-      motifMaintenance: eq.motif_maintenance
-    }));
-
-    res.json(equipments);
+    const result = await pool.query(`
+      SELECT 
+        id, 
+        designation, 
+        cmu, 
+        modele, 
+        marque, 
+        longueur,
+        infos_complementaires as "infosComplementaires",
+        numero_serie as "numeroSerie",
+        prix_ht_jour as "prixHT",
+        etat, 
+        certificat, 
+        dernier_vgp as "dernierVGP",
+        prochain_vgp as "prochainVGP",
+        statut as disponibilite
+      FROM equipments 
+      ORDER BY id
+    `);
+    res.json(result.rows);
   } catch (err) {
     console.error("❌ Erreur DB:", err.message);
     res.status(500).json({ error: "Erreur base de données" });
   }
 });
 
-// Route pour ajouter un équipement rapide
+// Route pour importer plusieurs équipements
+app.post("/api/equipment/import", async (req, res) => {
+  try {
+    const equipments = req.body;
+    console.log(`📥 Import de ${equipments.length} équipements`);
+
+    const client = await pool.connect();
+    
+    try {
+      await client.query('BEGIN');
+      
+      for (const eq of equipments) {
+        await client.query(
+          `INSERT INTO equipments (
+            designation, cmu, modele, marque, longueur, 
+            infos_complementaires, numero_serie, prix_ht_jour, etat, 
+            certificat, dernier_vgp, prochain_vgp, statut
+          ) 
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+          ON CONFLICT (numero_serie) DO UPDATE SET
+            designation = EXCLUDED.designation,
+            cmu = EXCLUDED.cmu,
+            modele = EXCLUDED.modele,
+            statut = EXCLUDED.statut`,
+          [
+            eq.designation, 
+            eq.cmu, 
+            eq.modele, 
+            eq.marque, 
+            eq.longueur,
+            eq.infosComplementaires, 
+            eq.numeroSerie, 
+            eq.prixHT, 
+            eq.etat,
+            eq.certificat, 
+            eq.dernierVGP, 
+            eq.prochainVGP, 
+            eq.disponibilite || 'Sur Parc'
+          ]
+        );
+      }
+      
+      await client.query('COMMIT');
+      console.log(`✅ ${equipments.length} équipements importés`);
+      
+      res.json({ 
+        success: true, 
+        message: `✅ ${equipments.length} équipements importés avec succès` 
+      });
+      
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+    
+  } catch (err) {
+    console.error("❌ Erreur import:", err.message);
+    res.status(500).json({ error: "Erreur lors de l'import", details: err.message });
+  }
+});
+
+// Route pour ajouter un équipement
 app.post("/api/equipment", async (req, res) => {
   try {
     const { designation, numero_serie } = req.body;
@@ -85,59 +141,6 @@ app.post("/api/equipment", async (req, res) => {
   } catch (err) {
     console.error("❌ Erreur insertion:", err.message);
     res.status(500).json({ error: "Erreur lors de l'ajout" });
-  }
-});
-
-// Route pour importer plusieurs équipements
-app.post("/api/equipment/import", async (req, res) => {
-  try {
-    const equipments = req.body;
-    console.log(`📥 Import de ${equipments.length} équipements`);
-
-    const client = await pool.connect();
-    try {
-      await client.query("BEGIN");
-
-      for (const eq of equipments) {
-        await client.query(
-          `INSERT INTO equipments (
-            designation, cmu, modele, marque, longueur, 
-            infos_complementaires, numero_serie, prix_ht_jour, etat, 
-            certificat, dernier_vgp, prochain_vgp, statut
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-          ON CONFLICT (numero_serie) DO UPDATE SET
-            designation = EXCLUDED.designation,
-            cmu = EXCLUDED.cmu,
-            modele = EXCLUDED.modele,
-            statut = EXCLUDED.statut;`,   // ✅ point-virgule ici
-          [
-            eq.designation, eq.cmu, eq.modele, eq.marque, eq.longueur,
-            eq.infosComplementaires, eq.numeroSerie, eq.prixHT, eq.etat,
-            eq.certificat, eq.dernierVGP, eq.prochainVGP, eq.statut
-          ]
-        );
-      }
-
-      await client.query("COMMIT");
-      console.log(`✅ ${equipments.length} équipements importés`);
-      res.json({
-        success: true,
-        message: `✅ ${equipments.length} équipements importés avec succès`
-      });
-
-    } catch (err) {
-      await client.query("ROLLBACK");
-      throw err;
-    } finally {
-      client.release();
-    }
-
-  } catch (err) {
-    console.error("❌ Erreur import:", err.message);
-    res.status(500).json({
-      error: "Erreur lors de l'import",
-      details: err.message
-    });
   }
 });
 
