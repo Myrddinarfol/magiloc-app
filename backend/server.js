@@ -7,6 +7,18 @@ import pool, { initDb } from "./database/db.js";
 dotenv.config();
 console.log("DEBUG DATABASE_URL:", process.env.DATABASE_URL);
 
+const cors = require('cors');
+
+app.use(cors({
+  origin: [
+    'http://localhost:3000',  // Développement local
+    'https://magiloc-backend.onrender.com',  // Backend lui-même
+    /\.vercel\.app$/  // Tous les domaines Vercel
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 const app = express();
 const PORT = process.env.PORT || 5000;
