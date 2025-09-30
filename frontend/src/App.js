@@ -31,31 +31,66 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [showCertificatModal, setShowCertificatModal] = useState(false);
   const [certificatInput, setCertificatInput] = useState('');
+  const [loadingMessage, setLoadingMessage] = useState('Chargement des données...');
+  const [retryCount, setRetryCount] = useState(0);
 
-  // Chargement des données depuis l'API
+  // Chargement des données depuis l'API avec retry automatique
   useEffect(() => {
-    const loadEquipments = async () => {
+    const MAX_RETRIES = 12; // 12 tentatives = 60 secondes
+    const RETRY_DELAY = 5000; // 5 secondes entre chaque tentative
+
+    const loadEquipments = async (attemptNumber = 1) => {
       try {
-        console.log('🔍 Chargement depuis:', `${API_URL}/api/equipment`);
-        const response = await fetch(`${API_URL}/api/equipment`);
+        console.log(`🔍 Tentative ${attemptNumber}/${MAX_RETRIES} - Chargement depuis:`, `${API_URL}/api/equipment`);
+
+        // Message dynamique selon la tentative
+        if (attemptNumber === 1) {
+          setLoadingMessage('Chargement des données...');
+        } else if (attemptNumber <= 3) {
+          setLoadingMessage('⏳ Le serveur démarre... (peut prendre 30 secondes)');
+        } else {
+          setLoadingMessage(`🔄 Nouvelle tentative ${attemptNumber}/${MAX_RETRIES}...`);
+        }
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // Timeout 10s
+
+        const response = await fetch(`${API_URL}/api/equipment`, {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
 
         if (response.ok) {
           const data = await response.json();
           console.log('✅ Données reçues:', data.length, 'équipements');
           setEquipmentData(data);
+          setRetryCount(0);
+          setIsLoading(false);
+          return; // Succès, on arrête
         } else {
-          console.error('⚠️ Backend inaccessible');
-          setEquipmentData([]);
+          throw new Error(`HTTP ${response.status}`);
         }
       } catch (error) {
-        console.error('❌ Erreur API:', error);
-        setEquipmentData([]);
-      } finally {
-        setIsLoading(false);
+        console.error(`❌ Erreur tentative ${attemptNumber}:`, error.message);
+
+        // Si on n'a pas atteint le max de retries, on réessaye
+        if (attemptNumber < MAX_RETRIES) {
+          setRetryCount(attemptNumber);
+          setTimeout(() => {
+            loadEquipments(attemptNumber + 1);
+          }, RETRY_DELAY);
+        } else {
+          // Max retries atteint
+          console.error('💥 Échec après', MAX_RETRIES, 'tentatives');
+          setLoadingMessage('❌ Impossible de charger les données. Le serveur ne répond pas.');
+          setEquipmentData([]);
+          setIsLoading(false);
+        }
       }
     };
 
     if (isAuthenticated) {
+      setIsLoading(true);
       loadEquipments();
     } else {
       setIsLoading(false);
@@ -653,7 +688,14 @@ function App() {
     if (isLoading) {
       return (
         <div className="loading-state">
-          <p>Chargement des données...</p>
+          <div className="loading-spinner"></div>
+          <p className="loading-message">{loadingMessage}</p>
+          {retryCount > 0 && (
+            <div className="loading-info">
+              <p>💡 Le serveur gratuit se met en veille après 15 minutes.</p>
+              <p>Il redémarre automatiquement, merci de patienter...</p>
+            </div>
+          )}
         </div>
       );
     }

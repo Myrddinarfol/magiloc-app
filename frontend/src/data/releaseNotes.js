@@ -1,9 +1,35 @@
 // Système de gestion des notes de mise à jour
 // Pour ajouter une nouvelle version, ajoutez un objet au début du tableau
 
-export const CURRENT_VERSION = '1.2.0';
+export const CURRENT_VERSION = '1.2.1';
 
 export const releaseNotes = [
+  {
+    version: '1.2.1',
+    date: '2025-10-01',
+    title: 'Système de retry automatique pour le chargement',
+    sections: [
+      {
+        title: '🔄 Robustesse de chargement',
+        items: [
+          'Système de retry intelligent : 12 tentatives sur 60 secondes',
+          'Timeout de 10s par requête avec AbortController',
+          'Messages de chargement dynamiques selon l\'étape',
+          'Spinner animé avec effet pulse',
+          'Info box explicative pour le cold start Render',
+        ]
+      },
+      {
+        title: '✨ Expérience utilisateur',
+        items: [
+          'Gestion automatique des serveurs en veille (Render free tier)',
+          'Feedback visuel clair pendant le chargement',
+          'Plus d\'erreurs de chargement intempestives',
+          'Chargement fiable même après 15 min d\'inactivité',
+        ]
+      }
+    ]
+  },
   {
     version: '1.2.0',
     date: '2025-09-30',

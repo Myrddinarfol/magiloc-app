@@ -982,8 +982,62 @@ body {
 
 .loading-state {
   text-align: center;
-  padding: 40px;
-  color: var(--color-primary);
+  padding: 60px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  min-height: 400px;
+  justify-content: center;
+}
+
+/* Spinner de chargement */
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid var(--border-color);
+  border-top: 4px solid var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-message {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.loading-info {
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  max-width: 500px;
+  margin-top: 20px;
+}
+
+.loading-info p {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin: 8px 0;
+  line-height: 1.5;
+}
+
+.loading-info p:first-child {
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 /* Planning placeholder */
