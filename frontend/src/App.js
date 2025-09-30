@@ -2,19 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { equipmentData as initialData } from './data/equipments';
 import CSVImporter from './components/CSVImporter';
 import EquipmentListView from './components/EquipmentListView';
+import ReleaseNotesHistory from './components/ReleaseNotesHistory';
+import { releaseNotes, CURRENT_VERSION, hasNewVersion } from './data/releaseNotes';
 import './App.css';
 
 function App() {
   // Clés pour le stockage local
   const STORAGE_KEY = 'magiloc-equipment-data';
   const AUTH_KEY = 'magiloc-authenticated';
-  const NOTES_KEY = 'magiloc-notes-seen';
+  const VERSION_KEY = 'magiloc-last-seen-version';
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   // États pour l'authentification et les notes
   const [showReleaseNotes, setShowReleaseNotes] = useState(() => {
-    return !localStorage.getItem(NOTES_KEY);
+    const lastSeenVersion = localStorage.getItem(VERSION_KEY);
+    return hasNewVersion(lastSeenVersion);
   });
+  const [showNotesHistory, setShowNotesHistory] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return localStorage.getItem(AUTH_KEY) === 'true';
   });
@@ -58,7 +62,7 @@ function App() {
 
   // Gestion des notes de mise à jour
   const handleNotesAccepted = () => {
-    localStorage.setItem(NOTES_KEY, 'true');
+    localStorage.setItem(VERSION_KEY, CURRENT_VERSION);
     setShowReleaseNotes(false);
   };
 
@@ -127,64 +131,39 @@ function App() {
   };
 
   // Notes de mise à jour
-  const ReleaseNotes = () => (
-    <div className="release-notes-overlay">
-      <div className="release-notes-modal">
-        <div className="release-notes-header">
-          <h2>🚀 MagiLoc v1.0 - Notes de mise à jour</h2>
-          <p>Nouvelles fonctionnalités et améliorations</p>
-        </div>
-        
-        <div className="release-notes-content">
-          <div className="release-section">
-            <h3>✨ Nouvelles fonctionnalités</h3>
-            <ul>
-              <li>Import CSV automatique pour votre parc existant</li>
-              <li>Tableau de bord avec statistiques en temps réel</li>
-              <li>Gestion complète des équipements par statut</li>
-              <li>Recherche avancée multi-critères</li>
-              <li>Base de données PostgreSQL centralisée</li>
-            </ul>
+  const ReleaseNotes = () => {
+    const currentRelease = releaseNotes[0]; // La version la plus récente
+
+    return (
+      <div className="release-notes-overlay">
+        <div className="release-notes-modal">
+          <div className="release-notes-header">
+            <h2>🚀 MagiLoc v{CURRENT_VERSION} - Notes de mise à jour</h2>
+            <p>Nouvelles fonctionnalités et améliorations</p>
           </div>
-          
-          <div className="release-section">
-            <h3>🎨 Interface</h3>
-            <ul>
-              <li>Thème sombre moderne avec accents rouges</li>
-              <li>Navigation intuitive par sidebar</li>
-              <li>Interface responsive (PC, tablette, mobile)</li>
-              <li>Fiches détaillées des équipements</li>
-            </ul>
+
+          <div className="release-notes-content">
+            {currentRelease.sections.map((section, index) => (
+              <div key={index} className="release-section">
+                <h3>{section.title}</h3>
+                <ul>
+                  {section.items.map((item, itemIndex) => (
+                    <li key={itemIndex}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
-          
-          <div className="release-section">
-            <h3>📊 Gestion des données</h3>
-            <ul>
-              <li>Synchronisation multi-utilisateurs</li>
-              <li>Import CSV vers PostgreSQL</li>
-              <li>Gestion des statuts : Sur Parc, En Location, Maintenance, Offre</li>
-            </ul>
+
+          <div className="release-notes-footer">
+            <button onClick={handleNotesAccepted} className="btn btn-primary btn-lg">
+              Continuer vers l'application
+            </button>
           </div>
-          
-          <div className="release-section">
-            <h3>🔜 Prochainement</h3>
-            <ul>
-              <li>Processus de retour automatique</li>
-              <li>Planning interactif des locations</li>
-              <li>Gestion des workflows complets</li>
-              <li>Export et rapports</li>
-            </ul>
-          </div>
-        </div>
-        
-        <div className="release-notes-footer">
-          <button onClick={handleNotesAccepted} className="btn btn-primary btn-lg">
-            Continuer vers l'application
-          </button>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   // Écran d'authentification
   const LoginScreen = () => {
@@ -288,6 +267,13 @@ function App() {
         >
           🔧 Maintenance ({stats.enMaintenance})
         </button>
+
+        <button
+          onClick={() => setShowNotesHistory(true)}
+          className="nav-button"
+        >
+          📋 Notes MAJ
+        </button>
       </nav>
 
       <div className="sidebar-bottom">
@@ -297,14 +283,14 @@ function App() {
         >
           📁 Importer CSV
         </button>
-        
+
         <button
           onClick={handleResetData}
           className="reset-button"
         >
           🔄 Réinitialiser
         </button>
-        
+
         <button
           onClick={handleLogout}
           className="logout-button"
@@ -571,16 +557,20 @@ function App() {
   return (
     <div className="app">
       <Sidebar />
-      
+
       <div className="main-content">
         {showImporter && (
           <div style={{ marginBottom: '20px' }}>
             <CSVImporter onDataImported={handleDataImported} />
           </div>
         )}
-        
+
         {renderMainContent()}
       </div>
+
+      {showNotesHistory && (
+        <ReleaseNotesHistory onClose={() => setShowNotesHistory(false)} />
+      )}
     </div>
   );
 }
