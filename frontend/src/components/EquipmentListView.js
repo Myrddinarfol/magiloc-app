@@ -27,6 +27,7 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, g
   const getPageTitle = () => {
     switch (currentPage) {
       case 'dashboard': return 'Tableau de bord';
+      case 'sur-parc': return 'Sur Parc - Équipements disponibles';
       case 'parc-loc': return 'Parc Location - Tous les équipements';
       case 'en-location': return 'Équipements en location';
       case 'planning': return 'Planning des locations';
@@ -57,6 +58,9 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, g
     let filtered = equipmentData;
 
     switch (currentPage) {
+      case 'sur-parc':
+        filtered = equipmentData.filter(eq => eq.statut === 'Sur Parc');
+        break;
       case 'en-location':
         filtered = equipmentData.filter(eq => eq.statut === 'En Location');
         break;
@@ -70,8 +74,8 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, g
         filtered = equipmentData;
     }
 
-    // Filtres spécifiques PARC LOC
-    if (currentPage === 'parc-loc') {
+    // Filtres spécifiques PARC LOC et SUR PARC
+    if (currentPage === 'parc-loc' || currentPage === 'sur-parc') {
       if (filterDesignation) {
         filtered = filtered.filter(eq => eq.designation === filterDesignation);
       }
@@ -127,8 +131,8 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, g
         />
       </div>
 
-      {/* Filtres spécifiques PARC LOC */}
-      {currentPage === 'parc-loc' && (
+      {/* Filtres spécifiques PARC LOC et SUR PARC */}
+      {(currentPage === 'parc-loc' || currentPage === 'sur-parc') && (
         <div className="filters-container">
           <div className="filter-group">
             <label htmlFor="filter-designation">Désignation :</label>
@@ -198,8 +202,8 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, g
                 <th>Équipement</th>
                 <th>N° Série</th>
                 <th>Statut</th>
-                {/* Colonnes spécifiques PARC LOC */}
-                {currentPage === 'parc-loc' && (
+                {/* Colonnes spécifiques PARC LOC et SUR PARC */}
+                {(currentPage === 'parc-loc' || currentPage === 'sur-parc') && (
                   <>
                     <th>Longueur</th>
                     <th>État</th>
@@ -239,8 +243,8 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, g
                       </span>
                     </td>
 
-                    {/* Colonnes PARC LOC */}
-                    {currentPage === 'parc-loc' && (
+                    {/* Colonnes PARC LOC et SUR PARC */}
+                    {(currentPage === 'parc-loc' || currentPage === 'sur-parc') && (
                       <>
                         <td>{equipment.longueur || '-'}</td>
                         <td>

@@ -324,49 +324,68 @@ function App() {
           onClick={() => setCurrentPage('dashboard')}
           className={`nav-button ${currentPage === 'dashboard' ? 'active' : ''}`}
         >
-          📊 Tableau de bord
+          <span className="nav-icon">📊</span>
+          <span className="nav-text">TABLEAU DE BORD</span>
         </button>
-        
+
         <button
-          onClick={() => setCurrentPage('parc-loc')}
-          className={`nav-button ${currentPage === 'parc-loc' ? 'active' : ''}`}
+          onClick={() => setCurrentPage('sur-parc')}
+          className={`nav-button ${currentPage === 'sur-parc' ? 'active' : ''}`}
         >
-          🏭 Parc LOC
+          <span className="nav-icon">🏢</span>
+          <span className="nav-text">SUR PARC</span>
+          <span className="nav-badge">{stats.surParc}</span>
         </button>
-        
-        <button
-          onClick={() => setCurrentPage('en-location')}
-          className={`nav-button ${currentPage === 'en-location' ? 'active' : ''}`}
-        >
-          🚚 En Location ({stats.enLocation})
-        </button>
-        
-        <button
-          onClick={() => setCurrentPage('planning')}
-          className={`nav-button ${currentPage === 'planning' ? 'active' : ''}`}
-        >
-          📅 Planning
-        </button>
-        
+
         <button
           onClick={() => setCurrentPage('en-offre')}
           className={`nav-button ${currentPage === 'en-offre' ? 'active' : ''}`}
         >
-          💰 Offres de prix ({stats.enOffre})
+          <span className="nav-icon">💰</span>
+          <span className="nav-text">OFFRE DE PRIX</span>
+          <span className="nav-badge">{stats.enOffre}</span>
         </button>
-        
+
+        <button
+          onClick={() => setCurrentPage('en-location')}
+          className={`nav-button ${currentPage === 'en-location' ? 'active' : ''}`}
+        >
+          <span className="nav-icon">🚚</span>
+          <span className="nav-text">LOCATION</span>
+          <span className="nav-badge">{stats.enLocation}</span>
+        </button>
+
         <button
           onClick={() => setCurrentPage('maintenance')}
           className={`nav-button ${currentPage === 'maintenance' ? 'active' : ''}`}
         >
-          🔧 Maintenance ({stats.enMaintenance})
+          <span className="nav-icon">🔧</span>
+          <span className="nav-text">MAINTENANCE</span>
+          <span className="nav-badge">{stats.enMaintenance}</span>
+        </button>
+
+        <button
+          onClick={() => setCurrentPage('planning')}
+          className={`nav-button ${currentPage === 'planning' ? 'active' : ''}`}
+        >
+          <span className="nav-icon">📅</span>
+          <span className="nav-text">PLANNING</span>
+        </button>
+
+        <button
+          onClick={() => setCurrentPage('parc-loc')}
+          className={`nav-button ${currentPage === 'parc-loc' ? 'active' : ''}`}
+        >
+          <span className="nav-icon">🏭</span>
+          <span className="nav-text">PARC LOC</span>
         </button>
 
         <button
           onClick={() => setShowNotesHistory(true)}
           className="nav-button"
         >
-          📋 Notes MAJ
+          <span className="nav-icon">📋</span>
+          <span className="nav-text">NOTES MAJ</span>
         </button>
       </nav>
 
