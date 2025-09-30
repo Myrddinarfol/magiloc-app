@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { equipmentData as initialData } from './data/equipments';
 import CSVImporter from './components/CSVImporter';
 import './App.css';
@@ -23,6 +23,12 @@ function App() {
   const [equipmentData, setEquipmentData] = useState([]);
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [searchTerm, setSearchTerm] = useState('');
+
+// Stabiliser la fonction de recherche
+const handleSearchChange = useCallback((value) => {
+  setSearchTerm(value);
+}, []);
+
   const [selectedEquipment, setSelectedEquipment] = useState(null);
   const [showImporter, setShowImporter] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -393,16 +399,16 @@ useEffect(() => {
   );
 
   // Vue liste
-  const ListView = () => (
-    <EquipmentListView
-      equipmentData={equipmentData}
-      currentPage={currentPage}
-      searchTerm={searchTerm}
-      setSearchTerm={setSearchTerm}
-      setSelectedEquipment={setSelectedEquipment}
-      getStatusClass={getStatusClass}
-    />
-  );
+const ListView = () => (
+  <EquipmentListView
+    equipmentData={equipmentData}
+    currentPage={currentPage}
+    searchTerm={searchTerm}
+    setSearchTerm={handleSearchChange}
+    setSelectedEquipment={setSelectedEquipment}
+    getStatusClass={getStatusClass}
+  />
+);
 
   // Planning
   const Planning = () => (
