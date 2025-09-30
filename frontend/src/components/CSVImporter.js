@@ -23,34 +23,43 @@ function CSVImporter({ onDataImported }) {
         console.log('📄 Lignes brutes parsées:', results.data.length);
         
         // Transformation ET filtrage des lignes valides
-        const transformedData = results.data
-          .filter(row => {
-            const numSerie = row['Numéro de Série'] || row['N° SERIE'] || '';
-            return numSerie.trim().length > 0;
-          })
-          .map((row, index) => ({
-            id: index + 1,
-            designation: row['Désignation'] || row['DESIGNATION'] || '',
-            cmu: row['CMU'] || '',
-            modele: row['Modèle'] || row['MODELE'] || '',
-            marque: row['Marque'] || row['MARQUE'] || '',
-            longueur: row['Longeur Chaîne/Câble'] || row['LONGUEUR'] || '',
-            infosComplementaires: row['Infos Complémentaires'] || row['INFOS'] || '',
-            numeroSerie: (row['Numéro de Série'] || row['N° SERIE'] || '').trim(),
-            statut: row['Statut'] || row['statut'] || row['STATUT'] || 'Sur Parc',
-            debutLocation: row['Début Location'] || '',
-            finLocationTheorique: row['Fin de Location Théorique'] || '',
-            rentreeLe: row['Rentré Le'] || '',
-            client: row['Client'] || '',
-            numeroOffre: row['N° OFFRE'] || '',
-            notesLocation: row['NOTES LOCATION'] || '',
-            prixHT: (row['Prix HT/J'] || '').replace(/[€\s]/g, '').replace(',', '.') || null,
-            etat: row['État'] || 'Moyen',
-            motifMaintenance: row['Motif de Maintenance'] || '',
-            certificat: row['Certificat / V-TIC'] || '',
-            dernierVGP: row['Dernier VGP'] || '',
-            prochainVGP: row['Prochain VGP'] || ''
-          }));
+const transformedData = results.data
+  .filter(row => {
+    const numSerie = row['Numéro de Série'] || row['N° SERIE'] || '';
+    const cleaned = numSerie.trim();
+    // Accepte tant qu'il y a quelque chose après trim (même /, -, etc.)
+    const isValid = cleaned.length > 0;
+    
+    // Debug : affiche les lignes rejetées
+    if (!isValid) {
+      console.warn('❌ Ligne rejetée (N° série vide):', row['Désignation']);
+    }
+    
+    return isValid;
+  })
+  .map((row, index) => ({
+    id: index + 1,
+    designation: row['Désignation'] || row['DESIGNATION'] || '',
+    cmu: row['CMU'] || '',
+    modele: row['Modèle'] || row['MODELE'] || '',
+    marque: row['Marque'] || row['MARQUE'] || '',
+    longueur: row['Longeur Chaîne/Câble'] || row['LONGUEUR'] || '',
+    infosComplementaires: row['Infos Complémentaires'] || row['INFOS'] || '',
+    numeroSerie: (row['Numéro de Série'] || row['N° SERIE'] || '').trim(),
+    statut: row['Statut'] || row['statut'] || row['STATUT'] || 'Sur Parc',
+    debutLocation: row['Début Location'] || '',
+    finLocationTheorique: row['Fin de Location Théorique'] || '',
+    rentreeLe: row['Rentré Le'] || '',
+    client: row['Client'] || '',
+    numeroOffre: row['N° OFFRE'] || '',
+    notesLocation: row['NOTES LOCATION'] || '',
+    prixHT: (row['Prix HT/J'] || '').replace(/[€\s]/g, '').replace(',', '.') || null,
+    etat: row['État'] || 'Moyen',
+    motifMaintenance: row['Motif de Maintenance'] || '',
+    certificat: row['Certificat / V-TIC'] || '',
+    dernierVGP: row['Dernier VGP'] || '',
+    prochainVGP: row['Prochain VGP'] || ''
+  }));
 
         console.log(`✅ ${transformedData.length} équipements valides (sur ${results.data.length} lignes parsées)`);
 
