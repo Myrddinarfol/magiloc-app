@@ -53,7 +53,7 @@ app.get("/api/equipment", async (req, res) => {
         certificat, 
         dernier_vgp as "dernierVGP",
         prochain_vgp as "prochainVGP",
-        statut as disponibilite
+        statut
       FROM equipments 
       ORDER BY id
     `);
@@ -101,7 +101,7 @@ app.post("/api/equipment/import", async (req, res) => {
             eq.certificat, 
             eq.dernierVGP, 
             eq.prochainVGP, 
-            eq.disponibilite || 'Sur Parc'
+            eq.statut || 'Sur Parc'
           ]
         );
       }
