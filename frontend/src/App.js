@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { equipmentData as initialData } from './data/equipments';
 import CSVImporter from './components/CSVImporter';
@@ -18,8 +17,6 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return localStorage.getItem(AUTH_KEY) === 'true';
   });
-  const [password, setPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
 
   // États existants
   const [equipmentData, setEquipmentData] = useState([]);
@@ -65,23 +62,9 @@ function App() {
     setShowReleaseNotes(false);
   };
 
-  // Gestion de l'authentification
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (password === 'MAGILOC25') {
-      localStorage.setItem(AUTH_KEY, 'true');
-      setIsAuthenticated(true);
-      setPasswordError('');
-    } else {
-      setPasswordError('Mot de passe incorrect');
-      setPassword('');
-    }
-  };
-
   const handleLogout = () => {
     localStorage.removeItem(AUTH_KEY);
     setIsAuthenticated(false);
-    setPassword('');
   };
 
   // Fonctions existantes
@@ -120,35 +103,6 @@ function App() {
     surParc: equipmentData.filter(eq => eq.statut === 'Sur Parc').length,
     enMaintenance: equipmentData.filter(eq => eq.statut === 'En Maintenance').length,
     enOffre: equipmentData.filter(eq => eq.statut === 'En Offre de Prix').length
-  };
-
-  // Filtrage selon la page actuelle
-  const getFilteredData = () => {
-    let filtered = equipmentData;
-    
-    switch (currentPage) {
-      case 'en-location':
-        filtered = equipmentData.filter(eq => eq.statut === 'En Location');
-        break;
-      case 'en-offre':
-        filtered = equipmentData.filter(eq => eq.statut === 'En Offre de Prix');
-        break;
-      case 'maintenance':
-        filtered = equipmentData.filter(eq => eq.statut === 'En Maintenance');
-        break;
-      default:
-        filtered = equipmentData;
-    }
-
-    if (searchTerm) {
-      filtered = filtered.filter(equipment =>
-        equipment.designation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        equipment.numeroSerie.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (equipment.client && equipment.client.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-    }
-
-    return filtered;
   };
 
   // Fonctions pour obtenir les classes de statut et d'état
@@ -233,42 +187,59 @@ function App() {
   );
 
   // Écran d'authentification
-  const LoginScreen = () => (
-    <div className="login-overlay">
-      <div className="login-modal">
-        <div className="login-header">
-          <h2>🔐 Authentification MagiLoc</h2>
-          <p>Accès sécurisé au système de gestion</p>
-        </div>
-        
-        <form onSubmit={handleLogin} className="login-form">
-          <div className="form-group">
-            <label htmlFor="password">Mot de passe :</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={`form-input ${passwordError ? 'error' : ''}`}
-              placeholder="Entrez le mot de passe"
-              autoFocus
-            />
-            {passwordError && (
-              <div className="error-message">{passwordError}</div>
-            )}
+  const LoginScreen = () => {
+    const [localPassword, setLocalPassword] = useState('');
+    const [localError, setLocalError] = useState('');
+
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      if (localPassword === 'MAGILOC25') {
+        localStorage.setItem(AUTH_KEY, 'true');
+        setIsAuthenticated(true);
+        setLocalError('');
+      } else {
+        setLocalError('Mot de passe incorrect');
+        setLocalPassword('');
+      }
+    };
+
+    return (
+      <div className="login-overlay">
+        <div className="login-modal">
+          <div className="login-header">
+            <h2>🔐 Authentification MagiLoc</h2>
+            <p>Accès sécurisé au système de gestion</p>
           </div>
           
-          <button type="submit" className="btn btn-primary btn-lg">
-            Se connecter
-          </button>
-        </form>
-        
-        <div className="login-footer">
-          <p>© 2025 MagiLoc - Gestion Parc Location COUERON</p>
+          <form onSubmit={handleSubmit} className="login-form">
+            <div className="form-group">
+              <label htmlFor="password">Mot de passe :</label>
+              <input
+                type="password"
+                id="password"
+                value={localPassword}
+                onChange={(e) => setLocalPassword(e.target.value)}
+                className={`form-input ${localError ? 'error' : ''}`}
+                placeholder="Entrez le mot de passe"
+                autoFocus
+              />
+              {localError && (
+                <div className="error-message">{localError}</div>
+              )}
+            </div>
+            
+            <button type="submit" className="btn btn-primary btn-lg">
+              Se connecter
+            </button>
+          </form>
+          
+          <div className="login-footer">
+            <p>© 2025 MagiLoc - Gestion Parc Location COUERON</p>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   // Navigation latérale avec déconnexion
   const Sidebar = () => (
@@ -414,105 +385,17 @@ function App() {
     </div>
   );
 
-  // Fonction pour obtenir le titre de la page
-  const getPageTitle = () => {
-    switch (currentPage) {
-      case 'dashboard': return 'Tableau de bord';
-      case 'parc-loc': return 'Parc Location - Tous les équipements';
-      case 'en-location': return 'Équipements en location';
-      case 'planning': return 'Planning des locations';
-      case 'en-offre': return 'Offres de prix en cours';
-      case 'maintenance': return 'Équipements en maintenance';
-      default: return 'MagiLoc';
-    }
-  };
-
   // Vue liste
-  const ListView = () => {
-    const filteredData = getFilteredData();
-    
-    return (
-      <div>
-        <div className="page-header">
-          <h1 className="page-title">{getPageTitle()}</h1>
-        </div>
-        
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Rechercher par désignation, n° série ou client..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-        </div>
-
-        <div className="table-container">
-          <div className="table-wrapper">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Équipement</th>
-                  <th>N° Série</th>
-                  <th>Statut</th>
-                  <th>Client</th>
-                  <th>Dates</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredData.map((equipment) => (
-                  <tr key={equipment.id}>
-                    <td>
-                      <div className="equipment-name">
-                        {equipment.designation} {equipment.cmu}
-                      </div>
-                      <div className="equipment-details">
-                        {equipment.marque} {equipment.modele}
-                      </div>
-                    </td>
-                    <td>
-                      <span className="serial-number">{equipment.numeroSerie}</span>
-                    </td>
-                    <td>
-                      <span className={`status-badge ${getStatusClass(equipment.statut)}`}>
-                        {equipment.statut}
-                      </span>
-                    </td>
-                    <td>{equipment.client || '-'}</td>
-                    <td>
-                      {equipment.debutLocation && (
-                        <div>
-                          <div>Début: {equipment.debutLocation}</div>
-                          {equipment.finLocationTheorique && (
-                            <div>Fin: {equipment.finLocationTheorique}</div>
-                          )}
-                        </div>
-                      )}
-                    </td>
-                    <td>
-                      <button
-                        onClick={() => setSelectedEquipment(equipment)}
-                        className="btn btn-primary btn-sm"
-                      >
-                        Détails
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {filteredData.length === 0 && (
-          <div className="empty-state">
-            Aucun équipement trouvé.
-          </div>
-        )}
-      </div>
-    );
-  };
+  const ListView = () => (
+    <EquipmentListView
+      equipmentData={equipmentData}
+      currentPage={currentPage}
+      searchTerm={searchTerm}
+      setSearchTerm={setSearchTerm}
+      setSelectedEquipment={setSelectedEquipment}
+      getStatusClass={getStatusClass}
+    />
+  );
 
   // Planning
   const Planning = () => (
@@ -700,6 +583,140 @@ function App() {
         
         {renderMainContent()}
       </div>
+    </div>
+  );
+}
+
+// Composant séparé pour la liste d'équipements (EN DEHORS de App)
+function EquipmentListView({ 
+  equipmentData, 
+  currentPage, 
+  searchTerm, 
+  setSearchTerm, 
+  setSelectedEquipment,
+  getStatusClass 
+}) {
+  const getPageTitle = () => {
+    switch (currentPage) {
+      case 'dashboard': return 'Tableau de bord';
+      case 'parc-loc': return 'Parc Location - Tous les équipements';
+      case 'en-location': return 'Équipements en location';
+      case 'planning': return 'Planning des locations';
+      case 'en-offre': return 'Offres de prix en cours';
+      case 'maintenance': return 'Équipements en maintenance';
+      default: return 'MagiLoc';
+    }
+  };
+
+  const getFilteredData = () => {
+    let filtered = equipmentData;
+    
+    switch (currentPage) {
+      case 'en-location':
+        filtered = equipmentData.filter(eq => eq.statut === 'En Location');
+        break;
+      case 'en-offre':
+        filtered = equipmentData.filter(eq => eq.statut === 'En Offre de Prix');
+        break;
+      case 'maintenance':
+        filtered = equipmentData.filter(eq => eq.statut === 'En Maintenance');
+        break;
+      default:
+        filtered = equipmentData;
+    }
+
+    if (searchTerm) {
+      filtered = filtered.filter(equipment =>
+        equipment.designation.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        equipment.numeroSerie.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (equipment.client && equipment.client.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+
+    return filtered;
+  };
+
+  const filteredData = getFilteredData();
+
+  return (
+    <div>
+      <div className="page-header">
+        <h1 className="page-title">{getPageTitle()}</h1>
+      </div>
+      
+      <div className="search-container">
+        <input
+          type="text"
+          placeholder="Rechercher par désignation, n° série ou client..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
+        />
+      </div>
+
+      <div className="table-container">
+        <div className="table-wrapper">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Équipement</th>
+                <th>N° Série</th>
+                <th>Statut</th>
+                <th>Client</th>
+                <th>Dates</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredData.map((equipment) => (
+                <tr key={equipment.id}>
+                  <td>
+                    <div className="equipment-name">
+                      {equipment.designation} {equipment.cmu}
+                    </div>
+                    <div className="equipment-details">
+                      {equipment.marque} {equipment.modele}
+                    </div>
+                  </td>
+                  <td>
+                    <span className="serial-number">{equipment.numeroSerie}</span>
+                  </td>
+                  <td>
+                    <span className={`status-badge ${getStatusClass(equipment.statut)}`}>
+                      {equipment.statut}
+                    </span>
+                  </td>
+                  <td>{equipment.client || '-'}</td>
+                  <td>
+                    {equipment.debutLocation && (
+                      <div>
+                        <div>Début: {equipment.debutLocation}</div>
+                        {equipment.finLocationTheorique && (
+                          <div>Fin: {equipment.finLocationTheorique}</div>
+                        )}
+                      </div>
+                    )}
+                  </td>
+                  <td>
+                    <button
+                      onClick={() => setSelectedEquipment(equipment)}
+                      className="btn btn-primary btn-sm"
+                    >
+                      Détails
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {filteredData.length === 0 && (
+        <div className="empty-state">
+          Aucun équipement trouvé.
+        </div>
+      )}
     </div>
   );
 }
