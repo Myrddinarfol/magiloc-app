@@ -369,6 +369,73 @@ body {
   color: var(--text-muted);
 }
 
+/* Conteneur de filtres */
+.filters-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: flex-end;
+  margin-bottom: 20px;
+  padding: 20px;
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 200px;
+  flex: 1;
+}
+
+.filter-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filter-select {
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-select:hover {
+  border-color: var(--color-primary);
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+}
+
+.filter-select option {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+}
+
+/* Responsive filtres */
+@media (max-width: 768px) {
+  .filters-container {
+    flex-direction: column;
+  }
+
+  .filter-group {
+    width: 100%;
+    min-width: 100%;
+  }
+}
+
 /* Tableaux */
 .table-container {
   background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
@@ -488,6 +555,95 @@ body {
   font-weight: 600;
 }
 
+/* Badges d'état dans les tableaux */
+.etat-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.etat-badge.etat-bon {
+  background-color: rgba(22, 163, 74, 0.15);
+  color: var(--color-success);
+  border: 1px solid var(--color-success);
+}
+
+.etat-badge.etat-moyen {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: var(--color-warning);
+  border: 1px solid var(--color-warning);
+}
+
+.etat-badge.etat-vieillissant {
+  background-color: rgba(220, 38, 38, 0.15);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
+.etat-badge.etat-neuf {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+  border: 1px solid #3b82f6;
+}
+
+/* Indicateurs VGP */
+.vgp-indicator {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vgp-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.vgp-badge.vgp-green {
+  background-color: rgba(22, 163, 74, 0.15);
+  color: var(--color-success);
+  border: 1px solid var(--color-success);
+}
+
+.vgp-badge.vgp-orange {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: var(--color-warning);
+  border: 1px solid var(--color-warning);
+}
+
+.vgp-badge.vgp-red {
+  background-color: rgba(220, 38, 38, 0.15);
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger);
+  animation: pulse 2s infinite;
+}
+
+.vgp-badge.vgp-gray {
+  background-color: rgba(156, 163, 175, 0.15);
+  color: var(--text-muted);
+  border: 1px solid var(--text-muted);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.vgp-date {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
 /* Vue détaillée */
 .detail-view {
   background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
@@ -549,9 +705,34 @@ body {
   border: 1px solid var(--border-color);
 }
 
+.vgp-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
 .vgp-section h3 {
   color: var(--text-primary);
-  margin-bottom: 15px;
+  margin: 0;
+}
+
+/* Lien certificat */
+.certificat-link {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.certificat-link:hover {
+  color: #60a5fa;
+  text-decoration: underline;
+  transform: translateX(3px);
 }
 
 .vgp-grid {
@@ -573,6 +754,216 @@ body {
 
 .vgp-value {
   color: var(--text-primary);
+}
+
+/* Nouvelle grille VGP détaillée */
+.vgp-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.vgp-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.vgp-info-label {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vgp-info-value {
+  color: var(--text-primary);
+  font-size: 15px;
+}
+
+/* Carte de statut VGP stylée */
+.vgp-status-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 25px;
+  border-radius: var(--radius-md);
+  border: 2px solid;
+  margin-top: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.vgp-status-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.1;
+  z-index: 0;
+}
+
+.vgp-status-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Statut ROUGE - Dépassé */
+.vgp-status-red {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.2) 0%, rgba(185, 28, 28, 0.1) 100%);
+  border-color: var(--color-danger);
+  animation: pulseRed 2s infinite;
+}
+
+@keyframes pulseRed {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+  }
+}
+
+/* Statut ORANGE - Attention */
+.vgp-status-orange {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(217, 119, 6, 0.1) 100%);
+  border-color: var(--color-warning);
+  animation: pulseOrange 3s infinite;
+}
+
+@keyframes pulseOrange {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(245, 158, 11, 0);
+  }
+}
+
+/* Statut VERT - OK */
+.vgp-status-green {
+  background: linear-gradient(135deg, rgba(22, 163, 74, 0.2) 0%, rgba(21, 128, 61, 0.1) 100%);
+  border-color: var(--color-success);
+}
+
+.vgp-status-green:hover {
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+}
+
+/* Statut GRIS - Non renseigné */
+.vgp-status-gray {
+  background: linear-gradient(135deg, rgba(156, 163, 175, 0.2) 0%, rgba(107, 114, 128, 0.1) 100%);
+  border-color: var(--text-muted);
+}
+
+/* Icône du statut VGP */
+.vgp-status-icon {
+  font-size: 48px;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+  animation: iconBounce 0.5s ease-out;
+}
+
+@keyframes iconBounce {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.vgp-status-red .vgp-status-icon {
+  background: rgba(220, 38, 38, 0.2);
+  animation: iconBounce 0.5s ease-out, shake 0.5s ease-out 0.5s;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.vgp-status-orange .vgp-status-icon {
+  background: rgba(245, 158, 11, 0.2);
+}
+
+.vgp-status-green .vgp-status-icon {
+  background: rgba(22, 163, 74, 0.2);
+}
+
+/* Contenu du statut VGP */
+.vgp-status-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.vgp-status-label {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.vgp-status-red .vgp-status-label {
+  color: var(--color-danger);
+  text-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+}
+
+.vgp-status-orange .vgp-status-label {
+  color: var(--color-warning);
+  text-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+}
+
+.vgp-status-green .vgp-status-label {
+  color: var(--color-success);
+  text-shadow: 0 2px 4px rgba(22, 163, 74, 0.3);
+}
+
+.vgp-status-gray .vgp-status-label {
+  color: var(--text-muted);
+}
+
+.vgp-status-date {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 5px 0;
+}
+
+.vgp-status-sublabel {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Responsive VGP */
+@media (max-width: 768px) {
+  .vgp-status-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .vgp-detail-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .actions-container {
@@ -859,6 +1250,98 @@ body {
 
 .release-notes-header {
   position: relative;
+}
+
+/* Modal de certificat */
+.certificat-modal {
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+  border-radius: var(--radius-lg);
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 20px 40px rgba(220, 38, 38, 0.3);
+  border: 1px solid var(--color-primary);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+.modal-header {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  padding: 25px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  position: relative;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content {
+  padding: 30px;
+}
+
+.modal-description {
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.modal-info-list {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 25px;
+}
+
+.modal-info-list li {
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  padding-left: 20px;
+  position: relative;
+}
+
+.modal-info-list li::before {
+  content: "→";
+  color: var(--color-primary);
+  font-weight: bold;
+  position: absolute;
+  left: 0;
+}
+
+.modal-footer {
+  background-color: var(--bg-secondary);
+  padding: 20px 30px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  border-top: 1px solid var(--border-color);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+.preview-link {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.preview-link span {
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-right: 10px;
+}
+
+.preview-link a {
+  color: var(--color-primary);
+  text-decoration: none;
+  word-break: break-all;
+}
+
+.preview-link a:hover {
+  text-decoration: underline;
 }
 
 /* Modal de connexion */

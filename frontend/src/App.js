@@ -29,6 +29,8 @@ function App() {
   const [selectedEquipment, setSelectedEquipment] = useState(null);
   const [showImporter, setShowImporter] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [showCertificatModal, setShowCertificatModal] = useState(false);
+  const [certificatInput, setCertificatInput] = useState('');
 
   // Chargement des données depuis l'API
   useEffect(() => {
@@ -69,6 +71,63 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem(AUTH_KEY);
     setIsAuthenticated(false);
+  };
+
+  // Fonction pour générer le lien du certificat
+  const getCertificatLink = (certificat) => {
+    if (!certificat) return null;
+
+    // Si c'est un numéro CML, générer l'URL VTIC
+    if (certificat.match(/^CML\d+$/i)) {
+      return `https://v-tic.com/prd/${certificat}`;
+    }
+
+    // Si c'est déjà une URL, la retourner telle quelle
+    if (certificat.startsWith('http://') || certificat.startsWith('https://')) {
+      return certificat;
+    }
+
+    return null;
+  };
+
+  // Fonction pour mettre à jour le certificat
+  const handleSaveCertificat = async () => {
+    if (!certificatInput.trim()) {
+      alert('Veuillez saisir un numéro de certificat ou une URL');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/api/equipment/${selectedEquipment.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          certificat: certificatInput.trim()
+        })
+      });
+
+      if (response.ok) {
+        // Mettre à jour l'équipement sélectionné
+        const updatedEquipment = { ...selectedEquipment, certificat: certificatInput.trim() };
+        setSelectedEquipment(updatedEquipment);
+
+        // Mettre à jour la liste des équipements
+        setEquipmentData(equipmentData.map(eq =>
+          eq.id === selectedEquipment.id ? updatedEquipment : eq
+        ));
+
+        setShowCertificatModal(false);
+        setCertificatInput('');
+        alert('Certificat mis à jour avec succès !');
+      } else {
+        alert('Erreur lors de la mise à jour du certificat');
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      alert('Erreur lors de la mise à jour du certificat');
+    }
   };
 
   // Fonctions existantes
@@ -398,8 +457,47 @@ function App() {
     </div>
   );
 
+  // Fonction pour calculer l'indicateur VGP dans la vue détaillée
+  const getVGPDetailStatus = (prochainVGP) => {
+    if (!prochainVGP) return { status: 'unknown', label: 'Non renseigné', icon: '❓', color: 'gray' };
+
+    const today = new Date();
+    const vgpDate = new Date(prochainVGP.split('/').reverse().join('-'));
+    const diffTime = vgpDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) {
+      return {
+        status: 'expired',
+        label: 'VGP DÉPASSÉ',
+        subLabel: `Dépassé de ${Math.abs(diffDays)} jour${Math.abs(diffDays) > 1 ? 's' : ''}`,
+        icon: '⚠️',
+        color: 'red'
+      };
+    } else if (diffDays <= 30) {
+      return {
+        status: 'warning',
+        label: 'VGP À PRÉVOIR',
+        subLabel: `Dans ${diffDays} jour${diffDays > 1 ? 's' : ''}`,
+        icon: '❗',
+        color: 'orange'
+      };
+    } else {
+      return {
+        status: 'valid',
+        label: 'VGP À JOUR',
+        subLabel: `Dans ${diffDays} jours`,
+        icon: '✓',
+        color: 'green'
+      };
+    }
+  };
+
   // Vue détaillée
-  const DetailView = () => (
+  const DetailView = () => {
+    const vgpStatus = getVGPDetailStatus(selectedEquipment.prochainVGP);
+
+    return (
     <div>
       <button
         onClick={() => setSelectedEquipment(null)}
@@ -486,19 +584,48 @@ function App() {
         </div>
 
         <div className="vgp-section">
-          <h3>Contrôles VGP</h3>
-          <div className="vgp-grid">
-            <div className="vgp-item">
-              <span className="vgp-label">Certificat:</span>
-              <span className="vgp-value">{selectedEquipment.certificat || 'N/A'}</span>
+          <div className="vgp-section-header">
+            <h3>Contrôles VGP</h3>
+            <button
+              onClick={() => {
+                setCertificatInput(selectedEquipment.certificat || '');
+                setShowCertificatModal(true);
+              }}
+              className="btn btn-secondary btn-sm"
+            >
+              📎 {selectedEquipment.certificat ? 'Modifier' : 'Ajouter'} certificat
+            </button>
+          </div>
+
+          <div className="vgp-detail-grid">
+            <div className="vgp-info-item">
+              <span className="vgp-info-label">Certificat:</span>
+              {getCertificatLink(selectedEquipment.certificat) ? (
+                <a
+                  href={getCertificatLink(selectedEquipment.certificat)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="certificat-link"
+                >
+                  {selectedEquipment.certificat} 🔗
+                </a>
+              ) : (
+                <span className="vgp-info-value">{selectedEquipment.certificat || 'Non renseigné'}</span>
+              )}
             </div>
-            <div className="vgp-item">
-              <span className="vgp-label">Dernier VGP:</span>
-              <span className="vgp-value">{selectedEquipment.dernierVGP || 'N/A'}</span>
+            <div className="vgp-info-item">
+              <span className="vgp-info-label">Dernier VGP:</span>
+              <span className="vgp-info-value">{selectedEquipment.dernierVGP || 'N/A'}</span>
             </div>
-            <div className="vgp-item">
-              <span className="vgp-label">Prochain VGP:</span>
-              <span className="vgp-value">{selectedEquipment.prochainVGP || 'N/A'}</span>
+          </div>
+
+          {/* Indicateur VGP stylé */}
+          <div className={`vgp-status-card vgp-status-${vgpStatus.color}`}>
+            <div className="vgp-status-icon">{vgpStatus.icon}</div>
+            <div className="vgp-status-content">
+              <div className="vgp-status-label">{vgpStatus.label}</div>
+              <div className="vgp-status-date">{selectedEquipment.prochainVGP || 'Non renseigné'}</div>
+              <div className="vgp-status-sublabel">{vgpStatus.subLabel}</div>
             </div>
           </div>
         </div>
@@ -518,7 +645,8 @@ function App() {
         </div>
       </div>
     </div>
-  );
+    );
+  };
 
   // Contenu principal selon la page
   const renderMainContent = () => {
@@ -543,6 +671,59 @@ function App() {
         return <ListView />;
     }
   };
+
+  // Modal d'ajout/modification de certificat
+  const CertificatModal = () => (
+    <div className="release-notes-overlay">
+      <div className="certificat-modal">
+        <div className="modal-header">
+          <h2>📎 {selectedEquipment?.certificat ? 'Modifier' : 'Ajouter'} un certificat</h2>
+          <button onClick={() => setShowCertificatModal(false)} className="close-button">✕</button>
+        </div>
+
+        <div className="modal-content">
+          <p className="modal-description">
+            Vous pouvez saisir :
+          </p>
+          <ul className="modal-info-list">
+            <li>Un <strong>numéro CML</strong> (ex: CML048065) pour générer automatiquement le lien VTIC</li>
+            <li>Une <strong>URL Google Drive</strong> pour un certificat interne</li>
+          </ul>
+
+          <div className="form-group">
+            <label htmlFor="certificat-input">Certificat ou URL :</label>
+            <input
+              id="certificat-input"
+              type="text"
+              value={certificatInput}
+              onChange={(e) => setCertificatInput(e.target.value)}
+              placeholder="Ex: CML048065 ou https://drive.google.com/..."
+              className="form-input"
+              autoFocus
+            />
+          </div>
+
+          {certificatInput && getCertificatLink(certificatInput) && (
+            <div className="preview-link">
+              <span>🔗 Aperçu du lien : </span>
+              <a href={getCertificatLink(certificatInput)} target="_blank" rel="noopener noreferrer">
+                {getCertificatLink(certificatInput)}
+              </a>
+            </div>
+          )}
+        </div>
+
+        <div className="modal-footer">
+          <button onClick={() => setShowCertificatModal(false)} className="btn btn-gray">
+            Annuler
+          </button>
+          <button onClick={handleSaveCertificat} className="btn btn-primary">
+            💾 Enregistrer
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   // Rendu conditionnel selon l'état
   if (showReleaseNotes) {
@@ -571,6 +752,8 @@ function App() {
       {showNotesHistory && (
         <ReleaseNotesHistory onClose={() => setShowNotesHistory(false)} />
       )}
+
+      {showCertificatModal && <CertificatModal />}
     </div>
   );
 }

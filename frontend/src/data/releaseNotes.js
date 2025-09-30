@@ -1,9 +1,54 @@
 // Système de gestion des notes de mise à jour
 // Pour ajouter une nouvelle version, ajoutez un objet au début du tableau
 
-export const CURRENT_VERSION = '1.1.0';
+export const CURRENT_VERSION = '1.2.0';
 
 export const releaseNotes = [
+  {
+    version: '1.2.0',
+    date: '2025-09-30',
+    title: 'Améliorations majeures du PARC LOC et gestion VGP',
+    sections: [
+      {
+        title: '✨ Nouvelles fonctionnalités',
+        items: [
+          'Filtres dynamiques dans PARC LOC (Désignation, CMU, Longueur)',
+          'Recherche intelligente multi-champs (ex: "palan manuel 1t 10m")',
+          'Gestion des certificats VGP avec liens VTIC automatiques',
+          'Liens vers attestations Google Drive pour certificats internes',
+          'Modal d\'ajout/modification de certificat avec aperçu en temps réel',
+        ]
+      },
+      {
+        title: '📊 Tableau PARC LOC optimisé',
+        items: [
+          'Nouvelle colonne "Longueur Chaîne/Câble"',
+          'Nouvelle colonne "État" avec badges colorés (Bon, Moyen, Vieillissant, Neuf)',
+          'Colonne "Prochain VGP" avec indicateurs visuels (🟢 OK, 🟠 < 1 mois, 🔴 Dépassé)',
+          'Retrait des colonnes Client/Date (désormais dans En Location et En Offre)',
+        ]
+      },
+      {
+        title: '🎨 VGP dans les fiches détaillées',
+        items: [
+          'Indicateurs VGP ultra stylés avec animations (pulse, shake, bounce)',
+          'Carte de statut avec dégradés et effets visuels',
+          'Affichage du nombre de jours restants ou de retard',
+          'Liens certificats cliquables en bleu',
+          'Bouton "Ajouter/Modifier certificat" avec sauvegarde en base',
+        ]
+      },
+      {
+        title: '🔧 Améliorations techniques',
+        items: [
+          'API endpoint PATCH pour mise à jour des certificats',
+          'Détection automatique des numéros CML pour génération d\'URL VTIC',
+          'Optimisation de la recherche avec filtrage multi-mots',
+          'Extraction automatique des valeurs uniques pour les filtres',
+        ]
+      }
+    ]
+  },
   {
     version: '1.1.0',
     date: '2025-09-30',
