@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { equipmentData as initialData } from './data/equipments';
 import CSVImporter from './components/CSVImporter';
@@ -29,35 +30,34 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   // Chargement des données depuis l'API
-useEffect(() => {
-  const loadEquipments = async () => {
-    try {
-      console.log('🔍 Chargement depuis:', `${API_URL}/api/equipment`);
-      const response = await fetch(`${API_URL}/api/equipment`);
+  useEffect(() => {
+    const loadEquipments = async () => {
+      try {
+        console.log('🔍 Chargement depuis:', `${API_URL}/api/equipment`);
+        const response = await fetch(`${API_URL}/api/equipment`);
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log('✅ Données reçues:', data.length, 'équipements');
-        setEquipmentData(data);
-      } else {
-        console.error('⚠️ Backend inaccessible');
+        if (response.ok) {
+          const data = await response.json();
+          console.log('✅ Données reçues:', data.length, 'équipements');
+          setEquipmentData(data);
+        } else {
+          console.error('⚠️ Backend inaccessible');
+          setEquipmentData([]);
+        }
+      } catch (error) {
+        console.error('❌ Erreur API:', error);
         setEquipmentData([]);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('❌ Erreur API:', error);
-      setEquipmentData([]);
-    } finally {
+    };
+
+    if (isAuthenticated) {
+      loadEquipments();
+    } else {
       setIsLoading(false);
     }
-  };
-
-  if (isAuthenticated) {
-    loadEquipments();
-  } else {
-    setIsLoading(false);
-  }
-}, [isAuthenticated, API_URL]);
-
+  }, [isAuthenticated, API_URL]);
 
   // Gestion des notes de mise à jour
   const handleNotesAccepted = () => {
@@ -85,27 +85,25 @@ useEffect(() => {
   };
 
   // Fonctions existantes
-const handleDataImported = async (newData) => {
-  setEquipmentData(newData);
-  setShowImporter(false);
-  
-  // Vide localStorage pour forcer le rechargement depuis l'API
-  localStorage.removeItem(STORAGE_KEY);
-  
-  alert(`${newData.length} équipements importés avec succès !`);
-  
-  // Recharge depuis l'API pour synchroniser
-  try {
-    const response = await fetch(`${API_URL}/api/equipment`);
-    if (response.ok) {
-      const freshData = await response.json();
-      setEquipmentData(freshData);
-      console.log('✅ Données rechargées depuis PostgreSQL');
+  const handleDataImported = async (newData) => {
+    setEquipmentData(newData);
+    setShowImporter(false);
+    
+    localStorage.removeItem(STORAGE_KEY);
+    
+    alert(`${newData.length} équipements importés avec succès !`);
+    
+    try {
+      const response = await fetch(`${API_URL}/api/equipment`);
+      if (response.ok) {
+        const freshData = await response.json();
+        setEquipmentData(freshData);
+        console.log('✅ Données rechargées depuis PostgreSQL');
+      }
+    } catch (err) {
+      console.error('⚠️ Erreur rechargement:', err);
     }
-  } catch (err) {
-    console.error('⚠️ Erreur rechargement:', err);
-  }
-};
+  };
 
   const handleResetData = () => {
     if (window.confirm('Êtes-vous sûr de vouloir réinitialiser toutes les données ? Cette action est irréversible.')) {
@@ -118,10 +116,10 @@ const handleDataImported = async (newData) => {
   // Calcul des statistiques globales
   const stats = {
     total: equipmentData.length,
-    enLocation: equipmentData.filter(eq => eq.disponibilite === 'En Location').length,
-    surParc: equipmentData.filter(eq => eq.disponibilite === 'Sur Parc').length,
-    enMaintenance: equipmentData.filter(eq => eq.disponibilite === 'En Maintenance').length,
-    enOffre: equipmentData.filter(eq => eq.disponibilite === 'En Offre de Prix').length
+    enLocation: equipmentData.filter(eq => eq.statut === 'En Location').length,
+    surParc: equipmentData.filter(eq => eq.statut === 'Sur Parc').length,
+    enMaintenance: equipmentData.filter(eq => eq.statut === 'En Maintenance').length,
+    enOffre: equipmentData.filter(eq => eq.statut === 'En Offre de Prix').length
   };
 
   // Filtrage selon la page actuelle
@@ -130,13 +128,13 @@ const handleDataImported = async (newData) => {
     
     switch (currentPage) {
       case 'en-location':
-        filtered = equipmentData.filter(eq => eq.disponibilite === 'En Location');
+        filtered = equipmentData.filter(eq => eq.statut === 'En Location');
         break;
       case 'en-offre':
-        filtered = equipmentData.filter(eq => eq.disponibilite === 'En Offre de Prix');
+        filtered = equipmentData.filter(eq => eq.statut === 'En Offre de Prix');
         break;
       case 'maintenance':
-        filtered = equipmentData.filter(eq => eq.disponibilite === 'En Maintenance');
+        filtered = equipmentData.filter(eq => eq.statut === 'En Maintenance');
         break;
       default:
         filtered = equipmentData;
@@ -191,7 +189,7 @@ const handleDataImported = async (newData) => {
               <li>Tableau de bord avec statistiques en temps réel</li>
               <li>Gestion complète des équipements par statut</li>
               <li>Recherche avancée multi-critères</li>
-              <li>Persistence des données localement</li>
+              <li>Base de données PostgreSQL centralisée</li>
             </ul>
           </div>
           
@@ -208,9 +206,8 @@ const handleDataImported = async (newData) => {
           <div className="release-section">
             <h3>📊 Gestion des données</h3>
             <ul>
-              <li>Sauvegarde automatique des modifications</li>
-              <li>Fonction de réinitialisation sécurisée</li>
-              <li>Import de votre fichier CSV existant</li>
+              <li>Synchronisation multi-utilisateurs</li>
+              <li>Import CSV vers PostgreSQL</li>
               <li>Gestion des statuts : Sur Parc, En Location, Maintenance, Offre</li>
             </ul>
           </div>
@@ -388,7 +385,7 @@ const handleDataImported = async (newData) => {
           <h3>⚠️ Alertes</h3>
           <div className="alert-item">
             <span className="alert-label">Retards de retour: </span>
-            {equipmentData.filter(eq => eq.disponibilite === 'En Location' && eq.finLocationTheorique).length}
+            {equipmentData.filter(eq => eq.statut === 'En Location' && eq.finLocationTheorique).length}
           </div>
           <div className="alert-item">
             <span className="alert-label">VGP à prévoir: </span>
@@ -478,8 +475,8 @@ const handleDataImported = async (newData) => {
                       <span className="serial-number">{equipment.numeroSerie}</span>
                     </td>
                     <td>
-                      <span className={`status-badge ${getStatusClass(equipment.disponibilite)}`}>
-                        {equipment.disponibilite}
+                      <span className={`status-badge ${getStatusClass(equipment.statut)}`}>
+                        {equipment.statut}
                       </span>
                     </td>
                     <td>{equipment.client || '-'}</td>
@@ -548,8 +545,8 @@ const handleDataImported = async (newData) => {
       <div className="detail-view">
         <div className="detail-header">
           <h2 className="detail-title">{selectedEquipment.designation} {selectedEquipment.cmu}</h2>
-          <span className={`status-badge detail-status ${getStatusClass(selectedEquipment.disponibilite)}`}>
-            {selectedEquipment.disponibilite}
+          <span className={`status-badge detail-status ${getStatusClass(selectedEquipment.statut)}`}>
+            {selectedEquipment.statut}
           </span>
         </div>
 
@@ -640,7 +637,7 @@ const handleDataImported = async (newData) => {
         </div>
 
         <div className="actions-container">
-          {selectedEquipment.disponibilite === 'En Location' && (
+          {selectedEquipment.statut === 'En Location' && (
             <button className="btn btn-success btn-lg">
               Effectuer le retour
             </button>
