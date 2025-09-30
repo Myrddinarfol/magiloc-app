@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { equipmentData as initialData } from './data/equipments';
 import CSVImporter from './components/CSVImporter';
-import './App.css';
 import EquipmentListView from './components/EquipmentListView';
+import './App.css';
 
 function App() {
   // Clés pour le stockage local
@@ -22,52 +22,39 @@ function App() {
   // États existants
   const [equipmentData, setEquipmentData] = useState([]);
   const [currentPage, setCurrentPage] = useState('dashboard');
-  const [searchTerm, setSearchTerm] = useState('');
-
-// Stabiliser la fonction de recherche
-const handleSearchChange = useCallback((value) => {
-  setSearchTerm(value);
-}, []);
-
   const [selectedEquipment, setSelectedEquipment] = useState(null);
   const [showImporter, setShowImporter] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   // Chargement des données depuis l'API
-useEffect(() => {
-  const loadEquipments = async () => {
-    try {
-      console.log('🔍 Chargement depuis:', `${API_URL}/api/equipment`);
-      const response = await fetch(`${API_URL}/api/equipment`);
+  useEffect(() => {
+    const loadEquipments = async () => {
+      try {
+        console.log('🔍 Chargement depuis:', `${API_URL}/api/equipment`);
+        const response = await fetch(`${API_URL}/api/equipment`);
 
-      console.log('📡 Réponse reçue, status:', response.status);
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('✅ Données reçues:', data.length, 'équipements');
-        console.log('📦 Première donnée:', data[0]);
-        setEquipmentData(data);
-      } else {
-        console.error('⚠️ Backend inaccessible, status:', response.status);
+        if (response.ok) {
+          const data = await response.json();
+          console.log('✅ Données reçues:', data.length, 'équipements');
+          setEquipmentData(data);
+        } else {
+          console.error('⚠️ Backend inaccessible');
+          setEquipmentData([]);
+        }
+      } catch (error) {
+        console.error('❌ Erreur API:', error);
         setEquipmentData([]);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('❌ Erreur API complète:', error);
-      setEquipmentData([]);
-    } finally {
-      console.log('🏁 Fin du chargement');
+    };
+
+    if (isAuthenticated) {
+      loadEquipments();
+    } else {
       setIsLoading(false);
     }
-  };
-
-  if (isAuthenticated) {
-    console.log('🔐 Utilisateur authentifié, chargement...');
-    loadEquipments();
-  } else {
-    console.log('🚫 Non authentifié');
-    setIsLoading(false);
-  }
-}, [isAuthenticated, API_URL]);
+  }, [isAuthenticated, API_URL]);
 
   // Gestion des notes de mise à jour
   const handleNotesAccepted = () => {
@@ -399,16 +386,14 @@ useEffect(() => {
   );
 
   // Vue liste
-const ListView = () => (
-  <EquipmentListView
-    equipmentData={equipmentData}
-    currentPage={currentPage}
-    searchTerm={searchTerm}
-    setSearchTerm={handleSearchChange}
-    setSelectedEquipment={setSelectedEquipment}
-    getStatusClass={getStatusClass}
-  />
-);
+  const ListView = () => (
+    <EquipmentListView
+      equipmentData={equipmentData}
+      currentPage={currentPage}
+      setSelectedEquipment={setSelectedEquipment}
+      getStatusClass={getStatusClass}
+    />
+  );
 
   // Planning
   const Planning = () => (

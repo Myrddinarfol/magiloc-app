@@ -1,13 +1,8 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 
-function EquipmentListView({ 
-  equipmentData, 
-  currentPage, 
-  searchTerm, 
-  setSearchTerm, 
-  setSelectedEquipment,
-  getStatusClass 
-}) {
+function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, getStatusClass }) {
+  const [searchTerm, setSearchTerm] = useState('');
+
   const getPageTitle = () => {
     switch (currentPage) {
       case 'dashboard': return 'Tableau de bord';
@@ -20,9 +15,10 @@ function EquipmentListView({
     }
   };
 
-  const getFilteredData = () => {
+  // Optimisation : filtrage mémorisé
+  const filteredData = useMemo(() => {
     let filtered = equipmentData;
-    
+
     switch (currentPage) {
       case 'en-location':
         filtered = equipmentData.filter(eq => eq.statut === 'En Location');
@@ -39,23 +35,21 @@ function EquipmentListView({
 
     if (searchTerm) {
       filtered = filtered.filter(equipment =>
-        equipment.designation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        equipment.numeroSerie.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (equipment.client && equipment.client.toLowerCase().includes(searchTerm.toLowerCase()))
+        equipment.designation?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        equipment.numeroSerie?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        equipment.client?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     return filtered;
-  };
-
-  const filteredData = getFilteredData();
+  }, [equipmentData, currentPage, searchTerm]);
 
   return (
     <div>
       <div className="page-header">
         <h1 className="page-title">{getPageTitle()}</h1>
       </div>
-      
+
       <div className="search-container">
         <input
           type="text"
@@ -63,7 +57,6 @@ function EquipmentListView({
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
-          autoFocus={false}
         />
       </div>
 
