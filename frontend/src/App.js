@@ -594,14 +594,14 @@ useEffect(() => {
 }
 
 // Composant séparé pour la liste d'équipements (EN DEHORS de App)
-function EquipmentListView({ 
+const EquipmentListView = React.memo(({ 
   equipmentData, 
   currentPage, 
   searchTerm, 
   setSearchTerm, 
   setSelectedEquipment,
   getStatusClass 
-}) {
+}) => {
   const getPageTitle = () => {
     switch (currentPage) {
       case 'dashboard': return 'Tableau de bord';
@@ -725,6 +725,8 @@ function EquipmentListView({
       )}
     </div>
   );
-}
+});
+
+EquipmentListView.displayName = 'EquipmentListView';
 
 export default App;
