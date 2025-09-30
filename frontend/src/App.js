@@ -27,34 +27,40 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   // Chargement des données depuis l'API
-  useEffect(() => {
-    const loadEquipments = async () => {
-      try {
-        console.log('🔍 Chargement depuis:', `${API_URL}/api/equipment`);
-        const response = await fetch(`${API_URL}/api/equipment`);
+useEffect(() => {
+  const loadEquipments = async () => {
+    try {
+      console.log('🔍 Chargement depuis:', `${API_URL}/api/equipment`);
+      const response = await fetch(`${API_URL}/api/equipment`);
 
-        if (response.ok) {
-          const data = await response.json();
-          console.log('✅ Données reçues:', data.length, 'équipements');
-          setEquipmentData(data);
-        } else {
-          console.error('⚠️ Backend inaccessible');
-          setEquipmentData([]);
-        }
-      } catch (error) {
-        console.error('❌ Erreur API:', error);
+      console.log('📡 Réponse reçue, status:', response.status);
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Données reçues:', data.length, 'équipements');
+        console.log('📦 Première donnée:', data[0]);
+        setEquipmentData(data);
+      } else {
+        console.error('⚠️ Backend inaccessible, status:', response.status);
         setEquipmentData([]);
-      } finally {
-        setIsLoading(false);
       }
-    };
-
-    if (isAuthenticated) {
-      loadEquipments();
-    } else {
+    } catch (error) {
+      console.error('❌ Erreur API complète:', error);
+      setEquipmentData([]);
+    } finally {
+      console.log('🏁 Fin du chargement');
       setIsLoading(false);
     }
-  }, [isAuthenticated, API_URL]);
+  };
+
+  if (isAuthenticated) {
+    console.log('🔐 Utilisateur authentifié, chargement...');
+    loadEquipments();
+  } else {
+    console.log('🚫 Non authentifié');
+    setIsLoading(false);
+  }
+}, [isAuthenticated, API_URL]);
 
   // Gestion des notes de mise à jour
   const handleNotesAccepted = () => {
