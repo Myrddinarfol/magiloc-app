@@ -20,36 +20,42 @@ function CSVImporter({ onDataImported }) {
       header: true,
       skipEmptyLines: true,
       complete: async (results) => {
-        console.log('📄 Données CSV parsées:', results.data.length, 'lignes');
+        console.log('📄 Lignes brutes parsées:', results.data.length);
         
-        // Transformation des données
-        const transformedData = results.data.map((row, index) => ({
-          id: index + 1,
-          designation: row['Désignation'] || row['DESIGNATION'] || '',
-          cmu: row['CMU'] || '',
-          modele: row['Modèle'] || row['MODELE'] || '',
-          marque: row['Marque'] || row['MARQUE'] || '',
-          longueur: row['Longeur Chaîne/Câble'] || row['LONGUEUR'] || '',
-          infosComplementaires: row['Infos Complémentaires'] || row['INFOS'] || '',
-          numeroSerie: row['Numéro de Série'] || row['N° SERIE'] || '',
-          // CORRECTION : cherche la colonne "Statut" en priorité
-          disponibilite: row['Statut'] || row['statut'] || row['STATUT'] || row['Disponibilité'] || row['DISPONIBILITÉ'] || 'Sur Parc',
-          debutLocation: row['Début Location'] || '',
-          finLocationTheorique: row['Fin de Location Théorique'] || '',
-          rentreeLe: row['Rentré Le'] || '',
-          client: row['Client'] || '',
-          numeroOffre: row['N° OFFRE'] || '',
-          notesLocation: row['NOTES LOCATION'] || '',
-          prixHT: (row['Prix HT/J'] || '').replace(/[€\s]/g, '').replace(',', '.') || null,
-          etat: row['État'] || 'Moyen',
-          motifMaintenance: row['Motif de Maintenance'] || '',
-          certificat: row['Certificat / V-TIC'] || '',
-          dernierVGP: row['Dernier VGP'] || '',
-          prochainVGP: row['Prochain VGP'] || ''
-        }));
+        // Transformation ET filtrage des lignes valides
+        const transformedData = results.data
+          .filter(row => {
+            const numSerie = row['Numéro de Série'] || row['N° SERIE'] || '';
+            return numSerie.trim().length > 0;
+          })
+          .map((row, index) => ({
+            id: index + 1,
+            designation: row['Désignation'] || row['DESIGNATION'] || '',
+            cmu: row['CMU'] || '',
+            modele: row['Modèle'] || row['MODELE'] || '',
+            marque: row['Marque'] || row['MARQUE'] || '',
+            longueur: row['Longeur Chaîne/Câble'] || row['LONGUEUR'] || '',
+            infosComplementaires: row['Infos Complémentaires'] || row['INFOS'] || '',
+            numeroSerie: (row['Numéro de Série'] || row['N° SERIE'] || '').trim(),
+            statut: row['Statut'] || row['statut'] || row['STATUT'] || 'Sur Parc',
+            debutLocation: row['Début Location'] || '',
+            finLocationTheorique: row['Fin de Location Théorique'] || '',
+            rentreeLe: row['Rentré Le'] || '',
+            client: row['Client'] || '',
+            numeroOffre: row['N° OFFRE'] || '',
+            notesLocation: row['NOTES LOCATION'] || '',
+            prixHT: (row['Prix HT/J'] || '').replace(/[€\s]/g, '').replace(',', '.') || null,
+            etat: row['État'] || 'Moyen',
+            motifMaintenance: row['Motif de Maintenance'] || '',
+            certificat: row['Certificat / V-TIC'] || '',
+            dernierVGP: row['Dernier VGP'] || '',
+            prochainVGP: row['Prochain VGP'] || ''
+          }));
+
+        console.log(`✅ ${transformedData.length} équipements valides (sur ${results.data.length} lignes parsées)`);
 
         try {
-          console.log('📤 Envoi des données au backend...');
+          console.log('📤 Envoi au backend...');
           const response = await fetch(`${API_URL}/api/equipment/import`, {
             method: 'POST',
             headers: {
@@ -71,7 +77,6 @@ function CSVImporter({ onDataImported }) {
         } catch (err) {
           console.error('❌ Erreur:', err);
           setError('Erreur lors de l\'envoi au serveur.');
-          onDataImported(transformedData);
         } finally {
           setIsLoading(false);
         }
@@ -94,7 +99,7 @@ function CSVImporter({ onDataImported }) {
     }}>
       <h3>Importer votre fichier CSV</h3>
       <p style={{ color: '#666', marginBottom: '15px' }}>
-        Sélectionnez votre fichier CSV pour importer tous vos équipements vers la base de données
+        Sélectionnez votre fichier CSV pour importer tous vos équipements
       </p>
       
       <input
@@ -114,7 +119,7 @@ function CSVImporter({ onDataImported }) {
       
       {isLoading && (
         <p style={{ color: '#2563eb', marginTop: '10px', fontWeight: 'bold' }}>
-          Import en cours vers la base de données...
+          Import en cours...
         </p>
       )}
       
