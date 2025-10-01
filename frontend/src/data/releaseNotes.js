@@ -1,9 +1,34 @@
 // Système de gestion des notes de mise à jour
 // Pour ajouter une nouvelle version, ajoutez un objet au début du tableau
 
-export const CURRENT_VERSION = '1.3.0';
+export const CURRENT_VERSION = '1.3.1';
 
 export const releaseNotes = [
+  {
+    version: '1.3.1',
+    date: '2025-10-01',
+    title: 'Import complet des données de location',
+    sections: [
+      {
+        title: '📋 Import CSV amélioré',
+        items: [
+          'Import des données de location : Client, Début Location, Fin théorique',
+          'Import du N° Offre et des Notes de location',
+          'Import du Motif de maintenance',
+          'Affichage complet dans les fiches détail',
+          'Support des variantes de noms de colonnes (majuscules/minuscules)',
+        ]
+      },
+      {
+        title: '🗄️ Base de données enrichie',
+        items: [
+          'Ajout des colonnes de location dans la table equipments',
+          'Migration automatique de la base de données',
+          'Données persistantes entre les sessions',
+        ]
+      }
+    ]
+  },
   {
     version: '1.3.0',
     date: '2025-10-01',

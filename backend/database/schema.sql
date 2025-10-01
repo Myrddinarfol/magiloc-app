@@ -14,6 +14,13 @@ CREATE TABLE IF NOT EXISTS equipments (
     dernier_vgp DATE,
     prochain_vgp DATE,
     statut VARCHAR(50) DEFAULT 'Sur Parc',
+    client VARCHAR(200),
+    debut_location VARCHAR(50),
+    fin_location_theorique VARCHAR(50),
+    rentre_le VARCHAR(50),
+    numero_offre VARCHAR(100),
+    notes_location TEXT,
+    motif_maintenance TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

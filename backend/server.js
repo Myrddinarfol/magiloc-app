@@ -39,22 +39,29 @@ app.get("/api/health", (req, res) => {
 app.get("/api/equipment", async (req, res) => {
   try {
     const result = await pool.query(`
-      SELECT 
-        id, 
-        designation, 
-        cmu, 
-        modele, 
-        marque, 
+      SELECT
+        id,
+        designation,
+        cmu,
+        modele,
+        marque,
         longueur,
         infos_complementaires as "infosComplementaires",
         numero_serie as "numeroSerie",
         prix_ht_jour as "prixHT",
-        etat, 
-        certificat, 
+        etat,
+        certificat,
         dernier_vgp as "dernierVGP",
         prochain_vgp as "prochainVGP",
-        statut
-      FROM equipments 
+        statut,
+        client,
+        debut_location as "debutLocation",
+        fin_location_theorique as "finLocationTheorique",
+        rentre_le as "rentreeLe",
+        numero_offre as "numeroOffre",
+        notes_location as "notesLocation",
+        motif_maintenance as "motifMaintenance"
+      FROM equipments
       ORDER BY id
     `);
     res.json(result.rows);
@@ -78,30 +85,45 @@ app.post("/api/equipment/import", async (req, res) => {
       for (const eq of equipments) {
         await client.query(
           `INSERT INTO equipments (
-            designation, cmu, modele, marque, longueur, 
-            infos_complementaires, numero_serie, prix_ht_jour, etat, 
-            certificat, dernier_vgp, prochain_vgp, statut
-          ) 
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+            designation, cmu, modele, marque, longueur,
+            infos_complementaires, numero_serie, prix_ht_jour, etat,
+            certificat, dernier_vgp, prochain_vgp, statut,
+            client, debut_location, fin_location_theorique, rentre_le, numero_offre, notes_location, motif_maintenance
+          )
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
           ON CONFLICT (numero_serie) DO UPDATE SET
             designation = EXCLUDED.designation,
             cmu = EXCLUDED.cmu,
             modele = EXCLUDED.modele,
-            statut = EXCLUDED.statut`,
+            statut = EXCLUDED.statut,
+            client = EXCLUDED.client,
+            debut_location = EXCLUDED.debut_location,
+            fin_location_theorique = EXCLUDED.fin_location_theorique,
+            rentre_le = EXCLUDED.rentre_le,
+            numero_offre = EXCLUDED.numero_offre,
+            notes_location = EXCLUDED.notes_location,
+            motif_maintenance = EXCLUDED.motif_maintenance`,
           [
-            eq.designation, 
-            eq.cmu, 
-            eq.modele, 
-            eq.marque, 
+            eq.designation,
+            eq.cmu,
+            eq.modele,
+            eq.marque,
             eq.longueur,
-            eq.infosComplementaires, 
-            eq.numeroSerie, 
-            eq.prixHT, 
+            eq.infosComplementaires,
+            eq.numeroSerie,
+            eq.prixHT,
             eq.etat,
-            eq.certificat, 
-            eq.dernierVGP, 
-            eq.prochainVGP, 
-            eq.statut || 'Sur Parc'
+            eq.certificat,
+            eq.dernierVGP,
+            eq.prochainVGP,
+            eq.statut || 'Sur Parc',
+            eq.client,
+            eq.debutLocation,
+            eq.finLocationTheorique,
+            eq.rentreeLe,
+            eq.numeroOffre,
+            eq.notesLocation,
+            eq.motifMaintenance
           ]
         );
       }

@@ -47,18 +47,18 @@ const transformedData = results.data
     infosComplementaires: row['Infos Complémentaires'] || row['INFOS'] || '',
     numeroSerie: (row['Numéro de Série'] || row['N° SERIE'] || '').trim(),
     statut: row['Statut'] || row['statut'] || row['STATUT'] || 'Sur Parc',
-    debutLocation: row['Début Location'] || '',
-    finLocationTheorique: row['Fin de Location Théorique'] || '',
-    rentreeLe: row['Rentré Le'] || '',
-    client: row['Client'] || '',
-    numeroOffre: row['N° OFFRE'] || '',
-    notesLocation: row['NOTES LOCATION'] || '',
-    prixHT: (row['Prix HT/J'] || '').replace(/[€\s]/g, '').replace(',', '.') || null,
-    etat: row['État'] || 'Moyen',
-    motifMaintenance: row['Motif de Maintenance'] || '',
-    certificat: row['Certificat / V-TIC'] || '',
-    dernierVGP: row['Dernier VGP'] || '',
-    prochainVGP: row['Prochain VGP'] || ''
+    debutLocation: row['Début Location'] || row['DEBUT LOCATION'] || '',
+    finLocationTheorique: row['Fin de Location Théorique'] || row['FIN DE LOCATION THEORIQUE'] || '',
+    rentreeLe: row['Rentré Le'] || row['RENTRE LE'] || '',
+    client: row['Client'] || row['CLIENT'] || '',
+    numeroOffre: row['N° OFFRE'] || row['N OFFRE'] || '',
+    notesLocation: row['NOTES LOCATION'] || row['Notes Location'] || '',
+    prixHT: (row['Prix HT/J'] || row['PRIX HT/J'] || '').replace(/[€\s]/g, '').replace(',', '.') || null,
+    etat: row['État'] || row['ETAT'] || 'Moyen',
+    motifMaintenance: row['Motif de Maintenance'] || row['MOTIF DE MAINTENANCE'] || '',
+    certificat: row['Certificat / V-TIC'] || row['CERTIFICAT / V-TIC'] || '',
+    dernierVGP: row['Dernier VGP'] || row['DERNIER VGP'] || '',
+    prochainVGP: row['Prochain VGP'] || row['PROCHAIN VGP'] || ''
   }));
 
         console.log(`✅ ${transformedData.length} équipements valides (sur ${results.data.length} lignes parsées)`);
