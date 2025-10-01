@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { equipmentData as initialData } from './data/equipments';
 import CSVImporter from './components/CSVImporter';
 import EquipmentListView from './components/EquipmentListView';
@@ -797,25 +798,28 @@ function App() {
 
   // Application principale
   return (
-    <div className="app">
-      <Sidebar />
+    <>
+      <div className="app">
+        <Sidebar />
 
-      <div className="main-content">
-        {showImporter && (
-          <div style={{ marginBottom: '20px' }}>
-            <CSVImporter onDataImported={handleDataImported} />
-          </div>
+        <div className="main-content">
+          {showImporter && (
+            <div style={{ marginBottom: '20px' }}>
+              <CSVImporter onDataImported={handleDataImported} />
+            </div>
+          )}
+
+          {renderMainContent()}
+        </div>
+
+        {showNotesHistory && (
+          <ReleaseNotesHistory onClose={() => setShowNotesHistory(false)} />
         )}
 
-        {renderMainContent()}
+        {showCertificatModal && <CertificatModal />}
       </div>
-
-      {showNotesHistory && (
-        <ReleaseNotesHistory onClose={() => setShowNotesHistory(false)} />
-      )}
-
-      {showCertificatModal && <CertificatModal />}
-    </div>
+      <Analytics />
+    </>
   );
 }
 
