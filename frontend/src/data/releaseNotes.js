@@ -1,9 +1,52 @@
 // Système de gestion des notes de mise à jour
 // Pour ajouter une nouvelle version, ajoutez un objet au début du tableau
 
-export const CURRENT_VERSION = '0.7.1';
+export const CURRENT_VERSION = '0.7.2';
 
 export const releaseNotes = [
+  {
+    version: '0.7.2',
+    date: '2025-10-01',
+    title: 'Optimisation responsive mobile et logo MAGI resserré',
+    sections: [
+      {
+        title: '🎨 Logo amélioré',
+        items: [
+          'Lettres MAGI beaucoup plus rapprochées (letter-spacing: -2px)',
+          'Structure logo-container avec span séparés pour MAGI et Loc',
+          'Maintien du dégradé rouge et animations',
+        ]
+      },
+      {
+        title: '📱 Responsive mobile (<768px)',
+        items: [
+          'Sidebar passe en position relative sur mobile',
+          'Tableaux avec scroll horizontal fluide',
+          'Cards dashboard empilées en colonne unique',
+          'Inputs tactiles 44px minimum (standard iOS/Android)',
+          'Modals adaptées à 95% largeur écran',
+          'Grilles détails en colonne unique',
+          'Filtres et actions empilés verticalement',
+          'Logo réduit sur mobile (32px/16px)',
+        ]
+      },
+      {
+        title: '🖥️ Tablettes (<1024px)',
+        items: [
+          'Sidebar réduite à 200px',
+          'Padding et espacements optimisés',
+        ]
+      },
+      {
+        title: '✨ Interface simplifiée',
+        items: [
+          'Navigation directe sans menu hamburger',
+          'Sidebar visible mais adaptée sur mobile',
+          'Expérience fluide sur tous les appareils',
+        ]
+      }
+    ]
+  },
   {
     version: '0.7.1',
     date: '2025-10-01',
