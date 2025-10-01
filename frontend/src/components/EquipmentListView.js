@@ -6,9 +6,15 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, g
   const [filterCMU, setFilterCMU] = useState('');
   const [filterLongueur, setFilterLongueur] = useState('');
 
-  // Fonction pour calculer l'indicateur VGP
+  // Fonction pour calculer l'indicateur VGP avec texte détaillé
   const getVGPIndicator = (prochainVGP) => {
-    if (!prochainVGP) return { color: 'gray', label: 'N/A' };
+    if (!prochainVGP) return {
+      color: 'gray',
+      label: 'Non renseigné',
+      icon: '❓',
+      subLabel: '',
+      days: 0
+    };
 
     const today = new Date();
     const vgpDate = new Date(prochainVGP.split('/').reverse().join('-')); // Conversion DD/MM/YYYY -> YYYY-MM-DD
@@ -16,11 +22,29 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, g
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffDays < 0) {
-      return { color: 'red', label: '🔴 Dépassé', days: diffDays };
+      return {
+        color: 'red',
+        label: 'VGP DÉPASSÉ',
+        icon: '⚠️',
+        subLabel: `Dépassé de ${Math.abs(diffDays)} jour${Math.abs(diffDays) > 1 ? 's' : ''}`,
+        days: diffDays
+      };
     } else if (diffDays <= 30) {
-      return { color: 'orange', label: '🟠 < 1 mois', days: diffDays };
+      return {
+        color: 'orange',
+        label: 'VGP À PRÉVOIR',
+        icon: '❗',
+        subLabel: `Dans ${diffDays} jour${diffDays > 1 ? 's' : ''}`,
+        days: diffDays
+      };
     } else {
-      return { color: 'green', label: '🟢 OK', days: diffDays };
+      return {
+        color: 'green',
+        label: 'VGP À JOUR',
+        icon: '✓',
+        subLabel: `Dans ${diffDays} jours`,
+        days: diffDays
+      };
     }
   };
 
@@ -253,12 +277,14 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, g
                           </span>
                         </td>
                         <td>
-                          <div className="vgp-indicator">
-                            <span className={`vgp-badge vgp-${vgpIndicator.color}`}>
-                              {vgpIndicator.label}
-                            </span>
-                            <div className="vgp-date">
-                              {equipment.prochainVGP || '-'}
+                          <div className={`vgp-table-badge vgp-table-${vgpIndicator.color}`}>
+                            <div className="vgp-table-icon">{vgpIndicator.icon}</div>
+                            <div className="vgp-table-content">
+                              <div className="vgp-table-label">{vgpIndicator.label}</div>
+                              <div className="vgp-table-date">{equipment.prochainVGP || 'N/A'}</div>
+                              {vgpIndicator.subLabel && (
+                                <div className="vgp-table-sublabel">{vgpIndicator.subLabel}</div>
+                              )}
                             </div>
                           </div>
                         </td>
