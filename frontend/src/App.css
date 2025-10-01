@@ -96,15 +96,105 @@ body {
   filter: blur(2px);
 }
 
-.sidebar h2 {
-  margin-bottom: 30px;
-  font-size: 22px;
-  text-shadow: 0 2px 8px rgba(220, 38, 38, 0.5);
-  background: linear-gradient(135deg, #dc2626 0%, #f87171 100%);
+/* Logo MAGI Loc */
+.logo-container {
+  margin-bottom: 40px;
+  padding: 20px 0;
+  text-align: center;
+  border-bottom: 2px solid rgba(220, 38, 38, 0.3);
+}
+
+.logo {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  cursor: default;
+  animation: logoEntrance 1s ease-out;
+}
+
+.logo-magi {
+  font-size: 48px;
+  font-weight: 900;
+  letter-spacing: -2px;
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f87171 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  font-weight: 700;
+  text-shadow: 0 4px 20px rgba(220, 38, 38, 0.5);
+  position: relative;
+  animation: glow 3s ease-in-out infinite;
+}
+
+.logo-magi::after {
+  content: 'MAGI';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f87171 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: blur(15px);
+  opacity: 0.5;
+  z-index: -1;
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+.logo-loc {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  animation: fadeInUp 1s ease-out 0.3s both;
+}
+
+@keyframes logoEntrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    text-shadow: 0 0 20px rgba(220, 38, 38, 0.5),
+                 0 0 40px rgba(220, 38, 38, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 30px rgba(220, 38, 38, 0.8),
+                 0 0 60px rgba(220, 38, 38, 0.5),
+                 0 0 80px rgba(220, 38, 38, 0.3);
+  }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .sidebar nav {
@@ -1673,5 +1763,100 @@ body {
   }
   to {
     opacity: 1;
+  }
+}
+
+/* ============================================
+   RESPONSIVE MOBILE - Media Queries
+   ============================================ */
+
+/* Tablettes */
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 200px;
+    width: calc(100% - 200px);
+    padding: 20px;
+  }
+
+  .sidebar {
+    width: 200px;
+  }
+}
+
+/* Smartphones et petits appareils */
+@media (max-width: 768px) {
+  .app {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+    padding: 15px;
+  }
+
+  /* Logo mobile */
+  .logo-magi {
+    font-size: 32px;
+  }
+
+  .logo-loc {
+    font-size: 16px;
+  }
+
+  /* Tableaux en scroll horizontal */
+  .equipment-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .equipment-table {
+    min-width: 800px;
+    font-size: 13px;
+  }
+
+  /* Dashboard - Cards empilées */
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Formulaires tactiles */
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  select,
+  textarea {
+    font-size: 16px; /* Évite le zoom sur iOS */
+    min-height: 44px;
+  }
+
+  button {
+    min-height: 44px;
+  }
+
+  /* Modals adaptées */
+  .modal-content {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  /* Grilles en colonne unique */
+  .detail-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Filtres et actions empilés */
+  .filters {
+    flex-direction: column;
+  }
+
+  .filter-group {
+    width: 100% !important;
   }
 }

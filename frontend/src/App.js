@@ -318,8 +318,13 @@ function App() {
   // Navigation latérale avec déconnexion
   const Sidebar = () => (
     <div className="sidebar">
-      <h2>MagiLoc</h2>
-      
+      <div className="logo-container">
+        <h1 className="logo">
+          <span className="logo-magi">MAGI</span>
+          <span className="logo-loc">Loc</span>
+        </h1>
+      </div>
+
       <nav>
         <button
           onClick={() => setCurrentPage('dashboard')}
