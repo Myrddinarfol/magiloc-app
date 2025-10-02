@@ -55,7 +55,7 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, g
       case 'parc-loc': return 'Parc Location - Tous les équipements';
       case 'en-location': return 'Équipements en location';
       case 'planning': return 'Planning des locations';
-      case 'en-offre': return 'Offres de prix en cours';
+      case 'en-offre': return 'Réservations en cours';
       case 'maintenance': return 'Équipements en maintenance';
       default: return 'MagiLoc';
     }
@@ -89,7 +89,7 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, g
         filtered = equipmentData.filter(eq => eq.statut === 'En Location');
         break;
       case 'en-offre':
-        filtered = equipmentData.filter(eq => eq.statut === 'En Offre de Prix');
+        filtered = equipmentData.filter(eq => eq.statut === 'En Réservation');
         break;
       case 'maintenance':
         filtered = equipmentData.filter(eq => eq.statut === 'En Maintenance');

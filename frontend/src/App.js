@@ -201,7 +201,7 @@ function App() {
     enLocation: equipmentData.filter(eq => eq.statut === 'En Location').length,
     surParc: equipmentData.filter(eq => eq.statut === 'Sur Parc').length,
     enMaintenance: equipmentData.filter(eq => eq.statut === 'En Maintenance').length,
-    enOffre: equipmentData.filter(eq => eq.statut === 'En Offre de Prix').length
+    enOffre: equipmentData.filter(eq => eq.statut === 'En Réservation').length
   };
 
   // Fonctions pour obtenir les classes de statut et d'état
@@ -210,7 +210,7 @@ function App() {
       case 'Sur Parc': return 'status-sur-parc';
       case 'En Location': return 'status-en-location';
       case 'En Maintenance': return 'status-en-maintenance';
-      case 'En Offre de Prix': return 'status-en-offre';
+      case 'En Réservation': return 'status-en-offre';
       default: return '';
     }
   };
@@ -348,7 +348,7 @@ function App() {
           className={`nav-button ${currentPage === 'en-offre' ? 'active' : ''}`}
         >
           <span className="nav-icon">💰</span>
-          <span className="nav-text">OFFRE DE PRIX</span>
+          <span className="nav-text">RÉSERVATION</span>
           <span className="nav-badge">{stats.enOffre}</span>
         </button>
 
@@ -451,7 +451,7 @@ function App() {
         
         <div className="stat-card">
           <div className="stat-number warning">{stats.enOffre}</div>
-          <div className="stat-label">En Offre</div>
+          <div className="stat-label">En Réservation</div>
           <div className="stat-percentage warning">{stats.total > 0 ? ((stats.enOffre/stats.total)*100).toFixed(1) : 0}%</div>
         </div>
       </div>
@@ -700,7 +700,7 @@ function App() {
             Modifier
           </button>
           <button className="btn btn-warning btn-lg">
-            Créer une offre
+            Créer une Réservation
           </button>
         </div>
       </div>
