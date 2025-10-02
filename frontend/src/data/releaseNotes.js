@@ -1,9 +1,69 @@
 // Système de gestion des notes de mise à jour
 // Pour ajouter une nouvelle version, ajoutez un objet au début du tableau
 
-export const CURRENT_VERSION = '0.7.2';
+export const CURRENT_VERSION = '0.8.0';
 
 export const releaseNotes = [
+  {
+    version: '0.8.0',
+    date: '2025-10-02',
+    title: '🚀 Système complet de gestion des retours et historiques',
+    sections: [
+      {
+        title: '✅ Gestion des retours de location',
+        items: [
+          'Nouveau bouton "Effectuer le retour" sur les équipements en location',
+          'Modal de retour avec date et note de retour',
+          'Passage automatique en statut "En Maintenance" avec motif pré-rempli',
+          'Archivage automatique dans l\'historique des locations',
+        ]
+      },
+      {
+        title: '📜 Historique complet des équipements',
+        items: [
+          'Bouton "Historique Locations" dans chaque fiche équipement',
+          'Bouton "Historique Maintenance" dans chaque fiche équipement',
+          'Visualisation complète de la vie du matériel',
+          'Tables détaillées avec dates, clients, notes de retour',
+        ]
+      },
+      {
+        title: '🗄️ Architecture base de données optimisée',
+        items: [
+          'Nouvelle table maintenance_history pour tracer toutes les interventions',
+          'Amélioration de location_history avec notes de retour',
+          'Index optimisés pour requêtes rapides',
+          'Préparation pour analytics et tableaux de bord futurs',
+        ]
+      },
+      {
+        title: '🎨 Interface améliorée',
+        items: [
+          'Affichage des notes de retour dans les fiches En Maintenance',
+          'Navigation simplifiée : clic sur onglet ferme automatiquement les fiches',
+          'Bouton "Démarrer Location" pour passer de Réservation → Location',
+          'Masquage intelligent du bouton "Créer Réservation" selon le statut',
+        ]
+      },
+      {
+        title: '🔧 Backend robuste',
+        items: [
+          'Route POST /api/equipment/:id/return avec transactions sécurisées',
+          'Routes GET pour historiques locations et maintenance',
+          'Gestion CORS améliorée (ajout méthode PATCH)',
+          'Archivage automatique avec rollback en cas d\'erreur',
+        ]
+      },
+      {
+        title: '🎯 Workflow complet',
+        items: [
+          'Sur Parc → Réservation → Location → Retour → Maintenance → Sur Parc',
+          'Traçabilité complète de chaque cycle de vie',
+          'Base solide pour futures analytics (taux utilisation, revenus, coûts)',
+        ]
+      }
+    ]
+  },
   {
     version: '0.7.2',
     date: '2025-10-01',

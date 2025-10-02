@@ -20,7 +20,7 @@ app.use(cors({
     /\.vercel\.app$/
   ],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
@@ -170,26 +170,183 @@ app.post("/api/equipment", async (req, res) => {
 app.patch("/api/equipment/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { certificat } = req.body;
+    const { certificat, statut, client, debutLocation, finLocationTheorique, numeroOffre, notesLocation } = req.body;
 
-    console.log(`📝 Mise à jour certificat pour équipement ${id}: ${certificat}`);
+    console.log(`📝 Mise à jour équipement ${id}:`, req.body);
 
-    const result = await pool.query(
-      "UPDATE equipments SET certificat = $1 WHERE id = $2 RETURNING *",
-      [certificat, id]
-    );
+    // Construction dynamique de la requête SQL
+    const updateFields = [];
+    const values = [];
+    let paramIndex = 1;
+
+    if (certificat !== undefined) {
+      updateFields.push(`certificat = $${paramIndex++}`);
+      values.push(certificat);
+    }
+    if (statut !== undefined) {
+      updateFields.push(`statut = $${paramIndex++}`);
+      values.push(statut);
+    }
+    if (client !== undefined) {
+      updateFields.push(`client = $${paramIndex++}`);
+      values.push(client);
+    }
+    if (debutLocation !== undefined) {
+      updateFields.push(`debut_location = $${paramIndex++}`);
+      values.push(debutLocation);
+    }
+    if (finLocationTheorique !== undefined) {
+      updateFields.push(`fin_location_theorique = $${paramIndex++}`);
+      values.push(finLocationTheorique);
+    }
+    if (numeroOffre !== undefined) {
+      updateFields.push(`numero_offre = $${paramIndex++}`);
+      values.push(numeroOffre);
+    }
+    if (notesLocation !== undefined) {
+      updateFields.push(`notes_location = $${paramIndex++}`);
+      values.push(notesLocation);
+    }
+
+    if (updateFields.length === 0) {
+      return res.status(400).json({ error: "Aucun champ à mettre à jour" });
+    }
+
+    values.push(id);
+    const query = `UPDATE equipments SET ${updateFields.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
+
+    const result = await pool.query(query, values);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Équipement non trouvé" });
     }
 
     res.json({
-      message: "✅ Certificat mis à jour",
+      message: "✅ Équipement mis à jour",
       equipment: result.rows[0]
     });
   } catch (err) {
     console.error("❌ Erreur mise à jour:", err.message);
     res.status(500).json({ error: "Erreur lors de la mise à jour" });
+  }
+});
+
+// Route pour effectuer le retour d'un équipement (Location -> Maintenance)
+app.post("/api/equipment/:id/return", async (req, res) => {
+  const client = await pool.connect();
+
+  try {
+    const { id } = req.params;
+    const { rentreeLe, noteRetour } = req.body;
+
+    console.log(`🔄 Retour équipement ${id}:`, { rentreeLe, noteRetour });
+
+    await client.query('BEGIN');
+
+    // 1. Récupérer les infos actuelles de l'équipement
+    const equipmentResult = await client.query(
+      'SELECT * FROM equipments WHERE id = $1',
+      [id]
+    );
+
+    if (equipmentResult.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: "Équipement non trouvé" });
+    }
+
+    const equipment = equipmentResult.rows[0];
+
+    // 2. Archiver dans location_history
+    await client.query(
+      `INSERT INTO location_history (
+        equipment_id, client, date_debut, date_fin, date_retour_reel,
+        numero_offre, notes_location, note_retour, rentre_le
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [
+        id,
+        equipment.client,
+        equipment.debut_location,
+        equipment.fin_location_theorique,
+        rentreeLe,
+        equipment.numero_offre,
+        equipment.notes_location,
+        noteRetour,
+        rentreeLe
+      ]
+    );
+
+    // 3. Créer entrée dans maintenance_history
+    await client.query(
+      `INSERT INTO maintenance_history (
+        equipment_id, motif_maintenance, note_retour, date_entree
+      ) VALUES ($1, $2, $3, NOW())`,
+      [id, 'Retour Location, à vérifier', noteRetour]
+    );
+
+    // 4. Mettre à jour l'équipement
+    await client.query(
+      `UPDATE equipments SET
+        statut = 'En Maintenance',
+        motif_maintenance = 'Retour Location, à vérifier',
+        note_retour = $1,
+        rentre_le = $2
+      WHERE id = $3`,
+      [noteRetour, rentreeLe, id]
+    );
+
+    await client.query('COMMIT');
+
+    console.log(`✅ Retour effectué pour équipement ${id}`);
+
+    res.json({
+      message: "✅ Retour effectué avec succès",
+      equipment_id: id
+    });
+
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error("❌ Erreur retour:", err.message);
+    res.status(500).json({ error: "Erreur lors du retour", details: err.message });
+  } finally {
+    client.release();
+  }
+});
+
+// Route pour récupérer l'historique des locations d'un équipement
+app.get("/api/equipment/:id/location-history", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      `SELECT * FROM location_history
+       WHERE equipment_id = $1
+       ORDER BY date_debut DESC`,
+      [id]
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("❌ Erreur historique locations:", err.message);
+    res.status(500).json({ error: "Erreur lors de la récupération de l'historique" });
+  }
+});
+
+// Route pour récupérer l'historique de maintenance d'un équipement
+app.get("/api/equipment/:id/maintenance-history", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      `SELECT * FROM maintenance_history
+       WHERE equipment_id = $1
+       ORDER BY date_entree DESC`,
+      [id]
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("❌ Erreur historique maintenance:", err.message);
+    res.status(500).json({ error: "Erreur lors de la récupération de l'historique" });
   }
 });
 

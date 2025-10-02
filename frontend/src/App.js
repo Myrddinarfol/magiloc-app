@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import { equipmentData as initialData } from './data/equipments';
 import CSVImporter from './components/CSVImporter';
@@ -42,69 +42,78 @@ function App() {
   });
   const [loadingMessage, setLoadingMessage] = useState('Chargement des données...');
   const [retryCount, setRetryCount] = useState(0);
+  const [showStartLocationModal, setShowStartLocationModal] = useState(false);
+  const [startLocationDate, setStartLocationDate] = useState('');
+  const [showReturnModal, setShowReturnModal] = useState(false);
+  const [returnForm, setReturnForm] = useState({
+    rentreeLe: '',
+    noteRetour: ''
+  });
+  const [showLocationHistory, setShowLocationHistory] = useState(false);
+  const [showMaintenanceHistory, setShowMaintenanceHistory] = useState(false);
+  const [locationHistory, setLocationHistory] = useState([]);
+  const [maintenanceHistory, setMaintenanceHistory] = useState([]);
 
-  // Chargement des données depuis l'API avec retry automatique
-  useEffect(() => {
-    const MAX_RETRIES = 12; // 12 tentatives = 60 secondes
-    const RETRY_DELAY = 5000; // 5 secondes entre chaque tentative
+  // Fonction de chargement des équipements (déplacée hors du useEffect pour être réutilisable)
+  const loadEquipments = async (attemptNumber = 1) => {
+    const MAX_RETRIES = 12;
+    const RETRY_DELAY = 5000;
 
-    const loadEquipments = async (attemptNumber = 1) => {
-      try {
-        console.log(`🔍 Tentative ${attemptNumber}/${MAX_RETRIES} - Chargement depuis:`, `${API_URL}/api/equipment`);
+    try {
+      console.log(`🔍 Tentative ${attemptNumber}/${MAX_RETRIES} - Chargement depuis:`, `${API_URL}/api/equipment`);
 
-        // Message dynamique selon la tentative
-        if (attemptNumber === 1) {
-          setLoadingMessage('Chargement des données...');
-        } else if (attemptNumber <= 3) {
-          setLoadingMessage('⏳ Le serveur démarre... (peut prendre 30 secondes)');
-        } else {
-          setLoadingMessage(`🔄 Nouvelle tentative ${attemptNumber}/${MAX_RETRIES}...`);
-        }
-
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // Timeout 10s
-
-        const response = await fetch(`${API_URL}/api/equipment`, {
-          signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log('✅ Données reçues:', data.length, 'équipements');
-          setEquipmentData(data);
-          setRetryCount(0);
-          setIsLoading(false);
-          return; // Succès, on arrête
-        } else {
-          throw new Error(`HTTP ${response.status}`);
-        }
-      } catch (error) {
-        console.error(`❌ Erreur tentative ${attemptNumber}:`, error.message);
-
-        // Si on n'a pas atteint le max de retries, on réessaye
-        if (attemptNumber < MAX_RETRIES) {
-          setRetryCount(attemptNumber);
-          setTimeout(() => {
-            loadEquipments(attemptNumber + 1);
-          }, RETRY_DELAY);
-        } else {
-          // Max retries atteint
-          console.error('💥 Échec après', MAX_RETRIES, 'tentatives');
-          setLoadingMessage('❌ Impossible de charger les données. Le serveur ne répond pas.');
-          setEquipmentData([]);
-          setIsLoading(false);
-        }
+      if (attemptNumber === 1) {
+        setLoadingMessage('Chargement des données...');
+      } else if (attemptNumber <= 3) {
+        setLoadingMessage('⏳ Le serveur démarre... (peut prendre 30 secondes)');
+      } else {
+        setLoadingMessage(`🔄 Nouvelle tentative ${attemptNumber}/${MAX_RETRIES}...`);
       }
-    };
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+      const response = await fetch(`${API_URL}/api/equipment`, {
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Données reçues:', data.length, 'équipements');
+        setEquipmentData(data);
+        setRetryCount(0);
+        setIsLoading(false);
+        return;
+      } else {
+        throw new Error(`HTTP ${response.status}`);
+      }
+    } catch (error) {
+      console.error(`❌ Erreur tentative ${attemptNumber}:`, error.message);
+
+      if (attemptNumber < MAX_RETRIES) {
+        setRetryCount(attemptNumber);
+        setTimeout(() => {
+          loadEquipments(attemptNumber + 1);
+        }, RETRY_DELAY);
+      } else {
+        console.error('💥 Échec après', MAX_RETRIES, 'tentatives');
+        setLoadingMessage('❌ Impossible de charger les données. Le serveur ne répond pas.');
+        setEquipmentData([]);
+        setIsLoading(false);
+      }
+    }
+  };
+
+  // Chargement initial au montage
+  useEffect(() => {
     if (isAuthenticated) {
       setIsLoading(true);
       loadEquipments();
     } else {
       setIsLoading(false);
     }
-  }, [isAuthenticated, API_URL]);
+  }, [isAuthenticated]);
 
   // Gestion des notes de mise à jour
   const handleNotesAccepted = () => {
@@ -115,6 +124,12 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem(AUTH_KEY);
     setIsAuthenticated(false);
+  };
+
+  // Fonction pour gérer la navigation (ferme la fiche détaillée automatiquement)
+  const handleNavigate = (page) => {
+    setSelectedEquipment(null); // Ferme la fiche si ouverte
+    setCurrentPage(page);
   };
 
   // Fonction pour générer le lien du certificat
@@ -182,6 +197,16 @@ function App() {
     }
 
     try {
+      console.log('🔄 Création de réservation pour:', selectedEquipment?.designation);
+      console.log('📦 Données envoyées:', {
+        statut: 'En Réservation',
+        client: reservationForm.client.trim(),
+        debutLocation: reservationForm.debutLocation || null,
+        finLocationTheorique: reservationForm.finLocationTheorique || null,
+        numeroOffre: reservationForm.numeroOffre.trim() || null,
+        notesLocation: reservationForm.notesLocation.trim() || null
+      });
+
       const response = await fetch(`${API_URL}/api/equipment/${selectedEquipment.id}`, {
         method: 'PATCH',
         headers: {
@@ -197,7 +222,12 @@ function App() {
         })
       });
 
+      console.log('📡 Réponse HTTP:', response.status);
+
       if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Réservation créée:', result);
+
         await loadEquipments();
         setShowReservationModal(false);
         setReservationForm({
@@ -210,11 +240,127 @@ function App() {
         setSelectedEquipment(null);
         alert('Réservation créée avec succès !');
       } else {
-        alert('Erreur lors de la création de la réservation');
+        const errorText = await response.text();
+        console.error('❌ Erreur serveur:', response.status, errorText);
+        alert(`Erreur lors de la création de la réservation: ${response.status}`);
       }
     } catch (error) {
-      console.error('Erreur:', error);
-      alert('Erreur lors de la création de la réservation');
+      console.error('❌ Erreur réseau:', error);
+      alert(`Erreur lors de la création de la réservation: ${error.message}`);
+    }
+  };
+
+  // Fonction pour démarrer une location
+  const handleStartLocation = async () => {
+    if (!startLocationDate) {
+      alert('Veuillez saisir la date de début de location');
+      return;
+    }
+
+    try {
+      console.log('🚀 Démarrage de location pour:', selectedEquipment?.designation);
+      console.log('📅 Date de début:', startLocationDate);
+
+      const response = await fetch(`${API_URL}/api/equipment/${selectedEquipment.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          statut: 'En Location',
+          debutLocation: startLocationDate
+        })
+      });
+
+      console.log('📡 Réponse HTTP:', response.status);
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Location démarrée:', result);
+
+        await loadEquipments();
+        setShowStartLocationModal(false);
+        setStartLocationDate('');
+        setSelectedEquipment(null);
+        alert('Location démarrée avec succès !');
+      } else {
+        const errorText = await response.text();
+        console.error('❌ Erreur serveur:', response.status, errorText);
+        alert(`Erreur lors du démarrage de la location: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('❌ Erreur réseau:', error);
+      alert(`Erreur lors du démarrage de la location: ${error.message}`);
+    }
+  };
+
+  // Fonction pour effectuer le retour d'un équipement
+  const handleReturn = async () => {
+    if (!returnForm.rentreeLe) {
+      alert('Veuillez saisir la date de retour');
+      return;
+    }
+
+    try {
+      console.log('🔄 Retour pour:', selectedEquipment?.designation);
+      console.log('📦 Données:', returnForm);
+
+      const response = await fetch(`${API_URL}/api/equipment/${selectedEquipment.id}/return`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(returnForm)
+      });
+
+      console.log('📡 Réponse HTTP:', response.status);
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Retour effectué:', result);
+
+        await loadEquipments();
+        setShowReturnModal(false);
+        setReturnForm({ rentreeLe: '', noteRetour: '' });
+        setSelectedEquipment(null);
+        alert('Retour effectué avec succès ! Le matériel est maintenant en maintenance.');
+      } else {
+        const errorText = await response.text();
+        console.error('❌ Erreur serveur:', response.status, errorText);
+        alert(`Erreur lors du retour: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('❌ Erreur réseau:', error);
+      alert(`Erreur lors du retour: ${error.message}`);
+    }
+  };
+
+  // Fonctions pour charger les historiques
+  const loadLocationHistory = async (equipmentId) => {
+    try {
+      const response = await fetch(`${API_URL}/api/equipment/${equipmentId}/location-history`);
+      if (response.ok) {
+        const data = await response.json();
+        setLocationHistory(data);
+        setShowLocationHistory(true);
+      }
+    } catch (error) {
+      console.error('❌ Erreur chargement historique locations:', error);
+      alert('Erreur lors du chargement de l\'historique des locations');
+    }
+  };
+
+  const loadMaintenanceHistory = async (equipmentId) => {
+    try {
+      const response = await fetch(`${API_URL}/api/equipment/${equipmentId}/maintenance-history`);
+      if (response.ok) {
+        const data = await response.json();
+        setMaintenanceHistory(data);
+        setShowMaintenanceHistory(true);
+      }
+    } catch (error) {
+      console.error('❌ Erreur chargement historique maintenance:', error);
+      alert('Erreur lors du chargement de l\'historique de maintenance');
     }
   };
 
@@ -379,7 +525,7 @@ function App() {
 
       <nav>
         <button
-          onClick={() => setCurrentPage('dashboard')}
+          onClick={() => handleNavigate('dashboard')}
           className={`nav-button ${currentPage === 'dashboard' ? 'active' : ''}`}
         >
           <span className="nav-icon">📊</span>
@@ -387,7 +533,7 @@ function App() {
         </button>
 
         <button
-          onClick={() => setCurrentPage('sur-parc')}
+          onClick={() => handleNavigate('sur-parc')}
           className={`nav-button ${currentPage === 'sur-parc' ? 'active' : ''}`}
         >
           <span className="nav-icon">🏢</span>
@@ -396,7 +542,7 @@ function App() {
         </button>
 
         <button
-          onClick={() => setCurrentPage('en-offre')}
+          onClick={() => handleNavigate('en-offre')}
           className={`nav-button ${currentPage === 'en-offre' ? 'active' : ''}`}
         >
           <span className="nav-icon">💰</span>
@@ -405,7 +551,7 @@ function App() {
         </button>
 
         <button
-          onClick={() => setCurrentPage('en-location')}
+          onClick={() => handleNavigate('en-location')}
           className={`nav-button ${currentPage === 'en-location' ? 'active' : ''}`}
         >
           <span className="nav-icon">🚚</span>
@@ -414,7 +560,7 @@ function App() {
         </button>
 
         <button
-          onClick={() => setCurrentPage('maintenance')}
+          onClick={() => handleNavigate('maintenance')}
           className={`nav-button ${currentPage === 'maintenance' ? 'active' : ''}`}
         >
           <span className="nav-icon">🔧</span>
@@ -423,7 +569,7 @@ function App() {
         </button>
 
         <button
-          onClick={() => setCurrentPage('planning')}
+          onClick={() => handleNavigate('planning')}
           className={`nav-button ${currentPage === 'planning' ? 'active' : ''}`}
         >
           <span className="nav-icon">📅</span>
@@ -431,7 +577,7 @@ function App() {
         </button>
 
         <button
-          onClick={() => setCurrentPage('parc-loc')}
+          onClick={() => handleNavigate('parc-loc')}
           className={`nav-button ${currentPage === 'parc-loc' ? 'active' : ''}`}
         >
           <span className="nav-icon">🏭</span>
@@ -692,6 +838,14 @@ function App() {
               <span className="detail-label">Motif maintenance:</span>
               <span className="detail-value">{selectedEquipment.motifMaintenance || 'N/A'}</span>
             </div>
+            {selectedEquipment.statut === 'En Maintenance' && selectedEquipment.noteRetour && (
+              <div className="detail-item">
+                <span className="detail-label">Note de retour:</span>
+                <span className="detail-value" style={{ fontStyle: 'italic', color: '#ff6b6b' }}>
+                  {selectedEquipment.noteRetour}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -742,21 +896,58 @@ function App() {
           </div>
         </div>
 
+        {/* Section Historiques */}
+        <div className="history-section" style={{ marginTop: '20px', display: 'flex', gap: '15px', justifyContent: 'center' }}>
+          <button
+            className="btn btn-secondary btn-lg"
+            onClick={() => loadLocationHistory(selectedEquipment.id)}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+          >
+            📜 Historique Locations
+          </button>
+          <button
+            className="btn btn-secondary btn-lg"
+            onClick={() => loadMaintenanceHistory(selectedEquipment.id)}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+          >
+            🔧 Historique Maintenance
+          </button>
+        </div>
+
         <div className="actions-container">
+          {selectedEquipment.statut === 'En Réservation' && (
+            <button
+              className="btn btn-success btn-lg"
+              onClick={() => {
+                setStartLocationDate('');
+                setShowStartLocationModal(true);
+              }}
+            >
+              🚀 Démarrer Location
+            </button>
+          )}
           {selectedEquipment.statut === 'En Location' && (
-            <button className="btn btn-success btn-lg">
-              Effectuer le retour
+            <button
+              className="btn btn-success btn-lg"
+              onClick={() => {
+                setReturnForm({ rentreeLe: '', noteRetour: '' });
+                setShowReturnModal(true);
+              }}
+            >
+              ✅ Effectuer le retour
             </button>
           )}
           <button className="btn btn-primary btn-lg">
             Modifier
           </button>
-          <button
-            className="btn btn-warning btn-lg"
-            onClick={() => setShowReservationModal(true)}
-          >
-            Créer une Réservation
-          </button>
+          {selectedEquipment.statut !== 'En Location' && selectedEquipment.statut !== 'En Maintenance' && (
+            <button
+              className="btn btn-warning btn-lg"
+              onClick={() => setShowReservationModal(true)}
+            >
+              Créer une Réservation
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -847,113 +1038,359 @@ function App() {
     </div>
   );
 
-  // Modal de création de réservation
-  const ReservationModal = () => (
-    <div className="release-notes-overlay">
-      <div className="reservation-modal">
-        <div className="modal-header">
-          <h2>📅 Créer une Réservation</h2>
-          <button onClick={() => {
-            setShowReservationModal(false);
-            setReservationForm({
-              client: '',
-              debutLocation: '',
-              finLocationTheorique: '',
-              numeroOffre: '',
-              notesLocation: ''
-            });
-          }} className="close-button">✕</button>
-        </div>
+  // Modal de création de réservation (mémoïsé pour éviter les re-renders)
+  const ReservationModal = useMemo(() => {
+    if (!showReservationModal) return null;
 
-        <div className="modal-content">
-          <p className="modal-description">
-            Remplissez les informations de réservation pour <strong>{selectedEquipment?.designation} {selectedEquipment?.cmu}</strong>
-          </p>
-
-          <div className="form-group">
-            <label htmlFor="client-input">Client * :</label>
-            <input
-              id="client-input"
-              type="text"
-              value={reservationForm.client}
-              onChange={(e) => setReservationForm({...reservationForm, client: e.target.value})}
-              placeholder="Nom du client"
-              className="form-input"
-              autoFocus
-            />
+    return (
+      <div className="release-notes-overlay">
+        <div className="reservation-modal">
+          <div className="modal-header">
+            <h2>📅 Créer une Réservation</h2>
+            <button onClick={() => {
+              setShowReservationModal(false);
+              setReservationForm({
+                client: '',
+                debutLocation: '',
+                finLocationTheorique: '',
+                numeroOffre: '',
+                notesLocation: ''
+              });
+            }} className="close-button">✕</button>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="debut-location-input">Début Location :</label>
-            <input
-              id="debut-location-input"
-              type="date"
-              value={reservationForm.debutLocation}
-              onChange={(e) => setReservationForm({...reservationForm, debutLocation: e.target.value})}
-              className="form-input"
-            />
+          <div className="modal-content">
+            <p className="modal-description">
+              Remplissez les informations de réservation pour <strong>{selectedEquipment?.designation} {selectedEquipment?.cmu}</strong>
+            </p>
+
+            <div className="form-group">
+              <label htmlFor="client-input">Client * :</label>
+              <input
+                id="client-input"
+                type="text"
+                value={reservationForm.client}
+                onChange={(e) => setReservationForm({...reservationForm, client: e.target.value})}
+                placeholder="Nom du client"
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="debut-location-input">Début Location :</label>
+              <input
+                id="debut-location-input"
+                type="date"
+                value={reservationForm.debutLocation}
+                onChange={(e) => setReservationForm({...reservationForm, debutLocation: e.target.value})}
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="fin-location-input">Fin Théorique :</label>
+              <input
+                id="fin-location-input"
+                type="date"
+                value={reservationForm.finLocationTheorique}
+                onChange={(e) => setReservationForm({...reservationForm, finLocationTheorique: e.target.value})}
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="numero-offre-input">N° Offre :</label>
+              <input
+                id="numero-offre-input"
+                type="text"
+                value={reservationForm.numeroOffre}
+                onChange={(e) => setReservationForm({...reservationForm, numeroOffre: e.target.value})}
+                placeholder="Ex: OFF-2025-001"
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="notes-input">Notes :</label>
+              <textarea
+                id="notes-input"
+                value={reservationForm.notesLocation}
+                onChange={(e) => setReservationForm({...reservationForm, notesLocation: e.target.value})}
+                placeholder="Notes complémentaires..."
+                className="form-input"
+                rows="4"
+              />
+            </div>
+
+            <p className="modal-info">
+              <small>* Champ obligatoire</small>
+            </p>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="fin-location-input">Fin Théorique :</label>
-            <input
-              id="fin-location-input"
-              type="date"
-              value={reservationForm.finLocationTheorique}
-              onChange={(e) => setReservationForm({...reservationForm, finLocationTheorique: e.target.value})}
-              className="form-input"
-            />
+          <div className="modal-footer">
+            <button onClick={() => {
+              setShowReservationModal(false);
+              setReservationForm({
+                client: '',
+                debutLocation: '',
+                finLocationTheorique: '',
+                numeroOffre: '',
+                notesLocation: ''
+              });
+            }} className="btn btn-gray">
+              Annuler
+            </button>
+            <button onClick={handleCreateReservation} className="btn btn-primary">
+              ✅ Valider la Réservation
+            </button>
           </div>
-
-          <div className="form-group">
-            <label htmlFor="numero-offre-input">N° Offre :</label>
-            <input
-              id="numero-offre-input"
-              type="text"
-              value={reservationForm.numeroOffre}
-              onChange={(e) => setReservationForm({...reservationForm, numeroOffre: e.target.value})}
-              placeholder="Ex: OFF-2025-001"
-              className="form-input"
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="notes-input">Notes :</label>
-            <textarea
-              id="notes-input"
-              value={reservationForm.notesLocation}
-              onChange={(e) => setReservationForm({...reservationForm, notesLocation: e.target.value})}
-              placeholder="Notes complémentaires..."
-              className="form-input"
-              rows="4"
-            />
-          </div>
-
-          <p className="modal-info">
-            <small>* Champ obligatoire</small>
-          </p>
-        </div>
-
-        <div className="modal-footer">
-          <button onClick={() => {
-            setShowReservationModal(false);
-            setReservationForm({
-              client: '',
-              debutLocation: '',
-              finLocationTheorique: '',
-              numeroOffre: '',
-              notesLocation: ''
-            });
-          }} className="btn btn-gray">
-            Annuler
-          </button>
-          <button onClick={handleCreateReservation} className="btn btn-primary">
-            ✅ Valider la Réservation
-          </button>
         </div>
       </div>
-    </div>
-  );
+    );
+  }, [showReservationModal, selectedEquipment, reservationForm]);
+
+  // Modal de démarrage de location (mémoïsé)
+  const StartLocationModal = useMemo(() => {
+    if (!showStartLocationModal) return null;
+
+    // Définir la date par défaut à aujourd'hui
+    const today = new Date().toISOString().split('T')[0];
+
+    return (
+      <div className="release-notes-overlay">
+        <div className="reservation-modal">
+          <div className="modal-header">
+            <h2>🚀 Démarrer la Location</h2>
+            <button onClick={() => {
+              setShowStartLocationModal(false);
+              setStartLocationDate('');
+            }} className="close-button">✕</button>
+          </div>
+
+          <div className="modal-content">
+            <p className="modal-description">
+              Démarrage de la location pour <strong>{selectedEquipment?.designation} {selectedEquipment?.cmu}</strong>
+            </p>
+
+            <div className="form-group">
+              <label htmlFor="start-date-input">Date de début de location * :</label>
+              <input
+                id="start-date-input"
+                type="date"
+                value={startLocationDate || today}
+                onChange={(e) => setStartLocationDate(e.target.value)}
+                className="form-input"
+              />
+            </div>
+
+            <p className="modal-info">
+              <small>Cette action passera le matériel en statut "En Location"</small>
+            </p>
+          </div>
+
+          <div className="modal-footer">
+            <button onClick={() => {
+              setShowStartLocationModal(false);
+              setStartLocationDate('');
+            }} className="btn btn-gray">
+              Annuler
+            </button>
+            <button onClick={handleStartLocation} className="btn btn-success">
+              ✅ Démarrer la Location
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }, [showStartLocationModal, selectedEquipment, startLocationDate]);
+
+  // Modal de retour (mémoïsé)
+  const ReturnModal = useMemo(() => {
+    if (!showReturnModal) return null;
+
+    const today = new Date().toISOString().split('T')[0];
+
+    return (
+      <div className="release-notes-overlay">
+        <div className="reservation-modal">
+          <div className="modal-header">
+            <h2>✅ Effectuer le Retour</h2>
+            <button onClick={() => {
+              setShowReturnModal(false);
+              setReturnForm({ rentreeLe: '', noteRetour: '' });
+            }} className="close-button">✕</button>
+          </div>
+
+          <div className="modal-content">
+            <p className="modal-description">
+              Retour de location pour <strong>{selectedEquipment?.designation} {selectedEquipment?.cmu}</strong>
+            </p>
+
+            <div className="form-group">
+              <label htmlFor="rentre-le-input">Date de retour * :</label>
+              <input
+                id="rentre-le-input"
+                type="date"
+                value={returnForm.rentreeLe || today}
+                onChange={(e) => setReturnForm({...returnForm, rentreeLe: e.target.value})}
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="note-retour-input">Note de retour :</label>
+              <textarea
+                id="note-retour-input"
+                value={returnForm.noteRetour}
+                onChange={(e) => setReturnForm({...returnForm, noteRetour: e.target.value})}
+                placeholder="Problèmes constatés, points à vérifier..."
+                className="form-input"
+                rows="4"
+              />
+            </div>
+
+            <p className="modal-info">
+              <small>⚠️ Le matériel passera en statut "En Maintenance" avec le motif "Retour Location, à vérifier"</small>
+            </p>
+          </div>
+
+          <div className="modal-footer">
+            <button onClick={() => {
+              setShowReturnModal(false);
+              setReturnForm({ rentreeLe: '', noteRetour: '' });
+            }} className="btn btn-gray">
+              Annuler
+            </button>
+            <button onClick={handleReturn} className="btn btn-success">
+              ✅ Valider le Retour
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }, [showReturnModal, selectedEquipment, returnForm]);
+
+  // Modal historique locations
+  const LocationHistoryModal = useMemo(() => {
+    if (!showLocationHistory) return null;
+
+    return (
+      <div className="release-notes-overlay">
+        <div className="reservation-modal" style={{ maxWidth: '900px' }}>
+          <div className="modal-header">
+            <h2>📜 Historique des Locations</h2>
+            <button onClick={() => setShowLocationHistory(false)} className="close-button">✕</button>
+          </div>
+
+          <div className="modal-content">
+            {locationHistory.length === 0 ? (
+              <p style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+                Aucun historique de location pour cet équipement
+              </p>
+            ) : (
+              <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd' }}>
+                      <th style={{ padding: '12px', textAlign: 'left' }}>Client</th>
+                      <th style={{ padding: '12px', textAlign: 'left' }}>Début</th>
+                      <th style={{ padding: '12px', textAlign: 'left' }}>Fin prévue</th>
+                      <th style={{ padding: '12px', textAlign: 'left' }}>Retour réel</th>
+                      <th style={{ padding: '12px', textAlign: 'left' }}>N° Offre</th>
+                      <th style={{ padding: '12px', textAlign: 'left' }}>Note</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {locationHistory.map((loc, index) => (
+                      <tr key={index} style={{ borderBottom: '1px solid #eee' }}>
+                        <td style={{ padding: '12px' }}>{loc.client || 'N/A'}</td>
+                        <td style={{ padding: '12px' }}>{loc.date_debut || 'N/A'}</td>
+                        <td style={{ padding: '12px' }}>{loc.date_fin || 'N/A'}</td>
+                        <td style={{ padding: '12px' }}>{loc.date_retour_reel || loc.rentre_le || 'N/A'}</td>
+                        <td style={{ padding: '12px' }}>{loc.numero_offre || 'N/A'}</td>
+                        <td style={{ padding: '12px', fontSize: '0.9em', fontStyle: 'italic', color: '#ff6b6b' }}>
+                          {loc.note_retour || '-'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          <div className="modal-footer">
+            <button onClick={() => setShowLocationHistory(false)} className="btn btn-gray">
+              Fermer
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }, [showLocationHistory, locationHistory]);
+
+  // Modal historique maintenance
+  const MaintenanceHistoryModal = useMemo(() => {
+    if (!showMaintenanceHistory) return null;
+
+    return (
+      <div className="release-notes-overlay">
+        <div className="reservation-modal" style={{ maxWidth: '900px' }}>
+          <div className="modal-header">
+            <h2>🔧 Historique de Maintenance</h2>
+            <button onClick={() => setShowMaintenanceHistory(false)} className="close-button">✕</button>
+          </div>
+
+          <div className="modal-content">
+            {maintenanceHistory.length === 0 ? (
+              <p style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+                Aucun historique de maintenance pour cet équipement
+              </p>
+            ) : (
+              <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd' }}>
+                      <th style={{ padding: '12px', textAlign: 'left' }}>Entrée</th>
+                      <th style={{ padding: '12px', textAlign: 'left' }}>Sortie</th>
+                      <th style={{ padding: '12px', textAlign: 'left' }}>Motif</th>
+                      <th style={{ padding: '12px', textAlign: 'left' }}>Note retour</th>
+                      <th style={{ padding: '12px', textAlign: 'left' }}>Travaux</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {maintenanceHistory.map((maint, index) => (
+                      <tr key={index} style={{ borderBottom: '1px solid #eee' }}>
+                        <td style={{ padding: '12px' }}>
+                          {maint.date_entree ? new Date(maint.date_entree).toLocaleDateString('fr-FR') : 'N/A'}
+                        </td>
+                        <td style={{ padding: '12px' }}>
+                          {maint.date_sortie ? new Date(maint.date_sortie).toLocaleDateString('fr-FR') : 'En cours'}
+                        </td>
+                        <td style={{ padding: '12px' }}>{maint.motif_maintenance || 'N/A'}</td>
+                        <td style={{ padding: '12px', fontSize: '0.9em', fontStyle: 'italic', color: '#ff6b6b' }}>
+                          {maint.note_retour || '-'}
+                        </td>
+                        <td style={{ padding: '12px', fontSize: '0.9em' }}>
+                          {maint.travaux_effectues || 'Non renseigné'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          <div className="modal-footer">
+            <button onClick={() => setShowMaintenanceHistory(false)} className="btn btn-gray">
+              Fermer
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }, [showMaintenanceHistory, maintenanceHistory]);
 
   // Rendu conditionnel selon l'état
   if (showReleaseNotes) {
@@ -985,7 +1422,11 @@ function App() {
         )}
 
         {showCertificatModal && <CertificatModal />}
-        {showReservationModal && <ReservationModal />}
+        {ReservationModal}
+        {StartLocationModal}
+        {ReturnModal}
+        {LocationHistoryModal}
+        {MaintenanceHistoryModal}
       </div>
       <Analytics />
     </>
