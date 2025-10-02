@@ -26,6 +26,41 @@ app.use(cors({
 
 app.use(express.json());
 
+// Fonction pour calculer les jours ouvrés (lundi-vendredi, hors jours fériés français)
+function calculateBusinessDays(startDateStr, endDateStr) {
+  if (!startDateStr || !endDateStr) return null;
+
+  const startDate = new Date(startDateStr);
+  const endDate = new Date(endDateStr);
+
+  if (isNaN(startDate) || isNaN(endDate) || endDate < startDate) return null;
+
+  // Jours fériés français 2025-2026
+  const holidays = [
+    '2025-01-01', '2025-04-21', '2025-05-01', '2025-05-08', '2025-05-29', '2025-06-09',
+    '2025-07-14', '2025-08-15', '2025-11-01', '2025-11-11', '2025-12-25',
+    '2026-01-01', '2026-04-06', '2026-05-01', '2026-05-08', '2026-05-14', '2026-05-25',
+    '2026-07-14', '2026-08-15', '2026-11-01', '2026-11-11', '2026-12-25'
+  ];
+
+  let businessDays = 0;
+  const currentDate = new Date(startDate);
+
+  while (currentDate <= endDate) {
+    const dayOfWeek = currentDate.getDay();
+    const dateStr = currentDate.toISOString().split('T')[0];
+
+    // Compter seulement si c'est un jour de semaine (1-5) et pas un jour férié
+    if (dayOfWeek !== 0 && dayOfWeek !== 6 && !holidays.includes(dateStr)) {
+      businessDays++;
+    }
+
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  return businessDays;
+}
+
 // Routes de base
 app.get("/", (req, res) => {
   res.json({ message: "MagiLoc API is running!" });
@@ -152,13 +187,25 @@ app.post("/api/equipment/import", async (req, res) => {
 // Route pour ajouter un équipement
 app.post("/api/equipment", async (req, res) => {
   try {
-    const { designation, numero_serie } = req.body;
+    const {
+      designation, cmu, modele, marque, longueur, numeroSerie, prixHT, etat,
+      prochainVGP, certificat, statut
+    } = req.body;
+
+    console.log("➕ Ajout nouvel équipement:", req.body);
 
     const result = await pool.query(
-      "INSERT INTO equipments (designation, numero_serie) VALUES ($1, $2) RETURNING *",
-      [designation, numero_serie]
+      `INSERT INTO equipments (
+        designation, cmu, modele, marque, longueur, numero_serie,
+        prix_ht_jour, etat, prochain_vgp, certificat, statut
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+      [
+        designation, cmu, modele, marque, longueur, numeroSerie,
+        prixHT, etat, prochainVGP, certificat, statut || 'Sur Parc'
+      ]
     );
 
+    console.log("✅ Équipement ajouté:", result.rows[0]);
     res.json({ message: "✅ Équipement ajouté", equipment: result.rows[0] });
   } catch (err) {
     console.error("❌ Erreur insertion:", err.message);
@@ -170,7 +217,10 @@ app.post("/api/equipment", async (req, res) => {
 app.patch("/api/equipment/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { certificat, statut, client, debutLocation, finLocationTheorique, numeroOffre, notesLocation } = req.body;
+    const {
+      certificat, statut, client, debutLocation, finLocationTheorique, numeroOffre, notesLocation,
+      modele, marque, longueur, numeroSerie, prixHT, etat
+    } = req.body;
 
     console.log(`📝 Mise à jour équipement ${id}:`, req.body);
 
@@ -206,6 +256,31 @@ app.patch("/api/equipment/:id", async (req, res) => {
     if (notesLocation !== undefined) {
       updateFields.push(`notes_location = $${paramIndex++}`);
       values.push(notesLocation);
+    }
+    // Nouveaux champs pour les informations techniques
+    if (modele !== undefined) {
+      updateFields.push(`modele = $${paramIndex++}`);
+      values.push(modele);
+    }
+    if (marque !== undefined) {
+      updateFields.push(`marque = $${paramIndex++}`);
+      values.push(marque);
+    }
+    if (longueur !== undefined) {
+      updateFields.push(`longueur = $${paramIndex++}`);
+      values.push(longueur);
+    }
+    if (numeroSerie !== undefined) {
+      updateFields.push(`numero_serie = $${paramIndex++}`);
+      values.push(numeroSerie);
+    }
+    if (prixHT !== undefined) {
+      updateFields.push(`prix_ht_jour = $${paramIndex++}`);
+      values.push(prixHT);
+    }
+    if (etat !== undefined) {
+      updateFields.push(`etat = $${paramIndex++}`);
+      values.push(etat);
     }
 
     if (updateFields.length === 0) {
@@ -256,12 +331,30 @@ app.post("/api/equipment/:id/return", async (req, res) => {
 
     const equipment = equipmentResult.rows[0];
 
-    // 2. Archiver dans location_history
+    // 2. Calculer le CA de la location
+    const businessDays = calculateBusinessDays(equipment.debut_location, rentreeLe);
+    const prixHT = equipment.prix_ht_jour ? parseFloat(equipment.prix_ht_jour) : null;
+    const isLongDuration = businessDays && businessDays >= 21;
+    let caTotal = null;
+
+    if (businessDays && prixHT) {
+      if (isLongDuration) {
+        // Remise 20% pour location longue durée
+        caTotal = (businessDays * prixHT * 0.8).toFixed(2);
+      } else {
+        caTotal = (businessDays * prixHT).toFixed(2);
+      }
+    }
+
+    console.log(`📊 CA calculé: ${caTotal}€ HT (${businessDays} jours × ${prixHT}€/j${isLongDuration ? ' - 20% LD' : ''})`);
+
+    // 3. Archiver dans location_history avec le CA
     await client.query(
       `INSERT INTO location_history (
         equipment_id, client, date_debut, date_fin, date_retour_reel,
-        numero_offre, notes_location, note_retour, rentre_le
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        numero_offre, notes_location, note_retour, rentre_le,
+        duree_jours_ouvres, prix_ht_jour, remise_ld, ca_total_ht
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
       [
         id,
         equipment.client,
@@ -271,7 +364,11 @@ app.post("/api/equipment/:id/return", async (req, res) => {
         equipment.numero_offre,
         equipment.notes_location,
         noteRetour,
-        rentreeLe
+        rentreeLe,
+        businessDays,
+        prixHT,
+        isLongDuration,
+        caTotal
       ]
     );
 

@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 
-function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, getStatusClass }) {
+function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, getStatusClass, setShowImporter, handleResetData, setShowAddEquipmentModal }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDesignation, setFilterDesignation] = useState('');
   const [filterCMU, setFilterCMU] = useState('');
@@ -145,77 +145,289 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, g
         <h1 className="page-title">{getPageTitle()}</h1>
       </div>
 
-      <div className="search-container">
-        <input
-          type="text"
-          placeholder="Recherche intelligente : ex. 'palan manuel 1t 10m'..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
-        />
-      </div>
+      {/* Layout spécial pour PARC LOC : filtres à gauche (50%) + boutons de gestion à droite (50%) */}
+      {currentPage === 'parc-loc' ? (
+        <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', alignItems: 'stretch' }}>
+          {/* Partie gauche : Filtres et recherche (50%) */}
+          <div style={{
+            flex: '1',
+            background: 'linear-gradient(145deg, #2a2a2a 0%, #1a1a1a 50%, #0a0a0a 100%)',
+            border: '3px solid transparent',
+            backgroundClip: 'padding-box',
+            position: 'relative',
+            borderRadius: '12px',
+            padding: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '15px',
+            boxShadow: '0 8px 24px rgba(220, 38, 38, 0.3), 0 2px 8px rgba(220, 38, 38, 0.2)'
+          }}>
+            <div style={{
+              content: '',
+              position: 'absolute',
+              top: '-3px',
+              left: '-3px',
+              right: '-3px',
+              bottom: '-3px',
+              background: 'linear-gradient(135deg, #dc2626, #ef4444, #f87171)',
+              borderRadius: '12px',
+              zIndex: '-1'
+            }}></div>
 
-      {/* Filtres spécifiques PARC LOC et SUR PARC */}
-      {(currentPage === 'parc-loc' || currentPage === 'sur-parc') && (
-        <div className="filters-container">
-          <div className="filter-group">
-            <label htmlFor="filter-designation">Désignation :</label>
-            <select
-              id="filter-designation"
-              value={filterDesignation}
-              onChange={(e) => setFilterDesignation(e.target.value)}
-              className="filter-select"
-            >
-              <option value="">Toutes les désignations</option>
-              {uniqueDesignations.map(designation => (
-                <option key={designation} value={designation}>{designation}</option>
-              ))}
-            </select>
+            <div className="search-container">
+              <input
+                type="text"
+                placeholder="Recherche intelligente : ex. 'palan manuel 1t 10m'..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input"
+              />
+            </div>
+
+            <div className="filters-container">
+              <div className="filter-group">
+                <label htmlFor="filter-designation">Désignation :</label>
+                <select
+                  id="filter-designation"
+                  value={filterDesignation}
+                  onChange={(e) => setFilterDesignation(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="">Toutes les désignations</option>
+                  {uniqueDesignations.map(designation => (
+                    <option key={designation} value={designation}>{designation}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="filter-group">
+                <label htmlFor="filter-cmu">CMU :</label>
+                <select
+                  id="filter-cmu"
+                  value={filterCMU}
+                  onChange={(e) => setFilterCMU(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="">Tous les CMU</option>
+                  {uniqueCMUs.map(cmu => (
+                    <option key={cmu} value={cmu}>{cmu}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="filter-group">
+                <label htmlFor="filter-longueur">Longueur :</label>
+                <select
+                  id="filter-longueur"
+                  value={filterLongueur}
+                  onChange={(e) => setFilterLongueur(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="">Toutes les longueurs</option>
+                  {uniqueLongueurs.map(longueur => (
+                    <option key={longueur} value={longueur}>{longueur}</option>
+                  ))}
+                </select>
+              </div>
+
+              {(filterDesignation || filterCMU || filterLongueur) && (
+                <button
+                  onClick={() => {
+                    setFilterDesignation('');
+                    setFilterCMU('');
+                    setFilterLongueur('');
+                  }}
+                  className="btn btn-secondary btn-sm"
+                >
+                  🔄 Réinitialiser les filtres
+                </button>
+              )}
+            </div>
           </div>
 
-          <div className="filter-group">
-            <label htmlFor="filter-cmu">CMU :</label>
-            <select
-              id="filter-cmu"
-              value={filterCMU}
-              onChange={(e) => setFilterCMU(e.target.value)}
-              className="filter-select"
-            >
-              <option value="">Tous les CMU</option>
-              {uniqueCMUs.map(cmu => (
-                <option key={cmu} value={cmu}>{cmu}</option>
-              ))}
-            </select>
-          </div>
+          {/* Partie droite : Boutons de gestion (50%) */}
+          <div style={{
+            flex: '1',
+            background: 'linear-gradient(145deg, #2a2a2a 0%, #1a1a1a 50%, #0a0a0a 100%)',
+            border: '3px solid transparent',
+            backgroundClip: 'padding-box',
+            position: 'relative',
+            borderRadius: '12px',
+            padding: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+            boxShadow: '0 8px 24px rgba(220, 38, 38, 0.3), 0 2px 8px rgba(220, 38, 38, 0.2)',
+            alignItems: 'center'
+          }}>
+            <div style={{
+              content: '',
+              position: 'absolute',
+              top: '-3px',
+              left: '-3px',
+              right: '-3px',
+              bottom: '-3px',
+              background: 'linear-gradient(135deg, #dc2626, #ef4444, #f87171)',
+              borderRadius: '12px',
+              zIndex: '-1'
+            }}></div>
 
-          <div className="filter-group">
-            <label htmlFor="filter-longueur">Longueur :</label>
-            <select
-              id="filter-longueur"
-              value={filterLongueur}
-              onChange={(e) => setFilterLongueur(e.target.value)}
-              className="filter-select"
-            >
-              <option value="">Toutes les longueurs</option>
-              {uniqueLongueurs.map(longueur => (
-                <option key={longueur} value={longueur}>{longueur}</option>
-              ))}
-            </select>
-          </div>
+            <h3 style={{ margin: '0 0 10px 0', color: '#dc2626', fontSize: '16px', fontWeight: 'bold' }}>
+              🛠️ Gestion du Parc
+            </h3>
 
-          {(filterDesignation || filterCMU || filterLongueur) && (
             <button
-              onClick={() => {
-                setFilterDesignation('');
-                setFilterCMU('');
-                setFilterLongueur('');
+              onClick={() => setShowImporter(true)}
+              className="btn btn-primary"
+              style={{
+                background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                color: 'white',
+                border: 'none',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: '600',
+                fontSize: '13px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                transition: 'all 0.3s ease',
+                width: '200px'
               }}
-              className="btn btn-secondary btn-sm"
+              onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+              onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
             >
-              🔄 Réinitialiser les filtres
+              📂 IMPORTER CSV
             </button>
-          )}
+
+            <button
+              onClick={handleResetData}
+              className="btn btn-danger"
+              style={{
+                background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                color: 'white',
+                border: 'none',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: '600',
+                fontSize: '13px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                transition: 'all 0.3s ease',
+                width: '200px'
+              }}
+              onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+              onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+            >
+              🔄 RÉINITIALISER
+            </button>
+
+            <button
+              onClick={() => setShowAddEquipmentModal(true)}
+              className="btn btn-success"
+              style={{
+                background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                color: 'white',
+                border: 'none',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: '600',
+                fontSize: '13px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                transition: 'all 0.3s ease',
+                width: '200px'
+              }}
+              onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+              onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+            >
+              ➕ AJOUTER
+            </button>
+          </div>
         </div>
+      ) : (
+        /* Layout normal pour les autres pages */
+        <>
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="Recherche intelligente : ex. 'palan manuel 1t 10m'..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+          </div>
+
+          {/* Filtres pour SUR PARC */}
+          {currentPage === 'sur-parc' && (
+            <div className="filters-container">
+              <div className="filter-group">
+                <label htmlFor="filter-designation">Désignation :</label>
+                <select
+                  id="filter-designation"
+                  value={filterDesignation}
+                  onChange={(e) => setFilterDesignation(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="">Toutes les désignations</option>
+                  {uniqueDesignations.map(designation => (
+                    <option key={designation} value={designation}>{designation}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="filter-group">
+                <label htmlFor="filter-cmu">CMU :</label>
+                <select
+                  id="filter-cmu"
+                  value={filterCMU}
+                  onChange={(e) => setFilterCMU(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="">Tous les CMU</option>
+                  {uniqueCMUs.map(cmu => (
+                    <option key={cmu} value={cmu}>{cmu}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="filter-group">
+                <label htmlFor="filter-longueur">Longueur :</label>
+                <select
+                  id="filter-longueur"
+                  value={filterLongueur}
+                  onChange={(e) => setFilterLongueur(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="">Toutes les longueurs</option>
+                  {uniqueLongueurs.map(longueur => (
+                    <option key={longueur} value={longueur}>{longueur}</option>
+                  ))}
+                </select>
+              </div>
+
+              {(filterDesignation || filterCMU || filterLongueur) && (
+                <button
+                  onClick={() => {
+                    setFilterDesignation('');
+                    setFilterCMU('');
+                    setFilterLongueur('');
+                  }}
+                  className="btn btn-secondary btn-sm"
+                >
+                  🔄 Réinitialiser les filtres
+                </button>
+              )}
+            </div>
+          )}
+        </>
       )}
 
       <div className="table-container">

@@ -53,6 +53,28 @@ function App() {
   const [showMaintenanceHistory, setShowMaintenanceHistory] = useState(false);
   const [locationHistory, setLocationHistory] = useState([]);
   const [maintenanceHistory, setMaintenanceHistory] = useState([]);
+  const [showEditTechInfoModal, setShowEditTechInfoModal] = useState(false);
+  const [techInfoForm, setTechInfoForm] = useState({
+    modele: '',
+    marque: '',
+    longueur: '',
+    numeroSerie: '',
+    prixHT: '',
+    etat: ''
+  });
+  const [showAddEquipmentModal, setShowAddEquipmentModal] = useState(false);
+  const [addEquipmentForm, setAddEquipmentForm] = useState({
+    designation: '',
+    cmu: '',
+    modele: '',
+    marque: '',
+    longueur: '',
+    numeroSerie: '',
+    prixHT: '',
+    etat: '',
+    prochainVGP: '',
+    certificat: ''
+  });
 
   // Fonction de chargement des équipements (déplacée hors du useEffect pour être réutilisable)
   const loadEquipments = async (attemptNumber = 1) => {
@@ -147,6 +169,41 @@ function App() {
     }
 
     return null;
+  };
+
+  // Fonction pour calculer les jours ouvrés (lundi-vendredi, hors jours fériés français)
+  const calculateBusinessDays = (startDateStr, endDateStr) => {
+    if (!startDateStr || !endDateStr) return null;
+
+    const startDate = new Date(startDateStr);
+    const endDate = new Date(endDateStr);
+
+    if (isNaN(startDate) || isNaN(endDate) || endDate < startDate) return null;
+
+    // Jours fériés français 2025-2026 (à adapter selon les années)
+    const holidays = [
+      '2025-01-01', '2025-04-21', '2025-05-01', '2025-05-08', '2025-05-29', '2025-06-09',
+      '2025-07-14', '2025-08-15', '2025-11-01', '2025-11-11', '2025-12-25',
+      '2026-01-01', '2026-04-06', '2026-05-01', '2026-05-08', '2026-05-14', '2026-05-25',
+      '2026-07-14', '2026-08-15', '2026-11-01', '2026-11-11', '2026-12-25'
+    ];
+
+    let businessDays = 0;
+    const currentDate = new Date(startDate);
+
+    while (currentDate <= endDate) {
+      const dayOfWeek = currentDate.getDay();
+      const dateStr = currentDate.toISOString().split('T')[0];
+
+      // Compter seulement si c'est un jour de semaine (1-5) et pas un jour férié
+      if (dayOfWeek !== 0 && dayOfWeek !== 6 && !holidays.includes(dateStr)) {
+        businessDays++;
+      }
+
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    return businessDays;
   };
 
   // Fonction pour mettre à jour le certificat
@@ -361,6 +418,131 @@ function App() {
     } catch (error) {
       console.error('❌ Erreur chargement historique maintenance:', error);
       alert('Erreur lors du chargement de l\'historique de maintenance');
+    }
+  };
+
+  // Fonction pour ouvrir le modal d'édition des informations techniques
+  const handleOpenEditTechInfo = () => {
+    setTechInfoForm({
+      modele: selectedEquipment.modele || '',
+      marque: selectedEquipment.marque || '',
+      longueur: selectedEquipment.longueur || '',
+      numeroSerie: selectedEquipment.numeroSerie || '',
+      prixHT: selectedEquipment.prixHT || '',
+      etat: selectedEquipment.etat || ''
+    });
+    setShowEditTechInfoModal(true);
+  };
+
+  // Fonction pour sauvegarder les modifications des informations techniques
+  const handleSaveTechInfo = async () => {
+    try {
+      console.log('💾 Sauvegarde des informations techniques pour:', selectedEquipment?.designation);
+      console.log('📝 Nouvelles données:', techInfoForm);
+
+      const response = await fetch(`${API_URL}/api/equipment/${selectedEquipment.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          modele: techInfoForm.modele,
+          marque: techInfoForm.marque,
+          longueur: techInfoForm.longueur,
+          numeroSerie: techInfoForm.numeroSerie,
+          prixHT: techInfoForm.prixHT,
+          etat: techInfoForm.etat
+        })
+      });
+
+      console.log('📡 Réponse HTTP:', response.status);
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Informations techniques mises à jour:', result);
+
+        await loadEquipments();
+        setShowEditTechInfoModal(false);
+        setTechInfoForm({
+          modele: '',
+          marque: '',
+          longueur: '',
+          numeroSerie: '',
+          prixHT: '',
+          etat: ''
+        });
+        alert('Informations techniques mises à jour avec succès !');
+      } else {
+        const errorText = await response.text();
+        console.error('❌ Erreur serveur:', response.status, errorText);
+        alert(`Erreur lors de la mise à jour: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('❌ Erreur réseau:', error);
+      alert(`Erreur lors de la mise à jour: ${error.message}`);
+    }
+  };
+
+  // Fonction pour ajouter un nouvel équipement
+  const handleAddEquipment = async () => {
+    // Validation des champs obligatoires
+    if (!addEquipmentForm.designation || !addEquipmentForm.numeroSerie) {
+      alert('Veuillez renseigner au minimum la Désignation et le N° de Série');
+      return;
+    }
+
+    try {
+      console.log('➕ Ajout d\'un nouvel équipement:', addEquipmentForm);
+
+      const response = await fetch(`${API_URL}/api/equipment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          designation: addEquipmentForm.designation,
+          cmu: addEquipmentForm.cmu,
+          modele: addEquipmentForm.modele,
+          marque: addEquipmentForm.marque,
+          longueur: addEquipmentForm.longueur,
+          numeroSerie: addEquipmentForm.numeroSerie,
+          prixHT: addEquipmentForm.prixHT,
+          etat: addEquipmentForm.etat,
+          prochainVGP: addEquipmentForm.prochainVGP,
+          certificat: addEquipmentForm.certificat,
+          statut: 'Sur Parc' // Par défaut, nouveau matériel sur parc
+        })
+      });
+
+      console.log('📡 Réponse HTTP:', response.status);
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Équipement ajouté:', result);
+
+        await loadEquipments();
+        setShowAddEquipmentModal(false);
+        setAddEquipmentForm({
+          designation: '',
+          cmu: '',
+          modele: '',
+          marque: '',
+          longueur: '',
+          numeroSerie: '',
+          prixHT: '',
+          etat: '',
+          prochainVGP: '',
+          certificat: ''
+        });
+        alert('Équipement ajouté avec succès !');
+      } else {
+        const errorText = await response.text();
+        console.error('❌ Erreur serveur:', response.status, errorText);
+        alert(`Erreur lors de l'ajout: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('❌ Erreur réseau:', error);
+      alert(`Erreur lors de l'ajout: ${error.message}`);
     }
   };
 
@@ -595,20 +777,6 @@ function App() {
 
       <div className="sidebar-bottom">
         <button
-          onClick={() => setShowImporter(!showImporter)}
-          className="import-button"
-        >
-          📁 Importer CSV
-        </button>
-
-        <button
-          onClick={handleResetData}
-          className="reset-button"
-        >
-          🔄 Réinitialiser
-        </button>
-
-        <button
           onClick={handleLogout}
           className="logout-button"
         >
@@ -695,6 +863,9 @@ function App() {
       currentPage={currentPage}
       setSelectedEquipment={setSelectedEquipment}
       getStatusClass={getStatusClass}
+      setShowImporter={setShowImporter}
+      handleResetData={handleResetData}
+      setShowAddEquipmentModal={setShowAddEquipmentModal}
     />
   );
 
@@ -775,7 +946,30 @@ function App() {
 
         <div className="detail-grid">
           <div className="detail-section">
-            <h3>Informations techniques</h3>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+              <h3 style={{ margin: 0 }}>Informations techniques</h3>
+              {currentPage === 'parc-loc' && (
+                <button
+                  className="btn btn-sm"
+                  onClick={handleOpenEditTechInfo}
+                  style={{
+                    background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                    color: 'white',
+                    border: 'none',
+                    padding: '8px 12px',
+                    fontSize: '18px',
+                    cursor: 'pointer',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                  title="Modifier les informations techniques"
+                >
+                  📜
+                </button>
+              )}
+            </div>
             <div className="detail-item">
               <span className="detail-label">Modèle:</span>
               <span className="detail-value">{selectedEquipment.modele || 'N/A'}</span>
@@ -808,45 +1002,79 @@ function App() {
             </div>
           </div>
 
-          <div className="detail-section">
-            <h3>Location & Maintenance</h3>
-            <div className="detail-item">
-              <span className="detail-label">Client:</span>
-              <span className="detail-value">{selectedEquipment.client || 'N/A'}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-label">Début location:</span>
-              <span className="detail-value">{selectedEquipment.debutLocation || 'N/A'}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-label">Fin théorique:</span>
-              <span className="detail-value">{selectedEquipment.finLocationTheorique || 'N/A'}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-label">Rentré le:</span>
-              <span className="detail-value">{selectedEquipment.rentreeLe || 'N/A'}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-label">N° Offre:</span>
-              <span className="detail-value">{selectedEquipment.numeroOffre || 'N/A'}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-label">Notes:</span>
-              <span className="detail-value">{selectedEquipment.notesLocation || 'N/A'}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-label">Motif maintenance:</span>
-              <span className="detail-value">{selectedEquipment.motifMaintenance || 'N/A'}</span>
-            </div>
-            {selectedEquipment.statut === 'En Maintenance' && selectedEquipment.noteRetour && (
+          {/* Section Location - affichée uniquement pour "En Réservation" et "En Location" */}
+          {(selectedEquipment.statut === 'En Réservation' || selectedEquipment.statut === 'En Location') && (
+            <div className="detail-section">
+              <h3>Location</h3>
               <div className="detail-item">
-                <span className="detail-label">Note de retour:</span>
-                <span className="detail-value" style={{ fontStyle: 'italic', color: '#ff6b6b' }}>
-                  {selectedEquipment.noteRetour}
-                </span>
+                <span className="detail-label">Client:</span>
+                <span className="detail-value">{selectedEquipment.client || 'N/A'}</span>
               </div>
-            )}
-          </div>
+              <div className="detail-item">
+                <span className="detail-label">Début location:</span>
+                <span className="detail-value">{selectedEquipment.debutLocation || 'N/A'}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Fin théorique:</span>
+                <span className="detail-value">{selectedEquipment.finLocationTheorique || 'N/A'}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">N° Offre:</span>
+                <span className="detail-value">{selectedEquipment.numeroOffre || 'N/A'}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Notes:</span>
+                <span className="detail-value">{selectedEquipment.notesLocation || 'N/A'}</span>
+              </div>
+              {(() => {
+                const businessDays = calculateBusinessDays(
+                  selectedEquipment.debutLocation,
+                  selectedEquipment.finLocationTheorique
+                );
+                const isLongDuration = businessDays && businessDays >= 21;
+                const prixHT = selectedEquipment.prixHT ? parseFloat(selectedEquipment.prixHT) : null;
+
+                return (
+                  <>
+                    {businessDays !== null && (
+                      <div className="detail-item">
+                        <span className="detail-label">Durée (jours ouvrés):</span>
+                        <span className="detail-value" style={{ fontWeight: 'bold', color: '#2196F3' }}>
+                          {businessDays} jour{businessDays > 1 ? 's' : ''}
+                        </span>
+                      </div>
+                    )}
+                    {isLongDuration && (
+                      <div className="detail-item" style={{ backgroundColor: '#fff3e0', padding: '10px', borderRadius: '8px', border: '2px solid #ff9800' }}>
+                        <span className="detail-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          ✅ Location Longue Durée:
+                        </span>
+                        <span className="detail-value" style={{ fontWeight: 'bold', color: '#f57c00' }}>
+                          Remise 20% applicable
+                          {prixHT && ` (${(prixHT * 0.8).toFixed(2)}€/j au lieu de ${prixHT}€/j)`}
+                        </span>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
+            </div>
+          )}
+
+          {/* Section Maintenance - affichée uniquement pour "En Maintenance" dans l'onglet Maintenance */}
+          {selectedEquipment.statut === 'En Maintenance' && currentPage === 'maintenance' && (
+            <div className="detail-section">
+              <h3>🔧 Gestion Maintenance</h3>
+              <div className="maintenance-panel">
+                <div className="maintenance-motif-box">
+                  <h4>📋 Motif de maintenance</h4>
+                  <div className="motif-content">
+                    {selectedEquipment.motifMaintenance || 'Aucun motif renseigné'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="vgp-section">
@@ -879,10 +1107,6 @@ function App() {
                 <span className="vgp-info-value">{selectedEquipment.certificat || 'Non renseigné'}</span>
               )}
             </div>
-            <div className="vgp-info-item">
-              <span className="vgp-info-label">Dernier VGP:</span>
-              <span className="vgp-info-value">{selectedEquipment.dernierVGP || 'N/A'}</span>
-            </div>
           </div>
 
           {/* Indicateur VGP stylé */}
@@ -896,19 +1120,33 @@ function App() {
           </div>
         </div>
 
-        {/* Section Historiques */}
-        <div className="history-section" style={{ marginTop: '20px', display: 'flex', gap: '15px', justifyContent: 'center' }}>
+        {/* Boutons Historiques en dessous de la section VGP */}
+        <div className="history-section" style={{ marginTop: '20px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           <button
-            className="btn btn-secondary btn-lg"
+            className="btn btn-lg"
             onClick={() => loadLocationHistory(selectedEquipment.id)}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: 'linear-gradient(135deg, #2196F3, #1976D2)',
+              color: 'white',
+              border: 'none'
+            }}
           >
             📜 Historique Locations
           </button>
           <button
-            className="btn btn-secondary btn-lg"
+            className="btn btn-lg"
             onClick={() => loadMaintenanceHistory(selectedEquipment.id)}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+              color: 'white',
+              border: 'none'
+            }}
           >
             🔧 Historique Maintenance
           </button>
@@ -937,9 +1175,6 @@ function App() {
               ✅ Effectuer le retour
             </button>
           )}
-          <button className="btn btn-primary btn-lg">
-            Modifier
-          </button>
           {selectedEquipment.statut !== 'En Location' && selectedEquipment.statut !== 'En Maintenance' && (
             <button
               className="btn btn-warning btn-lg"
@@ -1284,35 +1519,61 @@ function App() {
 
           <div className="modal-content">
             {locationHistory.length === 0 ? (
-              <p style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
-                Aucun historique de location pour cet équipement
+              <p className="history-empty">
+                📋 Aucun historique de location pour cet équipement
               </p>
             ) : (
-              <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <div className="history-table-container">
+                <table className="history-table">
                   <thead>
-                    <tr style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd' }}>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>Client</th>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>Début</th>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>Fin prévue</th>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>Retour réel</th>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>N° Offre</th>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>Note</th>
+                    <tr>
+                      <th>Client</th>
+                      <th>Début</th>
+                      <th>Retour réel</th>
+                      <th>Durée</th>
+                      <th>CA HT</th>
+                      <th>N° Offre</th>
+                      <th>Note</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {locationHistory.map((loc, index) => (
-                      <tr key={index} style={{ borderBottom: '1px solid #eee' }}>
-                        <td style={{ padding: '12px' }}>{loc.client || 'N/A'}</td>
-                        <td style={{ padding: '12px' }}>{loc.date_debut || 'N/A'}</td>
-                        <td style={{ padding: '12px' }}>{loc.date_fin || 'N/A'}</td>
-                        <td style={{ padding: '12px' }}>{loc.date_retour_reel || loc.rentre_le || 'N/A'}</td>
-                        <td style={{ padding: '12px' }}>{loc.numero_offre || 'N/A'}</td>
-                        <td style={{ padding: '12px', fontSize: '0.9em', fontStyle: 'italic', color: '#ff6b6b' }}>
-                          {loc.note_retour || '-'}
-                        </td>
-                      </tr>
-                    ))}
+                    {locationHistory.map((loc, index) => {
+                      const hasCA = loc.ca_total_ht && loc.duree_jours_ouvres && loc.prix_ht_jour;
+                      const caDetail = hasCA
+                        ? `${loc.duree_jours_ouvres}j × ${loc.prix_ht_jour}€/j${loc.remise_ld ? ' - 20% (LD)' : ''}`
+                        : '';
+
+                      return (
+                        <tr key={index}>
+                          <td className="history-client-name">{loc.client || 'N/A'}</td>
+                          <td>{loc.date_debut ? new Date(loc.date_debut).toLocaleDateString('fr-FR') : 'N/A'}</td>
+                          <td>{loc.date_retour_reel ? new Date(loc.date_retour_reel).toLocaleDateString('fr-FR') : 'N/A'}</td>
+                          <td>
+                            {loc.duree_jours_ouvres ? (
+                              <span className="history-duration">{loc.duree_jours_ouvres} j</span>
+                            ) : 'N/A'}
+                          </td>
+                          <td>
+                            {hasCA ? (
+                              <div className="history-ca-container">
+                                <span className="history-ca-amount">
+                                  {parseFloat(loc.ca_total_ht).toFixed(2)}€
+                                </span>
+                                <span className="history-ca-detail">
+                                  {caDetail}
+                                </span>
+                              </div>
+                            ) : 'N/A'}
+                          </td>
+                          <td>{loc.numero_offre || '-'}</td>
+                          <td>
+                            {loc.note_retour ? (
+                              <div className="history-note">{loc.note_retour}</div>
+                            ) : '-'}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -1392,6 +1653,324 @@ function App() {
     );
   }, [showMaintenanceHistory, maintenanceHistory]);
 
+  // Modal d'édition des informations techniques
+  const EditTechInfoModal = useMemo(() => {
+    if (!showEditTechInfoModal) return null;
+
+    return (
+      <div className="release-notes-overlay">
+        <div className="reservation-modal">
+          <div className="modal-header">
+            <h2>📜 Modifier les Informations Techniques</h2>
+            <button onClick={() => {
+              setShowEditTechInfoModal(false);
+              setTechInfoForm({
+                modele: '',
+                marque: '',
+                longueur: '',
+                numeroSerie: '',
+                prixHT: '',
+                etat: ''
+              });
+            }} className="close-button">✕</button>
+          </div>
+
+          <div className="modal-content">
+            <p className="modal-description">
+              Modification des informations techniques pour <strong>{selectedEquipment?.designation} {selectedEquipment?.cmu}</strong>
+            </p>
+
+            <div className="form-group">
+              <label htmlFor="modele-input">Modèle :</label>
+              <input
+                id="modele-input"
+                type="text"
+                value={techInfoForm.modele}
+                onChange={(e) => setTechInfoForm({...techInfoForm, modele: e.target.value})}
+                placeholder="Modèle"
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="marque-input">Marque :</label>
+              <input
+                id="marque-input"
+                type="text"
+                value={techInfoForm.marque}
+                onChange={(e) => setTechInfoForm({...techInfoForm, marque: e.target.value})}
+                placeholder="Marque"
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="longueur-input">Longueur :</label>
+              <input
+                id="longueur-input"
+                type="text"
+                value={techInfoForm.longueur}
+                onChange={(e) => setTechInfoForm({...techInfoForm, longueur: e.target.value})}
+                placeholder="Ex: 14m"
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="numero-serie-input">N° Série :</label>
+              <input
+                id="numero-serie-input"
+                type="text"
+                value={techInfoForm.numeroSerie}
+                onChange={(e) => setTechInfoForm({...techInfoForm, numeroSerie: e.target.value})}
+                placeholder="Numéro de série"
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="prix-ht-input">Prix HT/J :</label>
+              <input
+                id="prix-ht-input"
+                type="number"
+                step="0.01"
+                value={techInfoForm.prixHT}
+                onChange={(e) => setTechInfoForm({...techInfoForm, prixHT: e.target.value})}
+                placeholder="Ex: 150.00"
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="etat-input">État :</label>
+              <select
+                id="etat-input"
+                value={techInfoForm.etat}
+                onChange={(e) => setTechInfoForm({...techInfoForm, etat: e.target.value})}
+                className="form-input"
+              >
+                <option value="">-- Sélectionner --</option>
+                <option value="Neuf">Neuf</option>
+                <option value="Bon">Bon</option>
+                <option value="Moyen">Moyen</option>
+                <option value="Vieillissant">Vieillissant</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="modal-footer">
+            <button onClick={() => {
+              setShowEditTechInfoModal(false);
+              setTechInfoForm({
+                modele: '',
+                marque: '',
+                longueur: '',
+                numeroSerie: '',
+                prixHT: '',
+                etat: ''
+              });
+            }} className="btn btn-gray">
+              Annuler
+            </button>
+            <button onClick={handleSaveTechInfo} className="btn btn-primary">
+              💾 Sauvegarder
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }, [showEditTechInfoModal, selectedEquipment, techInfoForm]);
+
+  // Modal d'ajout d'équipement
+  const AddEquipmentModal = useMemo(() => {
+    if (!showAddEquipmentModal) return null;
+
+    return (
+      <div className="release-notes-overlay">
+        <div className="reservation-modal" style={{ maxWidth: '800px' }}>
+          <div className="modal-header">
+            <h2>➕ Ajouter un Nouvel Équipement</h2>
+            <button onClick={() => {
+              setShowAddEquipmentModal(false);
+              setAddEquipmentForm({
+                designation: '',
+                cmu: '',
+                modele: '',
+                marque: '',
+                longueur: '',
+                numeroSerie: '',
+                prixHT: '',
+                etat: '',
+                prochainVGP: '',
+                certificat: ''
+              });
+            }} className="close-button">✕</button>
+          </div>
+
+          <div className="modal-content">
+            <p className="modal-description">
+              Remplissez les informations du nouveau matériel
+            </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+              <div className="form-group">
+                <label htmlFor="designation-input">Désignation * :</label>
+                <input
+                  id="designation-input"
+                  type="text"
+                  value={addEquipmentForm.designation}
+                  onChange={(e) => setAddEquipmentForm({...addEquipmentForm, designation: e.target.value})}
+                  placeholder="Ex: PALAN ELECTRIQUE"
+                  className="form-input"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="cmu-input">CMU :</label>
+                <input
+                  id="cmu-input"
+                  type="text"
+                  value={addEquipmentForm.cmu}
+                  onChange={(e) => setAddEquipmentForm({...addEquipmentForm, cmu: e.target.value})}
+                  placeholder="Ex: 1T"
+                  className="form-input"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="modele-add-input">Modèle :</label>
+                <input
+                  id="modele-add-input"
+                  type="text"
+                  value={addEquipmentForm.modele}
+                  onChange={(e) => setAddEquipmentForm({...addEquipmentForm, modele: e.target.value})}
+                  placeholder="Modèle"
+                  className="form-input"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="marque-add-input">Marque :</label>
+                <input
+                  id="marque-add-input"
+                  type="text"
+                  value={addEquipmentForm.marque}
+                  onChange={(e) => setAddEquipmentForm({...addEquipmentForm, marque: e.target.value})}
+                  placeholder="Marque"
+                  className="form-input"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="longueur-add-input">Longueur :</label>
+                <input
+                  id="longueur-add-input"
+                  type="text"
+                  value={addEquipmentForm.longueur}
+                  onChange={(e) => setAddEquipmentForm({...addEquipmentForm, longueur: e.target.value})}
+                  placeholder="Ex: 14m"
+                  className="form-input"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="numero-serie-add-input">N° Série * :</label>
+                <input
+                  id="numero-serie-add-input"
+                  type="text"
+                  value={addEquipmentForm.numeroSerie}
+                  onChange={(e) => setAddEquipmentForm({...addEquipmentForm, numeroSerie: e.target.value})}
+                  placeholder="Numéro de série"
+                  className="form-input"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="prix-ht-add-input">Prix HT/J :</label>
+                <input
+                  id="prix-ht-add-input"
+                  type="number"
+                  step="0.01"
+                  value={addEquipmentForm.prixHT}
+                  onChange={(e) => setAddEquipmentForm({...addEquipmentForm, prixHT: e.target.value})}
+                  placeholder="Ex: 150.00"
+                  className="form-input"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="etat-add-input">État :</label>
+                <select
+                  id="etat-add-input"
+                  value={addEquipmentForm.etat}
+                  onChange={(e) => setAddEquipmentForm({...addEquipmentForm, etat: e.target.value})}
+                  className="form-input"
+                >
+                  <option value="">-- Sélectionner --</option>
+                  <option value="Neuf">Neuf</option>
+                  <option value="Bon">Bon</option>
+                  <option value="Moyen">Moyen</option>
+                  <option value="Vieillissant">Vieillissant</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="prochain-vgp-add-input">Prochain VGP :</label>
+                <input
+                  id="prochain-vgp-add-input"
+                  type="text"
+                  value={addEquipmentForm.prochainVGP}
+                  onChange={(e) => setAddEquipmentForm({...addEquipmentForm, prochainVGP: e.target.value})}
+                  placeholder="JJ/MM/AAAA"
+                  className="form-input"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="certificat-add-input">Certificat :</label>
+                <input
+                  id="certificat-add-input"
+                  type="text"
+                  value={addEquipmentForm.certificat}
+                  onChange={(e) => setAddEquipmentForm({...addEquipmentForm, certificat: e.target.value})}
+                  placeholder="N° de certificat"
+                  className="form-input"
+                />
+              </div>
+            </div>
+
+            <p className="modal-info">
+              <small>* Champs obligatoires</small>
+            </p>
+          </div>
+
+          <div className="modal-footer">
+            <button onClick={() => {
+              setShowAddEquipmentModal(false);
+              setAddEquipmentForm({
+                designation: '',
+                cmu: '',
+                modele: '',
+                marque: '',
+                longueur: '',
+                numeroSerie: '',
+                prixHT: '',
+                etat: '',
+                prochainVGP: '',
+                certificat: ''
+              });
+            }} className="btn btn-gray">
+              Annuler
+            </button>
+            <button onClick={handleAddEquipment} className="btn btn-primary">
+              ➕ Ajouter l'Équipement
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }, [showAddEquipmentModal, addEquipmentForm]);
+
   // Rendu conditionnel selon l'état
   if (showReleaseNotes) {
     return <ReleaseNotes />;
@@ -1427,6 +2006,8 @@ function App() {
         {ReturnModal}
         {LocationHistoryModal}
         {MaintenanceHistoryModal}
+        {EditTechInfoModal}
+        {AddEquipmentModal}
       </div>
       <Analytics />
     </>

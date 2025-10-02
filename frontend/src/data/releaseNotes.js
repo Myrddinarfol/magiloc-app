@@ -1,9 +1,79 @@
 // Système de gestion des notes de mise à jour
 // Pour ajouter une nouvelle version, ajoutez un objet au début du tableau
 
-export const CURRENT_VERSION = '0.8.0';
+export const CURRENT_VERSION = '0.8.1';
 
 export const releaseNotes = [
+  {
+    version: '0.8.1',
+    date: '2025-10-02',
+    title: '🛠️ Gestion avancée du parc et édition des fiches',
+    sections: [
+      {
+        title: '➕ Ajout de nouveau matériel',
+        items: [
+          'Nouveau bouton "AJOUTER" dans l\'onglet PARC LOC',
+          'Formulaire complet pour créer une nouvelle fiche équipement',
+          'Champs : Désignation, CMU, Modèle, Marque, Longueur, N° Série, Prix HT/J, État, VGP, Certificat',
+          'Ajout automatique avec statut "Sur Parc"',
+        ]
+      },
+      {
+        title: '📝 Édition des informations techniques',
+        items: [
+          'Bouton d\'édition (📜) dans les fiches PARC LOC',
+          'Modal d\'édition des informations techniques',
+          'Modification de Modèle, Marque, Longueur, N° Série, Prix HT/J, État',
+          'Sauvegarde instantanée avec rechargement automatique',
+        ]
+      },
+      {
+        title: '🎨 Refonte interface PARC LOC',
+        items: [
+          'Nouvelle disposition : filtres (50%) + boutons gestion (50%)',
+          'Cadres noir/rouge avec liserés rouges cohérents',
+          'Boutons centrés : IMPORTER CSV, RÉINITIALISER, AJOUTER',
+          'Déplacement des boutons hors de la sidebar',
+        ]
+      },
+      {
+        title: '💰 Calcul automatique du CA',
+        items: [
+          'Calcul des jours ouvrés (hors weekends et jours fériés français)',
+          'Badge "Location Longue Durée" pour locations ≥21 jours avec remise 20%',
+          'Affichage CA dans historique : "25j × 150€/j - 20% (LD) = 3000€ HT"',
+          'Colonnes CA en base : duree_jours_ouvres, prix_ht_jour, remise_ld, ca_total_ht',
+        ]
+      },
+      {
+        title: '🔧 Section Gestion Maintenance',
+        items: [
+          'Panneau maintenance uniquement dans onglet Maintenance',
+          'Affichage du motif de maintenance en rouge/noir',
+          'Design cohérent avec liserés rouges animés',
+          'Masquage automatique dans les autres onglets',
+        ]
+      },
+      {
+        title: '📊 Historique enrichi',
+        items: [
+          'Boutons repositionnés sous la section VGP',
+          'Historique Locations (bleu) et Maintenance (rouge)',
+          'Affichage détaillé du CA calculé dans l\'historique',
+          'Design rouge/noir pour les tableaux d\'historique',
+        ]
+      },
+      {
+        title: '🎯 Sections optimisées',
+        items: [
+          'Section Location affichée uniquement pour En Réservation et En Location',
+          'Section VGP réduite (50% largeur) et passage en 1 colonne',
+          'Suppression du champ "Dernier VGP" (redondant avec bannière)',
+          'Section Location & Maintenance masquée dans Sur Parc',
+        ]
+      },
+    ]
+  },
   {
     version: '0.8.0',
     date: '2025-10-02',
