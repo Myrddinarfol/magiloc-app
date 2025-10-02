@@ -32,6 +32,14 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [showCertificatModal, setShowCertificatModal] = useState(false);
   const [certificatInput, setCertificatInput] = useState('');
+  const [showReservationModal, setShowReservationModal] = useState(false);
+  const [reservationForm, setReservationForm] = useState({
+    client: '',
+    debutLocation: '',
+    finLocationTheorique: '',
+    numeroOffre: '',
+    notesLocation: ''
+  });
   const [loadingMessage, setLoadingMessage] = useState('Chargement des données...');
   const [retryCount, setRetryCount] = useState(0);
 
@@ -163,6 +171,50 @@ function App() {
     } catch (error) {
       console.error('Erreur:', error);
       alert('Erreur lors de la mise à jour du certificat');
+    }
+  };
+
+  // Fonction pour créer une réservation
+  const handleCreateReservation = async () => {
+    if (!reservationForm.client.trim()) {
+      alert('Veuillez saisir le nom du client');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/api/equipment/${selectedEquipment.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          statut: 'En Réservation',
+          client: reservationForm.client.trim(),
+          debutLocation: reservationForm.debutLocation || null,
+          finLocationTheorique: reservationForm.finLocationTheorique || null,
+          numeroOffre: reservationForm.numeroOffre.trim() || null,
+          notesLocation: reservationForm.notesLocation.trim() || null
+        })
+      });
+
+      if (response.ok) {
+        await loadEquipments();
+        setShowReservationModal(false);
+        setReservationForm({
+          client: '',
+          debutLocation: '',
+          finLocationTheorique: '',
+          numeroOffre: '',
+          notesLocation: ''
+        });
+        setSelectedEquipment(null);
+        alert('Réservation créée avec succès !');
+      } else {
+        alert('Erreur lors de la création de la réservation');
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      alert('Erreur lors de la création de la réservation');
     }
   };
 
@@ -699,7 +751,10 @@ function App() {
           <button className="btn btn-primary btn-lg">
             Modifier
           </button>
-          <button className="btn btn-warning btn-lg">
+          <button
+            className="btn btn-warning btn-lg"
+            onClick={() => setShowReservationModal(true)}
+          >
             Créer une Réservation
           </button>
         </div>
@@ -792,6 +847,114 @@ function App() {
     </div>
   );
 
+  // Modal de création de réservation
+  const ReservationModal = () => (
+    <div className="release-notes-overlay">
+      <div className="reservation-modal">
+        <div className="modal-header">
+          <h2>📅 Créer une Réservation</h2>
+          <button onClick={() => {
+            setShowReservationModal(false);
+            setReservationForm({
+              client: '',
+              debutLocation: '',
+              finLocationTheorique: '',
+              numeroOffre: '',
+              notesLocation: ''
+            });
+          }} className="close-button">✕</button>
+        </div>
+
+        <div className="modal-content">
+          <p className="modal-description">
+            Remplissez les informations de réservation pour <strong>{selectedEquipment?.designation} {selectedEquipment?.cmu}</strong>
+          </p>
+
+          <div className="form-group">
+            <label htmlFor="client-input">Client * :</label>
+            <input
+              id="client-input"
+              type="text"
+              value={reservationForm.client}
+              onChange={(e) => setReservationForm({...reservationForm, client: e.target.value})}
+              placeholder="Nom du client"
+              className="form-input"
+              autoFocus
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="debut-location-input">Début Location :</label>
+            <input
+              id="debut-location-input"
+              type="date"
+              value={reservationForm.debutLocation}
+              onChange={(e) => setReservationForm({...reservationForm, debutLocation: e.target.value})}
+              className="form-input"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="fin-location-input">Fin Théorique :</label>
+            <input
+              id="fin-location-input"
+              type="date"
+              value={reservationForm.finLocationTheorique}
+              onChange={(e) => setReservationForm({...reservationForm, finLocationTheorique: e.target.value})}
+              className="form-input"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="numero-offre-input">N° Offre :</label>
+            <input
+              id="numero-offre-input"
+              type="text"
+              value={reservationForm.numeroOffre}
+              onChange={(e) => setReservationForm({...reservationForm, numeroOffre: e.target.value})}
+              placeholder="Ex: OFF-2025-001"
+              className="form-input"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="notes-input">Notes :</label>
+            <textarea
+              id="notes-input"
+              value={reservationForm.notesLocation}
+              onChange={(e) => setReservationForm({...reservationForm, notesLocation: e.target.value})}
+              placeholder="Notes complémentaires..."
+              className="form-input"
+              rows="4"
+            />
+          </div>
+
+          <p className="modal-info">
+            <small>* Champ obligatoire</small>
+          </p>
+        </div>
+
+        <div className="modal-footer">
+          <button onClick={() => {
+            setShowReservationModal(false);
+            setReservationForm({
+              client: '',
+              debutLocation: '',
+              finLocationTheorique: '',
+              numeroOffre: '',
+              notesLocation: ''
+            });
+          }} className="btn btn-gray">
+            Annuler
+          </button>
+          <button onClick={handleCreateReservation} className="btn btn-primary">
+            ✅ Valider la Réservation
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   // Rendu conditionnel selon l'état
   if (showReleaseNotes) {
     return <ReleaseNotes />;
@@ -822,6 +985,7 @@ function App() {
         )}
 
         {showCertificatModal && <CertificatModal />}
+        {showReservationModal && <ReservationModal />}
       </div>
       <Analytics />
     </>
