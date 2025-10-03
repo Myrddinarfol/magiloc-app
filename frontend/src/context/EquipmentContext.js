@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { equipmentService } from '../services/equipmentService';
+import { cacheService } from '../services/cacheService';
 import { AuthContext } from './AuthContext';
 import { LOADING_CONFIG } from '../config/constants';
 
@@ -12,19 +13,47 @@ export const EquipmentProvider = ({ children }) => {
   const [loadingMessage, setLoadingMessage] = useState('Chargement des données...');
   const [retryCount, setRetryCount] = useState(0);
 
-  // Fonction de chargement des équipements
-  const loadEquipments = async (attemptNumber = 1) => {
+  // Fonction de chargement des équipements avec cache
+  const loadEquipments = async (attemptNumber = 1, skipCache = false) => {
+    const { MAX_RETRIES, RETRY_DELAY, TIMEOUT } = LOADING_CONFIG;
+
+    // 🚀 OPTIMISATION : Essayer d'abord le cache si ce n'est pas un rechargement forcé
+    if (!skipCache && attemptNumber === 1) {
+      const cachedData = cacheService.get();
+      if (cachedData && cachedData.length > 0) {
+        console.log('⚡ Chargement depuis le cache !');
+        setEquipmentData(cachedData);
+        setIsLoading(false);
+        setLoadingMessage('Données chargées depuis le cache');
+
+        // Rafraîchir en arrière-plan pour avoir les données à jour
+        setTimeout(() => {
+          console.log('🔄 Rafraîchissement en arrière-plan...');
+          loadEquipmentsFromAPI(1, true);
+        }, 100);
+
+        return cachedData;
+      }
+    }
+
+    return loadEquipmentsFromAPI(attemptNumber);
+  };
+
+  // Fonction de chargement depuis l'API
+  const loadEquipmentsFromAPI = async (attemptNumber = 1, silent = false) => {
     const { MAX_RETRIES, RETRY_DELAY, TIMEOUT } = LOADING_CONFIG;
 
     try {
       console.log(`🔍 Tentative ${attemptNumber}/${MAX_RETRIES} - Chargement des équipements`);
 
-      if (attemptNumber === 1) {
-        setLoadingMessage('Chargement des données...');
-      } else if (attemptNumber <= 3) {
-        setLoadingMessage('⏳ Le serveur démarre... (peut prendre 30 secondes)');
-      } else {
-        setLoadingMessage(`🔄 Nouvelle tentative ${attemptNumber}/${MAX_RETRIES}...`);
+      if (!silent) {
+        if (attemptNumber === 1) {
+          setLoadingMessage('Chargement des données...');
+        } else if (attemptNumber <= 3) {
+          setLoadingMessage('⏳ Le serveur démarre... (peut prendre 30 secondes)');
+        } else {
+          setLoadingMessage(`🔄 Nouvelle tentative ${attemptNumber}/${MAX_RETRIES}...`);
+        }
       }
 
       const controller = new AbortController();
@@ -34,9 +63,15 @@ export const EquipmentProvider = ({ children }) => {
       clearTimeout(timeoutId);
 
       console.log('✅ Données reçues:', data.length, 'équipements');
+
+      // 💾 Sauvegarder dans le cache
+      cacheService.set(data);
+
       setEquipmentData(data);
       setRetryCount(0);
-      setIsLoading(false);
+      if (!silent) {
+        setIsLoading(false);
+      }
       return data;
     } catch (error) {
       console.error(`❌ Erreur tentative ${attemptNumber}:`, error.message);
@@ -44,13 +79,15 @@ export const EquipmentProvider = ({ children }) => {
       if (attemptNumber < MAX_RETRIES) {
         setRetryCount(attemptNumber);
         setTimeout(() => {
-          loadEquipments(attemptNumber + 1);
+          loadEquipmentsFromAPI(attemptNumber + 1, silent);
         }, RETRY_DELAY);
       } else {
         console.error('💥 Échec après', MAX_RETRIES, 'tentatives');
-        setLoadingMessage('❌ Impossible de charger les données. Le serveur ne répond pas.');
-        setEquipmentData([]);
-        setIsLoading(false);
+        if (!silent) {
+          setLoadingMessage('❌ Impossible de charger les données. Le serveur ne répond pas.');
+          setEquipmentData([]);
+          setIsLoading(false);
+        }
       }
     }
   };
