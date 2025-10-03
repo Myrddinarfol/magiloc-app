@@ -71,6 +71,14 @@ const Sidebar = () => {
         </button>
 
         <button
+          onClick={() => handleNavigate('analytics')}
+          className={`nav-button ${currentPage === 'analytics' ? 'active' : ''}`}
+        >
+          <span className="nav-icon">📈</span>
+          <span className="nav-text">ANALYTICS</span>
+        </button>
+
+        <button
           onClick={() => handleNavigate('parc-loc')}
           className={`nav-button ${currentPage === 'parc-loc' ? 'active' : ''}`}
         >

@@ -15,6 +15,7 @@ import LoginPage from './pages/LoginPage';
 import ReleaseNotesPage from './pages/ReleaseNotesPage';
 import DashboardPage from './pages/DashboardPage';
 import PlanningPage from './pages/PlanningPage';
+import AnalyticsPage from './pages/AnalyticsPage';
 
 // Components
 import Sidebar from './components/layout/Sidebar';
@@ -119,6 +120,8 @@ const MainApp = () => {
         return <DashboardPage />;
       case 'planning':
         return <PlanningPage />;
+      case 'analytics':
+        return <AnalyticsPage />;
       default:
         return (
           <EquipmentListView
