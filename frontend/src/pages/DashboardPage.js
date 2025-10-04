@@ -93,6 +93,20 @@ const DashboardPage = () => {
         models: ['TR50', 'LM500+', 'LM500'],
         icon: '⚡',
         color: '#dc2626'
+      },
+      {
+        title: 'TE3000',
+        subtitle: 'Treuil électrique 3000kg',
+        models: ['TE3000'],
+        icon: '⚡',
+        color: '#8b5cf6'
+      },
+      {
+        title: 'TE1600',
+        subtitle: 'Treuil électrique 1600kg',
+        models: ['TE1600'],
+        icon: '⚡',
+        color: '#06b6d4'
       }
     ];
 

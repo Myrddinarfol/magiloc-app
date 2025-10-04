@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useEquipment } from '../../hooks/useEquipment';
 import { useUI } from '../../hooks/useUI';
@@ -7,6 +7,20 @@ const Sidebar = () => {
   const { logout } = useAuth();
   const { stats } = useEquipment();
   const { currentPage, handleNavigate, setShowNotesHistory, expandedMenus, toggleMenu } = useUI();
+  const [showSettings, setShowSettings] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+      setIsFullscreen(true);
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+        setIsFullscreen(false);
+      }
+    }
+  };
 
   return (
     <div className="sidebar">
@@ -15,6 +29,22 @@ const Sidebar = () => {
           <span className="logo-magi">MAGI</span>
           <span className="logo-loc">Loc</span>
         </h1>
+        <div className="logo-actions">
+          <button
+            onClick={toggleFullscreen}
+            className="action-button"
+            title={isFullscreen ? 'Quitter le plein écran' : 'Mode plein écran'}
+          >
+            {isFullscreen ? '📥' : '📤'}
+          </button>
+          <button
+            onClick={() => setShowSettings(true)}
+            className="action-button"
+            title="Paramètres"
+          >
+            ⚙️
+          </button>
+        </div>
       </div>
 
       <nav>
@@ -147,6 +177,35 @@ const Sidebar = () => {
           🚪 Déconnexion
         </button>
       </div>
+
+      {/* Modal Paramètres */}
+      {showSettings && (
+        <div className="modal-overlay" onClick={() => setShowSettings(false)}>
+          <div className="modal-content settings-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>⚙️ Paramètres</h2>
+              <button className="modal-close" onClick={() => setShowSettings(false)}>✕</button>
+            </div>
+            <div className="modal-body">
+              <div className="settings-section">
+                <h3>🎨 Thème de l'application</h3>
+                <div className="theme-options">
+                  <button className="theme-option active">
+                    <div className="theme-preview dark"></div>
+                    <span>Mode Sombre</span>
+                    <span className="check-icon">✓</span>
+                  </button>
+                  <button className="theme-option disabled" disabled>
+                    <div className="theme-preview light"></div>
+                    <span>Mode Clair</span>
+                    <span className="coming-soon">Bientôt disponible</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
