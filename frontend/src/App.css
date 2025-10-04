@@ -4493,6 +4493,7 @@ body.light-theme .nav-button.active {
 
 body.light-theme .nav-badge {
   background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: white;
 }
 
 body.light-theme .logout-button {
