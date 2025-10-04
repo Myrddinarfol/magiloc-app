@@ -337,17 +337,25 @@ body {
   margin-bottom: 10px;
 }
 
-.nav-arrow {
-  font-size: 12px;
-  transition: transform 0.3s ease;
-  margin-left: auto;
-  flex-shrink: 0;
-  min-width: 16px;
-  text-align: center;
+/* Flèche en bas du bouton pour sous-menus */
+.nav-button.has-submenu {
+  position: relative;
+  padding-bottom: 18px;
 }
 
-.nav-arrow.expanded {
-  transform: rotate(180deg);
+.nav-arrow-bottom {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  transition: transform 0.3s ease;
+  opacity: 0.7;
+}
+
+.nav-arrow-bottom.expanded {
+  transform: translateX(-50%) rotate(180deg);
+  opacity: 1;
 }
 
 .nav-submenu {
@@ -4672,4 +4680,8 @@ body.light-theme .modal-header h2 {
 
 body.light-theme .modal-overlay {
   background: rgba(0, 0, 0, 0.5);
+}
+
+body.light-theme .nav-arrow-bottom {
+  color: #334155;
 }

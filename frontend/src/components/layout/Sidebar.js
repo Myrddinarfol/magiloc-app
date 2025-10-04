@@ -86,12 +86,12 @@ const Sidebar = () => {
         <div className="nav-menu-section">
           <button
             onClick={() => toggleMenu('location')}
-            className={`nav-button ${currentPage.startsWith('location-') || currentPage === 'en-offre' ? 'active' : ''}`}
+            className={`nav-button has-submenu ${currentPage.startsWith('location-') || currentPage === 'en-offre' ? 'active' : ''}`}
           >
             <span className="nav-icon">🚚</span>
             <span className="nav-text">LOCATION</span>
             <span className="nav-badge">{stats.enLocation}</span>
-            <span className={`nav-arrow ${expandedMenus.location ? 'expanded' : ''}`}>▼</span>
+            <span className={`nav-arrow-bottom ${expandedMenus.location ? 'expanded' : ''}`}>▼</span>
           </button>
           {expandedMenus.location && (
             <div className="nav-submenu">
@@ -125,12 +125,12 @@ const Sidebar = () => {
         <div className="nav-menu-section">
           <button
             onClick={() => toggleMenu('maintenance')}
-            className={`nav-button ${currentPage.startsWith('maintenance-') ? 'active' : ''}`}
+            className={`nav-button has-submenu ${currentPage.startsWith('maintenance-') ? 'active' : ''}`}
           >
             <span className="nav-icon">🔧</span>
             <span className="nav-text">MAINTENANCE</span>
             <span className="nav-badge">{stats.enMaintenance}</span>
-            <span className={`nav-arrow ${expandedMenus.maintenance ? 'expanded' : ''}`}>▼</span>
+            <span className={`nav-arrow-bottom ${expandedMenus.maintenance ? 'expanded' : ''}`}>▼</span>
           </button>
           {expandedMenus.maintenance && (
             <div className="nav-submenu">
