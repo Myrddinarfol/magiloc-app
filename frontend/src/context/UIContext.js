@@ -29,6 +29,12 @@ export const UIProvider = ({ children }) => {
   const [showAddEquipmentModal, setShowAddEquipmentModal] = useState(false);
   const [showNotesHistory, setShowNotesHistory] = useState(false);
 
+  // Notifications toast
+  const [toasts, setToasts] = useState([]);
+
+  // Filtre pour les équipements (modèles)
+  const [equipmentFilter, setEquipmentFilter] = useState(null);
+
   // Release Notes
   const [showReleaseNotes, setShowReleaseNotes] = useState(() => {
     const lastSeenVersion = localStorage.getItem(VERSION_KEY);
@@ -73,8 +79,20 @@ export const UIProvider = ({ children }) => {
     if (window.confirm('Êtes-vous sûr de vouloir réinitialiser toutes les données ? Cette action est irréversible.')) {
       setEquipmentData(initialData);
       localStorage.removeItem(STORAGE_KEY);
-      alert('Données réinitialisées !');
+      showToast('Données réinitialisées !', 'success');
     }
+  };
+
+  // Fonction pour afficher un toast
+  const showToast = (message, type = 'info') => {
+    const id = Date.now();
+    const newToast = { id, message, type };
+    setToasts(prev => [...prev, newToast]);
+
+    // Auto-suppression après 4 secondes
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, 4000);
   };
 
   return (
@@ -111,7 +129,11 @@ export const UIProvider = ({ children }) => {
       handleGoBack,
       handleResetData,
       expandedMenus,
-      toggleMenu
+      toggleMenu,
+      toasts,
+      showToast,
+      equipmentFilter,
+      setEquipmentFilter
     }}>
       {children}
     </UIContext.Provider>

@@ -70,7 +70,9 @@ const MainApp = () => {
     setShowNotesHistory,
     handleResetData,
     handleGoBack,
-    handleOpenEquipmentDetail
+    handleOpenEquipmentDetail,
+    toasts,
+    showToast
   } = useUI();
 
   const { locationHistory, maintenanceHistory, loadLocationHistory, loadMaintenanceHistory } = useHistory();
@@ -91,7 +93,7 @@ const MainApp = () => {
     setEquipmentData(newData);
     setShowImporter(false);
     localStorage.removeItem(STORAGE_KEY);
-    alert(`${newData.length} équipements importés avec succès !`);
+    showToast(`${newData.length} équipements importés avec succès !`, 'success');
 
     try {
       const freshData = await loadEquipments();
@@ -159,11 +161,26 @@ const MainApp = () => {
       <div className="main-content">
         {showImporter && (
           <div style={{ marginBottom: '20px' }}>
-            <CSVImporter onDataImported={handleDataImported} />
+            <CSVImporter onDataImported={handleDataImported} showToast={showToast} />
           </div>
         )}
 
         {renderMainContent()}
+      </div>
+
+      {/* Toast Notifications */}
+      <div className="toast-container">
+        {toasts.map(toast => (
+          <div key={toast.id} className={`toast toast-${toast.type}`}>
+            <span className="toast-icon">
+              {toast.type === 'success' && '✓'}
+              {toast.type === 'error' && '✕'}
+              {toast.type === 'info' && 'ℹ'}
+              {toast.type === 'warning' && '⚠'}
+            </span>
+            <span className="toast-message">{toast.message}</span>
+          </div>
+        ))}
       </div>
 
       {/* Modals */}

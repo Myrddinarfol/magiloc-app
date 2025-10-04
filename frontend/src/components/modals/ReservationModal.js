@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { equipmentService } from '../../services/equipmentService';
+import { useUI } from '../../hooks/useUI';
 
 const ReservationModal = ({ equipment, onClose, onSuccess }) => {
+  const { showToast } = useUI();
   const [form, setForm] = useState({
     client: '',
     debutLocation: '',
@@ -12,7 +14,7 @@ const ReservationModal = ({ equipment, onClose, onSuccess }) => {
 
   const handleSubmit = async () => {
     if (!form.client.trim()) {
-      alert('Veuillez saisir le nom du client');
+      showToast('Veuillez saisir le nom du client', 'warning');
       return;
     }
 
@@ -37,10 +39,10 @@ const ReservationModal = ({ equipment, onClose, onSuccess }) => {
         numeroOffre: '',
         notesLocation: ''
       });
-      alert('Réservation créée avec succès !');
+      showToast('Réservation créée avec succès !', 'success');
     } catch (error) {
       console.error('❌ Erreur:', error);
-      alert(`Erreur lors de la création de la réservation: ${error.message}`);
+      showToast(`Erreur lors de la création de la réservation: ${error.message}`, 'error');
     }
   };
 

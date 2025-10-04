@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { equipmentService } from '../../services/equipmentService';
+import { useUI } from '../../hooks/useUI';
 
 const ReturnModal = ({ equipment, onClose, onSuccess }) => {
+  const { showToast } = useUI();
   const today = new Date().toISOString().split('T')[0];
   const [form, setForm] = useState({
     rentreeLe: today,
@@ -10,7 +12,7 @@ const ReturnModal = ({ equipment, onClose, onSuccess }) => {
 
   const handleSubmit = async () => {
     if (!form.rentreeLe) {
-      alert('Veuillez saisir la date de retour');
+      showToast('Veuillez saisir la date de retour', 'warning');
       return;
     }
 
@@ -22,10 +24,10 @@ const ReturnModal = ({ equipment, onClose, onSuccess }) => {
       console.log('✅ Retour effectué');
       onSuccess();
       setForm({ rentreeLe: '', noteRetour: '' });
-      alert('Retour effectué avec succès ! Le matériel est maintenant en maintenance.');
+      showToast('Retour effectué avec succès ! Le matériel est maintenant en maintenance.', 'success');
     } catch (error) {
       console.error('❌ Erreur:', error);
-      alert(`Erreur lors du retour: ${error.message}`);
+      showToast(`Erreur lors du retour: ${error.message}`, 'error');
     }
   };
 

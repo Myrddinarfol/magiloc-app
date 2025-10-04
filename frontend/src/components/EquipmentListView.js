@@ -1,10 +1,22 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useUI } from '../hooks/useUI';
 
 function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, handleOpenEquipmentDetail, getStatusClass, setShowImporter, handleResetData, setShowAddEquipmentModal }) {
+  const { equipmentFilter, setEquipmentFilter } = useUI();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDesignation, setFilterDesignation] = useState('');
   const [filterCMU, setFilterCMU] = useState('');
   const [filterLongueur, setFilterLongueur] = useState('');
+
+  // Réinitialiser les filtres locaux quand on change de page (sauf si on a un filtre de modèles)
+  useEffect(() => {
+    if (!equipmentFilter) {
+      setSearchTerm('');
+      setFilterDesignation('');
+      setFilterCMU('');
+      setFilterLongueur('');
+    }
+  }, [currentPage, equipmentFilter]);
 
   // Fonction pour calculer l'indicateur VGP avec texte détaillé
   const getVGPIndicator = (prochainVGP) => {
@@ -100,6 +112,15 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, h
         filtered = equipmentData;
     }
 
+    // Filtre global de modèles (depuis produits phares)
+    if (equipmentFilter && equipmentFilter.models && equipmentFilter.models.length > 0) {
+      filtered = filtered.filter(eq =>
+        equipmentFilter.models.some(model =>
+          eq.modele && eq.modele.toUpperCase().includes(model.toUpperCase())
+        )
+      );
+    }
+
     // Filtres spécifiques PARC LOC et SUR PARC
     if (currentPage === 'parc-loc' || currentPage === 'sur-parc') {
       if (filterDesignation) {
@@ -139,12 +160,44 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, h
     }
 
     return filtered;
-  }, [equipmentData, currentPage, searchTerm, filterDesignation, filterCMU, filterLongueur]);
+  }, [equipmentData, currentPage, searchTerm, filterDesignation, filterCMU, filterLongueur, equipmentFilter]);
 
   return (
     <div>
       <div className="page-header">
         <h1 className="page-title">{getPageTitle()}</h1>
+        {equipmentFilter && equipmentFilter.models && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
+            <span style={{
+              background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+              color: 'white',
+              padding: '6px 14px',
+              borderRadius: '6px',
+              fontSize: '13px',
+              fontWeight: '600',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              🔍 Filtre: {equipmentFilter.models.join(', ')}
+            </span>
+            <button
+              onClick={() => setEquipmentFilter(null)}
+              style={{
+                background: '#dc2626',
+                color: 'white',
+                border: 'none',
+                padding: '6px 12px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '12px',
+                fontWeight: '600'
+              }}
+            >
+              ✕ Réinitialiser
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Layout spécial pour PARC LOC : filtres à gauche (50%) + boutons de gestion à droite (50%) */}

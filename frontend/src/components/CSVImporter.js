@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Papa from 'papaparse';
 
-function CSVImporter({ onDataImported }) {
+function CSVImporter({ onDataImported, showToast }) {
   const [isLoading, setIsLoading] = useState(false);
   const [fileName, setFileName] = useState('');
   const [error, setError] = useState('');
@@ -81,7 +81,9 @@ const transformedData = results.data
           console.log('✅ Import réussi:', result);
 
           onDataImported(transformedData);
-          alert(`✅ ${transformedData.length} équipements importés avec succès !`);
+          if (showToast) {
+            showToast(`${transformedData.length} équipements importés avec succès !`, 'success');
+          }
           
         } catch (err) {
           console.error('❌ Erreur:', err);

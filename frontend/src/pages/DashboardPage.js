@@ -142,10 +142,10 @@ const DashboardPage = () => {
 
   // Fonction pour filtrer et naviguer vers les matériels phares
   const handleFeaturedClick = (models) => {
+    // Définir le filtre de modèles
+    setEquipmentFilter({ models });
     // Navigation vers Sur Parc avec filtre
     setCurrentPage('sur-parc');
-    // Le filtre sera appliqué via un état global si nécessaire
-    // Pour l'instant, on navigue juste vers la page
   };
 
   const formatDate = (dateStr) => {
@@ -158,7 +158,7 @@ const DashboardPage = () => {
   return (
     <div className="dashboard">
       <div className="dashboard-header">
-        <h1>📊 Tableau de bord</h1>
+        <h1>🏠 Tableau de bord</h1>
         <p className="dashboard-subtitle">Parc Location COUERON</p>
       </div>
 
@@ -178,7 +178,7 @@ const DashboardPage = () => {
 
           <div className="stat-compact-card">
             <div className="stat-compact-left">
-              <div className="stat-compact-icon">📍</div>
+              <div className="stat-compact-icon">🚚</div>
               <div className="stat-compact-label primary">Location</div>
             </div>
             <div className="stat-compact-right">
@@ -261,7 +261,7 @@ const DashboardPage = () => {
         <h2>📅 Cette Semaine</h2>
         <div className="week-events-grid">
           <div className="event-card">
-            <h3>⏰ Retours Prévus ({weekEvents.returnsThisWeek.length})</h3>
+            <h3>🔙 Retours Prévus ({weekEvents.returnsThisWeek.length})</h3>
             <div className="event-list">
               {weekEvents.returnsThisWeek.length === 0 ? (
                 <p className="event-empty">Aucun retour prévu</p>
@@ -277,7 +277,7 @@ const DashboardPage = () => {
           </div>
 
           <div className="event-card">
-            <h3>🚀 Départs Prévus ({weekEvents.reservationsThisWeek.length})</h3>
+            <h3>📤 Départs Prévus ({weekEvents.reservationsThisWeek.length})</h3>
             <div className="event-list">
               {weekEvents.reservationsThisWeek.length === 0 ? (
                 <p className="event-empty">Aucun départ prévu</p>
@@ -334,7 +334,7 @@ const DashboardPage = () => {
         </div>
 
         <div className="dashboard-card">
-          <h3>📍 Locations en Cours</h3>
+          <h3>🚚 Locations en Cours</h3>
           <div className="current-locations">
             {currentLocations.length === 0 ? (
               <p className="event-empty">Aucune location en cours</p>

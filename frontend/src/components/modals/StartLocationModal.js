@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { equipmentService } from '../../services/equipmentService';
+import { useUI } from '../../hooks/useUI';
 
 const StartLocationModal = ({ equipment, onClose, onSuccess }) => {
+  const { showToast } = useUI();
   const today = new Date().toISOString().split('T')[0];
   const [startDate, setStartDate] = useState(today);
 
   const handleSubmit = async () => {
     if (!startDate) {
-      alert('Veuillez saisir la date de début de location');
+      showToast('Veuillez saisir la date de début de location', 'warning');
       return;
     }
 
@@ -22,10 +24,10 @@ const StartLocationModal = ({ equipment, onClose, onSuccess }) => {
       console.log('✅ Location démarrée');
       onSuccess();
       setStartDate('');
-      alert('Location démarrée avec succès !');
+      showToast('Location démarrée avec succès !', 'success');
     } catch (error) {
       console.error('❌ Erreur:', error);
-      alert(`Erreur lors du démarrage de la location: ${error.message}`);
+      showToast(`Erreur lors du démarrage de la location: ${error.message}`, 'error');
     }
   };
 

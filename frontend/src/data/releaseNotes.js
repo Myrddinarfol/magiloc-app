@@ -1,9 +1,81 @@
 // Système de gestion des notes de mise à jour
 // Pour ajouter une nouvelle version, ajoutez un objet au début du tableau
 
-export const CURRENT_VERSION = '0.8.1';
+export const CURRENT_VERSION = '0.8.3';
 
 export const releaseNotes = [
+  {
+    version: '0.8.3',
+    date: '2025-10-04',
+    title: '🎨 Notifications toast + Filtres produits phares + Icônes harmonisées',
+    sections: [
+      {
+        title: '🎉 Notifications toast stylées',
+        items: [
+          'Remplacement de tous les alert() par des notifications toast élégantes',
+          'Position en haut à droite avec animations slide-in et fade-out',
+          '4 types : Success (vert ✓), Error (rouge ✕), Warning (orange ⚠), Info (bleu ℹ)',
+          'Auto-disparition après 4 secondes',
+          'Support du thème clair/sombre',
+          'Notifications pour toutes les actions : import CSV, ajout équipement, validation formulaires, etc.',
+        ]
+      },
+      {
+        title: '🔍 Filtre intelligent produits phares',
+        items: [
+          'Clic sur une capsule de produit phare (TR30S, TE3000, etc.) applique un filtre automatique',
+          'Navigation vers "Sur Parc" avec filtrage par modèles',
+          'Badge orange visible "🔍 Filtre: TR30S, LM300+" en haut de la liste',
+          'Bouton "✕ Réinitialiser" pour supprimer le filtre',
+          'Permet de voir rapidement la disponibilité des matériels phares',
+        ]
+      },
+      {
+        title: '✨ Harmonisation des icônes',
+        items: [
+          'Nouvelle cohérence visuelle dans toute l\'application',
+          'Menu sidebar : 🏠 Dashboard, ✅ Sur Parc, 🚚 Location (conservé), 🔧 Maintenance (conservé)',
+          'Sous-menus Location : 📋 Réservation (calepin), 📦 Locations en cours, 📅 Planning',
+          'Sous-menus Maintenance : 📊 Dashboard, 🛠️ Matériels, 📆 Planning',
+          'Dashboard : icônes cohérents avec la sidebar (🚚, 🔧, 📋)',
+          'Suppression des doublons : chaque icône a un usage unique',
+        ]
+      },
+    ]
+  },
+  {
+    version: '0.8.2',
+    date: '2025-10-03',
+    title: '🎯 Réorganisation menu + Planning semaine + Fixes',
+    sections: [
+      {
+        title: '🎨 Réorganisation menu sidebar',
+        items: [
+          'RÉSERVATION déplacé en 1er sous-menu de LOCATION',
+          'ANALYTICS, PARC LOC, NOTES MAJ déplacés en bas (au-dessus de Déconnexion)',
+          'Nouvelle section sidebar-middle pour séparer les sections',
+          'Séparateurs visuels entre sections principales et utilitaires',
+        ]
+      },
+      {
+        title: '📅 Planning Location - Vue semaine',
+        items: [
+          'Nouveau bouton "📋 Semaine" pour affichage 14 jours (7j avant/après)',
+          'Sensibilité drag adaptée pour navigation précise en mode semaine',
+          'Ordre des boutons : Semaine → Mois → Année',
+        ]
+      },
+      {
+        title: '🐛 Correctifs',
+        items: [
+          'Fix couleur verte pour les réservations (conflit avec classe .future)',
+          'Fix filtre "Locations en cours" qui affichait toute la base de données',
+          'Ajout du cas "location-list" dans EquipmentListView',
+          'Fix flèche sous-menus (positionnement bas centré)',
+        ]
+      },
+    ]
+  },
   {
     version: '0.8.1',
     date: '2025-10-02',

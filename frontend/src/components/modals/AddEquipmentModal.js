@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { equipmentService } from '../../services/equipmentService';
+import { useUI } from '../../hooks/useUI';
 
 const AddEquipmentModal = ({ onClose, onSuccess }) => {
+  const { showToast } = useUI();
   const [form, setForm] = useState({
     designation: '',
     cmu: '',
@@ -17,7 +19,7 @@ const AddEquipmentModal = ({ onClose, onSuccess }) => {
 
   const handleSubmit = async () => {
     if (!form.designation || !form.numeroSerie) {
-      alert('Veuillez renseigner au minimum la Désignation et le N° de Série');
+      showToast('Veuillez renseigner au minimum la Désignation et le N° de Série', 'warning');
       return;
     }
 
@@ -43,10 +45,10 @@ const AddEquipmentModal = ({ onClose, onSuccess }) => {
         prochainVGP: '',
         certificat: ''
       });
-      alert('Équipement ajouté avec succès !');
+      showToast('Équipement ajouté avec succès !', 'success');
     } catch (error) {
       console.error('❌ Erreur:', error);
-      alert(`Erreur lors de l'ajout: ${error.message}`);
+      showToast(`Erreur lors de l'ajout: ${error.message}`, 'error');
     }
   };
 

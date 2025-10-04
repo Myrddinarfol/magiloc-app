@@ -69,7 +69,7 @@ const Sidebar = () => {
           onClick={() => handleNavigate('dashboard')}
           className={`nav-button ${currentPage === 'dashboard' ? 'active' : ''}`}
         >
-          <span className="nav-icon">📊</span>
+          <span className="nav-icon">🏠</span>
           <span className="nav-text">TABLEAU DE BORD</span>
         </button>
 
@@ -77,7 +77,7 @@ const Sidebar = () => {
           onClick={() => handleNavigate('sur-parc')}
           className={`nav-button ${currentPage === 'sur-parc' ? 'active' : ''}`}
         >
-          <span className="nav-icon">🏢</span>
+          <span className="nav-icon">✅</span>
           <span className="nav-text">SUR PARC</span>
           <span className="nav-badge">{stats.surParc}</span>
         </button>
@@ -99,7 +99,7 @@ const Sidebar = () => {
                 onClick={() => handleNavigate('en-offre')}
                 className={`nav-sub-button ${currentPage === 'en-offre' ? 'active' : ''}`}
               >
-                <span className="nav-sub-icon">💰</span>
+                <span className="nav-sub-icon">📋</span>
                 <span className="nav-sub-text">Réservation</span>
                 <span className="nav-badge">{stats.enOffre}</span>
               </button>
@@ -107,7 +107,7 @@ const Sidebar = () => {
                 onClick={() => handleNavigate('location-list')}
                 className={`nav-sub-button ${currentPage === 'location-list' ? 'active' : ''}`}
               >
-                <span className="nav-sub-icon">📋</span>
+                <span className="nav-sub-icon">📦</span>
                 <span className="nav-sub-text">Locations en cours</span>
               </button>
               <button
@@ -145,14 +145,14 @@ const Sidebar = () => {
                 onClick={() => handleNavigate('maintenance-list')}
                 className={`nav-sub-button ${currentPage === 'maintenance-list' ? 'active' : ''}`}
               >
-                <span className="nav-sub-icon">🔨</span>
+                <span className="nav-sub-icon">🛠️</span>
                 <span className="nav-sub-text">Matériels en Maintenance</span>
               </button>
               <button
                 onClick={() => handleNavigate('maintenance-planning')}
                 className={`nav-sub-button ${currentPage === 'maintenance-planning' ? 'active' : ''}`}
               >
-                <span className="nav-sub-icon">📅</span>
+                <span className="nav-sub-icon">📆</span>
                 <span className="nav-sub-text">Planning Maintenance</span>
               </button>
             </div>
@@ -165,7 +165,7 @@ const Sidebar = () => {
           onClick={() => handleNavigate('analytics')}
           className={`nav-button ${currentPage === 'analytics' ? 'active' : ''}`}
         >
-          <span className="nav-icon">📈</span>
+          <span className="nav-icon">📊</span>
           <span className="nav-text">ANALYTICS</span>
         </button>
 
@@ -173,7 +173,7 @@ const Sidebar = () => {
           onClick={() => handleNavigate('parc-loc')}
           className={`nav-button ${currentPage === 'parc-loc' ? 'active' : ''}`}
         >
-          <span className="nav-icon">🏭</span>
+          <span className="nav-icon">🏗️</span>
           <span className="nav-text">PARC LOC</span>
         </button>
 
@@ -181,7 +181,7 @@ const Sidebar = () => {
           onClick={() => setShowNotesHistory(true)}
           className="nav-button"
         >
-          <span className="nav-icon">📋</span>
+          <span className="nav-icon">📝</span>
           <span className="nav-text">NOTES MAJ</span>
         </button>
       </div>

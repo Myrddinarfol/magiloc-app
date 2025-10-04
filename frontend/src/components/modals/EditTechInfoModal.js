@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { equipmentService } from '../../services/equipmentService';
+import { useUI } from '../../hooks/useUI';
 
 const EditTechInfoModal = ({ equipment, onClose, onSuccess }) => {
+  const { showToast } = useUI();
   const [form, setForm] = useState({
     modele: equipment?.modele || '',
     marque: equipment?.marque || '',
@@ -26,10 +28,10 @@ const EditTechInfoModal = ({ equipment, onClose, onSuccess }) => {
 
       console.log('✅ Informations techniques mises à jour');
       onSuccess();
-      alert('Informations techniques mises à jour avec succès !');
+      showToast('Informations techniques mises à jour avec succès !', 'success');
     } catch (error) {
       console.error('❌ Erreur:', error);
-      alert(`Erreur lors de la mise à jour: ${error.message}`);
+      showToast(`Erreur lors de la mise à jour: ${error.message}`, 'error');
     }
   };
 

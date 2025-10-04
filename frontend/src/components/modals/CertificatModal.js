@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { getCertificatLink } from '../../utils/vgpHelpers';
 import { equipmentService } from '../../services/equipmentService';
+import { useUI } from '../../hooks/useUI';
 
 const CertificatModal = ({ equipment, onClose, onSave }) => {
+  const { showToast } = useUI();
   const [certificatInput, setCertificatInput] = useState(equipment?.certificat || '');
 
   const handleSave = async () => {
     if (!certificatInput.trim()) {
-      alert('Veuillez saisir un numéro de certificat ou une URL');
+      showToast('Veuillez saisir un numéro de certificat ou une URL', 'warning');
       return;
     }
 
@@ -18,10 +20,10 @@ const CertificatModal = ({ equipment, onClose, onSave }) => {
 
       onSave();
       setCertificatInput('');
-      alert('Certificat mis à jour avec succès !');
+      showToast('Certificat mis à jour avec succès !', 'success');
     } catch (error) {
       console.error('Erreur:', error);
-      alert('Erreur lors de la mise à jour du certificat');
+      showToast('Erreur lors de la mise à jour du certificat', 'error');
     }
   };
 

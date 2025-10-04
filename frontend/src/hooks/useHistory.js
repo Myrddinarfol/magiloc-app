@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { historyService } from '../services/historyService';
+import { useUI } from './useUI';
 
 // Hook personnalisé pour gérer les historiques
 export const useHistory = () => {
+  const { showToast } = useUI();
   const [locationHistory, setLocationHistory] = useState([]);
   const [maintenanceHistory, setMaintenanceHistory] = useState([]);
 
@@ -13,7 +15,7 @@ export const useHistory = () => {
       if (onSuccess) onSuccess();
     } catch (error) {
       console.error('❌ Erreur chargement historique locations:', error);
-      alert('Erreur lors du chargement de l\'historique des locations');
+      showToast('Erreur lors du chargement de l\'historique des locations', 'error');
     }
   };
 
@@ -24,7 +26,7 @@ export const useHistory = () => {
       if (onSuccess) onSuccess();
     } catch (error) {
       console.error('❌ Erreur chargement historique maintenance:', error);
-      alert('Erreur lors du chargement de l\'historique de maintenance');
+      showToast('Erreur lors du chargement de l\'historique de maintenance', 'error');
     }
   };
 
