@@ -245,20 +245,20 @@ body {
 
 .nav-button {
   width: 100%;
-  padding: 14px 16px;
+  padding: 12px 12px;
   background: linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, rgba(185, 28, 28, 0.05) 100%);
   color: white;
   border: 2px solid rgba(220, 38, 38, 0.2);
   border-radius: 10px;
   cursor: pointer;
   margin-bottom: 10px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   position: relative;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
@@ -299,29 +299,27 @@ body {
 }
 
 .nav-icon {
-  font-size: 20px;
+  font-size: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 24px;
+  min-width: 20px;
+  flex-shrink: 0;
 }
 
 .nav-text {
   flex: 1;
   text-align: left;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
-  min-width: 0;
 }
 
 .nav-badge {
   background: linear-gradient(135deg, rgba(220, 38, 38, 0.6) 0%, rgba(185, 28, 28, 0.5) 100%);
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 11px;
   font-weight: 700;
-  min-width: 28px;
+  min-width: 24px;
   text-align: center;
   box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(220, 38, 38, 0.4);
