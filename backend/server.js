@@ -26,6 +26,24 @@ app.use(cors({
 
 app.use(express.json());
 
+// Fonction pour convertir date française DD/MM/YYYY vers ISO YYYY-MM-DD
+function convertFrenchDateToISO(dateStr) {
+  if (!dateStr) return null;
+
+  // Si c'est déjà au format ISO (YYYY-MM-DD), retourner tel quel
+  if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
+    return dateStr;
+  }
+
+  // Si c'est au format français DD/MM/YYYY
+  if (/^\d{2}\/\d{2}\/\d{4}/.test(dateStr)) {
+    const [day, month, year] = dateStr.split('/');
+    return `${year}-${month}-${day}`;
+  }
+
+  return dateStr;
+}
+
 // Fonction pour calculer les jours ouvrés (lundi-vendredi, hors jours fériés français)
 function calculateBusinessDays(startDateStr, endDateStr) {
   if (!startDateStr || !endDateStr) return null;
@@ -332,8 +350,13 @@ app.post("/api/equipment/:id/return", async (req, res) => {
 
     const equipment = equipmentResult.rows[0];
 
+    // Convertir les dates au format ISO
+    const debutLocationISO = convertFrenchDateToISO(equipment.debut_location);
+    const finLocationTheoriqueISO = convertFrenchDateToISO(equipment.fin_location_theorique);
+    const rentreLeISO = convertFrenchDateToISO(rentreeLe);
+
     // 2. Calculer le CA de la location
-    const businessDays = calculateBusinessDays(equipment.debut_location, rentreeLe);
+    const businessDays = calculateBusinessDays(debutLocationISO, rentreLeISO);
     const prixHT = equipment.prix_ht_jour ? parseFloat(equipment.prix_ht_jour) : null;
     const isLongDuration = businessDays && businessDays >= 21;
     let caTotal = null;
@@ -359,13 +382,13 @@ app.post("/api/equipment/:id/return", async (req, res) => {
       [
         id,
         equipment.client,
-        equipment.debut_location,
-        equipment.fin_location_theorique,
-        rentreeLe,
+        debutLocationISO,
+        finLocationTheoriqueISO,
+        rentreLeISO,
         equipment.numero_offre,
         equipment.notes_location,
         noteRetour,
-        rentreeLe,
+        rentreLeISO,
         businessDays,
         prixHT,
         isLongDuration,
@@ -387,9 +410,10 @@ app.post("/api/equipment/:id/return", async (req, res) => {
         statut = 'En Maintenance',
         motif_maintenance = 'Retour Location, à vérifier',
         note_retour = $1,
-        rentre_le = $2
+        rentre_le = $2,
+        debut_maintenance = NOW()
       WHERE id = $3`,
-      [noteRetour, rentreeLe, id]
+      [noteRetour, rentreLeISO, id]
     );
 
     await client.query('COMMIT');
