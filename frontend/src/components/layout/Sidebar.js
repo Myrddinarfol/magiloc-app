@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useEquipment } from '../../hooks/useEquipment';
 import { useUI } from '../../hooks/useUI';
@@ -9,6 +9,18 @@ const Sidebar = () => {
   const { currentPage, handleNavigate, setShowNotesHistory, expandedMenus, toggleMenu } = useUI();
   const [showSettings, setShowSettings] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('theme') || 'dark';
+  });
+
+  useEffect(() => {
+    if (theme === 'light') {
+      document.body.classList.add('light-theme');
+    } else {
+      document.body.classList.remove('light-theme');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -20,6 +32,11 @@ const Sidebar = () => {
         setIsFullscreen(false);
       }
     }
+  };
+
+  const handleThemeChange = (newTheme) => {
+    setTheme(newTheme);
+    setShowSettings(false);
   };
 
   return (
@@ -190,15 +207,21 @@ const Sidebar = () => {
               <div className="settings-section">
                 <h3>🎨 Thème de l'application</h3>
                 <div className="theme-options">
-                  <button className="theme-option active">
+                  <button
+                    className={`theme-option ${theme === 'dark' ? 'active' : ''}`}
+                    onClick={() => handleThemeChange('dark')}
+                  >
                     <div className="theme-preview dark"></div>
                     <span>Mode Sombre</span>
-                    <span className="check-icon">✓</span>
+                    {theme === 'dark' && <span className="check-icon">✓</span>}
                   </button>
-                  <button className="theme-option disabled" disabled>
+                  <button
+                    className={`theme-option ${theme === 'light' ? 'active' : ''}`}
+                    onClick={() => handleThemeChange('light')}
+                  >
                     <div className="theme-preview light"></div>
                     <span>Mode Clair</span>
-                    <span className="coming-soon">Bientôt disponible</span>
+                    {theme === 'light' && <span className="check-icon">✓</span>}
                   </button>
                 </div>
               </div>
