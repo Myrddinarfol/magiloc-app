@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 
-function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, getStatusClass, setShowImporter, handleResetData, setShowAddEquipmentModal }) {
+function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, handleOpenEquipmentDetail, getStatusClass, setShowImporter, handleResetData, setShowAddEquipmentModal }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDesignation, setFilterDesignation] = useState('');
   const [filterCMU, setFilterCMU] = useState('');
@@ -53,7 +53,8 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, g
       case 'dashboard': return 'Tableau de bord';
       case 'sur-parc': return 'Sur Parc - Équipements disponibles';
       case 'parc-loc': return 'Parc Location - Tous les équipements';
-      case 'en-location': return 'Équipements en location';
+      case 'en-location':
+      case 'location-list': return 'Équipements en location';
       case 'planning': return 'Planning des locations';
       case 'en-offre': return 'Réservations en cours';
       case 'maintenance': return 'Équipements en maintenance';
@@ -86,6 +87,7 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, g
         filtered = equipmentData.filter(eq => eq.statut === 'Sur Parc');
         break;
       case 'en-location':
+      case 'location-list':
         filtered = equipmentData.filter(eq => eq.statut === 'En Location');
         break;
       case 'en-offre':
@@ -447,10 +449,18 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, g
                   </>
                 )}
                 {/* Colonnes pour En Location et En Offre */}
-                {(currentPage === 'en-location' || currentPage === 'en-offre') && (
+                {(currentPage === 'en-location' || currentPage === 'location-list' || currentPage === 'en-offre') && (
                   <>
                     <th>Client</th>
                     <th>Dates</th>
+                  </>
+                )}
+                {/* Colonnes pour Maintenance */}
+                {currentPage === 'maintenance' && (
+                  <>
+                    <th>Longueur</th>
+                    <th>Dernier client</th>
+                    <th>Motif maintenance</th>
                   </>
                 )}
                 <th>Actions</th>
@@ -504,7 +514,7 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, g
                     )}
 
                     {/* Colonnes En Location / En Offre */}
-                    {(currentPage === 'en-location' || currentPage === 'en-offre') && (
+                    {(currentPage === 'en-location' || currentPage === 'location-list' || currentPage === 'en-offre') && (
                       <>
                         <td>{equipment.client || '-'}</td>
                         <td>
@@ -520,9 +530,26 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, g
                       </>
                     )}
 
+                    {/* Colonnes Maintenance */}
+                    {currentPage === 'maintenance' && (
+                      <>
+                        <td>{equipment.longueur || '-'}</td>
+                        <td>
+                          <span className="last-client">
+                            {equipment.dernierClient || '-'}
+                          </span>
+                        </td>
+                        <td>
+                          <span className="maintenance-motif">
+                            {equipment.motifMaintenance || '-'}
+                          </span>
+                        </td>
+                      </>
+                    )}
+
                     <td>
                       <button
-                        onClick={() => setSelectedEquipment(equipment)}
+                        onClick={() => handleOpenEquipmentDetail(equipment, currentPage)}
                         className="btn btn-primary btn-sm"
                       >
                         Détails

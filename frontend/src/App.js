@@ -14,8 +14,12 @@ import { STORAGE_KEY } from './config/constants';
 import LoginPage from './pages/LoginPage';
 import ReleaseNotesPage from './pages/ReleaseNotesPage';
 import DashboardPage from './pages/DashboardPage';
-import PlanningPage from './pages/PlanningPage';
 import AnalyticsPage from './pages/AnalyticsPage';
+import MaintenanceDashboardPage from './pages/MaintenanceDashboardPage';
+import MaintenanceListPage from './pages/MaintenanceListPage';
+import MaintenancePlanningPage from './pages/MaintenancePlanningPage';
+import LocationListPage from './pages/LocationListPage';
+import LocationPlanningPage from './pages/LocationPlanningPage';
 
 // Components
 import Sidebar from './components/layout/Sidebar';
@@ -64,7 +68,9 @@ const MainApp = () => {
     setShowAddEquipmentModal,
     showNotesHistory,
     setShowNotesHistory,
-    handleResetData
+    handleResetData,
+    handleGoBack,
+    handleOpenEquipmentDetail
   } = useUI();
 
   const { locationHistory, maintenanceHistory, loadLocationHistory, loadMaintenanceHistory } = useHistory();
@@ -106,7 +112,7 @@ const MainApp = () => {
         <EquipmentDetailView
           equipment={selectedEquipment}
           currentPage={currentPage}
-          onClose={() => setSelectedEquipment(null)}
+          onClose={handleGoBack}
           onEditCertificat={() => setShowCertificatModal(true)}
           onEditTechInfo={() => setShowEditTechInfoModal(true)}
           onLoadLocationHistory={() => loadLocationHistory(selectedEquipment.id, () => setShowLocationHistory(true))}
@@ -118,16 +124,25 @@ const MainApp = () => {
     switch (currentPage) {
       case 'dashboard':
         return <DashboardPage />;
-      case 'planning':
-        return <PlanningPage />;
       case 'analytics':
         return <AnalyticsPage />;
+      case 'maintenance-dashboard':
+        return <MaintenanceDashboardPage />;
+      case 'maintenance-list':
+        return <MaintenanceListPage />;
+      case 'maintenance-planning':
+        return <MaintenancePlanningPage />;
+      case 'location-list':
+        return <LocationListPage />;
+      case 'location-planning':
+        return <LocationPlanningPage />;
       default:
         return (
           <EquipmentListView
             equipmentData={equipmentData}
             currentPage={currentPage}
             setSelectedEquipment={setSelectedEquipment}
+            handleOpenEquipmentDetail={handleOpenEquipmentDetail}
             getStatusClass={getStatusClass}
             setShowImporter={setShowImporter}
             handleResetData={() => handleResetData(setEquipmentData)}

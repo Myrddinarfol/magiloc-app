@@ -6,7 +6,7 @@ import { useUI } from '../../hooks/useUI';
 const Sidebar = () => {
   const { logout } = useAuth();
   const { stats } = useEquipment();
-  const { currentPage, handleNavigate, setShowNotesHistory } = useUI();
+  const { currentPage, handleNavigate, setShowNotesHistory, expandedMenus, toggleMenu } = useUI();
 
   return (
     <div className="sidebar">
@@ -35,41 +35,85 @@ const Sidebar = () => {
           <span className="nav-badge">{stats.surParc}</span>
         </button>
 
-        <button
-          onClick={() => handleNavigate('en-offre')}
-          className={`nav-button ${currentPage === 'en-offre' ? 'active' : ''}`}
-        >
-          <span className="nav-icon">💰</span>
-          <span className="nav-text">RÉSERVATION</span>
-          <span className="nav-badge">{stats.enOffre}</span>
-        </button>
+        {/* LOCATION avec sous-menus */}
+        <div className="nav-menu-section">
+          <button
+            onClick={() => toggleMenu('location')}
+            className={`nav-button ${currentPage.startsWith('location-') || currentPage === 'en-offre' ? 'active' : ''}`}
+          >
+            <span className="nav-icon">🚚</span>
+            <span className="nav-text">LOCATION</span>
+            <span className="nav-badge">{stats.enLocation}</span>
+            <span className={`nav-arrow ${expandedMenus.location ? 'expanded' : ''}`}>▼</span>
+          </button>
+          {expandedMenus.location && (
+            <div className="nav-submenu">
+              <button
+                onClick={() => handleNavigate('en-offre')}
+                className={`nav-sub-button ${currentPage === 'en-offre' ? 'active' : ''}`}
+              >
+                <span className="nav-sub-icon">💰</span>
+                <span className="nav-sub-text">Réservation</span>
+                <span className="nav-badge">{stats.enOffre}</span>
+              </button>
+              <button
+                onClick={() => handleNavigate('location-list')}
+                className={`nav-sub-button ${currentPage === 'location-list' ? 'active' : ''}`}
+              >
+                <span className="nav-sub-icon">📋</span>
+                <span className="nav-sub-text">Locations en cours</span>
+              </button>
+              <button
+                onClick={() => handleNavigate('location-planning')}
+                className={`nav-sub-button ${currentPage === 'location-planning' ? 'active' : ''}`}
+              >
+                <span className="nav-sub-icon">📅</span>
+                <span className="nav-sub-text">Planning Location</span>
+              </button>
+            </div>
+          )}
+        </div>
 
-        <button
-          onClick={() => handleNavigate('en-location')}
-          className={`nav-button ${currentPage === 'en-location' ? 'active' : ''}`}
-        >
-          <span className="nav-icon">🚚</span>
-          <span className="nav-text">LOCATION</span>
-          <span className="nav-badge">{stats.enLocation}</span>
-        </button>
+        {/* MAINTENANCE avec sous-menus */}
+        <div className="nav-menu-section">
+          <button
+            onClick={() => toggleMenu('maintenance')}
+            className={`nav-button ${currentPage.startsWith('maintenance-') ? 'active' : ''}`}
+          >
+            <span className="nav-icon">🔧</span>
+            <span className="nav-text">MAINTENANCE</span>
+            <span className="nav-badge">{stats.enMaintenance}</span>
+            <span className={`nav-arrow ${expandedMenus.maintenance ? 'expanded' : ''}`}>▼</span>
+          </button>
+          {expandedMenus.maintenance && (
+            <div className="nav-submenu">
+              <button
+                onClick={() => handleNavigate('maintenance-dashboard')}
+                className={`nav-sub-button ${currentPage === 'maintenance-dashboard' ? 'active' : ''}`}
+              >
+                <span className="nav-sub-icon">📊</span>
+                <span className="nav-sub-text">Dashboard Maintenance</span>
+              </button>
+              <button
+                onClick={() => handleNavigate('maintenance-list')}
+                className={`nav-sub-button ${currentPage === 'maintenance-list' ? 'active' : ''}`}
+              >
+                <span className="nav-sub-icon">🔨</span>
+                <span className="nav-sub-text">Matériels en Maintenance</span>
+              </button>
+              <button
+                onClick={() => handleNavigate('maintenance-planning')}
+                className={`nav-sub-button ${currentPage === 'maintenance-planning' ? 'active' : ''}`}
+              >
+                <span className="nav-sub-icon">📅</span>
+                <span className="nav-sub-text">Planning Maintenance</span>
+              </button>
+            </div>
+          )}
+        </div>
+      </nav>
 
-        <button
-          onClick={() => handleNavigate('maintenance')}
-          className={`nav-button ${currentPage === 'maintenance' ? 'active' : ''}`}
-        >
-          <span className="nav-icon">🔧</span>
-          <span className="nav-text">MAINTENANCE</span>
-          <span className="nav-badge">{stats.enMaintenance}</span>
-        </button>
-
-        <button
-          onClick={() => handleNavigate('planning')}
-          className={`nav-button ${currentPage === 'planning' ? 'active' : ''}`}
-        >
-          <span className="nav-icon">📅</span>
-          <span className="nav-text">PLANNING</span>
-        </button>
-
+      <div className="sidebar-middle">
         <button
           onClick={() => handleNavigate('analytics')}
           className={`nav-button ${currentPage === 'analytics' ? 'active' : ''}`}
@@ -93,7 +137,7 @@ const Sidebar = () => {
           <span className="nav-icon">📋</span>
           <span className="nav-text">NOTES MAJ</span>
         </button>
-      </nav>
+      </div>
 
       <div className="sidebar-bottom">
         <button

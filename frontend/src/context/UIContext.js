@@ -8,7 +8,14 @@ export const UIContext = createContext();
 export const UIProvider = ({ children }) => {
   // Navigation et UI
   const [currentPage, setCurrentPage] = useState('dashboard');
+  const [previousPage, setPreviousPage] = useState(null); // Pour le breadcrumb/retour
   const [selectedEquipment, setSelectedEquipment] = useState(null);
+
+  // Sous-menus collapsibles
+  const [expandedMenus, setExpandedMenus] = useState({
+    location: false,
+    maintenance: false
+  });
 
   // Modals
   const [showImporter, setShowImporter] = useState(false);
@@ -31,7 +38,34 @@ export const UIProvider = ({ children }) => {
   // Fonction pour gérer la navigation (ferme la fiche détaillée automatiquement)
   const handleNavigate = (page) => {
     setSelectedEquipment(null);
+    setPreviousPage(currentPage); // Mémoriser la page actuelle avant de naviguer
     setCurrentPage(page);
+  };
+
+  // Fonction pour naviguer vers une fiche détaillée (mémorise d'où on vient)
+  const handleOpenEquipmentDetail = (equipment, fromPage) => {
+    setPreviousPage(fromPage || currentPage); // Mémoriser la page d'origine
+    setSelectedEquipment(equipment);
+    setCurrentPage('location'); // Toujours aller à l'onglet LOCATION pour la fiche
+  };
+
+  // Fonction pour retourner à la page précédente
+  const handleGoBack = () => {
+    setSelectedEquipment(null);
+    if (previousPage) {
+      setCurrentPage(previousPage);
+      setPreviousPage(null);
+    } else {
+      setCurrentPage('location'); // Par défaut, retour à la liste des locations
+    }
+  };
+
+  // Fonction pour toggle les sous-menus
+  const toggleMenu = (menuName) => {
+    setExpandedMenus(prev => ({
+      ...prev,
+      [menuName]: !prev[menuName]
+    }));
   };
 
   // Réinitialiser les données
@@ -47,6 +81,7 @@ export const UIProvider = ({ children }) => {
     <UIContext.Provider value={{
       currentPage,
       setCurrentPage,
+      previousPage,
       selectedEquipment,
       setSelectedEquipment,
       showImporter,
@@ -72,7 +107,11 @@ export const UIProvider = ({ children }) => {
       showReleaseNotes,
       setShowReleaseNotes,
       handleNavigate,
-      handleResetData
+      handleOpenEquipmentDetail,
+      handleGoBack,
+      handleResetData,
+      expandedMenus,
+      toggleMenu
     }}>
       {children}
     </UIContext.Provider>

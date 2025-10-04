@@ -16,7 +16,7 @@ const EquipmentDetailView = ({
   onLoadLocationHistory,
   onLoadMaintenanceHistory
 }) => {
-  const { setShowReservationModal, setShowStartLocationModal, setShowReturnModal } = useUI();
+  const { setShowReservationModal, setShowStartLocationModal, setShowReturnModal, previousPage } = useUI();
 
   return (
     <div>
@@ -154,8 +154,8 @@ const EquipmentDetailView = ({
             </div>
           )}
 
-          {/* Section Maintenance - affichée uniquement pour "En Maintenance" dans l'onglet Maintenance */}
-          {equipment.statut === 'En Maintenance' && currentPage === 'maintenance' && (
+          {/* Section Maintenance - affichée uniquement pour "En Maintenance" quand on vient de l'onglet Maintenance */}
+          {equipment.statut === 'En Maintenance' && previousPage === 'maintenance' && (
             <div className="detail-section">
               <h3>🔧 Gestion Maintenance</h3>
               <div className="maintenance-panel">
@@ -163,6 +163,12 @@ const EquipmentDetailView = ({
                   <h4>📋 Motif de maintenance</h4>
                   <div className="motif-content">
                     {equipment.motifMaintenance || 'Aucun motif renseigné'}
+                  </div>
+                </div>
+                <div className="maintenance-notes-box">
+                  <h4>📝 Notes de retour</h4>
+                  <div className="notes-content">
+                    {equipment.notesRetour || 'Aucune note de retour'}
                   </div>
                 </div>
               </div>
