@@ -168,7 +168,7 @@ const EquipmentDetailView = ({
                 <div className="maintenance-notes-box">
                   <h4>📝 Notes de retour</h4>
                   <div className="notes-content">
-                    {equipment.notesRetour || 'Aucune note de retour'}
+                    {equipment.noteRetour || 'Aucune note de retour'}
                   </div>
                 </div>
               </div>

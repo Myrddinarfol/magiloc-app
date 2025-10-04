@@ -15,20 +15,20 @@ const DashboardPage = () => {
     endOfWeek.setDate(startOfWeek.getDate() + 6); // Dimanche
 
     const returnsThisWeek = equipmentData.filter(eq => {
-      if (eq.statut === 'En Location' && eq.fin_location_theorique) {
-        const returnDate = new Date(eq.fin_location_theorique);
+      if (eq.statut === 'En Location' && eq.finLocationTheorique) {
+        const returnDate = new Date(eq.finLocationTheorique);
         return returnDate >= startOfWeek && returnDate <= endOfWeek;
       }
       return false;
-    }).sort((a, b) => new Date(a.fin_location_theorique) - new Date(b.fin_location_theorique));
+    }).sort((a, b) => new Date(a.finLocationTheorique) - new Date(b.finLocationTheorique));
 
     const reservationsThisWeek = equipmentData.filter(eq => {
-      if (eq.statut === 'En Réservation' && eq.debut_location) {
-        const startDate = new Date(eq.debut_location);
+      if (eq.statut === 'En Réservation' && eq.debutLocation) {
+        const startDate = new Date(eq.debutLocation);
         return startDate >= startOfWeek && startDate <= endOfWeek;
       }
       return false;
-    }).sort((a, b) => new Date(a.debut_location) - new Date(b.debut_location));
+    }).sort((a, b) => new Date(a.debutLocation) - new Date(b.debutLocation));
 
     return { returnsThisWeek, reservationsThisWeek };
   }, [equipmentData]);
@@ -68,9 +68,11 @@ const DashboardPage = () => {
   // Retards effectifs
   const lateReturns = useMemo(() => {
     const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time for accurate date-only comparison
     return equipmentData.filter(eq => {
-      if (eq.statut === 'En Location' && eq.fin_location_theorique) {
-        const returnDate = new Date(eq.fin_location_theorique);
+      if (eq.statut === 'En Location' && eq.finLocationTheorique) {
+        const returnDate = new Date(eq.finLocationTheorique);
+        returnDate.setHours(0, 0, 0, 0);
         return returnDate < today;
       }
       return false;
@@ -168,7 +170,7 @@ const DashboardPage = () => {
         <div className="stats-compact">
           <div className="stat-compact-card">
             <div className="stat-compact-left">
-              <div className="stat-compact-icon">🏗️</div>
+              <div className="stat-compact-icon">Σ</div>
               <div className="stat-compact-label">Total</div>
             </div>
             <div className="stat-compact-right">
@@ -268,7 +270,7 @@ const DashboardPage = () => {
               ) : (
                 weekEvents.returnsThisWeek.map(eq => (
                   <div key={eq.id} className="event-item">
-                    <span className="event-date">{formatDate(eq.fin_location_theorique)}</span>
+                    <span className="event-date">{formatDate(eq.finLocationTheorique)}</span>
                     <span className="event-name">{eq.nom} - {eq.client}</span>
                   </div>
                 ))
@@ -284,7 +286,7 @@ const DashboardPage = () => {
               ) : (
                 weekEvents.reservationsThisWeek.map(eq => (
                   <div key={eq.id} className="event-item">
-                    <span className="event-date">{formatDate(eq.debut_location)}</span>
+                    <span className="event-date">{formatDate(eq.debutLocation)}</span>
                     <span className="event-name">{eq.nom} - {eq.client}</span>
                   </div>
                 ))
@@ -346,7 +348,7 @@ const DashboardPage = () => {
                     <span className="location-client">{eq.client}</span>
                   </div>
                   <div className="location-dates">
-                    <span className="location-return">Retour : {formatDate(eq.fin_location_theorique)}</span>
+                    <span className="location-return">Retour : {formatDate(eq.finLocationTheorique)}</span>
                   </div>
                 </div>
               ))

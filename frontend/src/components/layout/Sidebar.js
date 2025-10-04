@@ -173,7 +173,7 @@ const Sidebar = () => {
           onClick={() => handleNavigate('parc-loc')}
           className={`nav-button ${currentPage === 'parc-loc' ? 'active' : ''}`}
         >
-          <span className="nav-icon">🏗️</span>
+          <span className="nav-icon">🏪</span>
           <span className="nav-text">PARC LOC</span>
         </button>
 

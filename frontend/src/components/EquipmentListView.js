@@ -589,7 +589,7 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, h
                         <td>{equipment.longueur || '-'}</td>
                         <td>
                           <span className="last-client">
-                            {equipment.dernierClient || '-'}
+                            {equipment.client || '-'}
                           </span>
                         </td>
                         <td>

@@ -95,7 +95,8 @@ app.get("/api/equipment", async (req, res) => {
         rentre_le as "rentreeLe",
         numero_offre as "numeroOffre",
         notes_location as "notesLocation",
-        motif_maintenance as "motifMaintenance"
+        motif_maintenance as "motifMaintenance",
+        note_retour as "noteRetour"
       FROM equipments
       ORDER BY id
     `);
