@@ -28,6 +28,8 @@ export const UIProvider = ({ children }) => {
   const [showEditTechInfoModal, setShowEditTechInfoModal] = useState(false);
   const [showAddEquipmentModal, setShowAddEquipmentModal] = useState(false);
   const [showNotesHistory, setShowNotesHistory] = useState(false);
+  const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
+  const [showCompleteMaintenance, setShowCompleteMaintenance] = useState(false);
 
   // Notifications toast
   const [toasts, setToasts] = useState([]);
@@ -122,6 +124,10 @@ export const UIProvider = ({ children }) => {
       setShowAddEquipmentModal,
       showNotesHistory,
       setShowNotesHistory,
+      showMaintenanceModal,
+      setShowMaintenanceModal,
+      showCompleteMaintenance,
+      setShowCompleteMaintenance,
       showReleaseNotes,
       setShowReleaseNotes,
       handleNavigate,

@@ -44,6 +44,26 @@ function convertFrenchDateToISO(dateStr) {
   return dateStr;
 }
 
+// Fonction pour convertir date ISO vers format français DD/MM/YYYY
+function formatDateToFrench(dateStr) {
+  if (!dateStr) return null;
+
+  // Si déjà au format français
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
+    return dateStr;
+  }
+
+  // Convertir depuis ISO ou Date object
+  const date = new Date(dateStr);
+  if (isNaN(date)) return dateStr;
+
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+
+  return `${day}/${month}/${year}`;
+}
+
 // Fonction pour calculer les jours ouvrés (lundi-vendredi, hors jours fériés français)
 function calculateBusinessDays(startDateStr, endDateStr) {
   if (!startDateStr || !endDateStr) return null;
@@ -114,11 +134,24 @@ app.get("/api/equipment", async (req, res) => {
         numero_offre as "numeroOffre",
         notes_location as "notesLocation",
         motif_maintenance as "motifMaintenance",
-        note_retour as "noteRetour"
+        note_retour as "noteRetour",
+        debut_maintenance as "debutMaintenance"
       FROM equipments
       ORDER BY id
     `);
-    res.json(result.rows);
+
+    // Formater toutes les dates au format français
+    const equipmentsWithFrenchDates = result.rows.map(eq => ({
+      ...eq,
+      dernierVGP: formatDateToFrench(eq.dernierVGP),
+      prochainVGP: formatDateToFrench(eq.prochainVGP),
+      debutLocation: formatDateToFrench(eq.debutLocation),
+      finLocationTheorique: formatDateToFrench(eq.finLocationTheorique),
+      rentreeLe: formatDateToFrench(eq.rentreeLe),
+      debutMaintenance: formatDateToFrench(eq.debutMaintenance)
+    }));
+
+    res.json(equipmentsWithFrenchDates);
   } catch (err) {
     console.error("❌ Erreur DB:", err.message);
     res.status(500).json({ error: "Erreur base de données" });
@@ -234,14 +267,35 @@ app.post("/api/equipment", async (req, res) => {
 
 // Route pour mettre à jour un équipement (PATCH)
 app.patch("/api/equipment/:id", async (req, res) => {
+  const client = await pool.connect();
+
   try {
+    await client.query('BEGIN');
+
     const { id } = req.params;
     const {
-      certificat, statut, client, debutLocation, finLocationTheorique, numeroOffre, notesLocation,
-      modele, marque, longueur, numeroSerie, prixHT, etat
+      certificat, statut, client: clientName, debutLocation, finLocationTheorique, numeroOffre, notesLocation,
+      modele, marque, longueur, numeroSerie, prixHT, etat, motifMaintenance, debutMaintenance
     } = req.body;
 
     console.log(`📝 Mise à jour équipement ${id}:`, req.body);
+
+    // Récupérer l'état actuel de l'équipement
+    const currentEquipment = await client.query(
+      `SELECT * FROM equipments WHERE id = $1`,
+      [id]
+    );
+
+    if (currentEquipment.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: "Équipement non trouvé" });
+    }
+
+    const equipmentBefore = currentEquipment.rows[0];
+
+    // Détecter si on valide la maintenance (passage de "En Maintenance" à "SUR PARC")
+    const isCompletingMaintenance =
+      equipmentBefore.statut === 'En Maintenance' && statut === 'SUR PARC';
 
     // Construction dynamique de la requête SQL
     const updateFields = [];
@@ -256,9 +310,9 @@ app.patch("/api/equipment/:id", async (req, res) => {
       updateFields.push(`statut = $${paramIndex++}`);
       values.push(statut);
     }
-    if (client !== undefined) {
+    if (clientName !== undefined) {
       updateFields.push(`client = $${paramIndex++}`);
-      values.push(client);
+      values.push(clientName);
     }
     if (debutLocation !== undefined) {
       updateFields.push(`debut_location = $${paramIndex++}`);
@@ -275,6 +329,14 @@ app.patch("/api/equipment/:id", async (req, res) => {
     if (notesLocation !== undefined) {
       updateFields.push(`notes_location = $${paramIndex++}`);
       values.push(notesLocation);
+    }
+    if (motifMaintenance !== undefined) {
+      updateFields.push(`motif_maintenance = $${paramIndex++}`);
+      values.push(motifMaintenance);
+    }
+    if (debutMaintenance !== undefined) {
+      updateFields.push(`debut_maintenance = $${paramIndex++}`);
+      values.push(debutMaintenance);
     }
     // Nouveaux champs pour les informations techniques
     if (modele !== undefined) {
@@ -303,25 +365,56 @@ app.patch("/api/equipment/:id", async (req, res) => {
     }
 
     if (updateFields.length === 0) {
+      await client.query('ROLLBACK');
       return res.status(400).json({ error: "Aucun champ à mettre à jour" });
     }
 
     values.push(id);
     const query = `UPDATE equipments SET ${updateFields.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
 
-    const result = await pool.query(query, values);
+    const result = await client.query(query, values);
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: "Équipement non trouvé" });
+    // Si on valide la maintenance, enregistrer dans l'historique
+    if (isCompletingMaintenance && equipmentBefore.debut_maintenance) {
+      const dateEntree = new Date(equipmentBefore.debut_maintenance);
+      const dateSortie = new Date();
+      const dureeJours = Math.ceil((dateSortie - dateEntree) / (1000 * 60 * 60 * 24));
+
+      await client.query(
+        `INSERT INTO maintenance_history (
+          equipment_id, motif, note_retour, date_entree, date_sortie, duree_jours
+        ) VALUES ($1, $2, $3, $4, $5, $6)`,
+        [
+          id,
+          equipmentBefore.motif_maintenance || 'Maintenance générale',
+          equipmentBefore.note_retour || null,
+          equipmentBefore.debut_maintenance,
+          dateSortie,
+          dureeJours
+        ]
+      );
+
+      // Réinitialiser les champs de maintenance
+      await client.query(
+        `UPDATE equipments SET motif_maintenance = NULL, debut_maintenance = NULL WHERE id = $1`,
+        [id]
+      );
+
+      console.log(`✅ Historique maintenance créé pour équipement ${id}`);
     }
+
+    await client.query('COMMIT');
 
     res.json({
       message: "✅ Équipement mis à jour",
       equipment: result.rows[0]
     });
   } catch (err) {
+    await client.query('ROLLBACK');
     console.error("❌ Erreur mise à jour:", err.message);
     res.status(500).json({ error: "Erreur lors de la mise à jour" });
+  } finally {
+    client.release();
   }
 });
 
@@ -469,6 +562,30 @@ app.get("/api/equipment/:id/maintenance-history", async (req, res) => {
   } catch (err) {
     console.error("❌ Erreur historique maintenance:", err.message);
     res.status(500).json({ error: "Erreur lors de la récupération de l'historique" });
+  }
+});
+
+// Route pour supprimer un équipement
+app.delete("/api/equipment/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    console.log(`🗑️ Suppression équipement ${id}`);
+
+    const result = await pool.query(
+      `DELETE FROM equipments WHERE id = $1 RETURNING *`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Équipement non trouvé" });
+    }
+
+    console.log(`✅ Équipement ${id} supprimé`);
+    res.json({ message: "✅ Équipement supprimé", equipment: result.rows[0] });
+  } catch (err) {
+    console.error("❌ Erreur suppression:", err.message);
+    res.status(500).json({ error: "Erreur lors de la suppression" });
   }
 });
 

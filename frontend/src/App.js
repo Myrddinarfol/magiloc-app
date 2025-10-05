@@ -38,6 +38,8 @@ import EditTechInfoModal from './components/modals/EditTechInfoModal';
 import AddEquipmentModal from './components/modals/AddEquipmentModal';
 import LocationHistoryModal from './components/modals/LocationHistoryModal';
 import MaintenanceHistoryModal from './components/modals/MaintenanceHistoryModal';
+import MaintenanceModal from './components/modals/MaintenanceModal';
+import CompleteMaintenanceModal from './components/modals/CompleteMaintenanceModal';
 
 import './App.css';
 
@@ -68,6 +70,10 @@ const MainApp = () => {
     setShowAddEquipmentModal,
     showNotesHistory,
     setShowNotesHistory,
+    showMaintenanceModal,
+    setShowMaintenanceModal,
+    showCompleteMaintenance,
+    setShowCompleteMaintenance,
     handleResetData,
     handleGoBack,
     handleOpenEquipmentDetail,
@@ -86,7 +92,32 @@ const MainApp = () => {
     setShowReturnModal(false);
     setShowEditTechInfoModal(false);
     setShowAddEquipmentModal(false);
+    setShowMaintenanceModal(false);
+    setShowCompleteMaintenance(false);
     setSelectedEquipment(null);
+  };
+
+  // Gestionnaire de suppression
+  const handleDelete = async () => {
+    if (!selectedEquipment) return;
+
+    const confirmation = window.confirm(
+      `Êtes-vous sûr de vouloir supprimer définitivement le matériel "${selectedEquipment.designation} ${selectedEquipment.cmu}" ?\n\n⚠️ Cette action est irréversible !`
+    );
+
+    if (!confirmation) return;
+
+    try {
+      const { equipmentService } = await import('./services/equipmentService');
+      await equipmentService.delete(selectedEquipment.id);
+      showToast('Matériel supprimé avec succès !', 'success');
+      await loadEquipments();
+      setSelectedEquipment(null);
+      handleGoBack();
+    } catch (error) {
+      console.error('❌ Erreur suppression:', error);
+      showToast(`Erreur lors de la suppression: ${error.message}`, 'error');
+    }
   };
 
   const handleDataImported = async (newData) => {
@@ -119,6 +150,7 @@ const MainApp = () => {
           onEditTechInfo={() => setShowEditTechInfoModal(true)}
           onLoadLocationHistory={() => loadLocationHistory(selectedEquipment.id, () => setShowLocationHistory(true))}
           onLoadMaintenanceHistory={() => loadMaintenanceHistory(selectedEquipment.id, () => setShowMaintenanceHistory(true))}
+          onDelete={handleDelete}
         />
       );
     }
@@ -246,6 +278,22 @@ const MainApp = () => {
         <MaintenanceHistoryModal
           history={maintenanceHistory}
           onClose={() => setShowMaintenanceHistory(false)}
+        />
+      )}
+
+      {showMaintenanceModal && selectedEquipment && (
+        <MaintenanceModal
+          equipment={selectedEquipment}
+          onClose={() => setShowMaintenanceModal(false)}
+          onSuccess={handleModalSuccess}
+        />
+      )}
+
+      {showCompleteMaintenance && selectedEquipment && (
+        <CompleteMaintenanceModal
+          equipment={selectedEquipment}
+          onClose={() => setShowCompleteMaintenance(false)}
+          onSuccess={handleModalSuccess}
         />
       )}
     </div>

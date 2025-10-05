@@ -14,9 +14,10 @@ const EquipmentDetailView = ({
   onReturn,
   onEditTechInfo,
   onLoadLocationHistory,
-  onLoadMaintenanceHistory
+  onLoadMaintenanceHistory,
+  onDelete
 }) => {
-  const { setShowReservationModal, setShowStartLocationModal, setShowReturnModal, previousPage } = useUI();
+  const { setShowReservationModal, setShowStartLocationModal, setShowReturnModal, setShowMaintenanceModal, setShowCompleteMaintenance, previousPage } = useUI();
 
   return (
     <div>
@@ -172,6 +173,13 @@ const EquipmentDetailView = ({
                   </div>
                 </div>
               </div>
+              <button
+                className="btn btn-success btn-lg"
+                onClick={() => setShowCompleteMaintenance(true)}
+                style={{ marginTop: '15px', width: '100%' }}
+              >
+                ✅ Valider la Maintenance
+              </button>
             </div>
           )}
         </div>
@@ -230,14 +238,45 @@ const EquipmentDetailView = ({
             </button>
           )}
           {equipment.statut !== 'En Location' && equipment.statut !== 'En Maintenance' && (
-            <button
-              className="btn btn-warning btn-lg"
-              onClick={() => setShowReservationModal(true)}
-            >
-              Créer une Réservation
-            </button>
+            <>
+              <button
+                className="btn btn-warning btn-lg"
+                onClick={() => setShowReservationModal(true)}
+              >
+                Créer une Réservation
+              </button>
+              <button
+                className="btn btn-lg"
+                onClick={() => setShowMaintenanceModal(true)}
+                style={{
+                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                  color: 'white',
+                  border: 'none'
+                }}
+              >
+                🔧 Mettre en Maintenance
+              </button>
+            </>
           )}
         </div>
+
+        {/* Bouton Supprimer pour PARC LOC */}
+        {currentPage === 'parc-loc' && (
+          <div style={{ marginTop: '20px' }}>
+            <button
+              className="btn btn-lg"
+              onClick={onDelete}
+              style={{
+                background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                color: 'white',
+                border: 'none',
+                width: '100%'
+              }}
+            >
+              🗑️ Supprimer ce matériel
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -514,6 +514,7 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, h
                     <th>Longueur</th>
                     <th>Dernier client</th>
                     <th>Motif maintenance</th>
+                    <th>Date entrée</th>
                   </>
                 )}
                 <th>Actions</th>
@@ -595,6 +596,11 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, h
                         <td>
                           <span className="maintenance-motif">
                             {equipment.motifMaintenance || '-'}
+                          </span>
+                        </td>
+                        <td>
+                          <span className="maintenance-date">
+                            {equipment.debutMaintenance || '-'}
                           </span>
                         </td>
                       </>

@@ -41,5 +41,14 @@ export const equipmentService = {
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     return response.json();
+  },
+
+  // Supprimer un équipement
+  async delete(id) {
+    const response = await fetch(`${API_URL}/api/equipment/${id}`, {
+      method: 'DELETE'
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
   }
 };

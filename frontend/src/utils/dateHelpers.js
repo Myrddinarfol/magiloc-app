@@ -1,5 +1,43 @@
 import { FRENCH_HOLIDAYS } from './holidays';
 
+// Fonction pour formater une date au format JJ/MM/AAAA
+export const formatDateToFrench = (dateStr) => {
+  if (!dateStr) return '';
+
+  // Si déjà au format JJ/MM/AAAA
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
+    return dateStr;
+  }
+
+  // Convertir depuis ISO (YYYY-MM-DD) ou objet Date
+  const date = new Date(dateStr);
+  if (isNaN(date)) return dateStr;
+
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+
+  return `${day}/${month}/${year}`;
+};
+
+// Fonction pour convertir date française (JJ/MM/AAAA) vers ISO (YYYY-MM-DD)
+export const convertFrenchToISO = (dateStr) => {
+  if (!dateStr) return null;
+
+  // Si déjà au format ISO
+  if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
+    return dateStr;
+  }
+
+  // Convertir depuis JJ/MM/AAAA
+  if (/^\d{2}\/\d{2}\/\d{4}/.test(dateStr)) {
+    const [day, month, year] = dateStr.split('/');
+    return `${year}-${month}-${day}`;
+  }
+
+  return dateStr;
+};
+
 // Fonction pour calculer les jours ouvrés (lundi-vendredi, hors jours fériés français)
 export const calculateBusinessDays = (startDateStr, endDateStr) => {
   if (!startDateStr || !endDateStr) return null;
