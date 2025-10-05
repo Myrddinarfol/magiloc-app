@@ -1,75 +1,20 @@
 import React, { useMemo } from 'react';
 import { useEquipment } from '../hooks/useEquipment';
 import { useUI } from '../hooks/useUI';
+import PageHeader from '../components/common/PageHeader';
+import './DashboardPage.css';
 
 const DashboardPage = () => {
   const { stats, equipmentData } = useEquipment();
   const { setCurrentPage, setEquipmentFilter } = useUI();
 
-  // Calculer les événements de la semaine
-  const weekEvents = useMemo(() => {
+  // Calcul des alertes
+  const alerts = useMemo(() => {
     const today = new Date();
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Lundi
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6); // Dimanche
+    today.setHours(0, 0, 0, 0);
 
-    const returnsThisWeek = equipmentData.filter(eq => {
-      if (eq.statut === 'En Location' && eq.finLocationTheorique) {
-        const returnDate = new Date(eq.finLocationTheorique);
-        return returnDate >= startOfWeek && returnDate <= endOfWeek;
-      }
-      return false;
-    }).sort((a, b) => new Date(a.finLocationTheorique) - new Date(b.finLocationTheorique));
-
-    const reservationsThisWeek = equipmentData.filter(eq => {
-      if (eq.statut === 'En Réservation' && eq.debutLocation) {
-        const startDate = new Date(eq.debutLocation);
-        return startDate >= startOfWeek && startDate <= endOfWeek;
-      }
-      return false;
-    }).sort((a, b) => new Date(a.debutLocation) - new Date(b.debutLocation));
-
-    return { returnsThisWeek, reservationsThisWeek };
-  }, [equipmentData]);
-
-  // Locations en cours
-  const currentLocations = useMemo(() => {
-    return equipmentData
-      .filter(eq => eq.statut === 'En Location')
-      .slice(0, 5); // Top 5
-  }, [equipmentData]);
-
-  // VGP à prévoir (en retard + à venir dans 30 jours)
-  const upcomingVGP = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Reset time for accurate comparison
-    const in30Days = new Date(today);
-    in30Days.setDate(today.getDate() + 30);
-
-    return equipmentData.filter(eq => {
-      if (eq.prochainVGP) {
-        // Parse date format DD/MM/YYYY
-        const [day, month, year] = eq.prochainVGP.split('/');
-        const vgpDate = new Date(year, month - 1, day);
-        // Inclure les VGP en retard (< aujourd'hui) ET les VGP à venir (< 30 jours)
-        return vgpDate <= in30Days;
-      }
-      return false;
-    }).sort((a, b) => {
-      const [dayA, monthA, yearA] = a.prochainVGP.split('/');
-      const [dayB, monthB, yearB] = b.prochainVGP.split('/');
-      const dateA = new Date(yearA, monthA - 1, dayA);
-      const dateB = new Date(yearB, monthB - 1, dayB);
-      return dateA - dateB;
-    });
-  }, [equipmentData]);
-
-  // Retards effectifs
-  const lateReturns = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Reset time for accurate date-only comparison
-    return equipmentData.filter(eq => {
+    // 1. Retards de retours de location
+    const lateReturns = equipmentData.filter(eq => {
       if (eq.statut === 'En Location' && eq.finLocationTheorique) {
         const returnDate = new Date(eq.finLocationTheorique);
         returnDate.setHours(0, 0, 0, 0);
@@ -77,6 +22,77 @@ const DashboardPage = () => {
       }
       return false;
     });
+
+    // 2. VGP en retard
+    const lateVGP = equipmentData.filter(eq => {
+      if (eq.prochainVGP) {
+        const [day, month, year] = eq.prochainVGP.split('/');
+        const vgpDate = new Date(year, month - 1, day);
+        vgpDate.setHours(0, 0, 0, 0);
+        return vgpDate < today;
+      }
+      return false;
+    });
+
+    // 3. VGP à prévoir (< 30 jours mais pas encore en retard)
+    const upcomingVGP = equipmentData.filter(eq => {
+      if (eq.prochainVGP) {
+        const [day, month, year] = eq.prochainVGP.split('/');
+        const vgpDate = new Date(year, month - 1, day);
+        vgpDate.setHours(0, 0, 0, 0);
+        const in30Days = new Date(today);
+        in30Days.setDate(today.getDate() + 30);
+        return vgpDate >= today && vgpDate <= in30Days;
+      }
+      return false;
+    });
+
+    // 4. Réservations dépassées (date début < aujourd'hui mais toujours en réservation)
+    const overdueReservations = equipmentData.filter(eq => {
+      if (eq.statut === 'En Réservation' && eq.debutLocation) {
+        const startDate = new Date(eq.debutLocation);
+        startDate.setHours(0, 0, 0, 0);
+        return startDate < today;
+      }
+      return false;
+    });
+
+    // 5. Matériels en maintenance
+    const inMaintenance = equipmentData.filter(eq => eq.statut === 'En Maintenance');
+
+    return {
+      lateReturns,
+      lateVGP,
+      upcomingVGP,
+      overdueReservations,
+      inMaintenance
+    };
+  }, [equipmentData]);
+
+  // Calcul des ruptures de stock (matériels avec 0 ou 1 exemplaire disponible)
+  const stockAlerts = useMemo(() => {
+    // Grouper par modèle
+    const modelGroups = {};
+
+    equipmentData.forEach(eq => {
+      const key = `${eq.designation} ${eq.cmu}`.trim();
+      if (!modelGroups[key]) {
+        modelGroups[key] = {
+          model: key,
+          total: 0,
+          available: 0
+        };
+      }
+      modelGroups[key].total++;
+      if (eq.statut === 'Sur Parc') {
+        modelGroups[key].available++;
+      }
+    });
+
+    // Filtrer pour ne garder que ceux avec 0 ou 1 disponible et au moins 2 exemplaires au total
+    return Object.values(modelGroups)
+      .filter(g => g.total >= 2 && g.available <= 1)
+      .sort((a, b) => a.available - b.available);
   }, [equipmentData]);
 
   // Matériels phares - Disponibilité
@@ -144,25 +160,18 @@ const DashboardPage = () => {
 
   // Fonction pour filtrer et naviguer vers les matériels phares
   const handleFeaturedClick = (models) => {
-    // Définir le filtre de modèles
     setEquipmentFilter({ models });
-    // Navigation vers Sur Parc avec filtre
     setCurrentPage('sur-parc');
-  };
-
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '-';
-    const date = new Date(dateStr);
-    const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
-    return `${days[date.getDay()]} ${date.getDate()}/${date.getMonth() + 1}`;
   };
 
   return (
     <div className="dashboard">
-      <div className="dashboard-header">
-        <h1>🏠 Tableau de bord</h1>
-        <p className="dashboard-subtitle">Parc Location COUERON</p>
-      </div>
+      <PageHeader
+        icon="🏠"
+        title="Tableau de bord"
+        subtitle="PARC LOCATION COUERON"
+        description="Vue d'ensemble de votre parc de matériel et des alertes en cours"
+      />
 
       {/* Section Stats + Matériels Phares */}
       <div className="dashboard-top-section">
@@ -258,108 +267,113 @@ const DashboardPage = () => {
         </div>
       </div>
 
-      {/* Section Cette Semaine */}
-      <div className="dashboard-section">
-        <h2>📅 Cette Semaine</h2>
-        <div className="week-events-grid">
-          <div className="event-card">
-            <h3>🔙 Retours Prévus ({weekEvents.returnsThisWeek.length})</h3>
-            <div className="event-list">
-              {weekEvents.returnsThisWeek.length === 0 ? (
-                <p className="event-empty">Aucun retour prévu</p>
-              ) : (
-                weekEvents.returnsThisWeek.map(eq => (
-                  <div key={eq.id} className="event-item">
-                    <span className="event-date">{formatDate(eq.finLocationTheorique)}</span>
-                    <span className="event-name">{eq.nom} - {eq.client}</span>
-                  </div>
-                ))
-              )}
+      {/* 4 Capsules d'Alertes */}
+      <div className="alerts-section">
+        <h2>⚠️ Alertes</h2>
+        <div className="alerts-grid">
+          {/* Alerte 1: Réservations dépassées */}
+          <div className={`alert-capsule ${alerts.overdueReservations.length > 0 ? 'alert-critical' : ''}`}>
+            <div className="alert-capsule-icon">
+              <span className="icon-animated">📅</span>
             </div>
+            <div className="alert-capsule-content">
+              <div className="alert-capsule-number">{alerts.overdueReservations.length}</div>
+              <div className="alert-capsule-label">Réservations<br/>Dépassées</div>
+            </div>
+            {alerts.overdueReservations.length > 0 ? (
+              <div className="alert-badge-round alert-badge-red pulse">!</div>
+            ) : (
+              <div className="alert-badge-square alert-badge-green">✓</div>
+            )}
           </div>
 
-          <div className="event-card">
-            <h3>📤 Départs Prévus ({weekEvents.reservationsThisWeek.length})</h3>
-            <div className="event-list">
-              {weekEvents.reservationsThisWeek.length === 0 ? (
-                <p className="event-empty">Aucun départ prévu</p>
-              ) : (
-                weekEvents.reservationsThisWeek.map(eq => (
-                  <div key={eq.id} className="event-item">
-                    <span className="event-date">{formatDate(eq.debutLocation)}</span>
-                    <span className="event-name">{eq.nom} - {eq.client}</span>
-                  </div>
-                ))
-              )}
+          {/* Alerte 2: Retards de retours de location */}
+          <div className={`alert-capsule ${alerts.lateReturns.length > 0 ? 'alert-critical' : ''}`}>
+            <div className="alert-capsule-icon">
+              <span className="icon-animated">⏱️</span>
             </div>
+            <div className="alert-capsule-content">
+              <div className="alert-capsule-number">{alerts.lateReturns.length}</div>
+              <div className="alert-capsule-label">Retards Retours<br/>Locations</div>
+            </div>
+            {alerts.lateReturns.length > 0 ? (
+              <div className="alert-badge-round alert-badge-red pulse">!</div>
+            ) : (
+              <div className="alert-badge-square alert-badge-green">✓</div>
+            )}
+          </div>
+
+          {/* Alerte 3: VGP en retard + à venir */}
+          <div className={`alert-capsule ${alerts.lateVGP.length > 0 ? 'alert-critical' : (alerts.upcomingVGP.length > 0 ? 'alert-warning' : '')}`}>
+            <div className="alert-capsule-icon">
+              <span className="icon-animated">🔔</span>
+            </div>
+            <div className="alert-capsule-content">
+              <div className="alert-capsule-number">
+                {alerts.lateVGP.length > 0 && <span style={{color: '#dc2626', fontWeight: 'bold'}}>{alerts.lateVGP.length}</span>}
+                {alerts.lateVGP.length > 0 && alerts.upcomingVGP.length > 0 && ' + '}
+                {alerts.upcomingVGP.length > 0 && <span style={{color: '#f59e0b', fontWeight: 'bold'}}>{alerts.upcomingVGP.length}</span>}
+                {alerts.lateVGP.length === 0 && alerts.upcomingVGP.length === 0 && '0'}
+              </div>
+              <div className="alert-capsule-label">VGP Retards<br/>{'<'} 30 jours</div>
+            </div>
+            {alerts.lateVGP.length > 0 ? (
+              <div className="alert-badge-round alert-badge-red pulse">!</div>
+            ) : alerts.upcomingVGP.length > 0 ? (
+              <div className="alert-badge-round alert-badge-orange pulse">!</div>
+            ) : (
+              <div className="alert-badge-square alert-badge-green">✓</div>
+            )}
+          </div>
+
+          {/* Alerte 4: Maintenances en cours */}
+          <div className={`alert-capsule ${alerts.inMaintenance.length > 0 ? 'alert-critical' : ''}`}>
+            <div className="alert-capsule-icon">
+              <span className="icon-animated wrench-spin">🔧</span>
+            </div>
+            <div className="alert-capsule-content">
+              <div className="alert-capsule-number">{alerts.inMaintenance.length}</div>
+              <div className="alert-capsule-label">Matériels en<br/>Maintenance</div>
+            </div>
+            {alerts.inMaintenance.length > 0 ? (
+              <div className="alert-badge-round alert-badge-red pulse">!</div>
+            ) : (
+              <div className="alert-badge-square alert-badge-green">✓</div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Alertes et Locations en cours */}
-      <div className="dashboard-grid">
-        <div className="dashboard-card alerts">
-          <h3>⚠️ Alertes</h3>
-          <div className="alert-items">
-            <div className={`alert-item ${lateReturns.length > 0 ? 'alert-danger' : ''}`}>
-              <span className="alert-icon">⏱️</span>
-              <div className="alert-content">
-                <span className="alert-label">Retards de retour</span>
-                <span className="alert-value">{lateReturns.length}</span>
+      {/* Panneau Ruptures de Stock */}
+      <div className="dashboard-section">
+        <div className="ruptures-panel">
+          <h2>📦 Alertes Ruptures de Stock</h2>
+          <p className="ruptures-subtitle">Matériels avec stock critique (≤1 disponible)</p>
+          <div className="ruptures-grid">
+            {stockAlerts.length === 0 ? (
+              <div className="ruptures-empty">
+                <span className="ruptures-empty-icon">✅</span>
+                <p>Aucune alerte de stock</p>
               </div>
-            </div>
-            <div className={`alert-item ${upcomingVGP.length > 0 ? 'alert-warning' : ''}`}>
-              <span className="alert-icon">🔔</span>
-              <div className="alert-content">
-                <span className="alert-label">VGP à prévoir (30j)</span>
-                <span className="alert-value">{upcomingVGP.length}</span>
-              </div>
-            </div>
-          </div>
-          {upcomingVGP.length > 0 && (
-            <div className="alert-detail">
-              <p className="alert-detail-title">Prochains VGP :</p>
-              {upcomingVGP.slice(0, 5).map(eq => {
-                const [day, month, year] = eq.prochainVGP.split('/');
-                const vgpDate = new Date(year, month - 1, day);
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                const isLate = vgpDate < today;
-                return (
-                  <div key={eq.id} className="alert-detail-item" style={{ color: isLate ? '#dc2626' : 'inherit' }}>
-                    {isLate ? '⚠️' : '🔔'} {eq.designation} - {eq.prochainVGP} {isLate ? '(EN RETARD)' : ''}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        <div className="dashboard-card">
-          <h3>🚚 Locations en Cours</h3>
-          <div className="current-locations">
-            {currentLocations.length === 0 ? (
-              <p className="event-empty">Aucune location en cours</p>
             ) : (
-              currentLocations.map(eq => (
-                <div key={eq.id} className="location-item">
-                  <div className="location-info">
-                    <span className="location-name">{eq.nom}</span>
-                    <span className="location-client">{eq.client}</span>
+              stockAlerts.map((item, index) => (
+                <div key={index} className={`rupture-item rupture-level-${item.available}`}>
+                  <div className="rupture-icon">
+                    {item.available === 0 ? '🔴' : '🟠'}
                   </div>
-                  <div className="location-dates">
-                    <span className="location-return">Retour : {formatDate(eq.finLocationTheorique)}</span>
+                  <div className="rupture-info">
+                    <div className="rupture-model">{item.model}</div>
+                    <div className="rupture-stock">
+                      <span className="rupture-available">{item.available}</span> / {item.total} disponible{item.available > 1 ? 's' : ''}
+                    </div>
+                  </div>
+                  <div className="rupture-badge">
+                    {item.available === 0 ? 'RUPTURE' : 'CRITIQUE'}
                   </div>
                 </div>
               ))
             )}
           </div>
-          <button
-            onClick={() => setCurrentPage('en-location')}
-            className="btn btn-primary btn-full"
-          >
-            Voir toutes les locations ({stats.enLocation})
-          </button>
         </div>
       </div>
     </div>

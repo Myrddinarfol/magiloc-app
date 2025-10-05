@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useUI } from '../hooks/useUI';
+import PageHeader from './common/PageHeader';
 
 function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, handleOpenEquipmentDetail, getStatusClass, setShowImporter, handleResetData, setShowAddEquipmentModal }) {
   const { equipmentFilter, setEquipmentFilter } = useUI();
@@ -8,15 +9,21 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, h
   const [filterCMU, setFilterCMU] = useState('');
   const [filterLongueur, setFilterLongueur] = useState('');
 
-  // Réinitialiser les filtres locaux quand on change de page (sauf si on a un filtre de modèles)
+  // Réinitialiser TOUS les filtres quand on quitte l'onglet sur-parc
   useEffect(() => {
+    if (currentPage !== 'sur-parc' && equipmentFilter) {
+      // Si on quitte sur-parc, réinitialiser le filtre de modèles phares
+      setEquipmentFilter(null);
+    }
+
+    // Réinitialiser les filtres locaux quand on change de page
     if (!equipmentFilter) {
       setSearchTerm('');
       setFilterDesignation('');
       setFilterCMU('');
       setFilterLongueur('');
     }
-  }, [currentPage, equipmentFilter]);
+  }, [currentPage, equipmentFilter, setEquipmentFilter]);
 
   // Fonction pour calculer l'indicateur VGP avec texte détaillé
   const getVGPIndicator = (prochainVGP) => {
@@ -60,17 +67,58 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, h
     }
   };
 
-  const getPageTitle = () => {
+  const getPageHeaderInfo = () => {
     switch (currentPage) {
-      case 'dashboard': return 'Tableau de bord';
-      case 'sur-parc': return 'Sur Parc - Équipements disponibles';
-      case 'parc-loc': return 'Parc Location - Tous les équipements';
+      case 'sur-parc':
+        return {
+          icon: '📦',
+          title: 'Sur Parc',
+          subtitle: 'MATÉRIEL DISPONIBLE',
+          description: 'Matériel disponible à la location'
+        };
+      case 'parc-loc':
+        return {
+          icon: '🏗️',
+          title: 'Parc Location',
+          subtitle: 'GESTION GLOBALE',
+          description: 'Vue complète de votre parc de matériel'
+        };
       case 'en-location':
-      case 'location-list': return 'Équipements en location';
-      case 'planning': return 'Planning des locations';
-      case 'en-offre': return 'Réservations en cours';
-      case 'maintenance': return 'Équipements en maintenance';
-      default: return 'MagiLoc';
+      case 'location-list':
+        return {
+          icon: '🚚',
+          title: 'En Location',
+          subtitle: 'MATÉRIEL LOUÉ',
+          description: 'Matériel actuellement en location chez les clients'
+        };
+      case 'planning':
+        return {
+          icon: '📅',
+          title: 'Planning Location',
+          subtitle: 'CALENDRIER',
+          description: 'Vue chronologique des locations'
+        };
+      case 'en-offre':
+        return {
+          icon: '📝',
+          title: 'Réservations',
+          subtitle: 'EN COURS',
+          description: 'Matériel réservé en attente de départ'
+        };
+      case 'maintenance':
+        return {
+          icon: '🔧',
+          title: 'En Maintenance',
+          subtitle: 'RÉVISION & CONTRÔLE',
+          description: 'Matériel en cours de vérification ou réparation'
+        };
+      default:
+        return {
+          icon: '⚙️',
+          title: 'MagiLoc',
+          subtitle: 'GESTION PARC',
+          description: 'Gestion de votre parc de matériel'
+        };
     }
   };
 
@@ -162,25 +210,32 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, h
     return filtered;
   }, [equipmentData, currentPage, searchTerm, filterDesignation, filterCMU, filterLongueur, equipmentFilter]);
 
+  const headerInfo = getPageHeaderInfo();
+
   return (
     <div>
-      <div className="page-header">
-        <h1 className="page-title">{getPageTitle()}</h1>
-        {equipmentFilter && equipmentFilter.models && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
-            <span style={{
-              background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-              color: 'white',
-              padding: '6px 14px',
-              borderRadius: '6px',
-              fontSize: '13px',
-              fontWeight: '600',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
-              🔍 Filtre: {equipmentFilter.models.join(', ')}
-            </span>
+      <PageHeader
+        icon={headerInfo.icon}
+        title={headerInfo.title}
+        subtitle={headerInfo.subtitle}
+        description={headerInfo.description}
+      />
+
+      {equipmentFilter && equipmentFilter.models && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+          <span style={{
+            background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+            color: 'white',
+            padding: '6px 14px',
+            borderRadius: '6px',
+            fontSize: '13px',
+            fontWeight: '600',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            🔍 Filtre: {equipmentFilter.models.join(', ')}
+          </span>
             <button
               onClick={() => setEquipmentFilter(null)}
               style={{
@@ -196,9 +251,8 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, h
             >
               ✕ Réinitialiser
             </button>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Layout spécial pour PARC LOC : filtres à gauche (50%) + boutons de gestion à droite (50%) */}
       {currentPage === 'parc-loc' ? (

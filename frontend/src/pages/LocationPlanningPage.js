@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { useEquipment } from '../hooks/useEquipment';
 import { useUI } from '../hooks/useUI';
+import PageHeader from '../components/common/PageHeader';
 
 // ============================================================================
 // FONCTIONS UTILITAIRES POUR CALCULS EN JOURS (évite les problèmes de timezone)
@@ -389,7 +390,12 @@ const LocationPlanningPage = () => {
 
   return (
     <div className="location-planning">
-      <h1>📅 Planning Location</h1>
+      <PageHeader
+        icon="📅"
+        title="Planning Location"
+        subtitle="VUE CALENDRIER"
+        description="Visualisation chronologique de toutes vos locations"
+      />
 
       {/* Statistiques rapides */}
       <div className="planning-stats">

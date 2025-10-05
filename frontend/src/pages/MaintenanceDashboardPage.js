@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { useEquipment } from '../hooks/useEquipment';
+import PageHeader from '../components/common/PageHeader';
 
 const MaintenanceDashboardPage = () => {
   const { equipmentData } = useEquipment();
@@ -100,7 +101,12 @@ const MaintenanceDashboardPage = () => {
 
   return (
     <div className="maintenance-dashboard">
-      <h1>📊 Dashboard Maintenance</h1>
+      <PageHeader
+        icon="📊"
+        title="Dashboard Maintenance"
+        subtitle="SUIVI & ANALYSE"
+        description="Vue d'ensemble des maintenances et interventions en cours"
+      />
 
       {/* KPIs */}
       <div className="stats-grid">

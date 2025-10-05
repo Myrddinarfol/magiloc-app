@@ -102,7 +102,24 @@ const MainApp = () => {
     setShowMaintenanceModal(false);
     setShowCompleteMaintenance(false);
 
-    // Fermer la fiche détail
+    // Cas spécial : édition technique depuis PARC LOC
+    // On garde la fiche ouverte pour voir les modifications
+    if (targetPage === 'stay-on-detail') {
+      console.log('🔄 Rester sur la fiche détail après édition');
+      // Attendre que loadEquipments soit terminé, puis recharger l'équipement
+      setTimeout(() => {
+        if (selectedEquipment) {
+          const updatedEquipment = equipmentData.find(eq => eq.id === selectedEquipment.id);
+          if (updatedEquipment) {
+            console.log('✅ Équipement mis à jour sur la fiche:', updatedEquipment);
+            setSelectedEquipment(updatedEquipment);
+          }
+        }
+      }, 100); // Petit délai pour s'assurer que equipmentData est à jour
+      return; // Ne pas fermer la fiche
+    }
+
+    // Fermer la fiche détail (comportement par défaut)
     setSelectedEquipment(null);
 
     // Naviguer vers la page cible si fournie
@@ -133,6 +150,30 @@ const MainApp = () => {
     } catch (error) {
       console.error('❌ Erreur suppression:', error);
       showToast(`Erreur lors de la suppression: ${error.message}`, 'error');
+    }
+  };
+
+  // Gestionnaire d'annulation de réservation
+  const handleCancelReservation = async () => {
+    if (!selectedEquipment) return;
+
+    try {
+      const { equipmentService } = await import('./services/equipmentService');
+      await equipmentService.update(selectedEquipment.id, {
+        statut: 'Sur Parc',
+        client: null,
+        debutLocation: null,
+        finLocationTheorique: null,
+        numeroOffre: null,
+        notesLocation: null
+      });
+      showToast('Réservation annulée ! Le matériel est de retour sur parc.', 'success');
+      await loadEquipments();
+      setSelectedEquipment(null);
+      setCurrentPage('en-offre');
+    } catch (error) {
+      console.error('❌ Erreur annulation:', error);
+      showToast(`Erreur lors de l'annulation: ${error.message}`, 'error');
     }
   };
 
@@ -167,6 +208,7 @@ const MainApp = () => {
           onLoadLocationHistory={() => loadLocationHistory(selectedEquipment.id, () => setShowLocationHistory(true))}
           onLoadMaintenanceHistory={() => loadMaintenanceHistory(selectedEquipment.id, () => setShowMaintenanceHistory(true))}
           onDelete={handleDelete}
+          onCancelReservation={handleCancelReservation}
         />
       );
     }

@@ -179,13 +179,13 @@ app.post("/api/equipment/import", async (req, res) => {
     const equipments = req.body;
     console.log(`📥 Import de ${equipments.length} équipements`);
 
-    const client = await pool.connect();
-    
+    const dbClient = await pool.connect();
+
     try {
-      await client.query('BEGIN');
+      await dbClient.query('BEGIN');
       
       for (const eq of equipments) {
-        await client.query(
+        await dbClient.query(
           `INSERT INTO equipments (
             designation, cmu, modele, marque, longueur,
             infos_complementaires, numero_serie, prix_ht_jour, etat,
@@ -229,8 +229,8 @@ app.post("/api/equipment/import", async (req, res) => {
           ]
         );
       }
-      
-      await client.query('COMMIT');
+
+      await dbClient.query('COMMIT');
       console.log(`✅ ${equipments.length} équipements importés`);
       
       res.json({ 
@@ -239,10 +239,10 @@ app.post("/api/equipment/import", async (req, res) => {
       });
       
     } catch (err) {
-      await client.query('ROLLBACK');
+      await dbClient.query('ROLLBACK');
       throw err;
     } finally {
-      client.release();
+      dbClient.release();
     }
     
   } catch (err) {
@@ -469,7 +469,7 @@ app.patch("/api/equipment/:id", async (req, res) => {
 
 // Route pour effectuer le retour d'un équipement (Location -> Maintenance)
 app.post("/api/equipment/:id/return", async (req, res) => {
-  const client = await pool.connect();
+  const dbClient = await pool.connect();
 
   try {
     const { id } = req.params;
@@ -477,16 +477,16 @@ app.post("/api/equipment/:id/return", async (req, res) => {
 
     console.log(`🔄 Retour équipement ${id}:`, { rentreeLe, noteRetour });
 
-    await client.query('BEGIN');
+    await dbClient.query('BEGIN');
 
     // 1. Récupérer les infos actuelles de l'équipement
-    const equipmentResult = await client.query(
+    const equipmentResult = await dbClient.query(
       'SELECT * FROM equipments WHERE id = $1',
       [id]
     );
 
     if (equipmentResult.rows.length === 0) {
-      await client.query('ROLLBACK');
+      await dbClient.query('ROLLBACK');
       return res.status(404).json({ error: "Équipement non trouvé" });
     }
 
@@ -515,7 +515,7 @@ app.post("/api/equipment/:id/return", async (req, res) => {
     console.log(`📊 CA calculé: ${caTotal}€ HT (${businessDays} jours × ${prixHT}€/j${isLongDuration ? ' - 20% LD' : ''})`);
 
     // 3. Archiver dans location_history avec le CA
-    await client.query(
+    await dbClient.query(
       `INSERT INTO location_history (
         equipment_id, client, date_debut, date_fin, date_retour_reel,
         numero_offre, notes_location, note_retour, rentre_le,
@@ -538,16 +538,12 @@ app.post("/api/equipment/:id/return", async (req, res) => {
       ]
     );
 
-    // 3. Créer entrée dans maintenance_history
-    await client.query(
-      `INSERT INTO maintenance_history (
-        equipment_id, motif_maintenance, note_retour, date_entree
-      ) VALUES ($1, $2, $3, NOW())`,
-      [id, 'Retour Location, à vérifier', noteRetour]
-    );
+    // NOTE: On ne crée PAS d'entrée dans maintenance_history ici
+    // L'historique sera créé uniquement quand on VALIDE la maintenance (sortie)
+    // Cela évite les doublons
 
     // 4. Mettre à jour l'équipement
-    await client.query(
+    await dbClient.query(
       `UPDATE equipments SET
         statut = 'En Maintenance',
         motif_maintenance = 'Retour Location, à vérifier',
@@ -558,7 +554,7 @@ app.post("/api/equipment/:id/return", async (req, res) => {
       [noteRetour, rentreLeISO, id]
     );
 
-    await client.query('COMMIT');
+    await dbClient.query('COMMIT');
 
     console.log(`✅ Retour effectué pour équipement ${id}`);
 
@@ -568,11 +564,11 @@ app.post("/api/equipment/:id/return", async (req, res) => {
     });
 
   } catch (err) {
-    await client.query('ROLLBACK');
+    await dbClient.query('ROLLBACK');
     console.error("❌ Erreur retour:", err.message);
     res.status(500).json({ error: "Erreur lors du retour", details: err.message });
   } finally {
-    client.release();
+    dbClient.release();
   }
 });
 

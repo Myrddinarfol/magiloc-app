@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { useEquipment } from '../hooks/useEquipment';
+import PageHeader from '../components/common/PageHeader';
 
 const AnalyticsPage = () => {
   const { equipmentData } = useEquipment();
@@ -90,10 +91,12 @@ const AnalyticsPage = () => {
 
   return (
     <div className="analytics-page">
-      <div className="dashboard-header">
-        <h1>📈 Analytics & Performance</h1>
-        <p className="dashboard-subtitle">Analyse du parc et optimisation</p>
-      </div>
+      <PageHeader
+        icon="📈"
+        title="Analytics & Performance"
+        subtitle="ANALYSE DU PARC"
+        description="Analyse de la performance et optimisation de votre parc"
+      />
 
       {/* KPI Principaux */}
       <div className="analytics-kpi-grid">

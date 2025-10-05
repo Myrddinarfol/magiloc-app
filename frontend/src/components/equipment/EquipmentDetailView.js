@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { getStatusClass, getEtatClass } from '../../utils/statusHelpers';
 import { calculateBusinessDays } from '../../utils/dateHelpers';
 import VGPSection from './VGPSection';
@@ -15,9 +15,11 @@ const EquipmentDetailView = ({
   onEditTechInfo,
   onLoadLocationHistory,
   onLoadMaintenanceHistory,
-  onDelete
+  onDelete,
+  onCancelReservation
 }) => {
   const { setShowReservationModal, setShowStartLocationModal, setShowReturnModal, setShowMaintenanceModal, setShowCompleteMaintenance, previousPage } = useUI();
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   return (
     <div>
@@ -187,95 +189,398 @@ const EquipmentDetailView = ({
         {/* Section VGP */}
         <VGPSection equipment={equipment} onEditCertificat={onEditCertificat} />
 
-        {/* Boutons Historiques */}
-        <div className="history-section" style={{ marginTop: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-          <button
-            className="btn btn-lg"
-            onClick={onLoadLocationHistory}
-            style={{
-              background: 'linear-gradient(135deg, #2196F3, #1976D2)',
-              color: 'white',
-              border: 'none',
-              width: '100%'
-            }}
-          >
-            📜 Historique Locations
-          </button>
-          <button
-            className="btn btn-lg"
-            onClick={onLoadMaintenanceHistory}
-            style={{
-              background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
-              color: 'white',
-              border: 'none',
-              width: '100%'
-            }}
-          >
-            🔧 Historique Maintenance
-          </button>
-        </div>
+        {/* Conteneur 2 panneaux côte à côte */}
+        <div style={{
+          marginTop: '20px',
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '15px'
+        }}>
+          {/* PANNEAU GAUCHE: Historique (consultation neutre) */}
+          <div style={{
+            padding: '15px',
+            background: 'linear-gradient(135deg, #1a1a1a, #2d2d2d)',
+            borderRadius: '12px',
+            border: '2px solid #6b7280',
+            boxShadow: '0 4px 15px rgba(107, 114, 128, 0.3)'
+          }}>
+            <h4 style={{
+              color: '#9ca3af',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              marginBottom: '12px',
+              textTransform: 'uppercase',
+              letterSpacing: '1px'
+            }}>
+              📚 Historique
+            </h4>
 
-        {/* Boutons d'action selon le statut */}
-        <div className="actions-container" style={{ marginTop: '15px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-          {equipment.statut === 'En Réservation' && (
-            <button
-              className="btn btn-success btn-lg"
-              onClick={() => setShowStartLocationModal(true)}
-              style={{ gridColumn: '1 / -1' }}
-            >
-              🚀 Démarrer Location
-            </button>
-          )}
-          {equipment.statut === 'En Location' && (
-            <button
-              className="btn btn-success btn-lg"
-              onClick={() => setShowReturnModal(true)}
-              style={{ gridColumn: '1 / -1' }}
-            >
-              ✅ Effectuer le retour
-            </button>
-          )}
-          {equipment.statut !== 'En Location' && equipment.statut !== 'En Maintenance' && (
-            <>
+            <div style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '8px'
+            }}>
               <button
-                className="btn btn-warning btn-lg"
-                onClick={() => setShowReservationModal(true)}
+                onClick={onLoadLocationHistory}
+                style={{
+                  padding: '8px 16px',
+                  background: 'linear-gradient(135deg, #4b5563, #374151)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: 'bold',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s',
+                  boxShadow: '0 2px 8px rgba(75, 85, 99, 0.3)'
+                }}
+                onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+                onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
               >
-                Créer une Réservation
+                📜 Locations
               </button>
               <button
-                className="btn btn-lg"
-                onClick={() => setShowMaintenanceModal(true)}
+                onClick={onLoadMaintenanceHistory}
                 style={{
-                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                  padding: '8px 16px',
+                  background: 'linear-gradient(135deg, #4b5563, #374151)',
                   color: 'white',
-                  border: 'none'
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: 'bold',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s',
+                  boxShadow: '0 2px 8px rgba(75, 85, 99, 0.3)'
+                }}
+                onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+                onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+              >
+                🔧 Maintenance
+              </button>
+            </div>
+          </div>
+
+          {/* PANNEAU DROITE: Contrôle */}
+          <div style={{
+            padding: '15px',
+            background: 'linear-gradient(135deg, #1a1a1a, #2d2d2d)',
+            borderRadius: '12px',
+            border: '2px solid #dc2626',
+            boxShadow: '0 4px 15px rgba(220, 38, 38, 0.3)'
+          }}>
+            <h4 style={{
+              color: '#dc2626',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              marginBottom: '12px',
+              textTransform: 'uppercase',
+              letterSpacing: '1px'
+            }}>
+              ⚙️ Panneau de Contrôle
+            </h4>
+
+            <div style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '8px'
+            }}>
+            {/* STATUT: En Réservation */}
+            {equipment.statut === 'En Réservation' && (
+              <>
+                <button
+                  onClick={() => setShowStartLocationModal(true)}
+                  style={{
+                    padding: '8px 16px',
+                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: 'bold',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s',
+                    boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)'
+                  }}
+                  onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+                  onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+                >
+                  🚀 Démarrer Location
+                </button>
+                <button
+                  onClick={() => setShowCancelConfirm(true)}
+                  style={{
+                    padding: '8px 16px',
+                    background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: 'bold',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s',
+                    boxShadow: '0 2px 8px rgba(220, 38, 38, 0.3)'
+                  }}
+                  onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+                  onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+                >
+                  ❌ Annuler Réservation
+                </button>
+              </>
+            )}
+
+            {/* STATUT: En Location */}
+            {equipment.statut === 'En Location' && (
+              <button
+                onClick={() => setShowReturnModal(true)}
+                style={{
+                  padding: '8px 16px',
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: 'bold',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s',
+                  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)'
+                }}
+                onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+                onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+              >
+                ✅ Effectuer le Retour
+              </button>
+            )}
+
+            {/* STATUT: Sur Parc */}
+            {equipment.statut === 'Sur Parc' && (
+              <>
+                <button
+                  onClick={() => setShowReservationModal(true)}
+                  style={{
+                    padding: '8px 16px',
+                    background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: 'bold',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s',
+                    boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
+                  }}
+                  onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+                  onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+                >
+                  📋 Créer Réservation
+                </button>
+                <button
+                  onClick={() => setShowMaintenanceModal(true)}
+                  style={{
+                    padding: '8px 16px',
+                    background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: 'bold',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s',
+                    boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
+                  }}
+                  onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+                  onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+                >
+                  🔧 Mettre en Maintenance
+                </button>
+              </>
+            )}
+
+            {/* STATUT: En Maintenance */}
+            {equipment.statut === 'En Maintenance' && previousPage === 'maintenance' && (
+              <button
+                onClick={() => setShowCompleteMaintenance(true)}
+                style={{
+                  padding: '8px 16px',
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: 'bold',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s',
+                  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)'
+                }}
+                onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+                onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+              >
+                ✅ Valider Maintenance
+              </button>
+            )}
+
+            {/* Boutons PARC LOC uniquement */}
+            {previousPage === 'parc-loc' && (
+              <>
+                <button
+                  onClick={onEditTechInfo}
+                  style={{
+                    padding: '8px 16px',
+                    background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: 'bold',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s',
+                    boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+                  }}
+                  onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+                  onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+                >
+                  📝 Éditer Infos
+                </button>
+                <button
+                  onClick={onDelete}
+                  style={{
+                    padding: '8px 16px',
+                    background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: 'bold',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s',
+                    boxShadow: '0 2px 8px rgba(220, 38, 38, 0.3)'
+                  }}
+                  onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+                  onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+                >
+                  🗑️ Supprimer
+                </button>
+              </>
+            )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal de confirmation d'annulation de réservation */}
+      {showCancelConfirm && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.7)',
+          backdropFilter: 'blur(5px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 10000,
+          animation: 'fadeIn 0.3s ease-out'
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #1a1a1a, #2d2d2d)',
+            border: '2px solid #dc2626',
+            borderRadius: '16px',
+            padding: '30px',
+            maxWidth: '450px',
+            width: '90%',
+            boxShadow: '0 10px 40px rgba(220, 38, 38, 0.4), 0 0 80px rgba(220, 38, 38, 0.2)',
+            animation: 'slideUp 0.3s ease-out'
+          }}>
+            <div style={{ textAlign: 'center', marginBottom: '25px' }}>
+              <div style={{
+                fontSize: '64px',
+                marginBottom: '15px',
+                animation: 'bounce 1s ease-in-out infinite'
+              }}>⚠️</div>
+              <h2 style={{
+                color: '#dc2626',
+                fontSize: '24px',
+                fontWeight: 'bold',
+                marginBottom: '10px',
+                textTransform: 'uppercase',
+                letterSpacing: '1px'
+              }}>
+                Confirmer l'annulation
+              </h2>
+              <p style={{
+                color: '#d1d5db',
+                fontSize: '16px',
+                lineHeight: '1.6'
+              }}>
+                Êtes-vous sûr de vouloir annuler cette réservation ?<br/>
+                Le matériel sera remis sur parc.
+              </p>
+            </div>
+
+            <div style={{
+              display: 'flex',
+              gap: '15px',
+              justifyContent: 'center'
+            }}>
+              <button
+                onClick={() => setShowCancelConfirm(false)}
+                style={{
+                  padding: '12px 30px',
+                  background: 'linear-gradient(135deg, #4b5563, #6b7280)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontWeight: 'bold',
+                  fontSize: '15px',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
                 }}
               >
-                🔧 Mettre en Maintenance
+                Annuler
               </button>
-            </>
-          )}
-        </div>
-
-        {/* Bouton Supprimer pour PARC LOC */}
-        {previousPage === 'parc-loc' && (
-          <div style={{ marginTop: '20px' }}>
-            <button
-              className="btn btn-lg"
-              onClick={onDelete}
-              style={{
-                background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
-                color: 'white',
-                border: 'none',
-                width: '100%'
-              }}
-            >
-              🗑️ Supprimer ce matériel
-            </button>
+              <button
+                onClick={() => {
+                  setShowCancelConfirm(false);
+                  onCancelReservation();
+                }}
+                style={{
+                  padding: '12px 30px',
+                  background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontWeight: 'bold',
+                  fontSize: '15px',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s',
+                  boxShadow: '0 4px 12px rgba(220, 38, 38, 0.4)'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 6px 20px rgba(220, 38, 38, 0.6)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(220, 38, 38, 0.4)';
+                }}
+              >
+                Confirmer
+              </button>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

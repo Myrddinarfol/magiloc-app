@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { useEquipment } from '../hooks/useEquipment';
+import PageHeader from '../components/common/PageHeader';
 
 const MaintenancePlanningPage = () => {
   const { equipmentData } = useEquipment();
@@ -74,7 +75,12 @@ const MaintenancePlanningPage = () => {
 
   return (
     <div className="maintenance-planning">
-      <h1>📅 Planning Maintenance</h1>
+      <PageHeader
+        icon="🛠️"
+        title="Planning Maintenance"
+        subtitle="VUE CALENDRIER"
+        description="Suivi chronologique des maintenances et interventions"
+      />
 
       {/* Statistiques rapides */}
       <div className="planning-stats">

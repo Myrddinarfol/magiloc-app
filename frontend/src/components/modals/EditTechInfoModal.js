@@ -17,17 +17,20 @@ const EditTechInfoModal = ({ equipment, onClose, onSuccess }) => {
     try {
       console.log('💾 Sauvegarde des informations techniques pour:', equipment?.designation);
 
-      await equipmentService.update(equipment.id, {
-        modele: form.modele,
-        marque: form.marque,
-        longueur: form.longueur,
-        numeroSerie: form.numeroSerie,
-        prixHT: form.prixHT,
-        etat: form.etat
-      });
+      // Nettoyer les valeurs : convertir les chaînes vides en null
+      const cleanedData = {
+        modele: form.modele || null,
+        marque: form.marque || null,
+        longueur: form.longueur || null,
+        numeroSerie: form.numeroSerie || null,
+        prixHT: form.prixHT ? parseFloat(form.prixHT) : null,
+        etat: form.etat || null
+      };
+
+      await equipmentService.update(equipment.id, cleanedData);
 
       console.log('✅ Informations techniques mises à jour');
-      onSuccess();
+      onSuccess('stay-on-detail'); // Rester sur la fiche détail
       showToast('Informations techniques mises à jour avec succès !', 'success');
     } catch (error) {
       console.error('❌ Erreur:', error);

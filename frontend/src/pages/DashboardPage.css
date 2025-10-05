@@ -1,0 +1,356 @@
+/* Animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes wrench-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-15deg);
+  }
+  75% {
+    transform: rotate(15deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes shine {
+  0% {
+    left: -100%;
+  }
+  20%, 100% {
+    left: 100%;
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 30px rgba(220, 38, 38, 0.5), 0 0 50px rgba(220, 38, 38, 0.3);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.icon-animated {
+  display: inline-block;
+  animation: bounce 2s infinite;
+}
+
+.wrench-spin {
+  animation: wrench-spin 2s ease-in-out infinite !important;
+}
+
+.pulse {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Section Alertes */
+.alerts-section {
+  margin: 30px 0;
+}
+
+.alerts-section h2 {
+  color: #dc2626;
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.alerts-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.alert-capsule {
+  background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+  border: 1px solid #4b5563;
+  border-radius: 16px;
+  padding: 25px;
+  position: relative;
+  transition: all 0.3s;
+  cursor: default;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.alert-capsule:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.alert-capsule.alert-critical {
+  border-color: rgba(220, 38, 38, 0.4);
+  box-shadow: 0 2px 10px rgba(220, 38, 38, 0.15);
+  background: linear-gradient(135deg, #1a1a1a, #2d2020);
+}
+
+.alert-capsule.alert-danger {
+  border-color: rgba(220, 38, 38, 0.4);
+  box-shadow: 0 2px 10px rgba(220, 38, 38, 0.12);
+  background: linear-gradient(135deg, #1a1a1a, #2d2020);
+}
+
+.alert-capsule.alert-warning {
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.12);
+  background: linear-gradient(135deg, #1a1a1a, #2d2511);
+}
+
+.alert-capsule.alert-info {
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 2px 10px rgba(59, 130, 246, 0.12);
+  background: linear-gradient(135deg, #1a1a1a, #1a1f2d);
+}
+
+.alert-capsule-icon {
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 48px;
+}
+
+.alert-capsule-content {
+  text-align: center;
+}
+
+.alert-capsule-number {
+  font-size: 42px;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 5px;
+}
+
+.alert-capsule-label {
+  font-size: 14px;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  line-height: 1.4;
+}
+
+.alert-capsule-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+/* Badges ronds pour alertes */
+.alert-badge-round {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.alert-badge-red {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  border: 2px solid #dc2626;
+}
+
+.alert-badge-orange {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  border: 2px solid #f59e0b;
+}
+
+/* Badges carrés pour état OK */
+.alert-badge-square {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.alert-badge-green {
+  background: linear-gradient(135deg, #10b981, #059669);
+  border: 2px solid #10b981;
+}
+
+/* Panneau Ruptures */
+.ruptures-panel {
+  background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+  border: 2px solid #dc2626;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 25px rgba(220, 38, 38, 0.3);
+}
+
+.ruptures-panel h2 {
+  color: #dc2626;
+  font-size: 22px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.ruptures-subtitle {
+  color: #9ca3af;
+  font-size: 14px;
+  margin-bottom: 25px;
+}
+
+.ruptures-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+}
+
+.ruptures-empty {
+  text-align: center;
+  padding: 40px;
+  color: #9ca3af;
+}
+
+.ruptures-empty-icon {
+  font-size: 64px;
+  display: block;
+  margin-bottom: 15px;
+}
+
+.rupture-item {
+  background: linear-gradient(135deg, #2d2d2d, #3a3a3a);
+  border: 2px solid #4b5563;
+  border-radius: 12px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  transition: all 0.3s;
+}
+
+.rupture-item:hover {
+  transform: translateX(5px);
+  border-color: #6b7280;
+}
+
+.rupture-level-0 {
+  border-color: #dc2626;
+  background: linear-gradient(135deg, #2d1a1a, #3d2020);
+}
+
+.rupture-level-1 {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, #2d2511, #3d3018);
+}
+
+.rupture-level-2 {
+  border-color: #eab308;
+  background: linear-gradient(135deg, #2d2a11, #3d3818);
+}
+
+.rupture-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.rupture-info {
+  flex: 1;
+}
+
+.rupture-model {
+  font-weight: bold;
+  font-size: 15px;
+  color: #fff;
+  margin-bottom: 5px;
+}
+
+.rupture-stock {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.rupture-available {
+  font-weight: bold;
+  font-size: 16px;
+  color: #fff;
+}
+
+.rupture-badge {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+
+.rupture-level-1 .rupture-badge {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.rupture-level-2 .rupture-badge {
+  background: linear-gradient(135deg, #eab308, #ca8a04);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .alerts-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .alerts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ruptures-grid {
+    grid-template-columns: 1fr;
+  }
+}

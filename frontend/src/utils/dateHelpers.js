@@ -42,8 +42,12 @@ export const convertFrenchToISO = (dateStr) => {
 export const calculateBusinessDays = (startDateStr, endDateStr) => {
   if (!startDateStr || !endDateStr) return null;
 
-  const startDate = new Date(startDateStr);
-  const endDate = new Date(endDateStr);
+  // Convertir les dates françaises en ISO si nécessaire
+  const startISO = convertFrenchToISO(startDateStr);
+  const endISO = convertFrenchToISO(endDateStr);
+
+  const startDate = new Date(startISO);
+  const endDate = new Date(endISO);
 
   if (isNaN(startDate) || isNaN(endDate) || endDate < startDate) return null;
 

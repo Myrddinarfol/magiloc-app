@@ -1,12 +1,18 @@
 import React from 'react';
 import { useUI } from '../hooks/useUI';
+import PageHeader from '../components/common/PageHeader';
 
 const PlanningPage = () => {
   const { setCurrentPage } = useUI();
 
   return (
     <div>
-      <h1 className="page-title">Planning des locations</h1>
+      <PageHeader
+        icon="📅"
+        title="Planning Location"
+        subtitle="CALENDRIER"
+        description="Vue chronologique des locations"
+      />
       <div className="planning-placeholder">
         <h3>Planning interactif</h3>
         <p>Cette fonctionnalité sera développée dans les prochaines étapes</p>
