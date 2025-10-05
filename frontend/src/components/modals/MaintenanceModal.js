@@ -22,9 +22,10 @@ const MaintenanceModal = ({ equipment, onClose, onSuccess }) => {
       });
 
       console.log('✅ Matériel mis en maintenance');
-      onSuccess();
-      setMotif('');
       showToast('Matériel mis en maintenance avec succès !', 'success');
+      setMotif('');
+      onClose();
+      onSuccess('maintenance-list'); // Naviguer vers maintenance list
     } catch (error) {
       console.error('❌ Erreur:', error);
       showToast(`Erreur lors de la mise en maintenance: ${error.message}`, 'error');

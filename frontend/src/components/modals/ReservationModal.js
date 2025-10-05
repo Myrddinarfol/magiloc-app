@@ -31,7 +31,7 @@ const ReservationModal = ({ equipment, onClose, onSuccess }) => {
       });
 
       console.log('✅ Réservation créée');
-      onSuccess();
+      showToast('Réservation créée avec succès !', 'success');
       setForm({
         client: '',
         debutLocation: '',
@@ -39,7 +39,8 @@ const ReservationModal = ({ equipment, onClose, onSuccess }) => {
         numeroOffre: '',
         notesLocation: ''
       });
-      showToast('Réservation créée avec succès !', 'success');
+      onClose();
+      onSuccess('en-offre'); // Naviguer vers réservations
     } catch (error) {
       console.error('❌ Erreur:', error);
       showToast(`Erreur lors de la création de la réservation: ${error.message}`, 'error');

@@ -87,47 +87,10 @@ const MainApp = () => {
   const { locationHistory, maintenanceHistory, loadLocationHistory, loadMaintenanceHistory } = useHistory();
 
   // Gestionnaires de succès pour les modals - avec redirection intelligente
-  const handleModalSuccess = async () => {
-    console.log('🔄 handleModalSuccess - previousPage:', previousPage);
-    console.log('🔄 Modals actifs:', {
-      reservation: showReservationModal,
-      startLocation: showStartLocationModal,
-      returnModal: showReturnModal,
-      maintenance: showMaintenanceModal,
-      completeMaintenance: showCompleteMaintenance
-    });
+  const handleModalSuccess = async (targetPage) => {
+    console.log('🔄 handleModalSuccess - targetPage fournie:', targetPage);
 
     await loadEquipments();
-
-    // Déterminer la page de destination selon le modal fermé et la page d'origine
-    let targetPage = previousPage;
-
-    // Mapper les actions vers les pages de destination logiques
-    if (showReservationModal) {
-      // Après réservation, aller à la page RÉSERVATION (en-offre)
-      targetPage = 'en-offre';
-      console.log('📍 Navigation après réservation → en-offre');
-    } else if (showStartLocationModal) {
-      // Après démarrage location depuis RÉSERVATION, aller à LOCATIONS EN COURS
-      targetPage = 'location-list';
-      console.log('📍 Navigation après démarrage location → location-list');
-    } else if (showReturnModal) {
-      // Après retour depuis LOCATIONS EN COURS, rester sur LOCATIONS EN COURS
-      targetPage = 'location-list';
-      console.log('📍 Navigation après retour → location-list');
-    } else if (showMaintenanceModal) {
-      // Après mise en maintenance, aller à MAINTENANCE LIST
-      targetPage = 'maintenance-list';
-      console.log('📍 Navigation après mise en maintenance → maintenance-list');
-    } else if (showCompleteMaintenance) {
-      // Après validation maintenance, retourner à MAINTENANCE LIST
-      targetPage = 'maintenance-list';
-      console.log('📍 Navigation après validation maintenance → maintenance-list');
-    } else if (showEditTechInfoModal || showCertificatModal) {
-      // Après édition, retourner à la page d'origine
-      targetPage = previousPage || 'parc-loc';
-      console.log('📍 Navigation après édition → ' + targetPage);
-    }
 
     // Fermer tous les modals
     setShowCertificatModal(false);
@@ -142,11 +105,11 @@ const MainApp = () => {
     // Fermer la fiche détail
     setSelectedEquipment(null);
 
-    // Naviguer vers la page cible
-    console.log('✈️ Navigation finale vers:', targetPage);
+    // Naviguer vers la page cible si fournie
     if (targetPage) {
+      console.log('✈️ Navigation vers:', targetPage);
       setCurrentPage(targetPage);
-      setPreviousPage(null); // Reset previousPage après navigation
+      setPreviousPage(null);
     }
   };
 

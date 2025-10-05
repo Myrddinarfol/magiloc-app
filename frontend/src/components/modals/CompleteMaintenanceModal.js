@@ -15,8 +15,11 @@ const CompleteMaintenanceModal = ({ equipment, onClose, onSuccess }) => {
       });
 
       console.log('✅ Maintenance validée');
-      onSuccess();
       showToast('Maintenance validée ! Le matériel est de retour sur parc.', 'success');
+
+      // Fermer le modal et naviguer
+      onClose();
+      onSuccess('maintenance-list'); // Passer la page cible
     } catch (error) {
       console.error('❌ Erreur:', error);
       showToast(`Erreur lors de la validation: ${error.message}`, 'error');

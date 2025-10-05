@@ -22,9 +22,10 @@ const ReturnModal = ({ equipment, onClose, onSuccess }) => {
       await equipmentService.returnEquipment(equipment.id, form);
 
       console.log('✅ Retour effectué');
-      onSuccess();
-      setForm({ rentreeLe: '', noteRetour: '' });
       showToast('Retour effectué avec succès ! Le matériel est maintenant en maintenance.', 'success');
+      setForm({ rentreeLe: '', noteRetour: '' });
+      onClose();
+      onSuccess('location-list'); // Rester sur locations en cours
     } catch (error) {
       console.error('❌ Erreur:', error);
       showToast(`Erreur lors du retour: ${error.message}`, 'error');

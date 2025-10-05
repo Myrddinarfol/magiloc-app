@@ -22,9 +22,10 @@ const StartLocationModal = ({ equipment, onClose, onSuccess }) => {
       });
 
       console.log('✅ Location démarrée');
-      onSuccess();
-      setStartDate('');
       showToast('Location démarrée avec succès !', 'success');
+      setStartDate('');
+      onClose();
+      onSuccess('location-list'); // Naviguer vers locations en cours
     } catch (error) {
       console.error('❌ Erreur:', error);
       showToast(`Erreur lors du démarrage de la location: ${error.message}`, 'error');
