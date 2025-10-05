@@ -376,9 +376,13 @@ app.patch("/api/equipment/:id", async (req, res) => {
 
     // Si on valide la maintenance, enregistrer dans l'historique
     if (isCompletingMaintenance && equipmentBefore.debut_maintenance) {
-      const dateEntree = new Date(equipmentBefore.debut_maintenance);
+      // Convertir la date de début (peut être en format français ou ISO)
+      const debutMaintenanceISO = convertFrenchDateToISO(equipmentBefore.debut_maintenance);
+      const dateEntree = new Date(debutMaintenanceISO);
       const dateSortie = new Date();
       const dureeJours = Math.ceil((dateSortie - dateEntree) / (1000 * 60 * 60 * 24));
+
+      console.log(`📊 Maintenance terminée - Durée: ${dureeJours} jours (${debutMaintenanceISO} -> ${dateSortie.toISOString().split('T')[0]})`);
 
       await client.query(
         `INSERT INTO maintenance_history (
@@ -388,15 +392,15 @@ app.patch("/api/equipment/:id", async (req, res) => {
           id,
           equipmentBefore.motif_maintenance || 'Maintenance générale',
           equipmentBefore.note_retour || null,
-          equipmentBefore.debut_maintenance,
-          dateSortie,
+          debutMaintenanceISO,
+          dateSortie.toISOString().split('T')[0],
           dureeJours
         ]
       );
 
       // Réinitialiser les champs de maintenance
       await client.query(
-        `UPDATE equipments SET motif_maintenance = NULL, debut_maintenance = NULL WHERE id = $1`,
+        `UPDATE equipments SET motif_maintenance = NULL, debut_maintenance = NULL, note_retour = NULL WHERE id = $1`,
         [id]
       );
 

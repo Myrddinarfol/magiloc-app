@@ -1,9 +1,63 @@
 // Système de gestion des notes de mise à jour
 // Pour ajouter une nouvelle version, ajoutez un objet au début du tableau
 
-export const CURRENT_VERSION = '0.8.3';
+export const CURRENT_VERSION = '0.9.0';
 
 export const releaseNotes = [
+  {
+    version: '0.9.0',
+    date: '2025-10-05',
+    title: '🔧 Gestion complète maintenance + Dates DD/MM/YYYY + Suppression',
+    sections: [
+      {
+        title: '📅 Uniformisation format dates',
+        items: [
+          'Toutes les dates affichées au format français DD/MM/YYYY',
+          'Conversion automatique backend entre format français et ISO',
+          'Colonne "Date entrée" ajoutée dans liste maintenance',
+          'Fonctions helpers : formatDateToFrench() et convertFrenchToISO()',
+        ]
+      },
+      {
+        title: '🔧 Workflow maintenance complet',
+        items: [
+          'Bouton "Mettre en Maintenance" pour matériels SUR PARC et PARC LOC',
+          'Modal avec champ motif maintenance obligatoire',
+          'Enregistrement date début maintenance automatique',
+          'Bouton "Valider la Maintenance" dans fiches maintenance',
+          'Retour automatique sur parc après validation',
+        ]
+      },
+      {
+        title: '📊 Historique maintenance automatique',
+        items: [
+          'Calcul automatique durée en jours',
+          'Enregistrement motif + notes retour + durée',
+          'Sauvegarde dates entrée/sortie',
+          'Réinitialisation automatique champs après validation',
+          'Table maintenance_history complètement exploitée',
+        ]
+      },
+      {
+        title: '🗑️ Suppression matériel',
+        items: [
+          'Bouton supprimer dans fiches PARC LOC',
+          'Confirmation avec message sécurité',
+          'Route DELETE backend avec gestion erreurs',
+          'Toast notification succès/erreur',
+        ]
+      },
+      {
+        title: '✨ Interface optimisée',
+        items: [
+          'Boutons historiques en grille 2 colonnes alignés',
+          'Boutons actions alignés selon contexte',
+          'Modal CompleteMaintenanceModal avec récapitulatif',
+          'Design cohérent dégradés orange (maintenance)',
+        ]
+      },
+    ]
+  },
   {
     version: '0.8.3',
     date: '2025-10-04',

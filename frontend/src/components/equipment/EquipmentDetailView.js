@@ -188,17 +188,15 @@ const EquipmentDetailView = ({
         <VGPSection equipment={equipment} onEditCertificat={onEditCertificat} />
 
         {/* Boutons Historiques */}
-        <div className="history-section" style={{ marginTop: '20px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+        <div className="history-section" style={{ marginTop: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
           <button
             className="btn btn-lg"
             onClick={onLoadLocationHistory}
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
               background: 'linear-gradient(135deg, #2196F3, #1976D2)',
               color: 'white',
-              border: 'none'
+              border: 'none',
+              width: '100%'
             }}
           >
             📜 Historique Locations
@@ -207,12 +205,10 @@ const EquipmentDetailView = ({
             className="btn btn-lg"
             onClick={onLoadMaintenanceHistory}
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
               background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
               color: 'white',
-              border: 'none'
+              border: 'none',
+              width: '100%'
             }}
           >
             🔧 Historique Maintenance
@@ -220,11 +216,12 @@ const EquipmentDetailView = ({
         </div>
 
         {/* Boutons d'action selon le statut */}
-        <div className="actions-container">
+        <div className="actions-container" style={{ marginTop: '15px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
           {equipment.statut === 'En Réservation' && (
             <button
               className="btn btn-success btn-lg"
               onClick={() => setShowStartLocationModal(true)}
+              style={{ gridColumn: '1 / -1' }}
             >
               🚀 Démarrer Location
             </button>
@@ -233,6 +230,7 @@ const EquipmentDetailView = ({
             <button
               className="btn btn-success btn-lg"
               onClick={() => setShowReturnModal(true)}
+              style={{ gridColumn: '1 / -1' }}
             >
               ✅ Effectuer le retour
             </button>
@@ -261,7 +259,7 @@ const EquipmentDetailView = ({
         </div>
 
         {/* Bouton Supprimer pour PARC LOC */}
-        {currentPage === 'parc-loc' && (
+        {previousPage === 'parc-loc' && (
           <div style={{ marginTop: '20px' }}>
             <button
               className="btn btn-lg"
