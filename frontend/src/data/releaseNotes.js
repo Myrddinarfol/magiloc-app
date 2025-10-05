@@ -1,9 +1,89 @@
 // Système de gestion des notes de mise à jour
 // Pour ajouter une nouvelle version, ajoutez un objet au début du tableau
 
-export const CURRENT_VERSION = '0.9.0';
+export const CURRENT_VERSION = '0.9.1';
 
 export const releaseNotes = [
+  {
+    version: '0.9.1',
+    date: '2025-10-05',
+    title: '🎨 Refonte UI Complète + Dashboard Redesign + Corrections Z-Index',
+    sections: [
+      {
+        title: '🎨 Nouveau composant PageHeader unifié',
+        items: [
+          'Bandeau stylé avec icône animée, titre gradient et description',
+          'Appliqué sur TOUS les onglets et sous-onglets',
+          'Animations subtiles : slideInDown, iconPulse, headerShine',
+          'Design sobre avec border rouge discrète (1px, opacity 0.3)',
+          'Cohérence visuelle parfaite sur toute l\'application',
+        ]
+      },
+      {
+        title: '📊 Dashboard complètement redesigné',
+        items: [
+          '4 capsules d\'alertes intelligentes avec badges conditionnels',
+          'Badge rond rouge (!) : alertes actives',
+          'Badge rond orange (!) : VGP uniquement <30 jours',
+          'Badge carré vert (✓) : tout est OK (0 alerte)',
+          'Panneau "Ruptures de Stock" (matériels ≤1 disponible)',
+          'Contours réduits et plus sobres (border 1px au lieu de 1.5px)',
+          'Hauteur capsules statuts alignée avec matériels phares',
+        ]
+      },
+      {
+        title: '✨ Matériels phares avec animations premium',
+        items: [
+          'Animation float : flottement léger et élégant',
+          'Effet shine : brillance qui traverse les capsules',
+          'Icônes animées avec bounce + ombre portée',
+          'Jauges avec effet brillant animé',
+          'Gradients dynamiques et glow au hover',
+          'Transform scale (1.02x) + translateY au survol',
+        ]
+      },
+      {
+        title: '🔧 Modal annulation réservation stylée',
+        items: [
+          'Remplacement window.confirm par modal moderne',
+          'Backdrop blur avec icône ⚠️ animée',
+          'Boutons avec effets hover et gradients',
+          'Navigation corrigée : retour onglet RÉSERVATION',
+          'Design cohérent avec reste de l\'application',
+        ]
+      },
+      {
+        title: '⚡ Corrections critiques z-index',
+        items: [
+          'Menu Paramètres TOUJOURS au premier plan (z-index: 9999999)',
+          'Overlay modal plus opaque (85%) et flouté (12px)',
+          'CSS isolation: isolate sur tous conteneurs principaux',
+          'Hiérarchie clarifiée : Modal > Sidebar (10) > Contenu (1)',
+          'Fix éléments animés qui passaient devant les modals',
+        ]
+      },
+      {
+        title: '📝 Améliorations UX',
+        items: [
+          'Filtres modèles phares auto-reset au changement de page',
+          'Textes capsules alertes revus pour meilleure lisibilité',
+          'EditTechInfoModal : conversion chaînes vides → null',
+          'Fix uniformisation statuts "SUR PARC" → "Sur Parc"',
+          'Effets d\'animation cohérents partout',
+        ]
+      },
+      {
+        title: '🔨 Architecture technique',
+        items: [
+          'Composant PageHeader.js + PageHeader.css réutilisables',
+          'DashboardPage.css dédié pour isolation des styles',
+          'Animations CSS optimisées : float, shine, bounce, pulse',
+          'Contextes d\'empilement isolés avec isolation: isolate',
+          'Structure composants améliorée et maintenable',
+        ]
+      }
+    ]
+  },
   {
     version: '0.9.0',
     date: '2025-10-05',
