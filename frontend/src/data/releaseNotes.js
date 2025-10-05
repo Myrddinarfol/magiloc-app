@@ -56,6 +56,17 @@ export const releaseNotes = [
           'Design cohérent dégradés orange (maintenance)',
         ]
       },
+      {
+        title: '🐛 Patches v0.9.0.1 → v0.9.0.6',
+        items: [
+          'v0.9.0.1: Fix notes de retour, dernier client, modal z-index, retards location',
+          'v0.9.0.2: Fix validation maintenance sans date + Navigation intelligente',
+          'v0.9.0.3: Fix statut "Sur Parc" (uniformisation majuscules)',
+          'v0.9.0.4: Refonte navigation modals avec passage page cible explicite',
+          'v0.9.0.5: Amélioration conversion dates (timestamps ISO, français, etc.)',
+          'v0.9.0.6: Fix conflit variable "client" (PostgreSQL vs paramètre) + Logs détaillés',
+        ]
+      },
     ]
   },
   {
