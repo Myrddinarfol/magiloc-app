@@ -282,10 +282,11 @@ app.post("/api/equipment", async (req, res) => {
 
 // Route pour mettre à jour un équipement (PATCH)
 app.patch("/api/equipment/:id", async (req, res) => {
-  const client = await pool.connect();
+  const dbClient = await pool.connect();
 
   try {
-    await client.query('BEGIN');
+    console.log(`📝 DÉBUT Mise à jour équipement ${req.params.id}`);
+    await dbClient.query('BEGIN');
 
     const { id } = req.params;
     const {
@@ -293,18 +294,22 @@ app.patch("/api/equipment/:id", async (req, res) => {
       modele, marque, longueur, numeroSerie, prixHT, etat, motifMaintenance, debutMaintenance
     } = req.body;
 
-    console.log(`📝 Mise à jour équipement ${id}:`, req.body);
+    console.log(`📝 Body reçu:`, { statut, clientName, motifMaintenance, debutMaintenance });
 
     // Récupérer l'état actuel de l'équipement
-    const currentEquipment = await client.query(
+    console.log(`🔍 Récupération équipement ${id}...`);
+    const currentEquipment = await dbClient.query(
       `SELECT * FROM equipments WHERE id = $1`,
       [id]
     );
 
     if (currentEquipment.rows.length === 0) {
-      await client.query('ROLLBACK');
+      console.log(`❌ Équipement ${id} non trouvé`);
+      await dbClient.query('ROLLBACK');
       return res.status(404).json({ error: "Équipement non trouvé" });
     }
+
+    console.log(`✅ Équipement trouvé, statut actuel: ${currentEquipment.rows[0].statut}`);
 
     const equipmentBefore = currentEquipment.rows[0];
 
@@ -380,14 +385,16 @@ app.patch("/api/equipment/:id", async (req, res) => {
     }
 
     if (updateFields.length === 0) {
-      await client.query('ROLLBACK');
+      await dbClient.query('ROLLBACK');
       return res.status(400).json({ error: "Aucun champ à mettre à jour" });
     }
 
     values.push(id);
     const query = `UPDATE equipments SET ${updateFields.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
 
-    const result = await client.query(query, values);
+    console.log(`🔄 Exécution UPDATE...`);
+    const result = await dbClient.query(query, values);
+    console.log(`✅ UPDATE réussi`);
 
     // Si on valide la maintenance, enregistrer dans l'historique
     if (isCompletingMaintenance) {
@@ -397,6 +404,8 @@ app.patch("/api/equipment/:id", async (req, res) => {
         try {
           // Convertir la date de début (peut être en format français ou ISO)
           const debutMaintenanceISO = convertFrenchDateToISO(equipmentBefore.debut_maintenance);
+          console.log(`📅 Date convertie: ${equipmentBefore.debut_maintenance} → ${debutMaintenanceISO}`);
+
           const dateEntree = new Date(debutMaintenanceISO);
           const dateSortie = new Date();
 
@@ -410,7 +419,7 @@ app.patch("/api/equipment/:id", async (req, res) => {
 
           console.log(`📊 Maintenance terminée - Durée: ${dureeJours} jours (${debutMaintenanceISO} -> ${dateSortie.toISOString().split('T')[0]})`);
 
-          await client.query(
+          await dbClient.query(
             `INSERT INTO maintenance_history (
               equipment_id, motif, note_retour, date_entree, date_sortie, duree_jours
             ) VALUES ($1, $2, $3, $4, $5, $6)`,
@@ -426,7 +435,7 @@ app.patch("/api/equipment/:id", async (req, res) => {
 
           console.log(`✅ Historique maintenance créé pour équipement ${id}`);
         } catch (err) {
-          console.error(`❌ Erreur historique maintenance:`, err.message);
+          console.error(`❌ Erreur historique maintenance:`, err.message, err.stack);
           // Continue quand même pour remettre le matériel sur parc
         }
       } else {
@@ -434,24 +443,27 @@ app.patch("/api/equipment/:id", async (req, res) => {
       }
 
       // Réinitialiser les champs de maintenance dans tous les cas
-      await client.query(
+      console.log(`🧹 Reset champs maintenance...`);
+      await dbClient.query(
         `UPDATE equipments SET motif_maintenance = NULL, debut_maintenance = NULL, note_retour = NULL WHERE id = $1`,
         [id]
       );
+      console.log(`✅ Champs maintenance réinitialisés`);
     }
 
-    await client.query('COMMIT');
+    console.log(`✅ COMMIT transaction...`);
+    await dbClient.query('COMMIT');
 
     res.json({
       message: "✅ Équipement mis à jour",
       equipment: result.rows[0]
     });
   } catch (err) {
-    await client.query('ROLLBACK');
-    console.error("❌ Erreur mise à jour:", err.message);
-    res.status(500).json({ error: "Erreur lors de la mise à jour" });
+    console.error("❌ ERREUR CATCH:", err.message, err.stack);
+    await dbClient.query('ROLLBACK');
+    res.status(500).json({ error: "Erreur lors de la mise à jour", details: err.message });
   } finally {
-    client.release();
+    dbClient.release();
   }
 });
 
