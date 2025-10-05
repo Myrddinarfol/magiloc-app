@@ -30,8 +30,13 @@ app.use(express.json());
 function convertFrenchDateToISO(dateStr) {
   if (!dateStr) return null;
 
-  // Si c'est déjà au format ISO (YYYY-MM-DD), retourner tel quel
-  if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
+  // Si c'est déjà au format ISO complet (YYYY-MM-DDTHH:MM:SS), extraire la date
+  if (/^\d{4}-\d{2}-\d{2}T/.test(dateStr)) {
+    return dateStr.split('T')[0];
+  }
+
+  // Si c'est déjà au format ISO date simple (YYYY-MM-DD), retourner tel quel
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
     return dateStr;
   }
 
@@ -39,6 +44,16 @@ function convertFrenchDateToISO(dateStr) {
   if (/^\d{2}\/\d{2}\/\d{4}/.test(dateStr)) {
     const [day, month, year] = dateStr.split('/');
     return `${year}-${month}-${day}`;
+  }
+
+  // Essayer de parser comme date JavaScript
+  try {
+    const date = new Date(dateStr);
+    if (!isNaN(date.getTime())) {
+      return date.toISOString().split('T')[0];
+    }
+  } catch (e) {
+    console.error('Erreur conversion date:', dateStr, e.message);
   }
 
   return dateStr;
