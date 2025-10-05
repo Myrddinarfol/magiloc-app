@@ -83,9 +83,35 @@ const MainApp = () => {
 
   const { locationHistory, maintenanceHistory, loadLocationHistory, loadMaintenanceHistory } = useHistory();
 
-  // Gestionnaires de succès pour les modals
+  // Gestionnaires de succès pour les modals - avec redirection intelligente
   const handleModalSuccess = async () => {
     await loadEquipments();
+
+    // Déterminer la page de destination selon le modal fermé et la page d'origine
+    let targetPage = previousPage;
+
+    // Mapper les actions vers les pages de destination logiques
+    if (showReservationModal) {
+      // Après réservation, aller à la page RÉSERVATION (en-offre)
+      targetPage = 'en-offre';
+    } else if (showStartLocationModal) {
+      // Après démarrage location depuis RÉSERVATION, aller à LOCATIONS EN COURS
+      targetPage = 'location-list';
+    } else if (showReturnModal) {
+      // Après retour depuis LOCATIONS EN COURS, rester sur LOCATIONS EN COURS
+      targetPage = 'location-list';
+    } else if (showMaintenanceModal) {
+      // Après mise en maintenance, aller à MAINTENANCE LIST
+      targetPage = 'maintenance-list';
+    } else if (showCompleteMaintenance) {
+      // Après validation maintenance, retourner à MAINTENANCE LIST
+      targetPage = 'maintenance-list';
+    } else if (showEditTechInfoModal || showCertificatModal) {
+      // Après édition, retourner à la page d'origine
+      targetPage = previousPage || 'parc-loc';
+    }
+
+    // Fermer tous les modals
     setShowCertificatModal(false);
     setShowReservationModal(false);
     setShowStartLocationModal(false);
@@ -95,6 +121,11 @@ const MainApp = () => {
     setShowMaintenanceModal(false);
     setShowCompleteMaintenance(false);
     setSelectedEquipment(null);
+
+    // Naviguer vers la page cible
+    if (targetPage) {
+      setCurrentPage(targetPage);
+    }
   };
 
   // Gestionnaire de suppression

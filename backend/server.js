@@ -375,36 +375,54 @@ app.patch("/api/equipment/:id", async (req, res) => {
     const result = await client.query(query, values);
 
     // Si on valide la maintenance, enregistrer dans l'historique
-    if (isCompletingMaintenance && equipmentBefore.debut_maintenance) {
-      // Convertir la date de début (peut être en format français ou ISO)
-      const debutMaintenanceISO = convertFrenchDateToISO(equipmentBefore.debut_maintenance);
-      const dateEntree = new Date(debutMaintenanceISO);
-      const dateSortie = new Date();
-      const dureeJours = Math.ceil((dateSortie - dateEntree) / (1000 * 60 * 60 * 24));
+    if (isCompletingMaintenance) {
+      console.log(`🔍 Validation maintenance - debut_maintenance: ${equipmentBefore.debut_maintenance}`);
 
-      console.log(`📊 Maintenance terminée - Durée: ${dureeJours} jours (${debutMaintenanceISO} -> ${dateSortie.toISOString().split('T')[0]})`);
+      if (equipmentBefore.debut_maintenance) {
+        try {
+          // Convertir la date de début (peut être en format français ou ISO)
+          const debutMaintenanceISO = convertFrenchDateToISO(equipmentBefore.debut_maintenance);
+          const dateEntree = new Date(debutMaintenanceISO);
+          const dateSortie = new Date();
 
-      await client.query(
-        `INSERT INTO maintenance_history (
-          equipment_id, motif, note_retour, date_entree, date_sortie, duree_jours
-        ) VALUES ($1, $2, $3, $4, $5, $6)`,
-        [
-          id,
-          equipmentBefore.motif_maintenance || 'Maintenance générale',
-          equipmentBefore.note_retour || null,
-          debutMaintenanceISO,
-          dateSortie.toISOString().split('T')[0],
-          dureeJours
-        ]
-      );
+          // Vérifier que la date est valide
+          if (isNaN(dateEntree.getTime())) {
+            console.error(`❌ Date invalide: ${equipmentBefore.debut_maintenance}`);
+            throw new Error('Date de début maintenance invalide');
+          }
 
-      // Réinitialiser les champs de maintenance
+          const dureeJours = Math.ceil((dateSortie - dateEntree) / (1000 * 60 * 60 * 24));
+
+          console.log(`📊 Maintenance terminée - Durée: ${dureeJours} jours (${debutMaintenanceISO} -> ${dateSortie.toISOString().split('T')[0]})`);
+
+          await client.query(
+            `INSERT INTO maintenance_history (
+              equipment_id, motif, note_retour, date_entree, date_sortie, duree_jours
+            ) VALUES ($1, $2, $3, $4, $5, $6)`,
+            [
+              id,
+              equipmentBefore.motif_maintenance || 'Maintenance générale',
+              equipmentBefore.note_retour || null,
+              debutMaintenanceISO,
+              dateSortie.toISOString().split('T')[0],
+              dureeJours
+            ]
+          );
+
+          console.log(`✅ Historique maintenance créé pour équipement ${id}`);
+        } catch (err) {
+          console.error(`❌ Erreur historique maintenance:`, err.message);
+          // Continue quand même pour remettre le matériel sur parc
+        }
+      } else {
+        console.log(`⚠️ Pas de date de début - pas d'historique créé`);
+      }
+
+      // Réinitialiser les champs de maintenance dans tous les cas
       await client.query(
         `UPDATE equipments SET motif_maintenance = NULL, debut_maintenance = NULL, note_retour = NULL WHERE id = $1`,
         [id]
       );
-
-      console.log(`✅ Historique maintenance créé pour équipement ${id}`);
     }
 
     await client.query('COMMIT');
