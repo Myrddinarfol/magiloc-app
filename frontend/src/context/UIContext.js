@@ -102,6 +102,7 @@ export const UIProvider = ({ children }) => {
       currentPage,
       setCurrentPage,
       previousPage,
+      setPreviousPage,
       selectedEquipment,
       setSelectedEquipment,
       showImporter,

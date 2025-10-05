@@ -11,7 +11,7 @@ const CompleteMaintenanceModal = ({ equipment, onClose, onSuccess }) => {
 
       // Remettre le matériel sur parc
       await equipmentService.update(equipment.id, {
-        statut: 'SUR PARC'
+        statut: 'Sur Parc'
       });
 
       console.log('✅ Maintenance validée');
@@ -58,7 +58,7 @@ const CompleteMaintenanceModal = ({ equipment, onClose, onSuccess }) => {
           </div>
 
           <p className="modal-info" style={{ marginTop: '20px' }}>
-            <small>✅ Le matériel passera en statut "SUR PARC" et l'historique de maintenance sera enregistré.</small>
+            <small>✅ Le matériel passera en statut "Sur Parc" et l'historique de maintenance sera enregistré.</small>
           </p>
         </div>
 

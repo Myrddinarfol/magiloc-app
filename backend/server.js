@@ -293,9 +293,9 @@ app.patch("/api/equipment/:id", async (req, res) => {
 
     const equipmentBefore = currentEquipment.rows[0];
 
-    // Détecter si on valide la maintenance (passage de "En Maintenance" à "SUR PARC")
+    // Détecter si on valide la maintenance (passage de "En Maintenance" à "Sur Parc")
     const isCompletingMaintenance =
-      equipmentBefore.statut === 'En Maintenance' && statut === 'SUR PARC';
+      equipmentBefore.statut === 'En Maintenance' && statut === 'Sur Parc';
 
     // Construction dynamique de la requête SQL
     const updateFields = [];
