@@ -13,16 +13,40 @@ const __dirname = path.dirname(__filename);
 // 🔧 Chargement de la configuration d'environnement
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
-// Charger le fichier .env correspondant
-let envFile = '.env.development'; // Par défaut
-if (NODE_ENV === 'production') {
-  envFile = '.env.production';
-} else if (NODE_ENV === 'work') {
-  envFile = '.env.work';
-}
+// Sur Render, utiliser DATABASE_URL si présent (prioritaire)
+const DATABASE_URL = process.env.DATABASE_URL;
 
-const envPath = path.join(__dirname, '..', '..', envFile);
-dotenv.config({ path: envPath });
+let dbConfig;
+let envFile = '';
+
+if (DATABASE_URL) {
+  // Render ou autre plateforme cloud avec DATABASE_URL
+  dbConfig = {
+    connectionString: DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+  };
+  envFile = 'DATABASE_URL (Render)';
+} else {
+  // Développement local : charger le fichier .env correspondant
+  envFile = '.env.development'; // Par défaut
+  if (NODE_ENV === 'production') {
+    envFile = '.env.production';
+  } else if (NODE_ENV === 'work') {
+    envFile = '.env.work';
+  }
+
+  const envPath = path.join(__dirname, '..', '..', envFile);
+  dotenv.config({ path: envPath });
+
+  dbConfig = {
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT || '5432'),
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
+  };
+}
 
 // 🎨 Couleurs pour les logs
 const colors = {
@@ -36,16 +60,6 @@ const colors = {
   red: '\x1b[31m'
 };
 
-// 📊 Configuration de la base de données selon l'environnement
-const dbConfig = {
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT || '5432'),
-  database: process.env.DB_NAME,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
-};
-
 // 🔌 Création du pool de connexion
 const pool = new Pool(dbConfig);
 
@@ -55,20 +69,29 @@ console.log(colors.bright + colors.cyan + '  🗄️  MAGILOC - CONFIGURATION BA
 console.log(colors.bright + colors.cyan + '═'.repeat(70) + colors.reset);
 
 console.log(colors.bright + '\n  Environnement:' + colors.reset + ' ' +
-  (NODE_ENV === 'production' ? colors.red + '🔴 PRODUCTION (Render)' :
+  (DATABASE_URL ? colors.red + '🔴 PRODUCTION (Render)' :
    NODE_ENV === 'work' ? colors.yellow + '🟡 WORK (Local)' :
    colors.green + '🟢 DEVELOPMENT (Local)') + colors.reset);
 
-console.log(colors.bright + '  Base de données:' + colors.reset + ' ' +
-  colors.magenta + dbConfig.database + colors.reset);
-
-console.log(colors.bright + '  Hôte:' + colors.reset + ' ' +
-  colors.blue + dbConfig.host + ':' + dbConfig.port + colors.reset);
+if (DATABASE_URL) {
+  // Affichage pour Render (masquer le mot de passe)
+  const urlObj = new URL(DATABASE_URL);
+  console.log(colors.bright + '  Base de données:' + colors.reset + ' ' +
+    colors.magenta + urlObj.pathname.slice(1) + colors.reset);
+  console.log(colors.bright + '  Hôte:' + colors.reset + ' ' +
+    colors.blue + urlObj.hostname + colors.reset);
+} else {
+  // Affichage pour développement local
+  console.log(colors.bright + '  Base de données:' + colors.reset + ' ' +
+    colors.magenta + dbConfig.database + colors.reset);
+  console.log(colors.bright + '  Hôte:' + colors.reset + ' ' +
+    colors.blue + dbConfig.host + ':' + dbConfig.port + colors.reset);
+}
 
 console.log(colors.bright + '  SSL:' + colors.reset + ' ' +
   (dbConfig.ssl ? colors.green + 'Activé ✓' : colors.yellow + 'Désactivé') + colors.reset);
 
-console.log(colors.bright + '  Fichier config:' + colors.reset + ' ' +
+console.log(colors.bright + '  Config source:' + colors.reset + ' ' +
   colors.cyan + envFile + colors.reset);
 
 console.log(colors.bright + colors.cyan + '\n═'.repeat(70) + colors.reset + '\n');
