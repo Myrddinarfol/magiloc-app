@@ -23,13 +23,21 @@ if (DATABASE_URL) {
   // Render ou autre plateforme cloud avec DATABASE_URL
   dbConfig = {
     connectionString: DATABASE_URL,
-    ssl: { rejectUnauthorized: false },
+    ssl: {
+      rejectUnauthorized: false,
+      requestCert: false,
+      // Force TLS v1.2 minimum
+      minVersion: 'TLSv1.2'
+    },
     // Configuration pour éviter les déconnexions
     max: 20, // Nombre max de clients dans le pool
+    min: 2, // Garder minimum 2 connexions ouvertes
     idleTimeoutMillis: 30000, // Fermer les connexions inactives après 30s
     connectionTimeoutMillis: 10000, // Timeout pour établir une connexion
     keepAlive: true,
-    keepAliveInitialDelayMillis: 10000
+    keepAliveInitialDelayMillis: 10000,
+    // Retry automatique
+    application_name: 'magiloc_backend'
   };
   envFile = 'DATABASE_URL (Render)';
 } else {
@@ -121,15 +129,28 @@ console.log(colors.bright + '  Config source:' + colors.reset + ' ' +
 console.log(colors.bright + colors.cyan + '\n═'.repeat(70) + colors.reset + '\n');
 
 // ⚡ Test de connexion au démarrage
-pool.connect()
-  .then(client => {
-    console.log(colors.green + '✅ Connexion à la base de données établie avec succès !' + colors.reset + '\n');
+(async () => {
+  let client;
+  try {
+    console.log(colors.cyan + '🔍 Test de connexion à la base de données...' + colors.reset);
+    client = await pool.connect();
+    console.log(colors.green + '✅ Connexion établie avec succès !' + colors.reset);
+
+    // Test d'une requête simple
+    const result = await client.query('SELECT NOW() as current_time, version() as pg_version');
+    console.log(colors.green + '✅ Requête test réussie:' + colors.reset);
+    console.log(colors.cyan + '   Heure serveur: ' + result.rows[0].current_time + colors.reset);
+    console.log(colors.cyan + '   Version PostgreSQL: ' + result.rows[0].pg_version.split(' ')[0] + colors.reset + '\n');
+
     client.release();
-  })
-  .catch(err => {
+  } catch (err) {
     console.error(colors.red + '❌ Erreur de connexion à la base de données :' + colors.reset);
-    console.error(colors.red + err.message + colors.reset + '\n');
-  });
+    console.error(colors.red + '   Message: ' + err.message + colors.reset);
+    console.error(colors.red + '   Code: ' + err.code + colors.reset);
+    console.error(colors.red + '   Stack: ' + err.stack + colors.reset + '\n');
+    if (client) client.release();
+  }
+})();
 
 // Fonction pour exécuter le schema.sql
 export async function initDb() {
