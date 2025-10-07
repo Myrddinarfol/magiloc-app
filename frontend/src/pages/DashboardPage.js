@@ -129,10 +129,15 @@ const DashboardPage = () => {
     ];
 
     return featured.map(item => {
+      // Compter tous les équipements de ce modèle dans PARC LOC
       const allEquipment = equipmentData.filter(eq =>
         item.models.some(model => eq.modele && eq.modele.toUpperCase().includes(model.toUpperCase()))
       );
+
+      // Compter ceux qui sont disponibles (Sur Parc)
       const available = allEquipment.filter(eq => eq.statut === 'Sur Parc');
+
+      // Total = nombre total d'équipements de ce modèle dans le parc
       const total = allEquipment.length;
       const availableCount = available.length;
       const percentage = total > 0 ? ((availableCount / total) * 100).toFixed(0) : 0;

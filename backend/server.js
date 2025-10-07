@@ -1,10 +1,6 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import pool, { initDb } from "./database/db.js";
-
-dotenv.config();
-console.log("DEBUG DATABASE_URL:", process.env.DATABASE_URL);
 
 const app = express();
 const PORT = process.env.PORT || 5000;

@@ -13,9 +13,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Environment variables
+# Environment variables (IMPORTANT: Ne jamais committer les mots de passe)
 .env
 .env.local
+.env.development
+.env.work
+.env.production
 .env.development.local
 .env.test.local
 .env.production.local

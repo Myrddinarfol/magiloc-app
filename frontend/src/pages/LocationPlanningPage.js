@@ -459,13 +459,6 @@ const LocationPlanningPage = () => {
               >
                 🎯 Aujourd'hui
               </button>
-              <button
-                className={`view-selector-btn history-btn ${showHistory ? 'active' : ''}`}
-                onClick={() => setShowHistory(!showHistory)}
-                title="Afficher les locations terminées (30 derniers jours)"
-              >
-                {showHistory ? '📂' : '📁'} Historique
-              </button>
             </div>
           </div>
           <div className="timeline-legend">
@@ -481,12 +474,6 @@ const LocationPlanningPage = () => {
               <span className="legend-color" style={{ background: 'rgba(251, 146, 60, 0.6)' }}></span>
               <span>Dépassement</span>
             </div>
-            {showHistory && (
-              <div className="legend-item">
-                <span className="legend-color" style={{ background: 'rgba(156, 163, 175, 0.5)' }}></span>
-                <span>Terminée</span>
-              </div>
-            )}
             <div className="legend-item">
               <span className="legend-color today-indicator" style={{ background: '#dc2626' }}></span>
               <span>Aujourd'hui</span>
