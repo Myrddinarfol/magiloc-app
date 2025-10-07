@@ -1,12 +1,12 @@
 import express from "express";
 import cors from "cors";
-import pool, { initDb } from "./database/db.js";
+import pool from "./database/db.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Init DB
-initDb();
+// Note: initDb() n'est plus appelé automatiquement
+// Utiliser "npm run reset-db" pour réinitialiser une base locale
 
 // Middleware CORS configuré
 app.use(cors({
