@@ -23,7 +23,13 @@ if (DATABASE_URL) {
   // Render ou autre plateforme cloud avec DATABASE_URL
   dbConfig = {
     connectionString: DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
+    ssl: { rejectUnauthorized: false },
+    // Configuration pour éviter les déconnexions
+    max: 20, // Nombre max de clients dans le pool
+    idleTimeoutMillis: 30000, // Fermer les connexions inactives après 30s
+    connectionTimeoutMillis: 10000, // Timeout pour établir une connexion
+    keepAlive: true,
+    keepAliveInitialDelayMillis: 10000
   };
   envFile = 'DATABASE_URL (Render)';
 } else {
@@ -44,7 +50,11 @@ if (DATABASE_URL) {
     database: process.env.DB_NAME,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+    // Configuration pour éviter les déconnexions
+    max: 10,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 5000
   };
 }
 
@@ -62,6 +72,20 @@ const colors = {
 
 // 🔌 Création du pool de connexion
 const pool = new Pool(dbConfig);
+
+// Gestion des erreurs du pool
+pool.on('error', (err, client) => {
+  console.error(colors.red + '❌ Erreur inattendue sur le client du pool:' + colors.reset);
+  console.error(colors.red + err.message + colors.reset);
+});
+
+pool.on('connect', () => {
+  console.log(colors.green + '🔗 Nouvelle connexion établie dans le pool' + colors.reset);
+});
+
+pool.on('remove', () => {
+  console.log(colors.yellow + '🔌 Connexion retirée du pool' + colors.reset);
+});
 
 // 📢 Affichage des informations de connexion au démarrage
 console.log('\n' + colors.bright + colors.cyan + '═'.repeat(70) + colors.reset);

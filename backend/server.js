@@ -145,8 +145,7 @@ app.get("/api/equipment", async (req, res) => {
         numero_offre as "numeroOffre",
         notes_location as "notesLocation",
         motif_maintenance as "motifMaintenance",
-        note_retour as "noteRetour",
-        debut_maintenance as "debutMaintenance"
+        note_retour as "noteRetour"
       FROM equipments
       ORDER BY id
     `);
@@ -158,8 +157,7 @@ app.get("/api/equipment", async (req, res) => {
       prochainVGP: formatDateToFrench(eq.prochainVGP),
       debutLocation: formatDateToFrench(eq.debutLocation),
       finLocationTheorique: formatDateToFrench(eq.finLocationTheorique),
-      rentreeLe: formatDateToFrench(eq.rentreeLe),
-      debutMaintenance: formatDateToFrench(eq.debutMaintenance)
+      rentreeLe: formatDateToFrench(eq.rentreeLe)
     }));
 
     res.json(equipmentsWithFrenchDates);
