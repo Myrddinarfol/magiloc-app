@@ -1,157 +1,35 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { useUI } from '../hooks/useUI';
-import PageHeader from './common/PageHeader';
+import React, { useState, useMemo } from 'react';
 
-function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, handleOpenEquipmentDetail, getStatusClass, setShowImporter, handleResetData, setShowAddEquipmentModal }) {
-  const { equipmentFilter, setEquipmentFilter } = useUI();
+function EquipmentListView({ 
+  equipmentData, 
+  currentPage, 
+  setSelectedEquipment,
+  getStatusClass 
+}) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterDesignation, setFilterDesignation] = useState('');
-  const [filterCMU, setFilterCMU] = useState('');
-  const [filterLongueur, setFilterLongueur] = useState('');
 
-  // Réinitialiser TOUS les filtres quand on quitte l'onglet sur-parc
-  useEffect(() => {
-    if (currentPage !== 'sur-parc' && equipmentFilter) {
-      // Si on quitte sur-parc, réinitialiser le filtre de modèles phares
-      setEquipmentFilter(null);
-    }
-
-    // Réinitialiser les filtres locaux quand on change de page
-    if (!equipmentFilter) {
-      setSearchTerm('');
-      setFilterDesignation('');
-      setFilterCMU('');
-      setFilterLongueur('');
-    }
-  }, [currentPage, equipmentFilter, setEquipmentFilter]);
-
-  // Fonction pour calculer l'indicateur VGP avec texte détaillé
-  const getVGPIndicator = (prochainVGP) => {
-    if (!prochainVGP) return {
-      color: 'gray',
-      label: 'Non renseigné',
-      icon: '❓',
-      subLabel: '',
-      days: 0
-    };
-
-    const today = new Date();
-    const vgpDate = new Date(prochainVGP.split('/').reverse().join('-')); // Conversion DD/MM/YYYY -> YYYY-MM-DD
-    const diffTime = vgpDate - today;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays < 0) {
-      return {
-        color: 'red',
-        label: 'VGP DÉPASSÉ',
-        icon: '⚠️',
-        subLabel: `Dépassé de ${Math.abs(diffDays)} jour${Math.abs(diffDays) > 1 ? 's' : ''}`,
-        days: diffDays
-      };
-    } else if (diffDays <= 30) {
-      return {
-        color: 'orange',
-        label: 'VGP À PRÉVOIR',
-        icon: '❗',
-        subLabel: `Dans ${diffDays} jour${diffDays > 1 ? 's' : ''}`,
-        days: diffDays
-      };
-    } else {
-      return {
-        color: 'green',
-        label: 'VGP À JOUR',
-        icon: '✓',
-        subLabel: `Dans ${diffDays} jours`,
-        days: diffDays
-      };
-    }
-  };
-
-  const getPageHeaderInfo = () => {
+  const getPageTitle = () => {
     switch (currentPage) {
-      case 'sur-parc':
-        return {
-          icon: '📦',
-          title: 'Sur Parc',
-          subtitle: 'MATÉRIEL DISPONIBLE',
-          description: 'Matériel disponible à la location'
-        };
-      case 'parc-loc':
-        return {
-          icon: '🏗️',
-          title: 'Parc Location',
-          subtitle: 'GESTION GLOBALE',
-          description: 'Vue complète de votre parc de matériel'
-        };
-      case 'en-location':
-      case 'location-list':
-        return {
-          icon: '🚚',
-          title: 'En Location',
-          subtitle: 'MATÉRIEL LOUÉ',
-          description: 'Matériel actuellement en location chez les clients'
-        };
-      case 'planning':
-        return {
-          icon: '📅',
-          title: 'Planning Location',
-          subtitle: 'CALENDRIER',
-          description: 'Vue chronologique des locations'
-        };
-      case 'en-offre':
-        return {
-          icon: '📝',
-          title: 'Réservations',
-          subtitle: 'EN COURS',
-          description: 'Matériel réservé en attente de départ'
-        };
-      case 'maintenance':
-        return {
-          icon: '🔧',
-          title: 'En Maintenance',
-          subtitle: 'RÉVISION & CONTRÔLE',
-          description: 'Matériel en cours de vérification ou réparation'
-        };
-      default:
-        return {
-          icon: '⚙️',
-          title: 'MagiLoc',
-          subtitle: 'GESTION PARC',
-          description: 'Gestion de votre parc de matériel'
-        };
+      case 'dashboard': return 'Tableau de bord';
+      case 'parc-loc': return 'Parc Location - Tous les équipements';
+      case 'en-location': return 'Équipements en location';
+      case 'planning': return 'Planning des locations';
+      case 'en-offre': return 'Offres de prix en cours';
+      case 'maintenance': return 'Équipements en maintenance';
+      default: return 'MagiLoc';
     }
   };
 
-  // Extraction des valeurs uniques pour les filtres (PARC LOC uniquement)
-  const uniqueDesignations = useMemo(() => {
-    const designations = [...new Set(equipmentData.map(eq => eq.designation).filter(Boolean))];
-    return designations.sort();
-  }, [equipmentData]);
-
-  const uniqueCMUs = useMemo(() => {
-    const cmus = [...new Set(equipmentData.map(eq => eq.cmu).filter(Boolean))];
-    return cmus.sort();
-  }, [equipmentData]);
-
-  const uniqueLongueurs = useMemo(() => {
-    const longueurs = [...new Set(equipmentData.map(eq => eq.longueur).filter(Boolean))];
-    return longueurs.sort();
-  }, [equipmentData]);
-
-  // Optimisation : filtrage mémorisé
+  // Calcul des données filtrées
   const filteredData = useMemo(() => {
     let filtered = equipmentData;
 
     switch (currentPage) {
-      case 'sur-parc':
-        filtered = equipmentData.filter(eq => eq.statut === 'Sur Parc');
-        break;
       case 'en-location':
-      case 'location-list':
         filtered = equipmentData.filter(eq => eq.statut === 'En Location');
         break;
       case 'en-offre':
-        filtered = equipmentData.filter(eq => eq.statut === 'En Réservation');
+        filtered = equipmentData.filter(eq => eq.statut === 'En Offre de Prix');
         break;
       case 'maintenance':
         filtered = equipmentData.filter(eq => eq.statut === 'En Maintenance');
@@ -160,384 +38,32 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, h
         filtered = equipmentData;
     }
 
-    // Filtre global de modèles (depuis produits phares)
-    if (equipmentFilter && equipmentFilter.models && equipmentFilter.models.length > 0) {
-      filtered = filtered.filter(eq =>
-        equipmentFilter.models.some(model =>
-          eq.modele && eq.modele.toUpperCase().includes(model.toUpperCase())
-        )
+    if (searchTerm) {
+      filtered = filtered.filter(equipment =>
+        equipment.designation?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        equipment.numeroSerie?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (equipment.client && equipment.client.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
 
-    // Filtres spécifiques PARC LOC et SUR PARC
-    if (currentPage === 'parc-loc' || currentPage === 'sur-parc') {
-      if (filterDesignation) {
-        filtered = filtered.filter(eq => eq.designation === filterDesignation);
-      }
-      if (filterCMU) {
-        filtered = filtered.filter(eq => eq.cmu === filterCMU);
-      }
-      if (filterLongueur) {
-        filtered = filtered.filter(eq => eq.longueur === filterLongueur);
-      }
-    }
-
-    // Recherche textuelle intelligente multi-champs
-    if (searchTerm) {
-      const searchWords = searchTerm.toLowerCase().trim().split(/\s+/); // Sépare les mots
-
-      filtered = filtered.filter(equipment => {
-        // Concatène tous les champs pertinents en une seule chaîne
-        const searchableText = [
-          equipment.designation,
-          equipment.cmu,
-          equipment.modele,
-          equipment.marque,
-          equipment.longueur,
-          equipment.numeroSerie,
-          equipment.client,
-          equipment.etat
-        ]
-          .filter(Boolean) // Retire les valeurs null/undefined
-          .join(' ')
-          .toLowerCase();
-
-        // Vérifie que TOUS les mots de recherche sont présents
-        return searchWords.every(word => searchableText.includes(word));
-      });
-    }
-
     return filtered;
-  }, [equipmentData, currentPage, searchTerm, filterDesignation, filterCMU, filterLongueur, equipmentFilter]);
-
-  const headerInfo = getPageHeaderInfo();
+  }, [equipmentData, currentPage, searchTerm]);
 
   return (
     <div>
-      <PageHeader
-        icon={headerInfo.icon}
-        title={headerInfo.title}
-        subtitle={headerInfo.subtitle}
-        description={headerInfo.description}
-      />
-
-      {equipmentFilter && equipmentFilter.models && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-          <span style={{
-            background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-            color: 'white',
-            padding: '6px 14px',
-            borderRadius: '6px',
-            fontSize: '13px',
-            fontWeight: '600',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
-            🔍 Filtre: {equipmentFilter.models.join(', ')}
-          </span>
-            <button
-              onClick={() => setEquipmentFilter(null)}
-              style={{
-                background: '#dc2626',
-                color: 'white',
-                border: 'none',
-                padding: '6px 12px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '12px',
-                fontWeight: '600'
-              }}
-            >
-              ✕ Réinitialiser
-            </button>
-        </div>
-      )}
-
-      {/* Layout spécial pour PARC LOC : filtres à gauche (50%) + boutons de gestion à droite (50%) */}
-      {currentPage === 'parc-loc' ? (
-        <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', alignItems: 'stretch' }}>
-          {/* Partie gauche : Filtres et recherche (50%) */}
-          <div style={{
-            flex: '1',
-            background: 'linear-gradient(145deg, #2a2a2a 0%, #1a1a1a 50%, #0a0a0a 100%)',
-            border: '3px solid transparent',
-            backgroundClip: 'padding-box',
-            position: 'relative',
-            borderRadius: '12px',
-            padding: '20px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '15px',
-            boxShadow: '0 8px 24px rgba(220, 38, 38, 0.3), 0 2px 8px rgba(220, 38, 38, 0.2)'
-          }}>
-            <div style={{
-              content: '',
-              position: 'absolute',
-              top: '-3px',
-              left: '-3px',
-              right: '-3px',
-              bottom: '-3px',
-              background: 'linear-gradient(135deg, #dc2626, #ef4444, #f87171)',
-              borderRadius: '12px',
-              zIndex: '-1'
-            }}></div>
-
-            <div className="search-container">
-              <input
-                type="text"
-                placeholder="Recherche intelligente : ex. 'palan manuel 1t 10m'..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="search-input"
-              />
-            </div>
-
-            <div className="filters-container">
-              <div className="filter-group">
-                <label htmlFor="filter-designation">Désignation :</label>
-                <select
-                  id="filter-designation"
-                  value={filterDesignation}
-                  onChange={(e) => setFilterDesignation(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="">Toutes les désignations</option>
-                  {uniqueDesignations.map(designation => (
-                    <option key={designation} value={designation}>{designation}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="filter-group">
-                <label htmlFor="filter-cmu">CMU :</label>
-                <select
-                  id="filter-cmu"
-                  value={filterCMU}
-                  onChange={(e) => setFilterCMU(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="">Tous les CMU</option>
-                  {uniqueCMUs.map(cmu => (
-                    <option key={cmu} value={cmu}>{cmu}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="filter-group">
-                <label htmlFor="filter-longueur">Longueur :</label>
-                <select
-                  id="filter-longueur"
-                  value={filterLongueur}
-                  onChange={(e) => setFilterLongueur(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="">Toutes les longueurs</option>
-                  {uniqueLongueurs.map(longueur => (
-                    <option key={longueur} value={longueur}>{longueur}</option>
-                  ))}
-                </select>
-              </div>
-
-              {(filterDesignation || filterCMU || filterLongueur) && (
-                <button
-                  onClick={() => {
-                    setFilterDesignation('');
-                    setFilterCMU('');
-                    setFilterLongueur('');
-                  }}
-                  className="btn btn-secondary btn-sm"
-                >
-                  🔄 Réinitialiser les filtres
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Partie droite : Boutons de gestion (50%) */}
-          <div style={{
-            flex: '1',
-            background: 'linear-gradient(145deg, #2a2a2a 0%, #1a1a1a 50%, #0a0a0a 100%)',
-            border: '3px solid transparent',
-            backgroundClip: 'padding-box',
-            position: 'relative',
-            borderRadius: '12px',
-            padding: '20px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '10px',
-            boxShadow: '0 8px 24px rgba(220, 38, 38, 0.3), 0 2px 8px rgba(220, 38, 38, 0.2)',
-            alignItems: 'center'
-          }}>
-            <div style={{
-              content: '',
-              position: 'absolute',
-              top: '-3px',
-              left: '-3px',
-              right: '-3px',
-              bottom: '-3px',
-              background: 'linear-gradient(135deg, #dc2626, #ef4444, #f87171)',
-              borderRadius: '12px',
-              zIndex: '-1'
-            }}></div>
-
-            <h3 style={{ margin: '0 0 10px 0', color: '#dc2626', fontSize: '16px', fontWeight: 'bold' }}>
-              🛠️ Gestion du Parc
-            </h3>
-
-            <button
-              onClick={() => setShowImporter(true)}
-              className="btn btn-primary"
-              style={{
-                background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
-                color: 'white',
-                border: 'none',
-                padding: '8px 16px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontWeight: '600',
-                fontSize: '13px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                transition: 'all 0.3s ease',
-                width: '200px'
-              }}
-              onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
-              onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
-            >
-              📂 IMPORTER CSV
-            </button>
-
-            <button
-              onClick={handleResetData}
-              className="btn btn-danger"
-              style={{
-                background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
-                color: 'white',
-                border: 'none',
-                padding: '8px 16px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontWeight: '600',
-                fontSize: '13px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                transition: 'all 0.3s ease',
-                width: '200px'
-              }}
-              onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
-              onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
-            >
-              🔄 RÉINITIALISER
-            </button>
-
-            <button
-              onClick={() => setShowAddEquipmentModal(true)}
-              className="btn btn-success"
-              style={{
-                background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
-                color: 'white',
-                border: 'none',
-                padding: '8px 16px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontWeight: '600',
-                fontSize: '13px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                transition: 'all 0.3s ease',
-                width: '200px'
-              }}
-              onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
-              onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
-            >
-              ➕ AJOUTER
-            </button>
-          </div>
-        </div>
-      ) : (
-        /* Layout normal pour les autres pages */
-        <>
-          <div className="search-container">
-            <input
-              type="text"
-              placeholder="Recherche intelligente : ex. 'palan manuel 1t 10m'..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
-          </div>
-
-          {/* Filtres pour SUR PARC */}
-          {currentPage === 'sur-parc' && (
-            <div className="filters-container">
-              <div className="filter-group">
-                <label htmlFor="filter-designation">Désignation :</label>
-                <select
-                  id="filter-designation"
-                  value={filterDesignation}
-                  onChange={(e) => setFilterDesignation(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="">Toutes les désignations</option>
-                  {uniqueDesignations.map(designation => (
-                    <option key={designation} value={designation}>{designation}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="filter-group">
-                <label htmlFor="filter-cmu">CMU :</label>
-                <select
-                  id="filter-cmu"
-                  value={filterCMU}
-                  onChange={(e) => setFilterCMU(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="">Tous les CMU</option>
-                  {uniqueCMUs.map(cmu => (
-                    <option key={cmu} value={cmu}>{cmu}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="filter-group">
-                <label htmlFor="filter-longueur">Longueur :</label>
-                <select
-                  id="filter-longueur"
-                  value={filterLongueur}
-                  onChange={(e) => setFilterLongueur(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="">Toutes les longueurs</option>
-                  {uniqueLongueurs.map(longueur => (
-                    <option key={longueur} value={longueur}>{longueur}</option>
-                  ))}
-                </select>
-              </div>
-
-              {(filterDesignation || filterCMU || filterLongueur) && (
-                <button
-                  onClick={() => {
-                    setFilterDesignation('');
-                    setFilterCMU('');
-                    setFilterLongueur('');
-                  }}
-                  className="btn btn-secondary btn-sm"
-                >
-                  🔄 Réinitialiser les filtres
-                </button>
-              )}
-            </div>
-          )}
-        </>
-      )}
+      <div className="page-header">
+        <h1 className="page-title">{getPageTitle()}</h1>
+      </div>
+      
+      <div className="search-container">
+        <input
+          type="text"
+          placeholder="Rechercher par désignation, n° série ou client..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
+        />
+      </div>
 
       <div className="table-container">
         <div className="table-wrapper">
@@ -547,130 +73,51 @@ function EquipmentListView({ equipmentData, currentPage, setSelectedEquipment, h
                 <th>Équipement</th>
                 <th>N° Série</th>
                 <th>Statut</th>
-                {/* Colonnes spécifiques PARC LOC et SUR PARC */}
-                {(currentPage === 'parc-loc' || currentPage === 'sur-parc') && (
-                  <>
-                    <th>Longueur</th>
-                    <th>État</th>
-                    <th>Prochain VGP</th>
-                  </>
-                )}
-                {/* Colonnes pour En Location et En Offre */}
-                {(currentPage === 'en-location' || currentPage === 'location-list' || currentPage === 'en-offre') && (
-                  <>
-                    <th>Client</th>
-                    <th>Dates</th>
-                  </>
-                )}
-                {/* Colonnes pour Maintenance */}
-                {currentPage === 'maintenance' && (
-                  <>
-                    <th>Longueur</th>
-                    <th>Dernier client</th>
-                    <th>Motif maintenance</th>
-                    <th>Date entrée</th>
-                  </>
-                )}
+                <th>Client</th>
+                <th>Dates</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredData.map((equipment) => {
-                const vgpIndicator = getVGPIndicator(equipment.prochainVGP);
-
-                return (
-                  <tr key={equipment.id}>
-                    <td>
-                      <div className="equipment-name">
-                        {equipment.designation} {equipment.cmu}
+              {filteredData.map((equipment) => (
+                <tr key={equipment.id}>
+                  <td>
+                    <div className="equipment-name">
+                      {equipment.designation} {equipment.cmu}
+                    </div>
+                    <div className="equipment-details">
+                      {equipment.marque} {equipment.modele}
+                    </div>
+                  </td>
+                  <td>
+                    <span className="serial-number">{equipment.numeroSerie}</span>
+                  </td>
+                  <td>
+                    <span className={`status-badge ${getStatusClass(equipment.statut)}`}>
+                      {equipment.statut}
+                    </span>
+                  </td>
+                  <td>{equipment.client || '-'}</td>
+                  <td>
+                    {equipment.debutLocation && (
+                      <div>
+                        <div>Début: {equipment.debutLocation}</div>
+                        {equipment.finLocationTheorique && (
+                          <div>Fin: {equipment.finLocationTheorique}</div>
+                        )}
                       </div>
-                      <div className="equipment-details">
-                        {equipment.marque} {equipment.modele}
-                      </div>
-                    </td>
-                    <td>
-                      <span className="serial-number">{equipment.numeroSerie}</span>
-                    </td>
-                    <td>
-                      <span className={`status-badge ${getStatusClass(equipment.statut)}`}>
-                        {equipment.statut}
-                      </span>
-                    </td>
-
-                    {/* Colonnes PARC LOC et SUR PARC */}
-                    {(currentPage === 'parc-loc' || currentPage === 'sur-parc') && (
-                      <>
-                        <td>{equipment.longueur || '-'}</td>
-                        <td>
-                          <span className={`etat-badge etat-${equipment.etat?.toLowerCase()}`}>
-                            {equipment.etat || '-'}
-                          </span>
-                        </td>
-                        <td>
-                          <div className={`vgp-table-badge vgp-table-${vgpIndicator.color}`}>
-                            <div className="vgp-table-icon">{vgpIndicator.icon}</div>
-                            <div className="vgp-table-content">
-                              <div className="vgp-table-label">{vgpIndicator.label}</div>
-                              <div className="vgp-table-date">{equipment.prochainVGP || 'N/A'}</div>
-                              {vgpIndicator.subLabel && (
-                                <div className="vgp-table-sublabel">{vgpIndicator.subLabel}</div>
-                              )}
-                            </div>
-                          </div>
-                        </td>
-                      </>
                     )}
-
-                    {/* Colonnes En Location / En Offre */}
-                    {(currentPage === 'en-location' || currentPage === 'location-list' || currentPage === 'en-offre') && (
-                      <>
-                        <td>{equipment.client || '-'}</td>
-                        <td>
-                          {equipment.debutLocation && (
-                            <div>
-                              <div>Début: {equipment.debutLocation}</div>
-                              {equipment.finLocationTheorique && (
-                                <div>Fin: {equipment.finLocationTheorique}</div>
-                              )}
-                            </div>
-                          )}
-                        </td>
-                      </>
-                    )}
-
-                    {/* Colonnes Maintenance */}
-                    {currentPage === 'maintenance' && (
-                      <>
-                        <td>{equipment.longueur || '-'}</td>
-                        <td>
-                          <span className="last-client">
-                            {equipment.client || '-'}
-                          </span>
-                        </td>
-                        <td>
-                          <span className="maintenance-motif">
-                            {equipment.motifMaintenance || '-'}
-                          </span>
-                        </td>
-                        <td>
-                          <span className="maintenance-date">
-                            {equipment.debutMaintenance || '-'}
-                          </span>
-                        </td>
-                      </>
-                    )}
-
-                    <td>
-                      <button
-                        onClick={() => handleOpenEquipmentDetail(equipment, currentPage)}
-                        className="btn btn-primary btn-sm"
-                      >
-                        Détails
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+                  </td>
+                  <td>
+                    <button
+                      onClick={() => setSelectedEquipment(equipment)}
+                      className="btn btn-primary btn-sm"
+                    >
+                      Détails
+                    </button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
