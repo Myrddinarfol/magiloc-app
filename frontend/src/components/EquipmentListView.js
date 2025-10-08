@@ -23,25 +23,60 @@ function EquipmentListView({
     }
   }, [currentPage, equipmentFilter, setEquipmentFilter]);
 
-  // Fonction pour calculer l'état du VGP (identique aux fiches)
+  // Fonction pour calculer l'état du VGP avec date affichée
   const getVGPStatus = (prochainVGP) => {
-    if (!prochainVGP) return { label: '-', class: 'vgp-gray', animated: false };
+    if (!prochainVGP) return {
+      date: '-',
+      class: 'vgp-gray',
+      animated: false
+    };
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const vgpDate = new Date(prochainVGP);
+
+    // Parser la date (format DD/MM/YYYY ou YYYY-MM-DD)
+    let vgpDate;
+    if (prochainVGP.includes('/')) {
+      const [day, month, year] = prochainVGP.split('/');
+      vgpDate = new Date(year, month - 1, day);
+    } else {
+      vgpDate = new Date(prochainVGP);
+    }
     vgpDate.setHours(0, 0, 0, 0);
+
     const diffDays = Math.ceil((vgpDate - today) / (1000 * 60 * 60 * 24));
+
+    // Formater la date en DD/MM/YYYY
+    const dateFormatted = vgpDate.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
 
     if (diffDays < 0) {
       // VGP DÉPASSÉ - Rouge avec animation
-      return { label: `${Math.abs(diffDays)}j`, class: 'vgp-red', animated: true };
+      return {
+        date: dateFormatted,
+        class: 'vgp-red',
+        animated: true,
+        status: 'Dépassé'
+      };
     } else if (diffDays <= 30) {
       // VGP À PRÉVOIR - Orange avec animation
-      return { label: `${diffDays}j`, class: 'vgp-orange', animated: true };
+      return {
+        date: dateFormatted,
+        class: 'vgp-orange',
+        animated: true,
+        status: `${diffDays}j`
+      };
     } else {
       // VGP À JOUR - Vert
-      return { label: `${diffDays}j`, class: 'vgp-green', animated: false };
+      return {
+        date: dateFormatted,
+        class: 'vgp-green',
+        animated: false,
+        status: 'OK'
+      };
     }
   };
 
@@ -376,9 +411,12 @@ function EquipmentListView({
                           </span>
                         </td>
                         <td>
-                          <span className={`vgp-badge ${vgpStatus.class} ${vgpStatus.animated ? 'vgp-pulse' : ''}`}>
-                            {vgpStatus.label}
-                          </span>
+                          <div className="vgp-badge-compact">
+                            <div className="vgp-date-text">{vgpStatus.date}</div>
+                            <span className={`vgp-status-indicator ${vgpStatus.class} ${vgpStatus.animated ? 'pulse' : ''}`}>
+                              {vgpStatus.status || '-'}
+                            </span>
+                          </div>
                         </td>
                         <td>
                           <button
