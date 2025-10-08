@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useUI } from '../hooks/useUI';
 import PageHeader from './common/PageHeader';
+import VGPBadgeCompact from './common/VGPBadgeCompact';
 
 function EquipmentListView({
   equipmentData,
@@ -98,6 +99,17 @@ function EquipmentListView({
         return 'etat-badge';
     }
   };
+
+  // Extraire les options uniques pour les filtres
+  const filterOptions = useMemo(() => {
+    if (currentPage !== 'sur-parc' && currentPage !== 'parc-loc') return {};
+
+    const designations = [...new Set(equipmentData.map(eq => eq.designation).filter(Boolean))].sort();
+    const cmus = [...new Set(equipmentData.map(eq => eq.cmu).filter(Boolean))].sort();
+    const longueurs = [...new Set(equipmentData.map(eq => eq.longueur).filter(Boolean))].sort();
+
+    return { designations, cmus, longueurs };
+  }, [equipmentData, currentPage]);
 
   // Configuration des pages
   const getPageHeaderInfo = () => {
@@ -259,9 +271,7 @@ function EquipmentListView({
           flexWrap: 'wrap',
           alignItems: 'center'
         }}>
-          <input
-            type="text"
-            placeholder="Filtrer par désignation..."
+          <select
             value={filterDesignation}
             onChange={(e) => setFilterDesignation(e.target.value)}
             style={{
@@ -270,13 +280,17 @@ function EquipmentListView({
               border: '1px solid #d1d5db',
               backgroundColor: 'white',
               fontSize: '14px',
-              minWidth: '180px'
+              minWidth: '200px',
+              cursor: 'pointer'
             }}
-          />
+          >
+            <option value="">Toutes les désignations</option>
+            {filterOptions.designations?.map(designation => (
+              <option key={designation} value={designation}>{designation}</option>
+            ))}
+          </select>
 
-          <input
-            type="text"
-            placeholder="Filtrer par CMU..."
+          <select
             value={filterCMU}
             onChange={(e) => setFilterCMU(e.target.value)}
             style={{
@@ -285,13 +299,17 @@ function EquipmentListView({
               border: '1px solid #d1d5db',
               backgroundColor: 'white',
               fontSize: '14px',
-              minWidth: '150px'
+              minWidth: '150px',
+              cursor: 'pointer'
             }}
-          />
+          >
+            <option value="">Toutes les CMU</option>
+            {filterOptions.cmus?.map(cmu => (
+              <option key={cmu} value={cmu}>{cmu}</option>
+            ))}
+          </select>
 
-          <input
-            type="text"
-            placeholder="Filtrer par longueur..."
+          <select
             value={filterLongueur}
             onChange={(e) => setFilterLongueur(e.target.value)}
             style={{
@@ -300,9 +318,15 @@ function EquipmentListView({
               border: '1px solid #d1d5db',
               backgroundColor: 'white',
               fontSize: '14px',
-              minWidth: '150px'
+              minWidth: '150px',
+              cursor: 'pointer'
             }}
-          />
+          >
+            <option value="">Toutes les longueurs</option>
+            {filterOptions.longueurs?.map(longueur => (
+              <option key={longueur} value={longueur}>{longueur}</option>
+            ))}
+          </select>
 
           {(filterDesignation || filterCMU || filterLongueur) && (
             <button
@@ -411,12 +435,7 @@ function EquipmentListView({
                           </span>
                         </td>
                         <td>
-                          <div className="vgp-badge-compact">
-                            <div className="vgp-date-text">{vgpStatus.date}</div>
-                            <span className={`vgp-status-indicator ${vgpStatus.class} ${vgpStatus.animated ? 'pulse' : ''}`}>
-                              {vgpStatus.status || '-'}
-                            </span>
-                          </div>
+                          <VGPBadgeCompact prochainVGP={equipment.prochainVgp} />
                         </td>
                         <td>
                           <button

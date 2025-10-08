@@ -2251,6 +2251,50 @@ body {
   font-weight: 500;
 }
 
+/* Version COMPACTE du badge VGP pour les tables */
+.vgp-status-card-compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1.5px solid;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  max-width: fit-content;
+}
+
+.vgp-status-card-compact > * {
+  position: relative;
+  z-index: 1;
+}
+
+.vgp-status-icon-compact {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.vgp-status-content-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vgp-status-label-compact {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  line-height: 1;
+}
+
+.vgp-status-date-compact {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+}
+
 /* Responsive VGP */
 @media (max-width: 768px) {
   .vgp-status-card {
