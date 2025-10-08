@@ -275,18 +275,20 @@ function EquipmentListView({
             value={filterDesignation}
             onChange={(e) => setFilterDesignation(e.target.value)}
             style={{
-              padding: '8px 12px',
-              borderRadius: '6px',
-              border: '1px solid #d1d5db',
-              backgroundColor: 'white',
+              padding: '10px 14px',
+              borderRadius: '8px',
+              border: '2px solid #1f2937',
+              backgroundColor: '#111827',
+              color: 'white',
               fontSize: '14px',
               minWidth: '200px',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              fontWeight: '500'
             }}
           >
-            <option value="">Toutes les désignations</option>
+            <option value="" style={{backgroundColor: '#1f2937'}}>Toutes les désignations</option>
             {filterOptions.designations?.map(designation => (
-              <option key={designation} value={designation}>{designation}</option>
+              <option key={designation} value={designation} style={{backgroundColor: '#1f2937'}}>{designation}</option>
             ))}
           </select>
 
@@ -294,18 +296,20 @@ function EquipmentListView({
             value={filterCMU}
             onChange={(e) => setFilterCMU(e.target.value)}
             style={{
-              padding: '8px 12px',
-              borderRadius: '6px',
-              border: '1px solid #d1d5db',
-              backgroundColor: 'white',
+              padding: '10px 14px',
+              borderRadius: '8px',
+              border: '2px solid #1f2937',
+              backgroundColor: '#111827',
+              color: 'white',
               fontSize: '14px',
               minWidth: '150px',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              fontWeight: '500'
             }}
           >
-            <option value="">Toutes les CMU</option>
+            <option value="" style={{backgroundColor: '#1f2937'}}>Toutes les CMU</option>
             {filterOptions.cmus?.map(cmu => (
-              <option key={cmu} value={cmu}>{cmu}</option>
+              <option key={cmu} value={cmu} style={{backgroundColor: '#1f2937'}}>{cmu}</option>
             ))}
           </select>
 
@@ -313,18 +317,20 @@ function EquipmentListView({
             value={filterLongueur}
             onChange={(e) => setFilterLongueur(e.target.value)}
             style={{
-              padding: '8px 12px',
-              borderRadius: '6px',
-              border: '1px solid #d1d5db',
-              backgroundColor: 'white',
+              padding: '10px 14px',
+              borderRadius: '8px',
+              border: '2px solid #1f2937',
+              backgroundColor: '#111827',
+              color: 'white',
               fontSize: '14px',
               minWidth: '150px',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              fontWeight: '500'
             }}
           >
-            <option value="">Toutes les longueurs</option>
+            <option value="" style={{backgroundColor: '#1f2937'}}>Toutes les longueurs</option>
             {filterOptions.longueurs?.map(longueur => (
-              <option key={longueur} value={longueur}>{longueur}</option>
+              <option key={longueur} value={longueur} style={{backgroundColor: '#1f2937'}}>{longueur}</option>
             ))}
           </select>
 
@@ -336,14 +342,18 @@ function EquipmentListView({
                 setFilterLongueur('');
               }}
               style={{
-                padding: '8px 16px',
-                borderRadius: '6px',
-                border: '1px solid #dc2626',
-                backgroundColor: 'white',
-                color: '#dc2626',
+                padding: '10px 18px',
+                borderRadius: '8px',
+                border: '2px solid #dc2626',
+                backgroundColor: '#dc2626',
+                color: 'white',
                 fontSize: '14px',
-                cursor: 'pointer'
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
               }}
+              onMouseOver={(e) => e.target.style.backgroundColor = '#b91c1c'}
+              onMouseOut={(e) => e.target.style.backgroundColor = '#dc2626'}
             >
               ✕ Effacer filtres
             </button>
@@ -435,7 +445,7 @@ function EquipmentListView({
                           </span>
                         </td>
                         <td>
-                          <VGPBadgeCompact prochainVGP={equipment.prochainVgp} />
+                          <VGPBadgeCompact prochainVGP={equipment.prochainVgp || equipment.prochainVGP} />
                         </td>
                         <td>
                           <button

@@ -2255,14 +2255,25 @@ body {
 .vgp-status-card-compact {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
-  border-radius: 8px;
-  border: 1.5px solid;
+  gap: 12px;
+  padding: 10px 15px;
+  border-radius: 10px;
+  border: 2px solid;
   position: relative;
   overflow: hidden;
   transition: all 0.3s ease;
   max-width: fit-content;
+}
+
+.vgp-status-card-compact::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.1;
+  z-index: 0;
 }
 
 .vgp-status-card-compact > * {
@@ -2270,27 +2281,37 @@ body {
   z-index: 1;
 }
 
+/* Animation pour badges rouges */
+.vgp-status-card-compact.vgp-status-red {
+  animation: pulseRed 2s infinite;
+}
+
+/* Animation pour badges oranges */
+.vgp-status-card-compact.vgp-status-orange {
+  animation: pulseOrange 2s infinite;
+}
+
 .vgp-status-icon-compact {
-  font-size: 16px;
+  font-size: 20px;
   line-height: 1;
 }
 
 .vgp-status-content-compact {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .vgp-status-label-compact {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.5px;
   line-height: 1;
 }
 
 .vgp-status-date-compact {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   line-height: 1;
 }
