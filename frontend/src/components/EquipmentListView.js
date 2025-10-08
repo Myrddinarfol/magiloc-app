@@ -11,8 +11,9 @@ function EquipmentListView({
   setShowImporter
 }) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterEtat, setFilterEtat] = useState('');
-  const [filterStatut, setFilterStatut] = useState('');
+  const [filterDesignation, setFilterDesignation] = useState('');
+  const [filterCMU, setFilterCMU] = useState('');
+  const [filterLongueur, setFilterLongueur] = useState('');
   const { equipmentFilter, setEquipmentFilter } = useUI();
 
   // Auto-reset filter when leaving sur-parc
@@ -22,9 +23,9 @@ function EquipmentListView({
     }
   }, [currentPage, equipmentFilter, setEquipmentFilter]);
 
-  // Fonction pour calculer l'état du VGP
+  // Fonction pour calculer l'état du VGP (identique aux fiches)
   const getVGPStatus = (prochainVGP) => {
-    if (!prochainVGP) return { label: '-', class: '' };
+    if (!prochainVGP) return { label: '-', class: 'vgp-gray', animated: false };
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -33,14 +34,33 @@ function EquipmentListView({
     const diffDays = Math.ceil((vgpDate - today) / (1000 * 60 * 60 * 24));
 
     if (diffDays < 0) {
-      return { label: 'Expiré', class: 'vgp-expired', animated: true };
+      // VGP DÉPASSÉ - Rouge avec animation
+      return { label: `${Math.abs(diffDays)}j`, class: 'vgp-red', animated: true };
     } else if (diffDays <= 30) {
-      return { label: `${diffDays}j`, class: 'vgp-urgent', animated: true };
-    } else if (diffDays <= 90) {
-      return { label: `${diffDays}j`, class: 'vgp-warning', animated: false };
+      // VGP À PRÉVOIR - Orange avec animation
+      return { label: `${diffDays}j`, class: 'vgp-orange', animated: true };
     } else {
-      const dateStr = vgpDate.toLocaleDateString('fr-FR');
-      return { label: dateStr, class: 'vgp-ok', animated: false };
+      // VGP À JOUR - Vert
+      return { label: `${diffDays}j`, class: 'vgp-green', animated: false };
+    }
+  };
+
+  // Fonction pour obtenir la classe CSS de l'état du matériel
+  const getEtatClass = (etat) => {
+    if (!etat) return 'etat-badge';
+
+    switch (etat.toLowerCase()) {
+      case 'neuf':
+        return 'etat-badge etat-neuf';
+      case 'bon':
+        return 'etat-badge etat-bon';
+      case 'moyen':
+        return 'etat-badge etat-moyen';
+      case 'vieillissant':
+      case 'usagé':
+        return 'etat-badge etat-vieillissant';
+      default:
+        return 'etat-badge';
     }
   };
 
@@ -128,12 +148,22 @@ function EquipmentListView({
     }
 
     // Filtres additionnels pour SUR PARC et PARC LOC
-    if ((currentPage === 'sur-parc' || currentPage === 'parc-loc') && filterEtat) {
-      filtered = filtered.filter(eq => eq.etat === filterEtat);
+    if ((currentPage === 'sur-parc' || currentPage === 'parc-loc') && filterDesignation) {
+      filtered = filtered.filter(eq =>
+        eq.designation && eq.designation.toLowerCase().includes(filterDesignation.toLowerCase())
+      );
     }
 
-    if (currentPage === 'parc-loc' && filterStatut) {
-      filtered = filtered.filter(eq => eq.statut === filterStatut);
+    if ((currentPage === 'sur-parc' || currentPage === 'parc-loc') && filterCMU) {
+      filtered = filtered.filter(eq =>
+        eq.cmu && eq.cmu.toLowerCase().includes(filterCMU.toLowerCase())
+      );
+    }
+
+    if ((currentPage === 'sur-parc' || currentPage === 'parc-loc') && filterLongueur) {
+      filtered = filtered.filter(eq =>
+        eq.longueur && eq.longueur.toLowerCase().includes(filterLongueur.toLowerCase())
+      );
     }
 
     // Recherche textuelle
@@ -147,7 +177,7 @@ function EquipmentListView({
     }
 
     return filtered;
-  }, [equipmentData, currentPage, searchTerm, equipmentFilter, filterEtat, filterStatut]);
+  }, [equipmentData, currentPage, searchTerm, equipmentFilter, filterDesignation, filterCMU, filterLongueur]);
 
   const pageHeader = getPageHeaderInfo();
 
@@ -174,8 +204,9 @@ function EquipmentListView({
               // Reset filters
               setSearchTerm('');
               setEquipmentFilter(null);
-              setFilterEtat('');
-              setFilterStatut('');
+              setFilterDesignation('');
+              setFilterCMU('');
+              setFilterLongueur('');
             }}
             className="btn btn-secondary"
           >
@@ -190,11 +221,29 @@ function EquipmentListView({
           display: 'flex',
           gap: '10px',
           margin: '15px 0',
-          flexWrap: 'wrap'
+          flexWrap: 'wrap',
+          alignItems: 'center'
         }}>
-          <select
-            value={filterEtat}
-            onChange={(e) => setFilterEtat(e.target.value)}
+          <input
+            type="text"
+            placeholder="Filtrer par désignation..."
+            value={filterDesignation}
+            onChange={(e) => setFilterDesignation(e.target.value)}
+            style={{
+              padding: '8px 12px',
+              borderRadius: '6px',
+              border: '1px solid #d1d5db',
+              backgroundColor: 'white',
+              fontSize: '14px',
+              minWidth: '180px'
+            }}
+          />
+
+          <input
+            type="text"
+            placeholder="Filtrer par CMU..."
+            value={filterCMU}
+            onChange={(e) => setFilterCMU(e.target.value)}
             style={{
               padding: '8px 12px',
               borderRadius: '6px',
@@ -203,40 +252,29 @@ function EquipmentListView({
               fontSize: '14px',
               minWidth: '150px'
             }}
-          >
-            <option value="">Tous les états</option>
-            <option value="Neuf">Neuf</option>
-            <option value="Bon">Bon</option>
-            <option value="Moyen">Moyen</option>
-            <option value="Usagé">Usagé</option>
-          </select>
+          />
 
-          {currentPage === 'parc-loc' && (
-            <select
-              value={filterStatut}
-              onChange={(e) => setFilterStatut(e.target.value)}
-              style={{
-                padding: '8px 12px',
-                borderRadius: '6px',
-                border: '1px solid #d1d5db',
-                backgroundColor: 'white',
-                fontSize: '14px',
-                minWidth: '150px'
-              }}
-            >
-              <option value="">Tous les statuts</option>
-              <option value="Sur Parc">Sur Parc</option>
-              <option value="En Réservation">En Réservation</option>
-              <option value="En Location">En Location</option>
-              <option value="En Maintenance">En Maintenance</option>
-            </select>
-          )}
+          <input
+            type="text"
+            placeholder="Filtrer par longueur..."
+            value={filterLongueur}
+            onChange={(e) => setFilterLongueur(e.target.value)}
+            style={{
+              padding: '8px 12px',
+              borderRadius: '6px',
+              border: '1px solid #d1d5db',
+              backgroundColor: 'white',
+              fontSize: '14px',
+              minWidth: '150px'
+            }}
+          />
 
-          {(filterEtat || filterStatut) && (
+          {(filterDesignation || filterCMU || filterLongueur) && (
             <button
               onClick={() => {
-                setFilterEtat('');
-                setFilterStatut('');
+                setFilterDesignation('');
+                setFilterCMU('');
+                setFilterLongueur('');
               }}
               style={{
                 padding: '8px 16px',
@@ -332,7 +370,11 @@ function EquipmentListView({
                             {equipment.statut}
                           </span>
                         </td>
-                        <td>{equipment.etat || '-'}</td>
+                        <td>
+                          <span className={getEtatClass(equipment.etat)}>
+                            {equipment.etat || '-'}
+                          </span>
+                        </td>
                         <td>
                           <span className={`vgp-badge ${vgpStatus.class} ${vgpStatus.animated ? 'vgp-pulse' : ''}`}>
                             {vgpStatus.label}

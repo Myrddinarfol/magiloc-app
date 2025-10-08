@@ -16,7 +16,14 @@ const DashboardPage = () => {
     // 1. Retards de retours de location
     const lateReturns = equipmentData.filter(eq => {
       if (eq.statut === 'En Location' && eq.finLocationTheorique) {
-        const returnDate = new Date(eq.finLocationTheorique);
+        // Parser date au format DD/MM/YYYY ou YYYY-MM-DD
+        let returnDate;
+        if (eq.finLocationTheorique.includes('/')) {
+          const [day, month, year] = eq.finLocationTheorique.split('/');
+          returnDate = new Date(year, month - 1, day);
+        } else {
+          returnDate = new Date(eq.finLocationTheorique);
+        }
         returnDate.setHours(0, 0, 0, 0);
         return returnDate < today;
       }
