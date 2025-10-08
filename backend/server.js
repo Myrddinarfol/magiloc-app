@@ -513,7 +513,7 @@ app.post("/api/equipment/:id/return", async (req, res) => {
     // 3. Archiver dans location_history avec le CA
     await dbClient.query(
       `INSERT INTO location_history (
-        equipment_id, client, date_debut, date_fin, date_retour_reel,
+        equipment_id, client, date_debut, date_fin_theorique, date_retour_reel,
         numero_offre, notes_location, note_retour, rentre_le,
         duree_jours_ouvres, prix_ht_jour, remise_ld, ca_total_ht
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
