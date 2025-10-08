@@ -11,6 +11,8 @@ function EquipmentListView({
   setShowImporter
 }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterEtat, setFilterEtat] = useState('');
+  const [filterStatut, setFilterStatut] = useState('');
   const { equipmentFilter, setEquipmentFilter } = useUI();
 
   // Auto-reset filter when leaving sur-parc
@@ -19,6 +21,28 @@ function EquipmentListView({
       setEquipmentFilter(null);
     }
   }, [currentPage, equipmentFilter, setEquipmentFilter]);
+
+  // Fonction pour calculer l'état du VGP
+  const getVGPStatus = (prochainVGP) => {
+    if (!prochainVGP) return { label: '-', class: '' };
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const vgpDate = new Date(prochainVGP);
+    vgpDate.setHours(0, 0, 0, 0);
+    const diffDays = Math.ceil((vgpDate - today) / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) {
+      return { label: 'Expiré', class: 'vgp-expired', animated: true };
+    } else if (diffDays <= 30) {
+      return { label: `${diffDays}j`, class: 'vgp-urgent', animated: true };
+    } else if (diffDays <= 90) {
+      return { label: `${diffDays}j`, class: 'vgp-warning', animated: false };
+    } else {
+      const dateStr = vgpDate.toLocaleDateString('fr-FR');
+      return { label: dateStr, class: 'vgp-ok', animated: false };
+    }
+  };
 
   // Configuration des pages
   const getPageHeaderInfo = () => {
@@ -43,6 +67,13 @@ function EquipmentListView({
           title: 'Locations en cours',
           subtitle: 'MATÉRIEL EN LOCATION',
           description: 'Matériel actuellement loué aux clients'
+        };
+      case 'maintenance':
+        return {
+          icon: '🔧',
+          title: 'Matériels en maintenance',
+          subtitle: 'MAINTENANCE EN COURS',
+          description: 'Matériel en cours de vérification ou réparation'
         };
       case 'parc-loc':
         return {
@@ -76,6 +107,9 @@ function EquipmentListView({
       case 'location-list':
         filtered = equipmentData.filter(eq => eq.statut === 'En Location');
         break;
+      case 'maintenance':
+        filtered = equipmentData.filter(eq => eq.statut === 'En Maintenance');
+        break;
       case 'parc-loc':
         // Affiche tout
         filtered = equipmentData;
@@ -93,6 +127,15 @@ function EquipmentListView({
       );
     }
 
+    // Filtres additionnels pour SUR PARC et PARC LOC
+    if ((currentPage === 'sur-parc' || currentPage === 'parc-loc') && filterEtat) {
+      filtered = filtered.filter(eq => eq.etat === filterEtat);
+    }
+
+    if (currentPage === 'parc-loc' && filterStatut) {
+      filtered = filtered.filter(eq => eq.statut === filterStatut);
+    }
+
     // Recherche textuelle
     if (searchTerm) {
       filtered = filtered.filter(equipment =>
@@ -104,7 +147,7 @@ function EquipmentListView({
     }
 
     return filtered;
-  }, [equipmentData, currentPage, searchTerm, equipmentFilter]);
+  }, [equipmentData, currentPage, searchTerm, equipmentFilter, filterEtat, filterStatut]);
 
   const pageHeader = getPageHeaderInfo();
 
@@ -131,11 +174,83 @@ function EquipmentListView({
               // Reset filters
               setSearchTerm('');
               setEquipmentFilter(null);
+              setFilterEtat('');
+              setFilterStatut('');
             }}
             className="btn btn-secondary"
           >
             🔄 RÉINITIALISER
           </button>
+        </div>
+      )}
+
+      {/* Filtres avancés pour SUR PARC et PARC LOC */}
+      {(currentPage === 'sur-parc' || currentPage === 'parc-loc') && (
+        <div className="filters-container" style={{
+          display: 'flex',
+          gap: '10px',
+          margin: '15px 0',
+          flexWrap: 'wrap'
+        }}>
+          <select
+            value={filterEtat}
+            onChange={(e) => setFilterEtat(e.target.value)}
+            style={{
+              padding: '8px 12px',
+              borderRadius: '6px',
+              border: '1px solid #d1d5db',
+              backgroundColor: 'white',
+              fontSize: '14px',
+              minWidth: '150px'
+            }}
+          >
+            <option value="">Tous les états</option>
+            <option value="Neuf">Neuf</option>
+            <option value="Bon">Bon</option>
+            <option value="Moyen">Moyen</option>
+            <option value="Usagé">Usagé</option>
+          </select>
+
+          {currentPage === 'parc-loc' && (
+            <select
+              value={filterStatut}
+              onChange={(e) => setFilterStatut(e.target.value)}
+              style={{
+                padding: '8px 12px',
+                borderRadius: '6px',
+                border: '1px solid #d1d5db',
+                backgroundColor: 'white',
+                fontSize: '14px',
+                minWidth: '150px'
+              }}
+            >
+              <option value="">Tous les statuts</option>
+              <option value="Sur Parc">Sur Parc</option>
+              <option value="En Réservation">En Réservation</option>
+              <option value="En Location">En Location</option>
+              <option value="En Maintenance">En Maintenance</option>
+            </select>
+          )}
+
+          {(filterEtat || filterStatut) && (
+            <button
+              onClick={() => {
+                setFilterEtat('');
+                setFilterStatut('');
+              }}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '6px',
+                border: '1px solid #dc2626',
+                backgroundColor: 'white',
+                color: '#dc2626',
+                fontSize: '14px',
+                cursor: 'pointer'
+              }}
+            >
+              ✕ Effacer filtres
+            </button>
+          )}
         </div>
       )}
 
@@ -170,54 +285,110 @@ function EquipmentListView({
           <table className="table">
             <thead>
               <tr>
-                <th>Équipement</th>
-                <th>N° Série</th>
-                <th>Statut</th>
-                <th>Client</th>
-                <th>Dates</th>
-                <th>Actions</th>
+                {(currentPage === 'sur-parc' || currentPage === 'parc-loc') ? (
+                  <>
+                    <th>Équipement</th>
+                    <th>Longueur</th>
+                    <th>N° Série</th>
+                    <th>Statut</th>
+                    <th>État</th>
+                    <th>Prochain VGP</th>
+                    <th>Actions</th>
+                  </>
+                ) : (
+                  <>
+                    <th>Équipement</th>
+                    <th>N° Série</th>
+                    <th>Statut</th>
+                    <th>Client</th>
+                    <th>Dates</th>
+                    <th>Actions</th>
+                  </>
+                )}
               </tr>
             </thead>
             <tbody>
-              {filteredData.map((equipment) => (
-                <tr key={equipment.id}>
-                  <td>
-                    <div className="equipment-name">
-                      {equipment.designation} {equipment.cmu}
-                    </div>
-                    <div className="equipment-details">
-                      {equipment.marque} {equipment.modele}
-                    </div>
-                  </td>
-                  <td>
-                    <span className="serial-number">{equipment.numeroSerie}</span>
-                  </td>
-                  <td>
-                    <span className={`status-badge ${getStatusClass(equipment.statut)}`}>
-                      {equipment.statut}
-                    </span>
-                  </td>
-                  <td>{equipment.client || '-'}</td>
-                  <td>
-                    {equipment.debutLocation && (
-                      <div>
-                        <div>Début: {equipment.debutLocation}</div>
-                        {equipment.finLocationTheorique && (
-                          <div>Fin: {equipment.finLocationTheorique}</div>
-                        )}
-                      </div>
+              {filteredData.map((equipment) => {
+                const vgpStatus = getVGPStatus(equipment.prochainVgp);
+
+                return (
+                  <tr key={equipment.id}>
+                    {(currentPage === 'sur-parc' || currentPage === 'parc-loc') ? (
+                      <>
+                        <td>
+                          <div className="equipment-name">
+                            {equipment.designation} {equipment.cmu}
+                          </div>
+                          <div className="equipment-details">
+                            {equipment.marque} {equipment.modele}
+                          </div>
+                        </td>
+                        <td>{equipment.longueur || '-'}</td>
+                        <td>
+                          <span className="serial-number">{equipment.numeroSerie}</span>
+                        </td>
+                        <td>
+                          <span className={`status-badge ${getStatusClass(equipment.statut)}`}>
+                            {equipment.statut}
+                          </span>
+                        </td>
+                        <td>{equipment.etat || '-'}</td>
+                        <td>
+                          <span className={`vgp-badge ${vgpStatus.class} ${vgpStatus.animated ? 'vgp-pulse' : ''}`}>
+                            {vgpStatus.label}
+                          </span>
+                        </td>
+                        <td>
+                          <button
+                            onClick={() => setSelectedEquipment(equipment)}
+                            className="btn btn-primary btn-sm"
+                          >
+                            Détails
+                          </button>
+                        </td>
+                      </>
+                    ) : (
+                      <>
+                        <td>
+                          <div className="equipment-name">
+                            {equipment.designation} {equipment.cmu}
+                          </div>
+                          <div className="equipment-details">
+                            {equipment.marque} {equipment.modele}
+                          </div>
+                        </td>
+                        <td>
+                          <span className="serial-number">{equipment.numeroSerie}</span>
+                        </td>
+                        <td>
+                          <span className={`status-badge ${getStatusClass(equipment.statut)}`}>
+                            {equipment.statut}
+                          </span>
+                        </td>
+                        <td>{equipment.client || '-'}</td>
+                        <td>
+                          {equipment.debutLocation && (
+                            <div>
+                              <div>Début: {equipment.debutLocation}</div>
+                              {equipment.finLocationTheorique && (
+                                <div>Fin: {equipment.finLocationTheorique}</div>
+                              )}
+                            </div>
+                          )}
+                        </td>
+                        <td>
+                          <button
+                            onClick={() => setSelectedEquipment(equipment)}
+                            className="btn btn-primary btn-sm"
+                          >
+                            Détails
+                          </button>
+                        </td>
+                      </>
                     )}
-                  </td>
-                  <td>
-                    <button
-                      onClick={() => setSelectedEquipment(equipment)}
-                      className="btn btn-primary btn-sm"
-                    >
-                      Détails
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

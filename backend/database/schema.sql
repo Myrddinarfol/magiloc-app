@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS equipments (
     notes_location TEXT,
     note_retour TEXT,
     motif_maintenance TEXT,
+    debut_maintenance TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -53,7 +54,7 @@ CREATE TABLE IF NOT EXISTS location_history (
     equipment_id INTEGER REFERENCES equipments(id),
     client VARCHAR(200),
     date_debut DATE,
-    date_fin DATE,
+    date_fin_theorique DATE,
     date_retour_reel DATE,
     rentre_le VARCHAR(50),
     numero_offre VARCHAR(100),
