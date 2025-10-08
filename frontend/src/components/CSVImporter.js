@@ -37,30 +37,43 @@ const transformedData = results.data
     
     return isValid;
   })
-  .map((row, index) => ({
-    id: index + 1,
-    designation: row['Désignation'] || row['DESIGNATION'] || '',
-    cmu: row['CMU'] || '',
-    modele: row['Modèle'] || row['MODELE'] || '',
-    marque: row['Marque'] || row['MARQUE'] || '',
-    longueur: row['Longeur Chaîne/Câble'] || row['LONGUEUR'] || '',
-    infosComplementaires: row['Infos Complémentaires'] || row['INFOS'] || '',
-    numeroSerie: (row['Numéro de Série'] || row['N° SERIE'] || '').trim(),
-    statut: row['Statut'] || row['statut'] || row['STATUT'] || 'Sur Parc',
-    debutLocation: row['Début Location'] || row['DEBUT LOCATION'] || '',
-    finLocationTheorique: row['Fin de Location Théorique'] || row['FIN DE LOCATION THEORIQUE'] || '',
-    rentreeLe: row['Rentré Le'] || row['RENTRE LE'] || '',
-    client: row['Client'] || row['CLIENT'] || '',
-    numeroOffre: row['N° OFFRE'] || row['N OFFRE'] || '',
-    notesLocation: row['NOTES LOCATION'] || row['Notes Location'] || '',
-    noteRetour: row['NOTE RETOUR'] || row['Note Retour'] || row['NOTES RETOUR'] || '',
-    prixHT: (row['Prix HT/J'] || row['PRIX HT/J'] || '').replace(/[€\s]/g, '').replace(',', '.') || null,
-    etat: row['État'] || row['ETAT'] || 'Moyen',
-    motifMaintenance: row['Motif de Maintenance'] || row['MOTIF DE MAINTENANCE'] || '',
-    certificat: row['Certificat / V-TIC'] || row['CERTIFICAT / V-TIC'] || '',
-    dernierVGP: row['Dernier VGP'] || row['DERNIER VGP'] || '',
-    prochainVGP: row['Prochain VGP'] || row['PROCHAIN VGP'] || ''
-  }));
+  .map((row, index) => {
+    // Fonction pour convertir date JJ/MM/AAAA vers AAAA-MM-JJ ou null
+    const convertDate = (dateStr) => {
+      if (!dateStr || dateStr.trim() === '') return null;
+      const parts = dateStr.trim().split('/');
+      if (parts.length === 3) {
+        const [day, month, year] = parts;
+        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      }
+      return null;
+    };
+
+    return {
+      id: index + 1,
+      designation: row['Désignation'] || row['DESIGNATION'] || '',
+      cmu: row['CMU'] || '',
+      modele: row['Modèle'] || row['MODELE'] || '',
+      marque: row['Marque'] || row['MARQUE'] || '',
+      longueur: row['Longeur Chaîne/Câble'] || row['LONGUEUR'] || '',
+      infosComplementaires: row['Infos Complémentaires'] || row['INFOS'] || '',
+      numeroSerie: (row['Numéro de Série'] || row['N° SERIE'] || '').trim(),
+      statut: row['Statut'] || row['statut'] || row['STATUT'] || 'Sur Parc',
+      debutLocation: row['Début Location'] || row['DEBUT LOCATION'] || '',
+      finLocationTheorique: row['Fin de Location Théorique'] || row['FIN DE LOCATION THEORIQUE'] || '',
+      rentreeLe: row['Rentré Le'] || row['RENTRE LE'] || '',
+      client: row['Client'] || row['CLIENT'] || '',
+      numeroOffre: row['N° OFFRE'] || row['N OFFRE'] || '',
+      notesLocation: row['NOTES LOCATION'] || row['Notes Location'] || '',
+      noteRetour: row['NOTE RETOUR'] || row['Note Retour'] || row['NOTES RETOUR'] || '',
+      prixHT: (row['Prix HT/J'] || row['PRIX HT/J'] || '').replace(/[€\s]/g, '').replace(',', '.') || null,
+      etat: row['État'] || row['ETAT'] || 'Moyen',
+      motifMaintenance: row['Motif de Maintenance'] || row['MOTIF DE MAINTENANCE'] || '',
+      certificat: row['Certificat / V-TIC'] || row['CERTIFICAT / V-TIC'] || '',
+      dernierVGP: convertDate(row['Dernier VGP'] || row['DERNIER VGP']),
+      prochainVGP: convertDate(row['Prochain VGP'] || row['PROCHAIN VGP'])
+    };
+  });
 
         console.log(`✅ ${transformedData.length} équipements valides (sur ${results.data.length} lignes parsées)`);
 
