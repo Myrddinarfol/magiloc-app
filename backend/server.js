@@ -184,9 +184,9 @@ app.post("/api/equipment/import", async (req, res) => {
             designation, cmu, modele, marque, longueur,
             infos_complementaires, numero_serie, prix_ht_jour, etat,
             certificat, dernier_vgp, prochain_vgp, statut,
-            client, debut_location, fin_location_theorique, rentre_le, numero_offre, notes_location, motif_maintenance
+            client, debut_location, fin_location_theorique, rentre_le, numero_offre, notes_location, note_retour, motif_maintenance
           )
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
           ON CONFLICT (numero_serie) DO UPDATE SET
             designation = EXCLUDED.designation,
             cmu = EXCLUDED.cmu,
@@ -198,6 +198,7 @@ app.post("/api/equipment/import", async (req, res) => {
             rentre_le = EXCLUDED.rentre_le,
             numero_offre = EXCLUDED.numero_offre,
             notes_location = EXCLUDED.notes_location,
+            note_retour = EXCLUDED.note_retour,
             motif_maintenance = EXCLUDED.motif_maintenance`,
           [
             eq.designation,
@@ -219,6 +220,7 @@ app.post("/api/equipment/import", async (req, res) => {
             eq.rentreeLe,
             eq.numeroOffre,
             eq.notesLocation,
+            eq.noteRetour,
             eq.motifMaintenance
           ]
         );

@@ -53,6 +53,7 @@ const transformedData = results.data
     client: row['Client'] || row['CLIENT'] || '',
     numeroOffre: row['N° OFFRE'] || row['N OFFRE'] || '',
     notesLocation: row['NOTES LOCATION'] || row['Notes Location'] || '',
+    noteRetour: row['NOTE RETOUR'] || row['Note Retour'] || row['NOTES RETOUR'] || '',
     prixHT: (row['Prix HT/J'] || row['PRIX HT/J'] || '').replace(/[€\s]/g, '').replace(',', '.') || null,
     etat: row['État'] || row['ETAT'] || 'Moyen',
     motifMaintenance: row['Motif de Maintenance'] || row['MOTIF DE MAINTENANCE'] || '',
