@@ -24,6 +24,7 @@ import LocationPlanningPage from './pages/LocationPlanningPage';
 // Components
 import Sidebar from './components/layout/Sidebar';
 import LoadingState from './components/common/LoadingState';
+import GuidedTour from './components/common/GuidedTour';
 import EquipmentListView from './components/EquipmentListView';
 import EquipmentDetailView from './components/equipment/EquipmentDetailView';
 import CSVImporter from './components/CSVImporter';
@@ -45,8 +46,17 @@ import DeleteConfirmModal from './components/modals/DeleteConfirmModal';
 import './App.css';
 
 // Composant principal de l'application (après authentification)
-const MainApp = () => {
+const MainApp = ({ shouldStartTour }) => {
   const { equipmentData, setEquipmentData, isLoading, loadingMessage, retryCount, loadEquipments } = useEquipment();
+  const [showTour, setShowTour] = React.useState(false);
+
+  // Démarrer la visite guidée si demandé depuis le login
+  React.useEffect(() => {
+    if (shouldStartTour) {
+      // Petit délai pour laisser l'app se charger complètement
+      setTimeout(() => setShowTour(true), 500);
+    }
+  }, [shouldStartTour]);
   const {
     currentPage,
     setCurrentPage,
@@ -368,6 +378,9 @@ const MainApp = () => {
           onConfirm={handleConfirmDelete}
         />
       )}
+
+      {/* Guided Tour */}
+      <GuidedTour isActive={showTour} onClose={() => setShowTour(false)} />
     </div>
   );
 };
@@ -389,6 +402,13 @@ function App() {
 const AppContent = () => {
   const { isAuthenticated } = useAuth();
   const { showReleaseNotes } = useUI();
+  const [shouldStartTour, setShouldStartTour] = React.useState(false);
+
+  const handleLoginSuccess = (startTour) => {
+    if (startTour) {
+      setShouldStartTour(true);
+    }
+  };
 
   if (showReleaseNotes) {
     return (
@@ -402,7 +422,7 @@ const AppContent = () => {
   if (!isAuthenticated) {
     return (
       <>
-        <LoginPage />
+        <LoginPage onLoginSuccess={handleLoginSuccess} />
         <Analytics />
       </>
     );
@@ -410,7 +430,7 @@ const AppContent = () => {
 
   return (
     <>
-      <MainApp />
+      <MainApp shouldStartTour={shouldStartTour} />
       <Analytics />
     </>
   );

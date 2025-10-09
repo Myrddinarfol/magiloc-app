@@ -604,6 +604,16 @@ const LocationPlanningPage = () => {
                 </div>
               ))}
 
+              {/* Ligne verticale rouge AUJOURD'HUI */}
+              <div
+                className="timeline-today-line"
+                style={{ left: getTodayPosition() }}
+              >
+                <div className="timeline-today-indicator">
+                  <span className="today-label">🕐 AUJOURD'HUI</span>
+                </div>
+              </div>
+
               {/* Marqueurs d'événements (débuts/fins de location) */}
               <div className="timeline-events">
                 {dateMarkers.eventMarkers.map((marker, index) => (

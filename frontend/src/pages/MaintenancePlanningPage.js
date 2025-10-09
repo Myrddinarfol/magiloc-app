@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useEquipment } from '../hooks/useEquipment';
 import PageHeader from '../components/common/PageHeader';
+import WIPPanel from '../components/common/WIPPanel';
 
 const MaintenancePlanningPage = () => {
   const { equipmentData } = useEquipment();
@@ -81,6 +82,8 @@ const MaintenancePlanningPage = () => {
         subtitle="VUE CALENDRIER"
         description="Suivi chronologique des maintenances et interventions"
       />
+
+      <WIPPanel />
 
       {/* Statistiques rapides */}
       <div className="planning-stats">

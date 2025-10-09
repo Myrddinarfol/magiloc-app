@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useEquipment } from '../hooks/useEquipment';
 import PageHeader from '../components/common/PageHeader';
+import WIPPanel from '../components/common/WIPPanel';
 
 const MaintenanceDashboardPage = () => {
   const { equipmentData } = useEquipment();
@@ -107,6 +108,8 @@ const MaintenanceDashboardPage = () => {
         subtitle="SUIVI & ANALYSE"
         description="Vue d'ensemble des maintenances et interventions en cours"
       />
+
+      <WIPPanel />
 
       {/* KPIs */}
       <div className="stats-grid">

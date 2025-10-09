@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useEquipment } from '../hooks/useEquipment';
 import PageHeader from '../components/common/PageHeader';
+import WIPPanel from '../components/common/WIPPanel';
 
 const AnalyticsPage = () => {
   const { equipmentData } = useEquipment();
@@ -97,6 +98,8 @@ const AnalyticsPage = () => {
         subtitle="ANALYSE DU PARC"
         description="Analyse de la performance et optimisation de votre parc"
       />
+
+      <WIPPanel />
 
       {/* KPI Principaux */}
       <div className="analytics-kpi-grid">
@@ -220,14 +223,6 @@ const AnalyticsPage = () => {
         </div>
       </div>
 
-      {/* Note pour futures améliorations */}
-      <div className="analytics-info-banner">
-        <span className="info-icon">💡</span>
-        <div className="info-content">
-          <strong>Prochaines améliorations :</strong>
-          <p>Graphiques d'évolution, historique CA mensuel, analyse de rentabilité par équipement, export PDF</p>
-        </div>
-      </div>
     </div>
   );
 };

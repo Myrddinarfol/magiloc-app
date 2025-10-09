@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useEquipment } from '../../hooks/useEquipment';
 import { useUI } from '../../hooks/useUI';
+import GuidedTour from '../common/GuidedTour';
 
 const Sidebar = () => {
   const { logout } = useAuth();
@@ -9,6 +10,7 @@ const Sidebar = () => {
   const { currentPage, handleNavigate, setShowNotesHistory, expandedMenus, toggleMenu } = useUI();
   const [showSettings, setShowSettings] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showTour, setShowTour] = useState(false);
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('theme') || 'dark';
   });
@@ -60,6 +62,13 @@ const Sidebar = () => {
             title="Paramètres"
           >
             ⚙️
+          </button>
+          <button
+            onClick={() => setShowTour(true)}
+            className="action-button tour-button"
+            title="Visite Guidée"
+          >
+            🎯
           </button>
         </div>
       </div>
@@ -230,6 +239,9 @@ const Sidebar = () => {
           </div>
         </div>
       )}
+
+      {/* Guided Tour */}
+      <GuidedTour isActive={showTour} onClose={() => setShowTour(false)} />
     </div>
   );
 };
