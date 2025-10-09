@@ -2251,18 +2251,25 @@ body {
   font-weight: 500;
 }
 
-/* Version COMPACTE du badge VGP pour les tables */
+/* Version COMPACTE du badge VGP pour les tables - MODERNISÉ */
 .vgp-status-card-compact {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 15px;
-  border-radius: 10px;
-  border: 2px solid;
+  gap: 14px;
+  padding: 14px 20px;
+  border-radius: 14px;
+  border: none;
   position: relative;
   overflow: hidden;
-  transition: all 0.3s ease;
-  max-width: fit-content;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 220px;
+  max-width: 220px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.vgp-status-card-compact:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.15);
 }
 
 .vgp-status-card-compact::before {
@@ -2272,7 +2279,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  opacity: 0.1;
+  opacity: 0.15;
   z-index: 0;
 }
 
@@ -2292,28 +2299,31 @@ body {
 }
 
 .vgp-status-icon-compact {
-  font-size: 20px;
+  font-size: 24px;
   line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 .vgp-status-content-compact {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
+  flex: 1;
 }
 
 .vgp-status-label-compact {
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
   line-height: 1;
 }
 
 .vgp-status-date-compact {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   line-height: 1;
+  opacity: 0.95;
 }
 
 /* Responsive VGP */

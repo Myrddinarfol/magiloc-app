@@ -9,7 +9,8 @@ function EquipmentListView({
   setSelectedEquipment,
   handleOpenEquipmentDetail,
   getStatusClass,
-  setShowImporter
+  setShowImporter,
+  setShowAddEquipmentModal
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDesignation, setFilterDesignation] = useState('');
@@ -240,6 +241,12 @@ function EquipmentListView({
       {/* Boutons d'action pour PARC LOC */}
       {currentPage === 'parc-loc' && setShowImporter && (
         <div className="parc-loc-actions">
+          <button
+            onClick={() => setShowAddEquipmentModal(true)}
+            className="btn btn-success"
+          >
+            ➕ AJOUTER
+          </button>
           <button
             onClick={() => setShowImporter(true)}
             className="btn btn-primary"

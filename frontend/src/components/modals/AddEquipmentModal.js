@@ -13,9 +13,23 @@ const AddEquipmentModal = ({ onClose, onSuccess }) => {
     numeroSerie: '',
     prixHT: '',
     etat: '',
+    dernierVGP: '',
     prochainVGP: '',
-    certificat: ''
+    certificat: '',
+    infosComplementaires: ''
   });
+
+  // Calcul automatique prochain VGP (+6 mois)
+  const handleDernierVGPChange = (value) => {
+    setForm({...form, dernierVGP: value});
+
+    if (value) {
+      const date = new Date(value);
+      date.setMonth(date.getMonth() + 6);
+      const prochainVGP = date.toLocaleDateString('fr-FR');
+      setForm(prev => ({...prev, dernierVGP: value, prochainVGP}));
+    }
+  };
 
   const handleSubmit = async () => {
     if (!form.designation || !form.numeroSerie) {
@@ -42,8 +56,10 @@ const AddEquipmentModal = ({ onClose, onSuccess }) => {
         numeroSerie: '',
         prixHT: '',
         etat: '',
+        dernierVGP: '',
         prochainVGP: '',
-        certificat: ''
+        certificat: '',
+        infosComplementaires: ''
       });
       showToast('Équipement ajouté avec succès !', 'success');
     } catch (error) {
@@ -168,28 +184,54 @@ const AddEquipmentModal = ({ onClose, onSuccess }) => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="prochain-vgp-add-input">Prochain VGP :</label>
+              <label htmlFor="dernier-vgp-add-input">Dernier VGP :</label>
               <input
-                id="prochain-vgp-add-input"
-                type="text"
-                value={form.prochainVGP}
-                onChange={(e) => setForm({...form, prochainVGP: e.target.value})}
-                placeholder="JJ/MM/AAAA"
+                id="dernier-vgp-add-input"
+                type="date"
+                value={form.dernierVGP}
+                onChange={(e) => handleDernierVGPChange(e.target.value)}
                 className="form-input"
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="certificat-add-input">Certificat :</label>
+              <label htmlFor="prochain-vgp-add-input">Prochain VGP (auto) :</label>
+              <input
+                id="prochain-vgp-add-input"
+                type="text"
+                value={form.prochainVGP}
+                readOnly
+                placeholder="Calculé automatiquement"
+                className="form-input"
+                style={{ backgroundColor: '#f3f4f6', cursor: 'not-allowed' }}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="certificat-add-input">Certificat / V-TIC :</label>
               <input
                 id="certificat-add-input"
                 type="text"
                 value={form.certificat}
                 onChange={(e) => setForm({...form, certificat: e.target.value})}
-                placeholder="N° de certificat"
+                placeholder="Ex: CML123456"
                 className="form-input"
               />
             </div>
+          </div>
+
+          {/* Infos complémentaires */}
+          <div className="form-group" style={{ marginTop: '15px' }}>
+            <label htmlFor="infos-add-input">Infos complémentaires :</label>
+            <textarea
+              id="infos-add-input"
+              value={form.infosComplementaires}
+              onChange={(e) => setForm({...form, infosComplementaires: e.target.value})}
+              rows="3"
+              placeholder="Informations additionnelles..."
+              className="form-input"
+              style={{ resize: 'vertical', fontFamily: 'inherit' }}
+            />
           </div>
 
           <p className="modal-info">
