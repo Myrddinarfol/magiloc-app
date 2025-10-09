@@ -1,7 +1,6 @@
 import React, { createContext, useState } from 'react';
 import { VERSION_KEY, STORAGE_KEY } from '../config/constants';
 import { hasNewVersion } from '../data/releaseNotes';
-import { equipmentData as initialData } from '../data/equipments';
 
 export const UIContext = createContext();
 
@@ -79,9 +78,10 @@ export const UIProvider = ({ children }) => {
   // Réinitialiser les données
   const handleResetData = (setEquipmentData) => {
     if (window.confirm('Êtes-vous sûr de vouloir réinitialiser toutes les données ? Cette action est irréversible.')) {
-      setEquipmentData(initialData);
+      // Les données viennent maintenant de PostgreSQL, pas du localStorage
+      // Cette fonction pourrait être supprimée ou adaptée pour vider la base
       localStorage.removeItem(STORAGE_KEY);
-      showToast('Données réinitialisées !', 'success');
+      showToast('Cache local vidé ! Rechargez la page pour récupérer les données depuis le serveur.', 'info');
     }
   };
 
