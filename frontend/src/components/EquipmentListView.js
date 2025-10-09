@@ -456,7 +456,7 @@ function EquipmentListView({
                         </td>
                         <td>
                           <button
-                            onClick={() => setSelectedEquipment(equipment)}
+                            onClick={() => handleOpenEquipmentDetail(equipment, currentPage)}
                             className="btn btn-primary btn-sm"
                           >
                             Détails
@@ -494,7 +494,7 @@ function EquipmentListView({
                         </td>
                         <td>
                           <button
-                            onClick={() => setSelectedEquipment(equipment)}
+                            onClick={() => handleOpenEquipmentDetail(equipment, currentPage)}
                             className="btn btn-primary btn-sm"
                           >
                             Détails

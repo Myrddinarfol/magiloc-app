@@ -1,9 +1,93 @@
 // Système de gestion des notes de mise à jour
 // Pour ajouter une nouvelle version, ajoutez un objet au début du tableau
 
-export const CURRENT_VERSION = '0.9.1';
+export const CURRENT_VERSION = '0.9.2';
 
 export const releaseNotes = [
+  {
+    version: '0.9.2',
+    date: '2025-10-09',
+    title: '✨ Corrections & Améliorations Planning + Dashboard + UX',
+    sections: [
+      {
+        title: '🗑️ Modal de suppression stylisé',
+        items: [
+          'Remplacement window.confirm par modal animé moderne',
+          'Design cohérent avec thème visuel (dégradés, ombres, animations)',
+          'Icône 🗑️ animée avec effet bounce',
+          'Message clair avec avertissement "Action irréversible"',
+          'Effets hover sur les boutons Annuler/Supprimer',
+        ]
+      },
+      {
+        title: '🔧 Fiches maintenance optimisées',
+        items: [
+          'Suppression du bouton doublon "Valider Maintenance"',
+          'Bouton unique dans le Panneau de Contrôle (à droite)',
+          'Panneau Gestion Maintenance affiche motif + notes de retour',
+          'Interface plus claire et moins de confusion',
+        ]
+      },
+      {
+        title: '📊 Dashboard - Matériels phares corrigés',
+        items: [
+          'Fix comptage TR30S/LM300+ : inclut maintenant TR30 (sans S)',
+          'Reconnaissance de "MINIFOR TR30" et "MINIFOR TR30S"',
+          'Variantes ajoutées : "LM 300+" avec espace',
+          'Même correction pour TR50, LM500+, TE3000, TE1600',
+          'Comptage correct de TOUS les modèles peu importe le statut',
+        ]
+      },
+      {
+        title: '📦 Dashboard - Alertes rupture de stock',
+        items: [
+          'Filtre strict : affiche UNIQUEMENT les matériels à 0 sur parc',
+          'Plus d\'alertes pour les matériels avec 1 disponible',
+          'Tri par total décroissant (matériels les plus nombreux en premier)',
+          'Texte mis à jour : "Matériels avec 0 disponible sur parc"',
+        ]
+      },
+      {
+        title: '🎯 Planning Location - Filtres dynamiques',
+        items: [
+          'Nouveaux boutons de filtre stylisés en haut du planning',
+          '📋 Réservations (vert) - avec compteur',
+          '🚚 Locations en cours (bleu) - avec compteur',
+          '⚠️ Dépassements (orange) - avec compteur',
+          'Activation/désactivation en temps réel',
+          'Design cohérent avec dégradés et effets hover',
+        ]
+      },
+      {
+        title: '📅 Planning Location - Interface épurée',
+        items: [
+          'Suppression du panneau "Détails des Locations" en bas',
+          'Planning plus épuré et focalisé sur la timeline',
+          'Meilleure lisibilité de la visualisation',
+          'Performance améliorée avec moins d\'éléments DOM',
+        ]
+      },
+      {
+        title: '🏷️ Sidebar - Badges Location mis à jour',
+        items: [
+          'Badge principal LOCATION : affiche total (Réservations + Locations)',
+          'Badge sous-menu Réservation : nombre de réservations',
+          'Badge sous-menu Locations en cours : nombre de locations',
+          'Cohérence avec la logique métier',
+        ]
+      },
+      {
+        title: '🔧 Maintenance validée - Historique',
+        items: [
+          'Validation maintenance crée automatiquement l\'historique',
+          'Enregistrement motif + notes + durée en jours',
+          'Passage automatique du matériel en "Sur Parc"',
+          'Réinitialisation des champs maintenance après validation',
+          'Fix colonne duree_jours manquante dans maintenance_history',
+        ]
+      }
+    ]
+  },
   {
     version: '0.9.1',
     date: '2025-10-05',

@@ -175,13 +175,6 @@ const EquipmentDetailView = ({
                   </div>
                 </div>
               </div>
-              <button
-                className="btn btn-success btn-lg"
-                onClick={() => setShowCompleteMaintenance(true)}
-                style={{ marginTop: '15px', width: '100%' }}
-              >
-                ✅ Valider la Maintenance
-              </button>
             </div>
           )}
         </div>

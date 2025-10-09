@@ -90,7 +90,7 @@ const Sidebar = () => {
           >
             <span className="nav-icon">🚚</span>
             <span className="nav-text">LOCATION</span>
-            <span className="nav-badge">{stats.enLocation}</span>
+            <span className="nav-badge">{stats.enLocation + stats.enOffre}</span>
             <span className={`nav-arrow-bottom ${expandedMenus.location ? 'expanded' : ''}`}>▼</span>
           </button>
           {expandedMenus.location && (
@@ -109,6 +109,7 @@ const Sidebar = () => {
               >
                 <span className="nav-sub-icon">📦</span>
                 <span className="nav-sub-text">Locations en cours</span>
+                <span className="nav-badge">{stats.enLocation}</span>
               </button>
               <button
                 onClick={() => handleNavigate('location-planning')}

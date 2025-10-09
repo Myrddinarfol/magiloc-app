@@ -43,6 +43,13 @@ const LocationPlanningPage = () => {
   const [dragStart, setDragStart] = useState({ x: 0, offset: 0 });
   const [showHistory, setShowHistory] = useState(false); // Afficher l'historique des locations terminées
 
+  // États pour les filtres
+  const [filters, setFilters] = useState({
+    showReservations: true,
+    showLocations: true,
+    showOverdue: true
+  });
+
   // Fonction pour ouvrir la fiche de l'équipement depuis le planning
   const handleOpenEquipment = (equipment) => {
     handleOpenEquipmentDetail(equipment, 'location-planning'); // Mémoriser qu'on vient du planning
@@ -174,10 +181,17 @@ const LocationPlanningPage = () => {
         };
       })
       .filter(loc => loc !== null) // Filtrer les dates invalides
+      .filter(loc => {
+        // Appliquer les filtres
+        if (loc.isReservation && !filters.showReservations) return false;
+        if (!loc.isReservation && !loc.isLate && !filters.showLocations) return false;
+        if (loc.isLate && !filters.showOverdue) return false;
+        return true;
+      })
       .sort((a, b) => a.startDate - b.startDate);
 
     return locations;
-  }, [equipmentData, today, showHistory]);
+  }, [equipmentData, today, showHistory, filters]);
 
   // Calcul de la plage de dates pour l'affichage selon le mode (en jours)
   const dateRange = useMemo(() => {
@@ -397,35 +411,108 @@ const LocationPlanningPage = () => {
         description="Visualisation chronologique de toutes vos locations"
       />
 
-      {/* Statistiques rapides */}
-      <div className="planning-stats">
-        <div className="planning-stat-card">
-          <span className="planning-stat-value">
-            {locationTimeline.filter(l => !l.isReservation).length}
+      {/* Boutons de filtres */}
+      <div className="planning-filters">
+        <h3 style={{ margin: '0 20px 0 0', color: '#9ca3af', fontSize: '16px' }}>🔍 Filtres :</h3>
+        <button
+          className={`filter-btn ${filters.showReservations ? 'active' : 'inactive'}`}
+          onClick={() => setFilters(prev => ({ ...prev, showReservations: !prev.showReservations }))}
+          style={{
+            padding: '10px 20px',
+            borderRadius: '10px',
+            border: filters.showReservations ? '2px solid #22c55e' : '2px solid #374151',
+            background: filters.showReservations ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1))' : 'linear-gradient(135deg, #1f2937, #111827)',
+            color: filters.showReservations ? '#22c55e' : '#6b7280',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            transition: 'all 0.3s',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}
+        >
+          <span>📋</span>
+          <span>Réservations</span>
+          <span style={{
+            background: filters.showReservations ? 'rgba(34, 197, 94, 0.3)' : 'rgba(107, 114, 128, 0.3)',
+            padding: '2px 8px',
+            borderRadius: '12px',
+            fontSize: '12px'
+          }}>
+            {equipmentData.filter(eq => eq.statut === 'En Réservation').length}
           </span>
-          <span className="planning-stat-label">Locations en cours</span>
-        </div>
-        <div className="planning-stat-card">
-          <span className="planning-stat-value">
-            {locationTimeline.filter(l => l.isReservation).length}
+        </button>
+
+        <button
+          className={`filter-btn ${filters.showLocations ? 'active' : 'inactive'}`}
+          onClick={() => setFilters(prev => ({ ...prev, showLocations: !prev.showLocations }))}
+          style={{
+            padding: '10px 20px',
+            borderRadius: '10px',
+            border: filters.showLocations ? '2px solid #3b82f6' : '2px solid #374151',
+            background: filters.showLocations ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1))' : 'linear-gradient(135deg, #1f2937, #111827)',
+            color: filters.showLocations ? '#3b82f6' : '#6b7280',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            transition: 'all 0.3s',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}
+        >
+          <span>🚚</span>
+          <span>Locations en cours</span>
+          <span style={{
+            background: filters.showLocations ? 'rgba(59, 130, 246, 0.3)' : 'rgba(107, 114, 128, 0.3)',
+            padding: '2px 8px',
+            borderRadius: '12px',
+            fontSize: '12px'
+          }}>
+            {equipmentData.filter(eq => eq.statut === 'En Location').length}
           </span>
-          <span className="planning-stat-label">Réservations</span>
-        </div>
-        <div className="planning-stat-card">
-          <span className="planning-stat-value">
-            {locationTimeline.filter(l => l.isLate).length}
-          </span>
-          <span className="planning-stat-label">Retards</span>
-        </div>
-        <div className="planning-stat-card">
-          <span className="planning-stat-value">
-            {locationTimeline.filter(l => {
-              const daysUntilEnd = Math.ceil((l.endDate - new Date()) / (1000 * 60 * 60 * 24));
-              return daysUntilEnd >= 0 && daysUntilEnd <= 7;
+        </button>
+
+        <button
+          className={`filter-btn ${filters.showOverdue ? 'active' : 'inactive'}`}
+          onClick={() => setFilters(prev => ({ ...prev, showOverdue: !prev.showOverdue }))}
+          style={{
+            padding: '10px 20px',
+            borderRadius: '10px',
+            border: filters.showOverdue ? '2px solid #fb923c' : '2px solid #374151',
+            background: filters.showOverdue ? 'linear-gradient(135deg, rgba(251, 146, 60, 0.2), rgba(251, 146, 60, 0.1))' : 'linear-gradient(135deg, #1f2937, #111827)',
+            color: filters.showOverdue ? '#fb923c' : '#6b7280',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            transition: 'all 0.3s',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}
+        >
+          <span>⚠️</span>
+          <span>Dépassements</span>
+          <span style={{
+            background: filters.showOverdue ? 'rgba(251, 146, 60, 0.3)' : 'rgba(107, 114, 128, 0.3)',
+            padding: '2px 8px',
+            borderRadius: '12px',
+            fontSize: '12px'
+          }}>
+            {equipmentData.filter(eq => {
+              if (eq.statut !== 'En Location' || !eq.finLocationTheorique) return false;
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              let returnDate;
+              if (eq.finLocationTheorique.includes('/')) {
+                const [day, month, year] = eq.finLocationTheorique.split('/');
+                returnDate = new Date(year, month - 1, day);
+              } else {
+                returnDate = new Date(eq.finLocationTheorique);
+              }
+              returnDate.setHours(0, 0, 0, 0);
+              return returnDate < today;
             }).length}
           </span>
-          <span className="planning-stat-label">Fins cette semaine</span>
-        </div>
+        </button>
       </div>
 
       {/* Timeline visuelle */}
@@ -612,63 +699,6 @@ const LocationPlanningPage = () => {
             </div>
           </>
         )}
-      </div>
-
-      {/* Liste détaillée */}
-      <div className="planning-details">
-        <h2>📋 Détails des Locations</h2>
-        <div className="planning-table">
-          <div className="planning-table-header">
-            <div className="planning-th">Référence</div>
-            <div className="planning-th">Client</div>
-            <div className="planning-th">Modèle</div>
-            <div className="planning-th">Début</div>
-            <div className="planning-th">Fin prévue</div>
-            <div className="planning-th">Durée</div>
-            <div className="planning-th">Statut</div>
-          </div>
-          {locationTimeline.map(location => {
-            const daysUntilEnd = location.endDateTheorique
-              ? Math.ceil((location.endDateTheorique - new Date()) / (1000 * 60 * 60 * 24))
-              : 0;
-            const isEndingSoon = daysUntilEnd >= 0 && daysUntilEnd <= 7;
-
-            return (
-              <div key={location.id} className="planning-table-row">
-                <div className="planning-td">
-                  <strong>{location.reference}</strong>
-                </div>
-                <div className="planning-td">{location.client}</div>
-                <div className="planning-td">{location.modele}</div>
-                <div className="planning-td">
-                  {location.startDate.toLocaleDateString('fr-FR')}
-                </div>
-                <div className="planning-td">
-                  {location.endDateTheorique
-                    ? location.endDateTheorique.toLocaleDateString('fr-FR')
-                    : 'Non définie'}
-                </div>
-                <div className="planning-td">
-                  <span className="duration-badge">
-                    {location.plannedDays}j
-                    {location.isLate && ` (+${location.lateDays}j)`}
-                  </span>
-                </div>
-                <div className="planning-td">
-                  {location.isLate ? (
-                    <span className="status-badge late">🚨 +{location.lateDays}j de retard</span>
-                  ) : location.isFuture ? (
-                    <span className="status-badge warning">📅 À venir</span>
-                  ) : isEndingSoon ? (
-                    <span className="status-badge warning">⚠️ Fin dans {daysUntilEnd}j</span>
-                  ) : (
-                    <span className="status-badge active">✓ En cours</span>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
       </div>
     </div>
   );

@@ -3734,6 +3734,20 @@ body {
   font-size: 32px;
 }
 
+/* Filtres du planning */
+.planning-filters {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.planning-filters .filter-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
 .planning-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

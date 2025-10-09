@@ -96,10 +96,10 @@ const DashboardPage = () => {
       }
     });
 
-    // Filtrer pour ne garder que ceux avec 0 ou 1 disponible et au moins 2 exemplaires au total
+    // Filtrer pour ne garder que ceux avec 0 disponible (rupture de stock)
     return Object.values(modelGroups)
-      .filter(g => g.total >= 2 && g.available <= 1)
-      .sort((a, b) => a.available - b.available);
+      .filter(g => g.available === 0)
+      .sort((a, b) => b.total - a.total); // Trier par total décroissant
   }, [equipmentData]);
 
   // Matériels phares - Disponibilité
@@ -108,28 +108,28 @@ const DashboardPage = () => {
       {
         title: 'TR30S / LM300+',
         subtitle: 'Treuil 300kg',
-        models: ['TR30S', 'LM300+', 'LM300'],
+        models: ['TR30S', 'TR30', 'LM300+', 'LM 300+', 'LM300'],
         icon: '⚡',
         color: '#f59e0b'
       },
       {
         title: 'TR50 / LM500+',
         subtitle: 'Treuil 500kg',
-        models: ['TR50', 'LM500+', 'LM500'],
+        models: ['TR50', 'LM500+', 'LM 500+', 'LM500'],
         icon: '⚡',
         color: '#dc2626'
       },
       {
         title: 'TE3000',
         subtitle: 'Treuil électrique 3000kg',
-        models: ['TE3000'],
+        models: ['TE3000', 'TE 3000'],
         icon: '⚡',
         color: '#8b5cf6'
       },
       {
         title: 'TE1600',
         subtitle: 'Treuil électrique 1600kg',
-        models: ['TE1600'],
+        models: ['TE1600', 'TE 1600'],
         icon: '⚡',
         color: '#06b6d4'
       }
@@ -137,9 +137,15 @@ const DashboardPage = () => {
 
     return featured.map(item => {
       // Compter tous les équipements de ce modèle dans PARC LOC
-      const allEquipment = equipmentData.filter(eq =>
-        item.models.some(model => eq.modele && eq.modele.toUpperCase().includes(model.toUpperCase()))
-      );
+      const allEquipment = equipmentData.filter(eq => {
+        if (!eq.modele) return false;
+        const modeleUpper = eq.modele.toUpperCase().trim();
+        return item.models.some(model => {
+          const modelUpper = model.toUpperCase().trim();
+          // Match exact ou contient le modèle
+          return modeleUpper === modelUpper || modeleUpper.includes(modelUpper);
+        });
+      });
 
       // Compter ceux qui sont disponibles (Sur Parc)
       const available = allEquipment.filter(eq => eq.statut === 'Sur Parc');
@@ -360,7 +366,7 @@ const DashboardPage = () => {
       <div className="dashboard-section">
         <div className="ruptures-panel">
           <h2>📦 Alertes Ruptures de Stock</h2>
-          <p className="ruptures-subtitle">Matériels avec stock critique (≤1 disponible)</p>
+          <p className="ruptures-subtitle">Matériels avec 0 disponible sur parc</p>
           <div className="ruptures-grid">
             {stockAlerts.length === 0 ? (
               <div className="ruptures-empty">

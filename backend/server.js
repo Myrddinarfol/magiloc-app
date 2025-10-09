@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import cors from "cors";
 import pool from "./database/db.js";
@@ -417,7 +420,7 @@ app.patch("/api/equipment/:id", async (req, res) => {
 
           await dbClient.query(
             `INSERT INTO maintenance_history (
-              equipment_id, motif, note_retour, date_entree, date_sortie, duree_jours
+              equipment_id, motif_maintenance, note_retour, date_entree, date_sortie, duree_jours
             ) VALUES ($1, $2, $3, $4, $5, $6)`,
             [
               id,

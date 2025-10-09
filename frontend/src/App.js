@@ -40,6 +40,7 @@ import LocationHistoryModal from './components/modals/LocationHistoryModal';
 import MaintenanceHistoryModal from './components/modals/MaintenanceHistoryModal';
 import MaintenanceModal from './components/modals/MaintenanceModal';
 import CompleteMaintenanceModal from './components/modals/CompleteMaintenanceModal';
+import DeleteConfirmModal from './components/modals/DeleteConfirmModal';
 
 import './App.css';
 
@@ -86,6 +87,9 @@ const MainApp = () => {
 
   const { locationHistory, maintenanceHistory, loadLocationHistory, loadMaintenanceHistory } = useHistory();
 
+  // State local pour le modal de confirmation de suppression
+  const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
+
   // Gestionnaires de succès pour les modals - avec redirection intelligente
   const handleModalSuccess = async (targetPage) => {
     console.log('🔄 handleModalSuccess - targetPage fournie:', targetPage);
@@ -130,15 +134,15 @@ const MainApp = () => {
     }
   };
 
-  // Gestionnaire de suppression
-  const handleDelete = async () => {
+  // Gestionnaire de suppression - Ouvrir le modal
+  const handleDelete = () => {
     if (!selectedEquipment) return;
+    setShowDeleteConfirm(true);
+  };
 
-    const confirmation = window.confirm(
-      `Êtes-vous sûr de vouloir supprimer définitivement le matériel "${selectedEquipment.designation} ${selectedEquipment.cmu}" ?\n\n⚠️ Cette action est irréversible !`
-    );
-
-    if (!confirmation) return;
+  // Confirmer la suppression
+  const handleConfirmDelete = async () => {
+    if (!selectedEquipment) return;
 
     try {
       const { equipmentService } = await import('./services/equipmentService');
@@ -146,10 +150,12 @@ const MainApp = () => {
       showToast('Matériel supprimé avec succès !', 'success');
       await loadEquipments();
       setSelectedEquipment(null);
+      setShowDeleteConfirm(false);
       handleGoBack();
     } catch (error) {
       console.error('❌ Erreur suppression:', error);
       showToast(`Erreur lors de la suppression: ${error.message}`, 'error');
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -352,6 +358,14 @@ const MainApp = () => {
           equipment={selectedEquipment}
           onClose={() => setShowCompleteMaintenance(false)}
           onSuccess={handleModalSuccess}
+        />
+      )}
+
+      {showDeleteConfirm && selectedEquipment && (
+        <DeleteConfirmModal
+          equipment={selectedEquipment}
+          onClose={() => setShowDeleteConfirm(false)}
+          onConfirm={handleConfirmDelete}
         />
       )}
     </div>
