@@ -1,9 +1,67 @@
 // Système de gestion des notes de mise à jour
 // Pour ajouter une nouvelle version, ajoutez un objet au début du tableau
 
-export const CURRENT_VERSION = '0.9.2';
+export const CURRENT_VERSION = '0.9.3';
 
 export const releaseNotes = [
+  {
+    version: '0.9.3',
+    date: '2025-10-09',
+    title: '🎯 Visite Guidée Interactive + Panneaux WIP + UX Planning',
+    sections: [
+      {
+        title: '🎯 Visite Guidée Interactive',
+        items: [
+          'Nouveau bouton "🎯 VISITE GUIDEE" dans la sidebar avec animation pulse',
+          'Modal au premier login proposant de démarrer la visite guidée',
+          '7 étapes guidées avec spotlight animé sur les éléments',
+          'Navigation intuitive : Précédent, Suivant, Passer',
+          'Barre de progression avec dots actifs',
+          'Spotlight optimisé : bordure rouge→jaune, triple glow externe',
+          'Tooltips intelligents qui se repositionnent automatiquement',
+          'Mémorisation dans localStorage (ne s\'affiche qu\'une fois)',
+        ]
+      },
+      {
+        title: '🚧 Panneaux WIP Simplifiés',
+        items: [
+          'Nouveau composant WIPPanel pour signaler les sections en développement',
+          'Message simple et clair : "Section en cours de développement"',
+          'Design épuré avec icône 🚧 animée',
+          'Intégré dans Dashboard Maintenance, Planning Maintenance et Analytics',
+        ]
+      },
+      {
+        title: '📅 Planning Location - Ligne "Aujourd\'hui"',
+        items: [
+          'Ligne verticale rouge "🕐 AUJOURD\'HUI" sur la timeline',
+          'Position dynamique selon la date du jour',
+          'Animation glow pulsante rouge→jaune',
+          'Indicateur visuel en haut de la ligne',
+        ]
+      },
+      {
+        title: '🎨 Design & Animations',
+        items: [
+          '200+ lignes de CSS pour le système de visite guidée',
+          'Spotlight avec box-shadow 9999px pour assombrir le reste',
+          'Animations : pulse, bounce, float, glow',
+          'Modal post-login avec effet bounce-in',
+          'Z-index optimisé (tooltips à 100000)',
+        ]
+      },
+      {
+        title: '📂 Architecture',
+        items: [
+          'Nouveau fichier : GuidedTour.js (195 lignes)',
+          'Nouveau fichier : WIPPanel.js (20 lignes)',
+          'Intégration dans App.js pour gestion du tour',
+          'Sidebar.js : bouton + composant tour',
+          'LoginPage.js : modal choix visite guidée',
+        ]
+      }
+    ]
+  },
   {
     version: '0.9.2',
     date: '2025-10-09',
