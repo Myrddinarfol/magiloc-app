@@ -11,6 +11,7 @@ const Sidebar = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showTour, setShowTour] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('theme') || 'dark';
   });
@@ -41,8 +42,41 @@ const Sidebar = () => {
     setShowSettings(false);
   };
 
+  const toggleMobileMenu = () => {
+    setIsMobileOpen(!isMobileOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileOpen(false);
+  };
+
+  const handleMobileNavigate = (page) => {
+    handleNavigate(page);
+    closeMobileMenu();
+  };
+
   return (
-    <div className="sidebar">
+    <>
+      {/* Hamburger Menu Button */}
+      <button
+        className={`hamburger-menu ${isMobileOpen ? 'open' : ''}`}
+        onClick={toggleMobileMenu}
+        aria-label="Toggle menu"
+      >
+        <div className="hamburger-icon">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </button>
+
+      {/* Overlay pour fermer la sidebar sur mobile */}
+      <div
+        className={`sidebar-overlay ${isMobileOpen ? 'visible' : ''}`}
+        onClick={closeMobileMenu}
+      />
+
+      <div className={`sidebar ${isMobileOpen ? 'mobile-open' : ''}`}>
       <div className="logo-container">
         <h1 className="logo">
           <span className="logo-magi">MAGI</span>
@@ -75,7 +109,7 @@ const Sidebar = () => {
 
       <nav>
         <button
-          onClick={() => handleNavigate('dashboard')}
+          onClick={() => handleMobileNavigate('dashboard')}
           className={`nav-button ${currentPage === 'dashboard' ? 'active' : ''}`}
         >
           <span className="nav-icon">🏠</span>
@@ -83,7 +117,7 @@ const Sidebar = () => {
         </button>
 
         <button
-          onClick={() => handleNavigate('sur-parc')}
+          onClick={() => handleMobileNavigate('sur-parc')}
           className={`nav-button ${currentPage === 'sur-parc' ? 'active' : ''}`}
         >
           <span className="nav-icon">✅</span>
@@ -105,7 +139,7 @@ const Sidebar = () => {
           {expandedMenus.location && (
             <div className="nav-submenu">
               <button
-                onClick={() => handleNavigate('en-offre')}
+                onClick={() => handleMobileNavigate('en-offre')}
                 className={`nav-sub-button ${currentPage === 'en-offre' ? 'active' : ''}`}
               >
                 <span className="nav-sub-icon">📋</span>
@@ -113,7 +147,7 @@ const Sidebar = () => {
                 <span className="nav-badge">{stats.enOffre}</span>
               </button>
               <button
-                onClick={() => handleNavigate('location-list')}
+                onClick={() => handleMobileNavigate('location-list')}
                 className={`nav-sub-button ${currentPage === 'location-list' ? 'active' : ''}`}
               >
                 <span className="nav-sub-icon">📦</span>
@@ -121,7 +155,7 @@ const Sidebar = () => {
                 <span className="nav-badge">{stats.enLocation}</span>
               </button>
               <button
-                onClick={() => handleNavigate('location-planning')}
+                onClick={() => handleMobileNavigate('location-planning')}
                 className={`nav-sub-button ${currentPage === 'location-planning' ? 'active' : ''}`}
               >
                 <span className="nav-sub-icon">📅</span>
@@ -145,21 +179,21 @@ const Sidebar = () => {
           {expandedMenus.maintenance && (
             <div className="nav-submenu">
               <button
-                onClick={() => handleNavigate('maintenance-dashboard')}
+                onClick={() => handleMobileNavigate('maintenance-dashboard')}
                 className={`nav-sub-button ${currentPage === 'maintenance-dashboard' ? 'active' : ''}`}
               >
                 <span className="nav-sub-icon">📊</span>
                 <span className="nav-sub-text">Dashboard Maintenance</span>
               </button>
               <button
-                onClick={() => handleNavigate('maintenance-list')}
+                onClick={() => handleMobileNavigate('maintenance-list')}
                 className={`nav-sub-button ${currentPage === 'maintenance-list' ? 'active' : ''}`}
               >
                 <span className="nav-sub-icon">🛠️</span>
                 <span className="nav-sub-text">Matériels en Maintenance</span>
               </button>
               <button
-                onClick={() => handleNavigate('maintenance-planning')}
+                onClick={() => handleMobileNavigate('maintenance-planning')}
                 className={`nav-sub-button ${currentPage === 'maintenance-planning' ? 'active' : ''}`}
               >
                 <span className="nav-sub-icon">📆</span>
@@ -172,7 +206,7 @@ const Sidebar = () => {
 
       <div className="sidebar-middle">
         <button
-          onClick={() => handleNavigate('analytics')}
+          onClick={() => handleMobileNavigate('analytics')}
           className={`nav-button ${currentPage === 'analytics' ? 'active' : ''}`}
         >
           <span className="nav-icon">📊</span>
@@ -180,7 +214,7 @@ const Sidebar = () => {
         </button>
 
         <button
-          onClick={() => handleNavigate('parc-loc')}
+          onClick={() => handleMobileNavigate('parc-loc')}
           className={`nav-button ${currentPage === 'parc-loc' ? 'active' : ''}`}
         >
           <span className="nav-icon">🏪</span>
@@ -188,7 +222,7 @@ const Sidebar = () => {
         </button>
 
         <button
-          onClick={() => setShowNotesHistory(true)}
+          onClick={() => { setShowNotesHistory(true); closeMobileMenu(); }}
           className="nav-button"
         >
           <span className="nav-icon">📝</span>
@@ -243,6 +277,7 @@ const Sidebar = () => {
       {/* Guided Tour */}
       <GuidedTour isActive={showTour} onClose={() => setShowTour(false)} />
     </div>
+    </>
   );
 };
 

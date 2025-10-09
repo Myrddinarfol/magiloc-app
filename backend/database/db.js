@@ -9,42 +9,62 @@ dotenv.config();
 import pg from "pg";
 const { Pool } = pg;
 
-// Parse l'URL de connexion pour éviter les problèmes Windows
+// Configuration simple avec connectionString directe
 let poolConfig;
 
 if (process.env.DATABASE_URL) {
-  const url = new URL(process.env.DATABASE_URL);
+  // Utiliser directement la connectionString au lieu de parser
   poolConfig = {
-    user: url.username,
-    password: url.password,
-    host: url.hostname,
-    port: url.port,
-    database: url.pathname.split('/')[1],
-    ssl: { rejectUnauthorized: false },
-    // IMPORTANT: Limiter connexions pour plan gratuit Render
-    max: 5,
-    min: 0,
-    idleTimeoutMillis: 10000,
-    connectionTimeoutMillis: 5000
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false
+    },
+    // Configuration optimisée pour Render
+    max: 10,  // Augmenté pour free tier (limite Render: 97)
+    min: 2,   // Garder 2 connexions minimum actives
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000,
+    // Paramètres de stabilité
+    keepAlive: true,
+    keepAliveInitialDelayMillis: 10000,
+    // Retry automatique
+    application_name: 'magiloc_backend'
   };
 } else {
   poolConfig = {
-    max: 5,
-    min: 0,
-    idleTimeoutMillis: 10000,
-    connectionTimeoutMillis: 5000
+    max: 10,
+    min: 2,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000
   };
 }
 
 const pool = new Pool(poolConfig);
 
 // Log simple au démarrage
-console.log('🗄️  PostgreSQL Pool initialisé (max: 5 connexions)');
+console.log('🗄️  PostgreSQL Pool initialisé (max: 10 connexions)');
 console.log('📍 Mode:', process.env.DATABASE_URL ? 'PRODUCTION (Render)' : 'LOCAL');
 
-// Gestion des erreurs du pool
+// Gestion améliorée des erreurs du pool
 pool.on('error', (err) => {
   console.error('❌ Erreur pool PostgreSQL:', err.message);
+  console.error('   Code erreur:', err.code);
+  if (err.code === 'ECONNRESET' || err.code === 'ETIMEDOUT') {
+    console.log('🔄 Tentative de reconnexion...');
+  }
+});
+
+pool.on('connect', () => {
+  console.log('✅ Nouvelle connexion établie au pool');
+});
+
+// Test de connexion au démarrage
+pool.query('SELECT NOW()', (err, res) => {
+  if (err) {
+    console.error('❌ Échec test connexion initial:', err.message);
+  } else {
+    console.log('✅ Connexion DB testée avec succès:', res.rows[0].now);
+  }
 });
 
 export default pool;

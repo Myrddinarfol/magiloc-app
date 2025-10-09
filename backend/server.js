@@ -15,6 +15,7 @@ const PORT = process.env.PORT || 5000;
 app.use(cors({
   origin: [
     'http://localhost:3000',
+    'http://localhost:5001',
     'https://magiloc-backend.onrender.com',
     /\.vercel\.app$/
   ],
@@ -255,27 +256,40 @@ app.post("/api/equipment", async (req, res) => {
   try {
     const {
       designation, cmu, modele, marque, longueur, numeroSerie, prixHT, etat,
-      prochainVGP, certificat, statut
+      dernierVGP, prochainVGP, certificat, infosComplementaires, statut
     } = req.body;
 
     console.log("➕ Ajout nouvel équipement:", req.body);
 
+    // Convertir prochainVGP du format français (DD/MM/YYYY) vers ISO (YYYY-MM-DD)
+    let prochainVGPISO = null;
+    if (prochainVGP) {
+      prochainVGPISO = convertFrenchDateToISO(prochainVGP);
+      console.log(`🔄 Conversion date: "${prochainVGP}" => "${prochainVGPISO}"`);
+    }
+
     const result = await pool.query(
       `INSERT INTO equipments (
         designation, cmu, modele, marque, longueur, numero_serie,
-        prix_ht_jour, etat, prochain_vgp, certificat, statut
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+        prix_ht_jour, etat, dernier_vgp, prochain_vgp, certificat,
+        infos_complementaires, statut
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *`,
       [
         designation, cmu, modele, marque, longueur, numeroSerie,
-        prixHT, etat, prochainVGP, certificat, statut || 'Sur Parc'
+        prixHT, etat, dernierVGP, prochainVGPISO, certificat,
+        infosComplementaires, statut || 'Sur Parc'
       ]
     );
 
     console.log("✅ Équipement ajouté:", result.rows[0]);
     res.json({ message: "✅ Équipement ajouté", equipment: result.rows[0] });
   } catch (err) {
-    console.error("❌ Erreur insertion:", err.message);
-    res.status(500).json({ error: "Erreur lors de l'ajout" });
+    console.error("❌ Erreur insertion:", err.message, err.detail, err.stack);
+    res.status(500).json({
+      error: "Erreur lors de l'ajout",
+      details: err.message,
+      hint: err.detail
+    });
   }
 });
 

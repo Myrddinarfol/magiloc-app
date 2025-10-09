@@ -1,9 +1,117 @@
 // Système de gestion des notes de mise à jour
 // Pour ajouter une nouvelle version, ajoutez un objet au début du tableau
 
-export const CURRENT_VERSION = '0.9.3';
+export const CURRENT_VERSION = '0.9.4';
 
 export const releaseNotes = [
+  {
+    version: '0.9.4',
+    date: '2025-10-10',
+    title: '📱 Optimisation Mobile & Tablette - Responsive Design',
+    sections: [
+      {
+        title: '📱 Interface Mobile Complète',
+        items: [
+          'Hamburger menu animé (☰ → ✕) en haut à gauche sur mobile',
+          'Sidebar slide-in depuis la gauche avec overlay sombre',
+          'Fermeture automatique de la sidebar après navigation',
+          'Support tactile complet avec zones de 44px minimum',
+          'Meta tags optimisés pour iOS et Android',
+        ]
+      },
+      {
+        title: '🔒 Protection Anti-Débordement',
+        items: [
+          'Overflow-x: hidden global sur html, body, #root, .app',
+          'Aucun fond blanc ne doit apparaître lors du scroll',
+          'Main content adapté : max-width 100vw sur mobile',
+          'Toutes les pages protégées contre le débordement horizontal',
+        ]
+      },
+      {
+        title: '📊 Dashboard Mobile Optimisé',
+        items: [
+          'Stats compactes affichées en haut (pleine largeur)',
+          'Matériels Phares EN DESSOUS des stats (plus coupés)',
+          'Tout en 1 colonne : stats → featured → alertes → ruptures',
+          'Alertes grid en 1 colonne (4 capsules empilées)',
+          'Police et padding réduits pour meilleure lisibilité',
+        ]
+      },
+      {
+        title: '📅 Planning Location Mobile',
+        items: [
+          'Timeline scrollable horizontalement (500px min)',
+          'Labels compacts : 120px de large, 11px de police',
+          'Barres de location : 32px de hauteur, 9px de police',
+          'Dates sticky en haut avec font 9px',
+          'Message d\'aide : "👈 Glissez pour naviguer 👉"',
+          'Label AUJOURD\'HUI caché sur mobile (gain de place)',
+          'Grid adapté : 120px (label) + 1fr (timeline)',
+        ]
+      },
+      {
+        title: '🎨 Responsive Breakpoints',
+        items: [
+          'Desktop > 1024px : comportement normal',
+          'Tablet 768-1024px : 2 colonnes pour stats',
+          'Mobile < 768px : 1 colonne + hamburger menu',
+          'Small Mobile < 480px : ultra compact',
+          'Landscape mode : hauteur adaptée pour téléphones',
+        ]
+      },
+      {
+        title: '📝 Formulaires & Modals Tactiles',
+        items: [
+          'Inputs 16px (évite zoom auto iOS)',
+          'Hauteur minimum 44px pour tous les boutons',
+          'Modals plein écran sur mobile (animation slide-up)',
+          'Form-row en 1 colonne sur mobile',
+          'Scroll momentum iOS (-webkit-overflow-scrolling)',
+        ]
+      },
+      {
+        title: '📋 Tables & Listes Responsive',
+        items: [
+          'Scroll horizontal avec momentum iOS',
+          'Indicateur "← Faites défiler →" sur les tables',
+          'Equipment table : min-width 800px pour lisibilité',
+          'Police réduite à 14px sur mobile, 12px sur small mobile',
+          'Actions buttons espacés : min 44x44px',
+        ]
+      },
+      {
+        title: '🎯 Optimisations Tactiles',
+        items: [
+          'Zones tactiles minimum 44x44px partout',
+          'Retrait des effets hover sur devices tactiles',
+          'Feedback :active visible (scale 0.95 + opacity)',
+          'Pas de transform sur hover en mode tactile',
+          'Animations désactivées sur mobile (économie batterie)',
+        ]
+      },
+      {
+        title: '🔧 Corrections Backend',
+        items: [
+          'CORS : ajout de http://localhost:5001 pour dev',
+          'DATABASE_URL : migration vers nouvelle base Render',
+          'Connection pool optimisé : max 10, min 2, keepAlive',
+          'Date conversion : support format français DD/MM/YYYY',
+          'Gestion erreurs améliorée avec details et hints',
+        ]
+      },
+      {
+        title: '📂 Fichiers Modifiés',
+        items: [
+          'App.css : +600 lignes de media queries responsive',
+          'Sidebar.js : hamburger menu + état mobile',
+          'index.html : meta tags mobile optimisés',
+          'server.js : CORS + connexion DB corrigée',
+          'db.js : connectionString directe + keepAlive',
+        ]
+      }
+    ]
+  },
   {
     version: '0.9.3',
     date: '2025-10-09',
