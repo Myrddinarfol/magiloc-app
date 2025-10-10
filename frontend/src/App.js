@@ -9,6 +9,7 @@ import { useUI } from './hooks/useUI';
 import { useHistory } from './hooks/useHistory';
 import { getStatusClass } from './utils/statusHelpers';
 import { STORAGE_KEY } from './config/constants';
+import { initTooltips } from './utils/tooltipManager';
 
 // Pages
 import LoginPage from './pages/LoginPage';
@@ -50,6 +51,12 @@ import './App.css';
 const MainApp = ({ shouldStartTour }) => {
   const { equipmentData, setEquipmentData, isLoading, loadingMessage, retryCount, loadEquipments } = useEquipment();
   const [showTour, setShowTour] = React.useState(false);
+
+  // Initialiser le système de tooltips
+  React.useEffect(() => {
+    const observer = initTooltips();
+    return () => observer.disconnect();
+  }, []);
 
   // Démarrer la visite guidée si demandé depuis le login
   React.useEffect(() => {
