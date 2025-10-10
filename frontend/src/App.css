@@ -2634,6 +2634,226 @@ body {
   margin-bottom: 20px;
 }
 
+/* ===================================
+   TOOLTIPS PERSONNALISÉS
+   =================================== */
+
+/* Masquer les tooltips natifs du navigateur */
+[title] {
+  position: relative;
+}
+
+/* Créer un tooltip CSS personnalisé */
+[title]:hover::before {
+  content: attr(title);
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 16px;
+  background: linear-gradient(135deg, rgba(26, 26, 26, 0.98), rgba(15, 15, 15, 0.98));
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  white-space: nowrap;
+  z-index: 999999;
+  pointer-events: none;
+  border: 2px solid rgba(220, 38, 38, 0.6);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(220, 38, 38, 0.2),
+    0 0 30px rgba(220, 38, 38, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  animation: tooltipFadeIn 0.2s ease-out;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  max-width: 500px;
+  white-space: normal;
+  word-wrap: break-word;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* Flèche du tooltip */
+[title]:hover::after {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 10px solid rgba(220, 38, 38, 0.6);
+  z-index: 999999;
+  pointer-events: none;
+  animation: tooltipFadeIn 0.2s ease-out;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Tooltips pour les éléments proches du haut de page - s'affichent en dessous */
+.page-header [title]:hover::before,
+.timeline-header [title]:hover::before,
+thead [title]:hover::before {
+  bottom: auto;
+  top: calc(100% + 12px);
+  transform: translateX(-50%);
+}
+
+.page-header [title]:hover::after,
+.timeline-header [title]:hover::after,
+thead [title]:hover::after {
+  bottom: auto;
+  top: calc(100% + 2px);
+  border-top: none;
+  border-bottom: 10px solid rgba(220, 38, 38, 0.6);
+  transform: translateX(-50%) rotate(180deg);
+}
+
+/* Animation d'apparition */
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Variant pour les tooltips à droite (boutons en fin de ligne) */
+.btn-icon[title]:hover::before,
+.action-button[title]:hover::before,
+button[title]:hover::before {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Glow effect pour les tooltips */
+[title]:hover::before {
+  animation: tooltipFadeIn 0.2s ease-out, tooltipGlow 2s ease-in-out infinite;
+}
+
+@keyframes tooltipGlow {
+  0%, 100% {
+    box-shadow:
+      0 4px 20px rgba(0, 0, 0, 0.6),
+      0 0 0 1px rgba(220, 38, 38, 0.2),
+      0 0 30px rgba(220, 38, 38, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 4px 25px rgba(0, 0, 0, 0.7),
+      0 0 0 1px rgba(220, 38, 38, 0.4),
+      0 0 40px rgba(220, 38, 38, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* Tooltips spécifiques au planning - texte long */
+.timeline-bar[title]:hover::before,
+.timeline-event-marker[title]:hover::before {
+  max-width: 350px;
+  white-space: normal;
+  word-wrap: break-word;
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* Timeline bars - tooltip en haut avec effet bleu pour locations */
+.timeline-bar.location[title]:hover::before {
+  border-color: rgba(59, 130, 246, 0.8);
+  box-shadow:
+    0 4px 20px rgba(59, 130, 246, 0.4),
+    0 0 30px rgba(59, 130, 246, 0.4);
+}
+
+.timeline-bar.location[title]:hover::after {
+  border-top-color: rgba(59, 130, 246, 0.8);
+}
+
+/* Timeline bars - tooltip vert pour réservations */
+.timeline-bar.reservation[title]:hover::before {
+  border-color: rgba(34, 197, 94, 0.8);
+  box-shadow:
+    0 4px 20px rgba(34, 197, 94, 0.4),
+    0 0 30px rgba(34, 197, 94, 0.4);
+}
+
+.timeline-bar.reservation[title]:hover::after {
+  border-top-color: rgba(34, 197, 94, 0.8);
+}
+
+/* Timeline bars - tooltip orange pour dépassements */
+.timeline-bar.overtime[title]:hover::before,
+.timeline-event-marker.overdue[title]:hover::before {
+  border-color: rgba(251, 146, 60, 0.8);
+  box-shadow:
+    0 4px 20px rgba(251, 146, 60, 0.4),
+    0 0 30px rgba(251, 146, 60, 0.4);
+}
+
+.timeline-bar.overtime[title]:hover::after,
+.timeline-event-marker.overdue[title]:hover::after {
+  border-top-color: rgba(251, 146, 60, 0.8);
+}
+
+/* Tooltips colorés selon le type de bouton */
+.btn-cancel[title]:hover::before {
+  border-color: rgba(220, 38, 38, 0.8);
+  box-shadow:
+    0 4px 20px rgba(220, 38, 38, 0.4),
+    0 0 30px rgba(220, 38, 38, 0.4);
+}
+
+.btn-cancel[title]:hover::after {
+  border-top-color: rgba(220, 38, 38, 0.8);
+}
+
+.btn-reservation[title]:hover::before {
+  border-color: rgba(251, 191, 36, 0.8);
+  box-shadow:
+    0 4px 20px rgba(251, 191, 36, 0.4),
+    0 0 30px rgba(251, 191, 36, 0.4);
+}
+
+.btn-reservation[title]:hover::after {
+  border-top-color: rgba(251, 191, 36, 0.8);
+}
+
+.btn-return[title]:hover::before {
+  border-color: rgba(34, 197, 94, 0.8);
+  box-shadow:
+    0 4px 20px rgba(34, 197, 94, 0.4),
+    0 0 30px rgba(34, 197, 94, 0.4);
+}
+
+.btn-return[title]:hover::after {
+  border-top-color: rgba(34, 197, 94, 0.8);
+}
+
+/* Amélioration pour les petits écrans */
+@media (max-width: 768px) {
+  [title]:hover::before {
+    font-size: 12px;
+    padding: 8px 12px;
+    max-width: 200px;
+    white-space: normal;
+    word-wrap: break-word;
+  }
+
+  /* Sur mobile, désactiver les animations complexes pour meilleures performances */
+  [title]:hover::before {
+    animation: tooltipFadeIn 0.15s ease-out;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .sidebar {
