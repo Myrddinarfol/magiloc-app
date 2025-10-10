@@ -90,6 +90,15 @@ body {
   overflow-x: hidden; /* IMPORTANT: empêcher le scroll horizontal global */
 }
 
+/* Bloquer le scroll du body sur mobile quand un modal est ouvert */
+body.modal-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+}
+
 /* Layout principal */
 .app {
   display: flex;
@@ -6278,14 +6287,25 @@ body.light-theme .toast-warning {
   .modal-overlay {
     align-items: flex-start;
     padding: 0;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100vh;
+    max-height: 100dvh;
+    overflow: hidden;
   }
 
   .modal-content {
     max-width: 100vw;
     max-height: 100vh;
+    max-height: 100dvh;
+    height: 100vh;
+    height: 100dvh;
     margin: 0;
     border-radius: 0;
     animation: slideUpMobile 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
 
   @keyframes slideUpMobile {
@@ -6297,12 +6317,24 @@ body.light-theme .toast-warning {
     }
   }
 
+  .modal-header {
+    flex-shrink: 0;
+  }
+
   .modal-header h2 {
     font-size: 20px;
   }
 
   .modal-body {
-    max-height: calc(100vh - 140px);
+    flex: 1;
+    overflow-y: auto;
+    max-height: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .modal-actions {
+    flex-shrink: 0;
+    padding-bottom: env(safe-area-inset-bottom, 20px);
   }
 
   /* Formulaires - optimisés pour tactile */
