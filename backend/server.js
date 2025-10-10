@@ -261,9 +261,13 @@ app.post("/api/equipment", async (req, res) => {
 
     console.log("➕ Ajout nouvel équipement:", req.body);
 
+    // Convertir les chaînes vides en null pour les champs numériques/dates
+    const prixHTValue = prixHT && prixHT !== '' ? parseFloat(prixHT) : null;
+    const dernierVGPValue = dernierVGP && dernierVGP !== '' ? dernierVGP : null;
+
     // Convertir prochainVGP du format français (DD/MM/YYYY) vers ISO (YYYY-MM-DD)
     let prochainVGPISO = null;
-    if (prochainVGP) {
+    if (prochainVGP && prochainVGP !== '') {
       prochainVGPISO = convertFrenchDateToISO(prochainVGP);
       console.log(`🔄 Conversion date: "${prochainVGP}" => "${prochainVGPISO}"`);
     }
@@ -276,7 +280,7 @@ app.post("/api/equipment", async (req, res) => {
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *`,
       [
         designation, cmu, modele, marque, longueur, numeroSerie,
-        prixHT, etat, dernierVGP, prochainVGPISO, certificat,
+        prixHTValue, etat, dernierVGPValue, prochainVGPISO, certificat,
         infosComplementaires, statut || 'Sur Parc'
       ]
     );

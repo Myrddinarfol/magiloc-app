@@ -199,6 +199,13 @@ const Sidebar = () => {
                 <span className="nav-sub-icon">📆</span>
                 <span className="nav-sub-text">Planning Maintenance</span>
               </button>
+              <button
+                onClick={() => handleMobileNavigate('vgp-management')}
+                className={`nav-sub-button ${currentPage === 'vgp-management' ? 'active' : ''}`}
+              >
+                <span className="nav-sub-icon">✅</span>
+                <span className="nav-sub-text">VGP</span>
+              </button>
             </div>
           )}
         </div>

@@ -13,23 +13,9 @@ const AddEquipmentModal = ({ onClose, onSuccess }) => {
     numeroSerie: '',
     prixHT: '',
     etat: '',
-    dernierVGP: '',
-    prochainVGP: '',
     certificat: '',
     infosComplementaires: ''
   });
-
-  // Calcul automatique prochain VGP (+6 mois)
-  const handleDernierVGPChange = (value) => {
-    setForm({...form, dernierVGP: value});
-
-    if (value) {
-      const date = new Date(value);
-      date.setMonth(date.getMonth() + 6);
-      const prochainVGP = date.toLocaleDateString('fr-FR');
-      setForm(prev => ({...prev, dernierVGP: value, prochainVGP}));
-    }
-  };
 
   const handleSubmit = async () => {
     if (!form.designation || !form.numeroSerie) {
@@ -56,8 +42,6 @@ const AddEquipmentModal = ({ onClose, onSuccess }) => {
         numeroSerie: '',
         prixHT: '',
         etat: '',
-        dernierVGP: '',
-        prochainVGP: '',
         certificat: '',
         infosComplementaires: ''
       });
@@ -181,30 +165,6 @@ const AddEquipmentModal = ({ onClose, onSuccess }) => {
                 <option value="Moyen">Moyen</option>
                 <option value="Vieillissant">Vieillissant</option>
               </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="dernier-vgp-add-input">Dernier VGP :</label>
-              <input
-                id="dernier-vgp-add-input"
-                type="date"
-                value={form.dernierVGP}
-                onChange={(e) => handleDernierVGPChange(e.target.value)}
-                className="form-input"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="prochain-vgp-add-input">Prochain VGP (auto) :</label>
-              <input
-                id="prochain-vgp-add-input"
-                type="text"
-                value={form.prochainVGP}
-                readOnly
-                placeholder="Calculé automatiquement"
-                className="form-input"
-                style={{ backgroundColor: '#f3f4f6', cursor: 'not-allowed' }}
-              />
             </div>
 
             <div className="form-group">

@@ -18,6 +18,7 @@ import AnalyticsPage from './pages/AnalyticsPage';
 import MaintenanceDashboardPage from './pages/MaintenanceDashboardPage';
 import MaintenanceListPage from './pages/MaintenanceListPage';
 import MaintenancePlanningPage from './pages/MaintenancePlanningPage';
+import VGPManagementPage from './pages/VGPManagementPage';
 import LocationListPage from './pages/LocationListPage';
 import LocationPlanningPage from './pages/LocationPlanningPage';
 
@@ -240,6 +241,8 @@ const MainApp = ({ shouldStartTour }) => {
         return <MaintenanceListPage />;
       case 'maintenance-planning':
         return <MaintenancePlanningPage />;
+      case 'vgp-management':
+        return <VGPManagementPage />;
       case 'location-list':
         return <LocationListPage />;
       case 'location-planning':
