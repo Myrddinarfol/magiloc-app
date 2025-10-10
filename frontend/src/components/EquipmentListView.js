@@ -10,7 +10,10 @@ function EquipmentListView({
   handleOpenEquipmentDetail,
   getStatusClass,
   setShowImporter,
-  setShowAddEquipmentModal
+  setShowAddEquipmentModal,
+  onCancelReservation,
+  onCreateReservation,
+  onReturnLocation
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDesignation, setFilterDesignation] = useState('');
@@ -24,6 +27,12 @@ function EquipmentListView({
       setEquipmentFilter(null);
     }
   }, [currentPage, equipmentFilter, setEquipmentFilter]);
+
+  // Réinitialiser les filtres CMU et longueur lorsque la désignation change
+  useEffect(() => {
+    setFilterCMU('');
+    setFilterLongueur('');
+  }, [filterDesignation]);
 
   // Fonction pour calculer l'état du VGP avec date affichée
   const getVGPStatus = (prochainVGP) => {
@@ -101,16 +110,53 @@ function EquipmentListView({
     }
   };
 
-  // Extraire les options uniques pour les filtres
+  // Fonction pour vérifier si une réservation est dépassée
+  const isReservationOverdue = (debutLocation) => {
+    if (!debutLocation) return false;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Parser la date (format DD/MM/YYYY ou YYYY-MM-DD)
+    let startDate;
+    if (debutLocation.includes('/')) {
+      const [day, month, year] = debutLocation.split('/');
+      startDate = new Date(year, month - 1, day);
+    } else {
+      startDate = new Date(debutLocation);
+    }
+    startDate.setHours(0, 0, 0, 0);
+
+    return startDate < today;
+  };
+
+  // Extraire les options uniques pour les filtres (avec filtres en cascade)
   const filterOptions = useMemo(() => {
     if (currentPage !== 'sur-parc' && currentPage !== 'parc-loc') return {};
 
-    const designations = [...new Set(equipmentData.map(eq => eq.designation).filter(Boolean))].sort();
-    const cmus = [...new Set(equipmentData.map(eq => eq.cmu).filter(Boolean))].sort();
-    const longueurs = [...new Set(equipmentData.map(eq => eq.longueur).filter(Boolean))].sort();
+    // Filtrer d'abord par statut selon la page
+    let baseData = equipmentData;
+    if (currentPage === 'sur-parc') {
+      baseData = equipmentData.filter(eq => eq.statut === 'Sur Parc');
+    }
+
+    // Les désignations sont toujours basées sur tous les équipements de la page
+    const designations = [...new Set(baseData.map(eq => eq.designation).filter(Boolean))].sort();
+
+    // Les CMU et longueurs dépendent de la désignation sélectionnée
+    let cmuData = baseData;
+    let longueurData = baseData;
+
+    if (filterDesignation) {
+      cmuData = baseData.filter(eq => eq.designation && eq.designation.toLowerCase().includes(filterDesignation.toLowerCase()));
+      longueurData = cmuData; // Les longueurs dépendent aussi de la désignation
+    }
+
+    const cmus = [...new Set(cmuData.map(eq => eq.cmu).filter(Boolean))].sort();
+    const longueurs = [...new Set(longueurData.map(eq => eq.longueur).filter(Boolean))].sort();
 
     return { designations, cmus, longueurs };
-  }, [equipmentData, currentPage]);
+  }, [equipmentData, currentPage, filterDesignation]);
 
   // Configuration des pages
   const getPageHeaderInfo = () => {
@@ -455,12 +501,27 @@ function EquipmentListView({
                           <VGPBadgeCompact prochainVGP={equipment.prochainVgp || equipment.prochainVGP} />
                         </td>
                         <td>
-                          <button
-                            onClick={() => handleOpenEquipmentDetail(equipment, currentPage)}
-                            className="btn btn-primary btn-sm"
-                          >
-                            Détails
-                          </button>
+                          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <button
+                              onClick={() => handleOpenEquipmentDetail(equipment, currentPage)}
+                              className="btn-icon"
+                              title="Voir détails"
+                            >
+                              📜
+                            </button>
+                            {currentPage === 'sur-parc' && onCreateReservation && (
+                              <button
+                                onClick={() => {
+                                  setSelectedEquipment(equipment);
+                                  onCreateReservation(equipment);
+                                }}
+                                className="btn-icon btn-reservation"
+                                title="Créer une réservation"
+                              >
+                                📋
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </>
                     ) : (
@@ -484,8 +545,15 @@ function EquipmentListView({
                         <td>{equipment.client || '-'}</td>
                         <td>
                           {equipment.debutLocation && (
-                            <div>
-                              <div>Début: {equipment.debutLocation}</div>
+                            <div style={{ position: 'relative' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span>Début: {equipment.debutLocation}</span>
+                                {currentPage === 'en-offre' && isReservationOverdue(equipment.debutLocation) && (
+                                  <span className="reservation-overdue-badge">
+                                    ⚠️ RETARD
+                                  </span>
+                                )}
+                              </div>
                               {equipment.finLocationTheorique && (
                                 <div>Fin: {equipment.finLocationTheorique}</div>
                               )}
@@ -493,12 +561,41 @@ function EquipmentListView({
                           )}
                         </td>
                         <td>
-                          <button
-                            onClick={() => handleOpenEquipmentDetail(equipment, currentPage)}
-                            className="btn btn-primary btn-sm"
-                          >
-                            Détails
-                          </button>
+                          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <button
+                              onClick={() => handleOpenEquipmentDetail(equipment, currentPage)}
+                              className="btn-icon"
+                              title="Voir détails"
+                            >
+                              📜
+                            </button>
+                            {currentPage === 'en-offre' && onCancelReservation && (
+                              <button
+                                onClick={() => {
+                                  if (window.confirm('Êtes-vous sûr de vouloir annuler cette réservation ?\n\nLe matériel sera remis sur parc.')) {
+                                    setSelectedEquipment(equipment);
+                                    onCancelReservation(equipment);
+                                  }
+                                }}
+                                className="btn-icon btn-cancel"
+                                title="Annuler la réservation"
+                              >
+                                ❌
+                              </button>
+                            )}
+                            {currentPage === 'location-list' && onReturnLocation && (
+                              <button
+                                onClick={() => {
+                                  setSelectedEquipment(equipment);
+                                  onReturnLocation(equipment);
+                                }}
+                                className="btn-icon btn-return"
+                                title="Effectuer le retour"
+                              >
+                                ↩️
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </>
                     )}

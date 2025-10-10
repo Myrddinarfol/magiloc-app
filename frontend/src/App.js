@@ -258,6 +258,15 @@ const MainApp = ({ shouldStartTour }) => {
             setShowImporter={setShowImporter}
             handleResetData={() => handleResetData(setEquipmentData)}
             setShowAddEquipmentModal={setShowAddEquipmentModal}
+            onCancelReservation={handleCancelReservation}
+            onCreateReservation={(equipment) => {
+              setSelectedEquipment(equipment);
+              setShowReservationModal(true);
+            }}
+            onReturnLocation={(equipment) => {
+              setSelectedEquipment(equipment);
+              setShowReturnModal(true);
+            }}
           />
         );
     }

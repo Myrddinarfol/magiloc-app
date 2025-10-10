@@ -95,6 +95,7 @@ body {
   display: flex;
   background-color: var(--bg-main);
   min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height pour mobile */
   overflow-x: hidden; /* Empêcher débordement horizontal */
 }
 
@@ -115,6 +116,7 @@ body {
   color: white;
   padding: 20px;
   height: 100vh;
+  height: 100dvh; /* Dynamic viewport height pour mobile */
   position: fixed;
   left: 0;
   top: 0;
@@ -123,6 +125,8 @@ body {
   flex-direction: column;
   border-right: 1px solid rgba(220, 38, 38, 0.3);
   z-index: 10;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .sidebar::after {
@@ -139,6 +143,32 @@ body {
     rgba(220, 38, 38, 0.6) 80%,
     transparent 100%);
   filter: blur(2px);
+}
+
+/* Scrollbar personnalisée pour la sidebar */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(220, 38, 38, 0.5);
+  border-radius: 3px;
+  transition: background 0.3s ease;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(220, 38, 38, 0.8);
+}
+
+/* Firefox scrollbar */
+.sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(220, 38, 38, 0.5) rgba(0, 0, 0, 0.2);
 }
 
 /* Logo MAGI Loc */
@@ -1643,20 +1673,71 @@ body {
   overflow-x: auto;
 }
 
+/* Style VGP pour les tableaux PARC LOC et SUR PARC */
 .table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0 12px;
 }
 
 .table thead {
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
 }
 
+.table thead th {
+  background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 18px 16px;
+  border: none;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.table tbody tr {
+  height: 80px;
+  transition: all 0.3s ease;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, rgba(38, 38, 38, 0.95), rgba(26, 26, 26, 0.98));
+}
+
+.table tbody tr:hover {
+  transform: translateX(8px) scale(1.01);
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+  background: linear-gradient(135deg, rgba(45, 45, 45, 0.98), rgba(30, 30, 30, 1));
+}
+
+.table tbody td {
+  padding: 20px 16px;
+  font-size: 15px;
+  color: #f3f4f6;
+  font-weight: 500;
+  border: none;
+  background: transparent;
+  vertical-align: middle;
+}
+
+.table tbody td:first-child {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  padding-left: 24px;
+}
+
+.table tbody td:last-child {
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  padding-right: 24px;
+}
+
 .table th,
 .table td {
-  padding: 16px;
   text-align: left;
-  border-bottom: 1px solid var(--border-color);
 }
 
 .table th {
@@ -1669,33 +1750,116 @@ body {
   color: var(--text-primary);
 }
 
-.table tbody tr {
-  background-color: var(--bg-card);
+/* Cellules spécifiques - Style VGP */
+.table .equipment-name {
+  font-weight: 700;
+  color: #ffffff;
+  font-size: 16px;
 }
 
-.table tbody tr:hover {
-  background-color: var(--bg-secondary);
+.table .equipment-details {
+  color: #9ca3af;
+  font-size: 13px;
+  margin-top: 4px;
 }
 
-.equipment-name {
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.equipment-details {
-  color: var(--text-secondary);
-  font-size: 14px;
-  margin-top: 2px;
-}
-
-.serial-number {
+.table .serial-number {
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  background-color: var(--bg-secondary);
-  padding: 2px 6px;
-  border-radius: 4px;
+  background-color: rgba(220, 38, 38, 0.15);
+  padding: 6px 12px;
+  border-radius: 6px;
   font-size: 14px;
-  color: var(--color-primary);
-  border: 1px solid var(--border-color);
+  color: #fca5a5;
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Boutons icône style VGP pour PARC LOC et SUR PARC */
+.table .btn-icon {
+  min-width: 50px;
+  min-height: 50px;
+  font-size: 24px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1));
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.table .btn-icon:hover {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.4), rgba(59, 130, 246, 0.2));
+  border-color: rgba(59, 130, 246, 0.6);
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.5);
+}
+
+/* Bouton d'annulation de réservation */
+.table .btn-icon.btn-cancel {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.2), rgba(220, 38, 38, 0.1));
+  border: 2px solid rgba(220, 38, 38, 0.3);
+}
+
+.table .btn-icon.btn-cancel:hover {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.4), rgba(220, 38, 38, 0.2));
+  border-color: rgba(220, 38, 38, 0.6);
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.5);
+}
+
+/* Bouton de création de réservation */
+.table .btn-icon.btn-reservation {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.1));
+  border: 2px solid rgba(251, 191, 36, 0.3);
+}
+
+.table .btn-icon.btn-reservation:hover {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.4), rgba(251, 191, 36, 0.2));
+  border-color: rgba(251, 191, 36, 0.6);
+  box-shadow: 0 4px 16px rgba(251, 191, 36, 0.5);
+}
+
+/* Bouton de retour de location */
+.table .btn-icon.btn-return {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1));
+  border: 2px solid rgba(34, 197, 94, 0.3);
+}
+
+.table .btn-icon.btn-return:hover {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.4), rgba(34, 197, 94, 0.2));
+  border-color: rgba(34, 197, 94, 0.6);
+  box-shadow: 0 4px 16px rgba(34, 197, 94, 0.5);
+}
+
+/* Badge de réservation en retard */
+.reservation-overdue-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.3), rgba(185, 28, 28, 0.3));
+  border: 2px solid rgba(220, 38, 38, 0.6);
+  border-radius: 6px;
+  color: #fca5a5;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  animation: pulse-overdue 2s ease-in-out infinite;
+  box-shadow: 0 0 15px rgba(220, 38, 38, 0.4);
+}
+
+@keyframes pulse-overdue {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(220, 38, 38, 0.4);
+    border-color: rgba(220, 38, 38, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(220, 38, 38, 0.8), 0 0 40px rgba(220, 38, 38, 0.4);
+    border-color: rgba(220, 38, 38, 0.9);
+  }
 }
 
 /* Badges de statut */
@@ -5973,6 +6137,57 @@ body.light-theme .toast-warning {
     max-width: 100% !important;
   }
 
+  /* Timeline header - responsive sur mobile */
+  .timeline-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 15px !important;
+    margin-bottom: 20px !important;
+    overflow-x: hidden !important;
+  }
+
+  .timeline-header-left {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+    width: 100%;
+  }
+
+  .timeline-header h2 {
+    font-size: 18px !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* Boutons de vue - wrapping et responsive */
+  .timeline-view-selector {
+    flex-wrap: wrap !important;
+    width: 100% !important;
+    justify-content: flex-start !important;
+    padding: 6px !important;
+    gap: 6px !important;
+    overflow-x: visible !important;
+  }
+
+  .view-selector-btn {
+    padding: 10px 12px !important;
+    font-size: 12px !important;
+    flex: 0 1 auto !important;
+    white-space: nowrap !important;
+    min-height: 40px !important;
+  }
+
+  /* Timeline legend - en colonne sur mobile */
+  .timeline-legend {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .legend-item {
+    font-size: 12px !important;
+  }
+
   /* Timeline container - scrollable horizontal mais contenu */
   .timeline-container {
     overflow-x: auto !important;
@@ -5998,6 +6213,27 @@ body.light-theme .toast-warning {
     top: 0;
     background: var(--bg-main);
     z-index: 10;
+    overflow: visible !important;
+  }
+
+  /* Marqueurs de dates - mieux contenus */
+  .timeline-dates-container {
+    overflow: visible !important;
+    position: relative;
+  }
+
+  .timeline-month-separator,
+  .timeline-week-marker,
+  .timeline-event-marker {
+    overflow: visible !important;
+  }
+
+  /* Labels des marqueurs - ajustés pour mobile */
+  .timeline-month-label,
+  .timeline-week-label {
+    font-size: 9px !important;
+    padding: 2px 4px !important;
+    white-space: nowrap !important;
   }
 
   /* Row - simplifié pour mobile */
