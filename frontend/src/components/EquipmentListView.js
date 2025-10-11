@@ -580,10 +580,6 @@ function EquipmentListView({
                                 }}
                                 className="btn-icon btn-start-location"
                                 data-tooltip="Démarrer la location"
-                                style={{
-                                  background: 'linear-gradient(135deg, #10b981, #059669)',
-                                  fontSize: '20px'
-                                }}
                               >
                                 🚀
                               </button>
