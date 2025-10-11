@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useUI } from '../hooks/useUI';
 import PageHeader from './common/PageHeader';
 import VGPBadgeCompact from './common/VGPBadgeCompact';
+import ConfirmModal from './modals/ConfirmModal';
 
 function EquipmentListView({
   equipmentData,
@@ -19,7 +20,9 @@ function EquipmentListView({
   const [filterDesignation, setFilterDesignation] = useState('');
   const [filterCMU, setFilterCMU] = useState('');
   const [filterLongueur, setFilterLongueur] = useState('');
-  const { equipmentFilter, setEquipmentFilter } = useUI();
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
+  const { equipmentFilter, setEquipmentFilter, setShowStartLocationModal } = useUI();
 
   // Auto-reset filter when leaving sur-parc
   useEffect(() => {
@@ -569,17 +572,35 @@ function EquipmentListView({
                             >
                               📜
                             </button>
-                            {currentPage === 'en-offre' && onCancelReservation && (
+                            {currentPage === 'en-offre' && (
                               <button
                                 onClick={() => {
-                                  if (window.confirm('Êtes-vous sûr de vouloir annuler cette réservation ?\n\nLe matériel sera remis sur parc.')) {
-                                    setSelectedEquipment(equipment);
+                                  setSelectedEquipment(equipment);
+                                  setShowStartLocationModal(true);
+                                }}
+                                className="btn-icon btn-start-location"
+                                data-tooltip="Démarrer la location"
+                                style={{
+                                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                                  fontSize: '20px'
+                                }}
+                              >
+                                🚀
+                              </button>
+                            )}
+                            {currentPage === 'en-offre' && onCancelReservation && (
+                              <button
+                            onClick={() => {
+                                  setSelectedEquipment(equipment);
+                                  setConfirmAction(() => () => {
                                     onCancelReservation(equipment);
-                                  }
+                                    setShowConfirmModal(false);
+                                  });
+                                  setShowConfirmModal(true);
                                 }}
                                 className="btn-icon btn-cancel"
                                 title="Annuler la réservation"
-                              >
+                              >                             
                                 ❌
                               </button>
                             )}
@@ -595,6 +616,7 @@ function EquipmentListView({
                                 ↩️
                               </button>
                             )}
+
                           </div>
                         </td>
                       </>
@@ -612,6 +634,23 @@ function EquipmentListView({
           Aucun équipement trouvé.
         </div>
       )}
+
+                                   {/* Modal de confirmation */}
+      <ConfirmModal
+        show={showConfirmModal}
+        title="⚠️ Annuler la réservation"
+        message="Êtes-vous sûr de vouloir annuler cette réservation ?\n\nLe matériel sera remis sur parc."
+        icon="❌"
+        confirmText="Annuler la réservation"
+        cancelText="Retour"
+        confirmIcon="✓"
+        cancelIcon="✕"
+        danger={true}
+        onConfirm={() => {
+          if (confirmAction) confirmAction();
+        }}
+        onCancel={() => setShowConfirmModal(false)}
+      />
     </div>
   );
 }
