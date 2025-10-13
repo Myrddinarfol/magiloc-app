@@ -6,7 +6,7 @@ import './DashboardPage.css';
 
 const DashboardPage = () => {
   const { stats, equipmentData } = useEquipment();
-  const { setCurrentPage, setEquipmentFilter } = useUI();
+  const { setCurrentPage, setEquipmentFilter, handleNavigate } = useUI();
 
   // Calcul des alertes
   const alerts = useMemo(() => {
@@ -195,7 +195,11 @@ const DashboardPage = () => {
       <div className="dashboard-top-section">
         {/* Statistiques condensées */}
         <div className="stats-compact">
-          <div className="stat-compact-card">
+          <div
+            className="stat-compact-card clickable"
+            onClick={() => handleNavigate('parc-loc')}
+            data-tooltip="Voir tous les équipements"
+          >
             <div className="stat-compact-left">
               <div className="stat-compact-icon">Σ</div>
               <div className="stat-compact-label">Total</div>
@@ -205,7 +209,11 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          <div className="stat-compact-card">
+          <div
+            className="stat-compact-card clickable"
+            onClick={() => handleNavigate('location-list')}
+            data-tooltip="Voir les locations en cours"
+          >
             <div className="stat-compact-left">
               <div className="stat-compact-icon">🚚</div>
               <div className="stat-compact-label primary">Location</div>
@@ -216,7 +224,11 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          <div className="stat-compact-card">
+          <div
+            className="stat-compact-card clickable"
+            onClick={() => handleNavigate('sur-parc')}
+            data-tooltip="Voir les équipements disponibles"
+          >
             <div className="stat-compact-left">
               <div className="stat-compact-icon">✅</div>
               <div className="stat-compact-label success">Disponibles</div>
@@ -227,7 +239,11 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          <div className="stat-compact-card">
+          <div
+            className="stat-compact-card clickable"
+            onClick={() => handleNavigate('maintenance-list')}
+            data-tooltip="Voir les équipements en maintenance"
+          >
             <div className="stat-compact-left">
               <div className="stat-compact-icon">🔧</div>
               <div className="stat-compact-label danger">Maintenance</div>
@@ -238,7 +254,11 @@ const DashboardPage = () => {
             </div>
           </div>
 
-          <div className="stat-compact-card">
+          <div
+            className="stat-compact-card clickable"
+            onClick={() => handleNavigate('en-offre')}
+            data-tooltip="Voir les réservations"
+          >
             <div className="stat-compact-left">
               <div className="stat-compact-icon">📋</div>
               <div className="stat-compact-label warning">Réservation</div>

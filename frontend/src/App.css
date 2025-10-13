@@ -944,6 +944,15 @@ body.modal-open {
   border-color: rgba(220, 38, 38, 0.5);
 }
 
+.stat-compact-card.clickable {
+  cursor: pointer;
+}
+
+.stat-compact-card.clickable:hover {
+  transform: translateX(6px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(220, 38, 38, 0.6), 0 4px 12px rgba(220, 38, 38, 0.4);
+}
+
 .stat-compact-left {
   display: flex;
   align-items: center;
