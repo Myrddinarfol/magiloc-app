@@ -4,6 +4,7 @@ import { calculateBusinessDays } from '../../utils/dateHelpers';
 import VGPSection from './VGPSection';
 import { useUI } from '../../hooks/useUI';
 import CreateReservationModal from '../modals/CreateReservationModal';
+import EditLocationModal from '../modals/EditLocationModal';
 
 const EquipmentDetailView = ({
   equipment,
@@ -23,6 +24,7 @@ const EquipmentDetailView = ({
   const { setShowReservationModal, setShowStartLocationModal, setShowReturnModal, setShowMaintenanceModal, setShowCompleteMaintenance, previousPage } = useUI();
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [showCreateReservationModal, setShowCreateReservationModal] = useState(false);
+  const [showEditLocationModal, setShowEditLocationModal] = useState(false);
 
   return (
     <div>
@@ -104,7 +106,30 @@ const EquipmentDetailView = ({
           {/* Section Location - affichée uniquement pour "En Réservation" et "En Location" */}
           {(equipment.statut === 'En Réservation' || equipment.statut === 'En Location') && (
             <div className="detail-section">
-              <h3>Location</h3>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+                <h3 style={{ margin: 0 }}>Location</h3>
+                {(currentPage === 'en-offre' || currentPage === 'location-list') && (
+                  <button
+                    className="btn btn-sm"
+                    onClick={() => setShowEditLocationModal(true)}
+                    style={{
+                      background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                      color: 'white',
+                      border: 'none',
+                      padding: '8px 12px',
+                      fontSize: '18px',
+                      cursor: 'pointer',
+                      borderRadius: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}
+                    title="Modifier les informations de location"
+                  >
+                    📝
+                  </button>
+                )}
+              </div>
               <div className="detail-item">
                 <span className="detail-label">Client:</span>
                 <span className="detail-value">{equipment.client || 'N/A'}</span>
@@ -588,6 +613,18 @@ const EquipmentDetailView = ({
         }}
         onCancel={() => setShowCreateReservationModal(false)}
       />
+
+      {/* Modal de modification des informations de location */}
+      {showEditLocationModal && (
+        <EditLocationModal
+          equipment={equipment}
+          onClose={() => setShowEditLocationModal(false)}
+          onSuccess={() => {
+            // Recharger les données après modification
+            window.location.reload();
+          }}
+        />
+      )}
     </div>
   );
 };
