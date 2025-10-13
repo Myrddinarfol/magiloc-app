@@ -485,11 +485,7 @@ function EquipmentListView({
                 const vgpStatus = getVGPStatus(equipment.prochainVgp);
 
                 return (
-                  <tr
-                    key={equipment.id}
-                    onClick={() => handleOpenEquipmentDetail(equipment, currentPage)}
-                    style={{ cursor: 'pointer' }}
-                  >
+                  <tr key={equipment.id}>
                     {(currentPage === 'sur-parc' || currentPage === 'parc-loc') ? (
                       <>
                         <td>
