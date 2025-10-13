@@ -3,6 +3,7 @@ import { getStatusClass, getEtatClass } from '../../utils/statusHelpers';
 import { calculateBusinessDays } from '../../utils/dateHelpers';
 import VGPSection from './VGPSection';
 import { useUI } from '../../hooks/useUI';
+import CreateReservationModal from '../modals/CreateReservationModal';
 
 const EquipmentDetailView = ({
   equipment,
@@ -16,10 +17,12 @@ const EquipmentDetailView = ({
   onLoadLocationHistory,
   onLoadMaintenanceHistory,
   onDelete,
-  onCancelReservation
+  onCancelReservation,
+  onCreateReservation
 }) => {
   const { setShowReservationModal, setShowStartLocationModal, setShowReturnModal, setShowMaintenanceModal, setShowCompleteMaintenance, previousPage } = useUI();
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [showCreateReservationModal, setShowCreateReservationModal] = useState(false);
 
   return (
     <div>
@@ -349,10 +352,10 @@ const EquipmentDetailView = ({
             {equipment.statut === 'Sur Parc' && (
               <>
                 <button
-                  onClick={() => setShowReservationModal(true)}
+                  onClick={() => setShowCreateReservationModal(true)}
                   style={{
                     padding: '8px 16px',
-                    background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                    background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                     color: 'white',
                     border: 'none',
                     borderRadius: '8px',
@@ -360,7 +363,7 @@ const EquipmentDetailView = ({
                     fontSize: '13px',
                     cursor: 'pointer',
                     transition: 'transform 0.2s',
-                    boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
+                    boxShadow: '0 2px 8px rgba(251, 191, 36, 0.3)'
                   }}
                   onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
                   onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
@@ -574,6 +577,17 @@ const EquipmentDetailView = ({
           </div>
         </div>
       )}
+
+      {/* Modal de création de réservation */}
+      <CreateReservationModal
+        show={showCreateReservationModal}
+        equipment={equipment}
+        onConfirm={(formData) => {
+          setShowCreateReservationModal(false);
+          onCreateReservation(equipment, formData);
+        }}
+        onCancel={() => setShowCreateReservationModal(false)}
+      />
     </div>
   );
 };

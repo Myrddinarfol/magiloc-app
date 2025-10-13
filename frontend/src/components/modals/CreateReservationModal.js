@@ -1,26 +1,41 @@
 import React, { useState } from 'react';
 
-const ReturnModal = ({ show, equipment, onConfirm, onCancel }) => {
+const CreateReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
   const today = new Date().toISOString().split('T')[0];
-  const [returnDate, setReturnDate] = useState(today);
-  const [returnNotes, setReturnNotes] = useState('');
+  const [formData, setFormData] = useState({
+    client: '',
+    debutLocation: today,
+    finLocationTheorique: '',
+    numeroOffre: '',
+    notesLocation: ''
+  });
 
   if (!show) return null;
 
   const handleConfirm = () => {
-    if (!returnDate) {
-      alert('Veuillez saisir la date de retour');
+    if (!formData.client) {
+      alert('Le champ CLIENT est obligatoire');
       return;
     }
-    onConfirm(returnDate, returnNotes);
+    onConfirm(formData);
     // Reset pour la prochaine fois
-    setReturnDate(today);
-    setReturnNotes('');
+    setFormData({
+      client: '',
+      debutLocation: today,
+      finLocationTheorique: '',
+      numeroOffre: '',
+      notesLocation: ''
+    });
   };
 
   const handleCancel = () => {
-    setReturnDate(today);
-    setReturnNotes('');
+    setFormData({
+      client: '',
+      debutLocation: today,
+      finLocationTheorique: '',
+      numeroOffre: '',
+      notesLocation: ''
+    });
     onCancel();
   };
 
@@ -41,12 +56,14 @@ const ReturnModal = ({ show, equipment, onConfirm, onCancel }) => {
     }}>
       <div style={{
         background: 'linear-gradient(135deg, #1a1a1a, #2d2d2d)',
-        border: '3px solid #3b82f6',
+        border: '3px solid #fbbf24',
         borderRadius: '20px',
         padding: '40px',
-        maxWidth: '550px',
+        maxWidth: '600px',
         width: '90%',
-        boxShadow: '0 20px 60px rgba(59, 130, 246, 0.5)',
+        maxHeight: '90vh',
+        overflowY: 'auto',
+        boxShadow: '0 20px 60px rgba(251, 191, 36, 0.5)',
         animation: 'slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)'
       }}>
         {/* Icon */}
@@ -56,28 +73,28 @@ const ReturnModal = ({ show, equipment, onConfirm, onCancel }) => {
           marginBottom: '20px',
           animation: 'bounce 0.6s ease-out'
         }}>
-          ↩️
+          📋
         </div>
 
         {/* Title */}
         <h2 style={{
-          color: '#3b82f6',
+          color: '#fbbf24',
           fontSize: '24px',
           fontWeight: 'bold',
           textAlign: 'center',
           marginBottom: '20px'
         }}>
-          Effectuer le retour
+          Créer une réservation
         </h2>
 
         {/* Equipment info */}
         {equipment && (
           <div style={{
-            background: 'rgba(59, 130, 246, 0.1)',
-            border: '2px solid rgba(59, 130, 246, 0.3)',
+            background: 'rgba(251, 191, 36, 0.1)',
+            border: '2px solid rgba(251, 191, 36, 0.3)',
             borderRadius: '12px',
             padding: '16px',
-            marginBottom: '20px'
+            marginBottom: '24px'
           }}>
             <div style={{ color: '#fff', fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>
               {equipment.designation} {equipment.cmu}
@@ -88,20 +105,10 @@ const ReturnModal = ({ show, equipment, onConfirm, onCancel }) => {
             <div style={{ color: '#9ca3af', fontSize: '14px', marginTop: '4px' }}>
               N° Série: {equipment.numeroSerie}
             </div>
-            {equipment.client && (
-              <div style={{ color: '#fbbf24', fontSize: '14px', marginTop: '8px', fontWeight: '500' }}>
-                Client: {equipment.client}
-              </div>
-            )}
-            {equipment.debutLocation && (
-              <div style={{ color: '#10b981', fontSize: '14px', marginTop: '8px', fontWeight: '500' }}>
-                Départ: {equipment.debutLocation}
-              </div>
-            )}
           </div>
         )}
 
-        {/* Date input */}
+        {/* CLIENT input */}
         <div style={{ marginBottom: '20px' }}>
           <label style={{
             display: 'block',
@@ -110,35 +117,148 @@ const ReturnModal = ({ show, equipment, onConfirm, onCancel }) => {
             fontWeight: '600',
             marginBottom: '8px'
           }}>
-            Date de retour <span style={{ color: '#dc2626' }}>*</span>
+            CLIENT <span style={{ color: '#dc2626' }}>*</span>
           </label>
           <input
-            type="date"
-            value={returnDate}
-            onChange={(e) => setReturnDate(e.target.value)}
+            type="text"
+            value={formData.client}
+            onChange={(e) => setFormData({...formData, client: e.target.value})}
+            placeholder="Nom du client"
             style={{
               width: '100%',
               padding: '12px 16px',
               fontSize: '16px',
               color: '#fff',
               background: 'rgba(31, 41, 55, 0.8)',
-              border: '2px solid rgba(59, 130, 246, 0.3)',
+              border: '2px solid rgba(251, 191, 36, 0.3)',
               borderRadius: '8px',
               outline: 'none',
               transition: 'all 0.3s ease'
             }}
             onFocus={(e) => {
-              e.target.style.borderColor = '#3b82f6';
-              e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+              e.target.style.borderColor = '#fbbf24';
+              e.target.style.boxShadow = '0 0 0 3px rgba(251, 191, 36, 0.1)';
             }}
             onBlur={(e) => {
-              e.target.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+              e.target.style.borderColor = 'rgba(251, 191, 36, 0.3)';
               e.target.style.boxShadow = 'none';
             }}
           />
         </div>
 
-        {/* Notes textarea */}
+        {/* DEBUT LOCATION input */}
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{
+            display: 'block',
+            color: '#d1d5db',
+            fontSize: '14px',
+            fontWeight: '600',
+            marginBottom: '8px'
+          }}>
+            DÉBUT LOCATION
+          </label>
+          <input
+            type="date"
+            value={formData.debutLocation}
+            onChange={(e) => setFormData({...formData, debutLocation: e.target.value})}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              fontSize: '16px',
+              color: '#fff',
+              background: 'rgba(31, 41, 55, 0.8)',
+              border: '2px solid rgba(251, 191, 36, 0.3)',
+              borderRadius: '8px',
+              outline: 'none',
+              transition: 'all 0.3s ease'
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = '#fbbf24';
+              e.target.style.boxShadow = '0 0 0 3px rgba(251, 191, 36, 0.1)';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'rgba(251, 191, 36, 0.3)';
+              e.target.style.boxShadow = 'none';
+            }}
+          />
+        </div>
+
+        {/* FIN THEORIQUE input */}
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{
+            display: 'block',
+            color: '#d1d5db',
+            fontSize: '14px',
+            fontWeight: '600',
+            marginBottom: '8px'
+          }}>
+            FIN THÉORIQUE
+          </label>
+          <input
+            type="date"
+            value={formData.finLocationTheorique}
+            onChange={(e) => setFormData({...formData, finLocationTheorique: e.target.value})}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              fontSize: '16px',
+              color: '#fff',
+              background: 'rgba(31, 41, 55, 0.8)',
+              border: '2px solid rgba(251, 191, 36, 0.3)',
+              borderRadius: '8px',
+              outline: 'none',
+              transition: 'all 0.3s ease'
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = '#fbbf24';
+              e.target.style.boxShadow = '0 0 0 3px rgba(251, 191, 36, 0.1)';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'rgba(251, 191, 36, 0.3)';
+              e.target.style.boxShadow = 'none';
+            }}
+          />
+        </div>
+
+        {/* N° OFFRE input */}
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{
+            display: 'block',
+            color: '#d1d5db',
+            fontSize: '14px',
+            fontWeight: '600',
+            marginBottom: '8px'
+          }}>
+            N° OFFRE
+          </label>
+          <input
+            type="text"
+            value={formData.numeroOffre}
+            onChange={(e) => setFormData({...formData, numeroOffre: e.target.value})}
+            placeholder="Numéro de l'offre"
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              fontSize: '16px',
+              color: '#fff',
+              background: 'rgba(31, 41, 55, 0.8)',
+              border: '2px solid rgba(251, 191, 36, 0.3)',
+              borderRadius: '8px',
+              outline: 'none',
+              transition: 'all 0.3s ease'
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = '#fbbf24';
+              e.target.style.boxShadow = '0 0 0 3px rgba(251, 191, 36, 0.1)';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'rgba(251, 191, 36, 0.3)';
+              e.target.style.boxShadow = 'none';
+            }}
+          />
+        </div>
+
+        {/* NOTES textarea */}
         <div style={{ marginBottom: '24px' }}>
           <label style={{
             display: 'block',
@@ -147,12 +267,12 @@ const ReturnModal = ({ show, equipment, onConfirm, onCancel }) => {
             fontWeight: '600',
             marginBottom: '8px'
           }}>
-            Notes de retour
+            NOTES
           </label>
           <textarea
-            value={returnNotes}
-            onChange={(e) => setReturnNotes(e.target.value)}
-            placeholder="Problèmes constatés, points à vérifier, état du matériel..."
+            value={formData.notesLocation}
+            onChange={(e) => setFormData({...formData, notesLocation: e.target.value})}
+            placeholder="Notes de location, instructions spéciales..."
             rows="4"
             style={{
               width: '100%',
@@ -160,7 +280,7 @@ const ReturnModal = ({ show, equipment, onConfirm, onCancel }) => {
               fontSize: '14px',
               color: '#fff',
               background: 'rgba(31, 41, 55, 0.8)',
-              border: '2px solid rgba(59, 130, 246, 0.3)',
+              border: '2px solid rgba(251, 191, 36, 0.3)',
               borderRadius: '8px',
               outline: 'none',
               transition: 'all 0.3s ease',
@@ -168,11 +288,11 @@ const ReturnModal = ({ show, equipment, onConfirm, onCancel }) => {
               fontFamily: 'inherit'
             }}
             onFocus={(e) => {
-              e.target.style.borderColor = '#3b82f6';
-              e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+              e.target.style.borderColor = '#fbbf24';
+              e.target.style.boxShadow = '0 0 0 3px rgba(251, 191, 36, 0.1)';
             }}
             onBlur={(e) => {
-              e.target.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+              e.target.style.borderColor = 'rgba(251, 191, 36, 0.3)';
               e.target.style.boxShadow = 'none';
             }}
           />
@@ -186,7 +306,7 @@ const ReturnModal = ({ show, equipment, onConfirm, onCancel }) => {
           marginBottom: '24px',
           fontStyle: 'italic'
         }}>
-          Le matériel passera en statut <span style={{ color: '#f59e0b', fontWeight: 'bold' }}>EN MAINTENANCE</span> avec le motif "Retour Location, à vérifier"
+          Le matériel passera en statut <span style={{ color: '#fbbf24', fontWeight: 'bold' }}>EN RÉSERVATION</span>
         </p>
 
         {/* Buttons */}
@@ -230,25 +350,25 @@ const ReturnModal = ({ show, equipment, onConfirm, onCancel }) => {
               fontSize: '16px',
               fontWeight: 'bold',
               color: '#fff',
-              background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-              border: '2px solid #3b82f6',
+              background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+              border: '2px solid #fbbf24',
               borderRadius: '12px',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
               minWidth: '140px'
             }}
             onMouseEnter={(e) => {
-              e.target.style.background = 'linear-gradient(135deg, #60a5fa, #3b82f6)';
+              e.target.style.background = 'linear-gradient(135deg, #fcd34d, #fbbf24)';
               e.target.style.transform = 'translateY(-2px)';
-              e.target.style.boxShadow = '0 8px 20px rgba(59, 130, 246, 0.6)';
+              e.target.style.boxShadow = '0 8px 20px rgba(251, 191, 36, 0.6)';
             }}
             onMouseLeave={(e) => {
-              e.target.style.background = 'linear-gradient(135deg, #3b82f6, #2563eb)';
+              e.target.style.background = 'linear-gradient(135deg, #fbbf24, #f59e0b)';
               e.target.style.transform = 'translateY(0)';
               e.target.style.boxShadow = 'none';
             }}
           >
-            ✅ Valider le retour
+            ✅ Créer la réservation
           </button>
         </div>
       </div>
@@ -289,4 +409,4 @@ const ReturnModal = ({ show, equipment, onConfirm, onCancel }) => {
   );
 };
 
-export default ReturnModal;
+export default CreateReservationModal;

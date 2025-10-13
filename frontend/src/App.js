@@ -36,7 +36,6 @@ import ReleaseNotesHistory from './components/ReleaseNotesHistory';
 import CertificatModal from './components/modals/CertificatModal';
 import ReservationModal from './components/modals/ReservationModal';
 import StartLocationModal from './components/modals/StartLocationModal';
-import ReturnModal from './components/modals/ReturnModal';
 import EditTechInfoModal from './components/modals/EditTechInfoModal';
 import AddEquipmentModal from './components/modals/AddEquipmentModal';
 import LocationHistoryModal from './components/modals/LocationHistoryModal';
@@ -80,8 +79,6 @@ const MainApp = ({ shouldStartTour }) => {
     setShowReservationModal,
     showStartLocationModal,
     setShowStartLocationModal,
-    showReturnModal,
-    setShowReturnModal,
     showLocationHistory,
     setShowLocationHistory,
     showMaintenanceHistory,
@@ -118,7 +115,6 @@ const MainApp = ({ shouldStartTour }) => {
     setShowCertificatModal(false);
     setShowReservationModal(false);
     setShowStartLocationModal(false);
-    setShowReturnModal(false);
     setShowEditTechInfoModal(false);
     setShowAddEquipmentModal(false);
     setShowMaintenanceModal(false);
@@ -178,12 +174,14 @@ const MainApp = ({ shouldStartTour }) => {
   };
 
   // Gestionnaire d'annulation de réservation
-  const handleCancelReservation = async () => {
-    if (!selectedEquipment) return;
+  const handleCancelReservation = async (equipment) => {
+    // Utiliser l'équipement passé en paramètre ou celui sélectionné
+    const equipmentToCancel = equipment || selectedEquipment;
+    if (!equipmentToCancel) return;
 
     try {
       const { equipmentService } = await import('./services/equipmentService');
-      await equipmentService.update(selectedEquipment.id, {
+      await equipmentService.update(equipmentToCancel.id, {
         statut: 'Sur Parc',
         client: null,
         debutLocation: null,
@@ -193,11 +191,81 @@ const MainApp = ({ shouldStartTour }) => {
       });
       showToast('Réservation annulée ! Le matériel est de retour sur parc.', 'success');
       await loadEquipments();
-      setSelectedEquipment(null);
-      setCurrentPage('en-offre');
+      // Ne pas réinitialiser selectedEquipment si on est dans la fiche
+      // Pas de changement de page - on reste sur l'onglet actuel
     } catch (error) {
       console.error('❌ Erreur annulation:', error);
       showToast(`Erreur lors de l'annulation: ${error.message}`, 'error');
+    }
+  };
+
+  // Gestionnaire de démarrage de location
+  const handleStartLocation = async (equipment, startDate) => {
+    if (!equipment || !startDate) return;
+
+    try {
+      const { equipmentService } = await import('./services/equipmentService');
+      await equipmentService.update(equipment.id, {
+        statut: 'En Location',
+        debutLocation: startDate
+      });
+      showToast('Location démarrée avec succès !', 'success');
+      await loadEquipments();
+    } catch (error) {
+      console.error('❌ Erreur démarrage location:', error);
+      showToast(`Erreur lors du démarrage de la location: ${error.message}`, 'error');
+    }
+  };
+
+  // Gestionnaire de retour de location
+  const handleReturnLocation = async (equipment, returnDate, returnNotes) => {
+    if (!equipment || !returnDate) return;
+
+    try {
+      const { equipmentService } = await import('./services/equipmentService');
+
+      // Préparer les données de retour
+      const returnData = {
+        rentreeLe: returnDate,
+        noteRetour: returnNotes || ''
+      };
+
+      // Appeler le service de retour
+      await equipmentService.returnEquipment(equipment.id, returnData);
+
+      showToast('Retour effectué avec succès ! Le matériel est en maintenance.', 'success');
+      await loadEquipments();
+    } catch (error) {
+      console.error('❌ Erreur retour location:', error);
+      showToast(`Erreur lors du retour: ${error.message}`, 'error');
+    }
+  };
+
+  // Gestionnaire de création de réservation
+  const handleCreateReservation = async (equipment, formData) => {
+    if (!equipment || !formData.client) return;
+
+    try {
+      const { equipmentService } = await import('./services/equipmentService');
+
+      // Préparer les données de réservation
+      const reservationData = {
+        statut: 'En Réservation',
+        client: formData.client,
+        debutLocation: formData.debutLocation || null,
+        finLocationTheorique: formData.finLocationTheorique || null,
+        numeroOffre: formData.numeroOffre || null,
+        notesLocation: formData.notesLocation || null
+      };
+
+      // Mettre à jour le matériel
+      await equipmentService.update(equipment.id, reservationData);
+
+      showToast('Réservation créée avec succès !', 'success');
+      await loadEquipments();
+    } catch (error) {
+      console.error('❌ Erreur création réservation:', error);
+      showToast(`Erreur lors de la création de la réservation: ${error.message}`, 'error');
     }
   };
 
@@ -233,6 +301,7 @@ const MainApp = ({ shouldStartTour }) => {
           onLoadMaintenanceHistory={() => loadMaintenanceHistory(selectedEquipment.id, () => setShowMaintenanceHistory(true))}
           onDelete={handleDelete}
           onCancelReservation={handleCancelReservation}
+          onCreateReservation={handleCreateReservation}
         />
       );
     }
@@ -266,14 +335,9 @@ const MainApp = ({ shouldStartTour }) => {
             handleResetData={() => handleResetData(setEquipmentData)}
             setShowAddEquipmentModal={setShowAddEquipmentModal}
             onCancelReservation={handleCancelReservation}
-            onCreateReservation={(equipment) => {
-              setSelectedEquipment(equipment);
-              setShowReservationModal(true);
-            }}
-            onReturnLocation={(equipment) => {
-              setSelectedEquipment(equipment);
-              setShowReturnModal(true);
-            }}
+            onStartLocation={handleStartLocation}
+            onCreateReservation={handleCreateReservation}
+            onReturnLocation={handleReturnLocation}
           />
         );
     }
@@ -333,14 +397,6 @@ const MainApp = ({ shouldStartTour }) => {
         <StartLocationModal
           equipment={selectedEquipment}
           onClose={() => setShowStartLocationModal(false)}
-          onSuccess={handleModalSuccess}
-        />
-      )}
-
-      {showReturnModal && selectedEquipment && (
-        <ReturnModal
-          equipment={selectedEquipment}
-          onClose={() => setShowReturnModal(false)}
           onSuccess={handleModalSuccess}
         />
       )}

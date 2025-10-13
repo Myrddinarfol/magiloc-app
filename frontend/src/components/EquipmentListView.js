@@ -2,7 +2,10 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useUI } from '../hooks/useUI';
 import PageHeader from './common/PageHeader';
 import VGPBadgeCompact from './common/VGPBadgeCompact';
-import ConfirmModal from './modals/ConfirmModal';
+import CancelReservationModal from './modals/CancelReservationModal';
+import StartLocationModal from './modals/StartLocationModal';
+import ReturnModal from './modals/ReturnModal';
+import CreateReservationModal from './modals/CreateReservationModal';
 
 function EquipmentListView({
   equipmentData,
@@ -14,15 +17,22 @@ function EquipmentListView({
   setShowAddEquipmentModal,
   onCancelReservation,
   onCreateReservation,
-  onReturnLocation
+  onReturnLocation,
+  onStartLocation
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDesignation, setFilterDesignation] = useState('');
   const [filterCMU, setFilterCMU] = useState('');
   const [filterLongueur, setFilterLongueur] = useState('');
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [confirmAction, setConfirmAction] = useState(null);
-  const { equipmentFilter, setEquipmentFilter, setShowStartLocationModal } = useUI();
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [equipmentToCancel, setEquipmentToCancel] = useState(null);
+  const [showStartModal, setShowStartModal] = useState(false);
+  const [equipmentToStart, setEquipmentToStart] = useState(null);
+  const [showReturnModal, setShowReturnModal] = useState(false);
+  const [equipmentToReturn, setEquipmentToReturn] = useState(null);
+  const [showCreateReservationModal, setShowCreateReservationModal] = useState(false);
+  const [equipmentToReserve, setEquipmentToReserve] = useState(null);
+  const { equipmentFilter, setEquipmentFilter } = useUI();
 
   // Auto-reset filter when leaving sur-parc
   useEffect(() => {
@@ -475,7 +485,11 @@ function EquipmentListView({
                 const vgpStatus = getVGPStatus(equipment.prochainVgp);
 
                 return (
-                  <tr key={equipment.id}>
+                  <tr
+                    key={equipment.id}
+                    onClick={() => handleOpenEquipmentDetail(equipment, currentPage)}
+                    style={{ cursor: 'pointer' }}
+                  >
                     {(currentPage === 'sur-parc' || currentPage === 'parc-loc') ? (
                       <>
                         <td>
@@ -506,20 +520,24 @@ function EquipmentListView({
                         <td>
                           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                             <button
-                              onClick={() => handleOpenEquipmentDetail(equipment, currentPage)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenEquipmentDetail(equipment, currentPage);
+                              }}
                               className="btn-icon"
-                              title="Voir détails"
+                              data-tooltip="Voir détails"
                             >
                               📜
                             </button>
                             {currentPage === 'sur-parc' && onCreateReservation && (
                               <button
-                                onClick={() => {
-                                  setSelectedEquipment(equipment);
-                                  onCreateReservation(equipment);
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEquipmentToReserve(equipment);
+                                  setShowCreateReservationModal(true);
                                 }}
                                 className="btn-icon btn-reservation"
-                                title="Créer une réservation"
+                                data-tooltip="Créer une réservation"
                               >
                                 📋
                               </button>
@@ -566,17 +584,21 @@ function EquipmentListView({
                         <td>
                           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                             <button
-                              onClick={() => handleOpenEquipmentDetail(equipment, currentPage)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenEquipmentDetail(equipment, currentPage);
+                              }}
                               className="btn-icon"
-                              title="Voir détails"
+                              data-tooltip="Voir détails"
                             >
                               📜
                             </button>
                             {currentPage === 'en-offre' && (
                               <button
-                                onClick={() => {
-                                  setSelectedEquipment(equipment);
-                                  setShowStartLocationModal(true);
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEquipmentToStart(equipment);
+                                  setShowStartModal(true);
                                 }}
                                 className="btn-icon btn-start-location"
                                 data-tooltip="Démarrer la location"
@@ -586,28 +608,26 @@ function EquipmentListView({
                             )}
                             {currentPage === 'en-offre' && onCancelReservation && (
                               <button
-                            onClick={() => {
-                                  setSelectedEquipment(equipment);
-                                  setConfirmAction(() => () => {
-                                    onCancelReservation(equipment);
-                                    setShowConfirmModal(false);
-                                  });
-                                  setShowConfirmModal(true);
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEquipmentToCancel(equipment);
+                                  setShowCancelModal(true);
                                 }}
                                 className="btn-icon btn-cancel"
-                                title="Annuler la réservation"
-                              >                             
+                                data-tooltip="Annuler la réservation"
+                              >
                                 ❌
                               </button>
                             )}
                             {currentPage === 'location-list' && onReturnLocation && (
                               <button
-                                onClick={() => {
-                                  setSelectedEquipment(equipment);
-                                  onReturnLocation(equipment);
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEquipmentToReturn(equipment);
+                                  setShowReturnModal(true);
                                 }}
                                 className="btn-icon btn-return"
-                                title="Effectuer le retour"
+                                data-tooltip="Effectuer le retour"
                               >
                                 ↩️
                               </button>
@@ -631,21 +651,72 @@ function EquipmentListView({
         </div>
       )}
 
-                                   {/* Modal de confirmation */}
-      <ConfirmModal
-        show={showConfirmModal}
-        title="⚠️ Annuler la réservation"
-        message="Êtes-vous sûr de vouloir annuler cette réservation ?\n\nLe matériel sera remis sur parc."
-        icon="❌"
-        confirmText="Annuler la réservation"
-        cancelText="Retour"
-        confirmIcon="✓"
-        cancelIcon="✕"
-        danger={true}
+      {/* Modal d'annulation de réservation */}
+      <CancelReservationModal
+        show={showCancelModal}
+        equipment={equipmentToCancel}
         onConfirm={() => {
-          if (confirmAction) confirmAction();
+          if (equipmentToCancel && onCancelReservation) {
+            onCancelReservation(equipmentToCancel);
+          }
+          setShowCancelModal(false);
+          setEquipmentToCancel(null);
         }}
-        onCancel={() => setShowConfirmModal(false)}
+        onCancel={() => {
+          setShowCancelModal(false);
+          setEquipmentToCancel(null);
+        }}
+      />
+
+      {/* Modal de démarrage de location */}
+      <StartLocationModal
+        show={showStartModal}
+        equipment={equipmentToStart}
+        onConfirm={(startDate) => {
+          if (equipmentToStart && onStartLocation) {
+            onStartLocation(equipmentToStart, startDate);
+          }
+          setShowStartModal(false);
+          setEquipmentToStart(null);
+        }}
+        onCancel={() => {
+          setShowStartModal(false);
+          setEquipmentToStart(null);
+        }}
+      />
+
+      {/* Modal de retour de location */}
+      <ReturnModal
+        show={showReturnModal}
+        equipment={equipmentToReturn}
+        onConfirm={(returnDate, returnNotes) => {
+          if (equipmentToReturn && onReturnLocation) {
+            onReturnLocation(equipmentToReturn, returnDate, returnNotes);
+          }
+          setShowReturnModal(false);
+          setEquipmentToReturn(null);
+        }}
+        onCancel={() => {
+          setShowReturnModal(false);
+          setEquipmentToReturn(null);
+        }}
+      />
+
+      {/* Modal de création de réservation */}
+      <CreateReservationModal
+        show={showCreateReservationModal}
+        equipment={equipmentToReserve}
+        onConfirm={(formData) => {
+          if (equipmentToReserve && onCreateReservation) {
+            onCreateReservation(equipmentToReserve, formData);
+          }
+          setShowCreateReservationModal(false);
+          setEquipmentToReserve(null);
+        }}
+        onCancel={() => {
+          setShowCreateReservationModal(false);
+          setEquipmentToReserve(null);
+        }}
       />
     </div>
   );

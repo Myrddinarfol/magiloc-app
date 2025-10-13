@@ -53,18 +53,17 @@ export const UIProvider = ({ children }) => {
   const handleOpenEquipmentDetail = (equipment, fromPage) => {
     setPreviousPage(fromPage || currentPage); // Mémoriser la page d'origine
     setSelectedEquipment(equipment);
-    setCurrentPage('location'); // Toujours aller à l'onglet LOCATION pour la fiche
+    // Ne pas changer la page - la fiche s'affiche par-dessus la page actuelle
   };
 
   // Fonction pour retourner à la page précédente
   const handleGoBack = () => {
     setSelectedEquipment(null);
-    if (previousPage) {
+    // Si on avait mémorisé une page différente, on y retourne
+    if (previousPage && previousPage !== currentPage) {
       setCurrentPage(previousPage);
-      setPreviousPage(null);
-    } else {
-      setCurrentPage('location'); // Par défaut, retour à la liste des locations
     }
+    setPreviousPage(null);
   };
 
   // Fonction pour toggle les sous-menus

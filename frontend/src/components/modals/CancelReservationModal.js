@@ -1,19 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-const StartLocationModal = ({ show, equipment, onConfirm, onCancel }) => {
-  const today = new Date().toISOString().split('T')[0];
-  const [startDate, setStartDate] = useState(today);
-
+const CancelReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
   if (!show) return null;
-
-  const handleConfirm = () => {
-    if (!startDate) {
-      alert('Veuillez saisir la date de début de location');
-      return;
-    }
-    onConfirm(startDate);
-    setStartDate(today); // Reset pour la prochaine fois
-  };
 
   return (
     <div style={{
@@ -32,12 +20,12 @@ const StartLocationModal = ({ show, equipment, onConfirm, onCancel }) => {
     }}>
       <div style={{
         background: 'linear-gradient(135deg, #1a1a1a, #2d2d2d)',
-        border: '3px solid #10b981',
+        border: '3px solid #dc2626',
         borderRadius: '20px',
         padding: '40px',
         maxWidth: '500px',
         width: '90%',
-        boxShadow: '0 20px 60px rgba(16, 185, 129, 0.5)',
+        boxShadow: '0 20px 60px rgba(220, 38, 38, 0.5)',
         animation: 'slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)'
       }}>
         {/* Icon */}
@@ -47,25 +35,25 @@ const StartLocationModal = ({ show, equipment, onConfirm, onCancel }) => {
           marginBottom: '20px',
           animation: 'bounce 0.6s ease-out'
         }}>
-          🚀
+          ⚠️
         </div>
 
         {/* Title */}
         <h2 style={{
-          color: '#10b981',
+          color: '#dc2626',
           fontSize: '24px',
           fontWeight: 'bold',
           textAlign: 'center',
           marginBottom: '20px'
         }}>
-          Démarrer la location
+          Annuler la réservation
         </h2>
 
         {/* Equipment info */}
         {equipment && (
           <div style={{
-            background: 'rgba(16, 185, 129, 0.1)',
-            border: '2px solid rgba(16, 185, 129, 0.3)',
+            background: 'rgba(220, 38, 38, 0.1)',
+            border: '2px solid rgba(220, 38, 38, 0.3)',
             borderRadius: '12px',
             padding: '16px',
             marginBottom: '20px'
@@ -87,52 +75,18 @@ const StartLocationModal = ({ show, equipment, onConfirm, onCancel }) => {
           </div>
         )}
 
-        {/* Date input */}
-        <div style={{ marginBottom: '24px' }}>
-          <label style={{
-            display: 'block',
-            color: '#d1d5db',
-            fontSize: '14px',
-            fontWeight: '600',
-            marginBottom: '8px'
-          }}>
-            Date de début de location <span style={{ color: '#dc2626' }}>*</span>
-          </label>
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              fontSize: '16px',
-              color: '#fff',
-              background: 'rgba(31, 41, 55, 0.8)',
-              border: '2px solid rgba(16, 185, 129, 0.3)',
-              borderRadius: '8px',
-              outline: 'none',
-              transition: 'all 0.3s ease'
-            }}
-            onFocus={(e) => {
-              e.target.style.borderColor = '#10b981';
-              e.target.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.1)';
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = 'rgba(16, 185, 129, 0.3)';
-              e.target.style.boxShadow = 'none';
-            }}
-          />
-        </div>
-
-        {/* Info message */}
+        {/* Message */}
         <p style={{
-          color: '#9ca3af',
-          fontSize: '14px',
+          color: '#d1d5db',
+          fontSize: '16px',
+          lineHeight: '1.6',
           textAlign: 'center',
-          marginBottom: '24px',
-          fontStyle: 'italic'
+          marginBottom: '30px',
+          whiteSpace: 'pre-line'
         }}>
-          Le matériel passera en statut <span style={{ color: '#fbbf24', fontWeight: 'bold' }}>EN LOCATION</span>
+          Êtes-vous sûr de vouloir annuler cette réservation ?
+          {'\n\n'}
+          Le matériel sera remis <span style={{ color: '#10b981', fontWeight: 'bold' }}>SUR PARC</span>.
         </p>
 
         {/* Buttons */}
@@ -142,10 +96,7 @@ const StartLocationModal = ({ show, equipment, onConfirm, onCancel }) => {
           justifyContent: 'center'
         }}>
           <button
-            onClick={() => {
-              setStartDate(today);
-              onCancel();
-            }}
+            onClick={onCancel}
             style={{
               padding: '14px 28px',
               fontSize: '16px',
@@ -169,35 +120,35 @@ const StartLocationModal = ({ show, equipment, onConfirm, onCancel }) => {
               e.target.style.boxShadow = 'none';
             }}
           >
-            ✕ Annuler
+            ✕ Retour
           </button>
 
           <button
-            onClick={handleConfirm}
+            onClick={onConfirm}
             style={{
               padding: '14px 28px',
               fontSize: '16px',
               fontWeight: 'bold',
               color: '#fff',
-              background: 'linear-gradient(135deg, #10b981, #059669)',
-              border: '2px solid #10b981',
+              background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+              border: '2px solid #dc2626',
               borderRadius: '12px',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
               minWidth: '140px'
             }}
             onMouseEnter={(e) => {
-              e.target.style.background = 'linear-gradient(135deg, #34d399, #10b981)';
+              e.target.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
               e.target.style.transform = 'translateY(-2px)';
-              e.target.style.boxShadow = '0 8px 20px rgba(16, 185, 129, 0.6)';
+              e.target.style.boxShadow = '0 8px 20px rgba(220, 38, 38, 0.6)';
             }}
             onMouseLeave={(e) => {
-              e.target.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+              e.target.style.background = 'linear-gradient(135deg, #dc2626, #b91c1c)';
               e.target.style.transform = 'translateY(0)';
               e.target.style.boxShadow = 'none';
             }}
           >
-            🚀 Démarrer la location
+            ✓ Annuler la réservation
           </button>
         </div>
       </div>
@@ -238,4 +189,4 @@ const StartLocationModal = ({ show, equipment, onConfirm, onCancel }) => {
   );
 };
 
-export default StartLocationModal;
+export default CancelReservationModal;
