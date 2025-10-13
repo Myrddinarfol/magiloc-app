@@ -45,7 +45,7 @@ const EditLocationModal = ({ equipment, onClose, onSuccess }) => {
       console.log('✅ Informations de location modifiées');
       showToast('Informations de location modifiées avec succès !', 'success');
       onClose();
-      if (onSuccess) onSuccess();
+      if (onSuccess) onSuccess('stay-on-detail'); // Rester sur la fiche détail
     } catch (error) {
       console.error('❌ Erreur:', error);
       showToast(`Erreur lors de la modification: ${error.message}`, 'error');

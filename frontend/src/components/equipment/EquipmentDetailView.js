@@ -19,7 +19,8 @@ const EquipmentDetailView = ({
   onLoadMaintenanceHistory,
   onDelete,
   onCancelReservation,
-  onCreateReservation
+  onCreateReservation,
+  onEditLocationInfo
 }) => {
   const { setShowReservationModal, setShowStartLocationModal, setShowReturnModal, setShowMaintenanceModal, setShowCompleteMaintenance, previousPage } = useUI();
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
@@ -619,9 +620,11 @@ const EquipmentDetailView = ({
         <EditLocationModal
           equipment={equipment}
           onClose={() => setShowEditLocationModal(false)}
-          onSuccess={() => {
-            // Recharger les données après modification
-            window.location.reload();
+          onSuccess={(action) => {
+            setShowEditLocationModal(false);
+            if (onEditLocationInfo) {
+              onEditLocationInfo(action);
+            }
           }}
         />
       )}

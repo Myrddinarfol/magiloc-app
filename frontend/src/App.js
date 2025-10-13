@@ -297,6 +297,7 @@ const MainApp = ({ shouldStartTour }) => {
           onClose={handleGoBack}
           onEditCertificat={() => setShowCertificatModal(true)}
           onEditTechInfo={() => setShowEditTechInfoModal(true)}
+          onEditLocationInfo={handleModalSuccess}
           onLoadLocationHistory={() => loadLocationHistory(selectedEquipment.id, () => setShowLocationHistory(true))}
           onLoadMaintenanceHistory={() => loadMaintenanceHistory(selectedEquipment.id, () => setShowMaintenanceHistory(true))}
           onDelete={handleDelete}
