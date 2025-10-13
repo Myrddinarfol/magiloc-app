@@ -109,6 +109,15 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
+.alert-capsule.clickable {
+  cursor: pointer;
+}
+
+.alert-capsule.clickable:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+
 .alert-capsule.alert-critical {
   border-color: rgba(220, 38, 38, 0.4);
   box-shadow: 0 2px 10px rgba(220, 38, 38, 0.15);

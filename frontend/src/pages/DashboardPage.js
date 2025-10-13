@@ -310,7 +310,11 @@ const DashboardPage = () => {
         <h2>⚠️ Alertes</h2>
         <div className="alerts-grid">
           {/* Alerte 1: Réservations dépassées */}
-          <div className={`alert-capsule ${alerts.overdueReservations.length > 0 ? 'alert-critical' : ''}`}>
+          <div
+            className={`alert-capsule clickable ${alerts.overdueReservations.length > 0 ? 'alert-critical' : ''}`}
+            onClick={() => handleNavigate('en-offre')}
+            data-tooltip="Voir les réservations"
+          >
             <div className="alert-capsule-icon">
               <span className="icon-animated">📅</span>
             </div>
@@ -326,7 +330,11 @@ const DashboardPage = () => {
           </div>
 
           {/* Alerte 2: Retards de retours de location */}
-          <div className={`alert-capsule ${alerts.lateReturns.length > 0 ? 'alert-critical' : ''}`}>
+          <div
+            className={`alert-capsule clickable ${alerts.lateReturns.length > 0 ? 'alert-critical' : ''}`}
+            onClick={() => handleNavigate('location-list')}
+            data-tooltip="Voir les locations en cours"
+          >
             <div className="alert-capsule-icon">
               <span className="icon-animated">⏱️</span>
             </div>
@@ -342,7 +350,11 @@ const DashboardPage = () => {
           </div>
 
           {/* Alerte 3: VGP en retard + à venir */}
-          <div className={`alert-capsule ${alerts.lateVGP.length > 0 ? 'alert-critical' : (alerts.upcomingVGP.length > 0 ? 'alert-warning' : '')}`}>
+          <div
+            className={`alert-capsule clickable ${alerts.lateVGP.length > 0 ? 'alert-critical' : (alerts.upcomingVGP.length > 0 ? 'alert-warning' : '')}`}
+            onClick={() => handleNavigate('vgp-management')}
+            data-tooltip="Voir la gestion des VGP"
+          >
             <div className="alert-capsule-icon">
               <span className="icon-animated">🔔</span>
             </div>
@@ -365,7 +377,11 @@ const DashboardPage = () => {
           </div>
 
           {/* Alerte 4: Maintenances en cours */}
-          <div className={`alert-capsule ${alerts.inMaintenance.length > 0 ? 'alert-critical' : ''}`}>
+          <div
+            className={`alert-capsule clickable ${alerts.inMaintenance.length > 0 ? 'alert-critical' : ''}`}
+            onClick={() => handleNavigate('maintenance-list')}
+            data-tooltip="Voir les matériels en maintenance"
+          >
             <div className="alert-capsule-icon">
               <span className="icon-animated wrench-spin">🔧</span>
             </div>
