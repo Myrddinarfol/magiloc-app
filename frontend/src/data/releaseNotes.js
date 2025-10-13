@@ -1,9 +1,116 @@
 // Système de gestion des notes de mise à jour
 // Pour ajouter une nouvelle version, ajoutez un objet au début du tableau
 
-export const CURRENT_VERSION = '0.9.4';
+export const CURRENT_VERSION = '0.9.7';
 
 export const releaseNotes = [
+  {
+    version: '0.9.7',
+    date: '2025-10-13',
+    title: '✨ Modals Stylés Actions Réservation/Location + Correctifs Navigation',
+    sections: [
+      {
+        title: '🎨 Nouveaux modals avec design unifié',
+        items: [
+          'CancelReservationModal : Annulation réservation (thème rouge avec icône ⚠️)',
+          'CreateReservationModal : Création réservation 5 champs (thème jaune/ambre)',
+          'StartLocationModal : Démarrage location avec date (thème vert)',
+          'ReturnModal : Retour location avec date + notes (thème bleu)',
+          'Design cohérent : overlay backdrop blur, animations fadeIn/slideUp/bounce',
+          'Bordures colorées selon action, gradients élégants',
+        ]
+      },
+      {
+        title: '📋 Modal Création Réservation',
+        items: [
+          'Formulaire complet : CLIENT (*requis), DEBUT LOCATION, FIN THEORIQUE',
+          'Champs supplémentaires : N° OFFRE, NOTES de location',
+          'Validation client-side avec alertes si champs requis manquants',
+          'Passe automatiquement le statut en "En Réservation"',
+          'Intégré dans tableaux SUR PARC ET fiches détail PARC LOC',
+        ]
+      },
+      {
+        title: '🚀 Modal Démarrage Location',
+        items: [
+          'Sélection date de début de location',
+          'Date pré-remplie avec aujourd\'hui',
+          'Message clair : "Le matériel passera en statut EN LOCATION"',
+          'Carte info équipement avec désignation et n° série',
+          'Bouton avec gradient vert + effet hover',
+        ]
+      },
+      {
+        title: '↩️ Modal Retour Location',
+        items: [
+          'Sélection date de retour',
+          'Textarea pour notes de retour (sauvegardées dans historique)',
+          'Affichage date de départ de la location',
+          'Message : "Le matériel passera en statut EN MAINTENANCE"',
+          'Notes enregistrées automatiquement dans location_history',
+        ]
+      },
+      {
+        title: '❌ Modal Annulation Réservation',
+        items: [
+          'Confirmation stylée avec icône ⚠️ animée',
+          'Message clair : "Le matériel sera remis SUR PARC"',
+          'Boutons Annuler (gris) et Confirmer (rouge) avec hover',
+          'Réinitialisation complète des données de réservation',
+        ]
+      },
+      {
+        title: '🎯 Boutons d\'action dans tableaux',
+        items: [
+          'SUR PARC : 📋 Créer réservation (bouton jaune)',
+          'EN RÉSERVATION : 🚀 Démarrer location + ❌ Annuler',
+          'EN LOCATION : ↩️ Effectuer retour',
+          'Tous avec tooltips informatifs',
+          'e.stopPropagation() pour éviter conflits avec row onClick',
+        ]
+      },
+      {
+        title: '🐛 Correctifs bugs navigation',
+        items: [
+          'Fix handleOpenEquipmentDetail ne change plus currentPage',
+          'Fix handleGoBack retourne correctement à la page précédente',
+          'Fix handleCancelReservation accepte maintenant paramètre equipment',
+          'Fix bouton retour manquant dans LocationListPage',
+          'Fix condition affichage bouton "Créer Réservation" dans détail',
+        ]
+      },
+      {
+        title: '🔧 Handlers et intégrations',
+        items: [
+          'handleCancelReservation : remet Sur Parc, réinitialise données',
+          'handleStartLocation : passe En Location avec date début',
+          'handleReturnLocation : archive + passe En Maintenance + notes',
+          'handleCreateReservation : crée réservation avec 5 champs',
+          'Props passées à EquipmentListView, LocationListPage, EquipmentDetailView',
+        ]
+      },
+      {
+        title: '✨ Validation et UX',
+        items: [
+          'Validation côté client pour champs requis',
+          'Alertes claires si données manquantes',
+          'Toast notifications de succès après chaque action',
+          'Rechargement automatique des données après validation',
+          'Formulaires réinitialisés après chaque soumission',
+        ]
+      },
+      {
+        title: '📂 Fichiers modifiés/créés',
+        items: [
+          'Nouveaux : CancelReservationModal.js, CreateReservationModal.js',
+          'Modifiés : App.js (+4 handlers), EquipmentListView.js (+157 lignes)',
+          'Modifiés : EquipmentDetailView.js, UIContext.js, LocationListPage.js',
+          'Refactoring : StartLocationModal.js, ReturnModal.js (design unifié)',
+          'Total : +1326 insertions, -193 suppressions',
+        ]
+      }
+    ]
+  },
   {
     version: '0.9.4',
     date: '2025-10-10',
