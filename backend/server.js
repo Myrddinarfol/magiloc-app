@@ -980,6 +980,163 @@ app.get("/api/spare-parts/:id/usage", async (req, res) => {
   }
 });
 
+// ===== ROUTES MAINTENANCE =====
+
+// POST valider et sauvegarder une maintenance
+app.post("/api/equipment/:id/maintenance/validate", async (req, res) => {
+  const dbClient = await pool.connect();
+
+  try {
+    const { id } = req.params;
+    const { motif, notes, pieces, tempsHeures, vgpEffectuee, technicien } = req.body;
+
+    console.log(`✅ Validation maintenance équipement ${id}`);
+
+    await dbClient.query('BEGIN');
+
+    // 1. Sauvegarder l'entrée de maintenance dans maintenance_history
+    const maintenanceResult = await dbClient.query(
+      `INSERT INTO maintenance_history
+       (equipment_id, motif_maintenance, notes_maintenance, pieces_utilisees_json,
+        main_oeuvre_heures, vgp_effectuee, technicien_nom, date_entree)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+       RETURNING *`,
+      [id, motif, notes, JSON.stringify(pieces || []), tempsHeures || 0, vgpEffectuee || false, technicien || '']
+    );
+
+    console.log('✅ Maintenance enregistrée:', maintenanceResult.rows[0].id);
+
+    // 2. Mettre à jour le statut de l'équipement à "Sur Parc"
+    const equipmentResult = await dbClient.query(
+      `UPDATE equipments
+       SET statut = 'Sur Parc', vgp = $2, date_vgp = CASE WHEN $2 THEN NOW() ELSE date_vgp END
+       WHERE id = $1
+       RETURNING *`,
+      [id, vgpEffectuee || false]
+    );
+
+    console.log('✅ Équipement mis à jour, VGP:', vgpEffectuee);
+
+    // 3. Si des pièces sont déclarées, les sauvegarder dans maintenance_pieces_temp pour import futur
+    if (pieces && pieces.length > 0) {
+      for (const piece of pieces) {
+        await dbClient.query(
+          `INSERT INTO maintenance_pieces_temp
+           (maintenance_id, piece_designation, piece_quantity, piece_cost)
+           VALUES ($1, $2, $3, $4)`,
+          [maintenanceResult.rows[0].id, piece.designation, piece.quantity, piece.cost]
+        );
+      }
+      console.log(`✅ ${pieces.length} pièces enregistrées pour import`);
+    }
+
+    // Commit de la transaction
+    await dbClient.query('COMMIT');
+
+    res.json({
+      message: "✅ Maintenance validée avec succès",
+      maintenance: maintenanceResult.rows[0],
+      equipment: equipmentResult.rows[0]
+    });
+
+  } catch (error) {
+    await dbClient.query('ROLLBACK');
+    console.error("❌ Erreur validation maintenance:", error.message);
+    res.status(500).json({ error: "Erreur lors de la validation de la maintenance", details: error.message });
+  } finally {
+    dbClient.release();
+  }
+});
+
+// GET pièces en attente d'import depuis maintenances
+app.get("/api/maintenance-pieces/import-pending", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT mpt.*, mh.date_entree, e.designation as equipment_designation
+       FROM maintenance_pieces_temp mpt
+       LEFT JOIN maintenance_history mh ON mpt.maintenance_id = mh.id
+       LEFT JOIN equipments e ON mh.equipment_id = e.id
+       ORDER BY mh.date_entree DESC, mpt.id ASC`
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("❌ Erreur récupération pièces à importer:", err.message);
+    res.status(500).json({ error: "Erreur base de données" });
+  }
+});
+
+// POST importer des pièces de maintenance dans l'inventaire
+app.post("/api/maintenance-pieces/import", async (req, res) => {
+  const dbClient = await pool.connect();
+
+  try {
+    const { pieces } = req.body;
+
+    if (!pieces || !Array.isArray(pieces) || pieces.length === 0) {
+      return res.status(400).json({ error: "Liste de pièces requise" });
+    }
+
+    console.log(`📦 Import de ${pieces.length} pièces de maintenance`);
+
+    await dbClient.query('BEGIN');
+
+    const importedPieces = [];
+
+    for (const piece of pieces) {
+      // Vérifier si une pièce similaire existe déjà
+      const existingResult = await dbClient.query(
+        `SELECT * FROM spare_parts WHERE designation = $1 AND cost = $2 LIMIT 1`,
+        [piece.piece_designation, piece.piece_cost]
+      );
+
+      if (existingResult.rows.length > 0) {
+        // Mettre à jour la quantité existante
+        const updatedResult = await dbClient.query(
+          `UPDATE spare_parts
+           SET quantity = quantity + $2
+           WHERE id = $1
+           RETURNING *`,
+          [existingResult.rows[0].id, piece.piece_quantity]
+        );
+        importedPieces.push(updatedResult.rows[0]);
+        console.log(`✅ Quantité mise à jour pour pièce existante: ${piece.piece_designation}`);
+      } else {
+        // Créer une nouvelle pièce
+        const newResult = await dbClient.query(
+          `INSERT INTO spare_parts (designation, quantity, cost, supplier, notes)
+           VALUES ($1, $2, $3, 'Import Maintenance', $4)
+           RETURNING *`,
+          [piece.piece_designation, piece.piece_quantity, piece.piece_cost,
+           `Importée de maintenance le ${new Date().toLocaleDateString('fr-FR')}`]
+        );
+        importedPieces.push(newResult.rows[0]);
+        console.log(`✅ Nouvelle pièce importée: ${piece.piece_designation}`);
+      }
+
+      // Supprimer la pièce de la table temporaire
+      await dbClient.query(
+        `DELETE FROM maintenance_pieces_temp WHERE id = $1`,
+        [piece.id]
+      );
+    }
+
+    await dbClient.query('COMMIT');
+
+    res.json({
+      message: `✅ ${pieces.length} pièces importées avec succès`,
+      importedPieces: importedPieces
+    });
+
+  } catch (error) {
+    await dbClient.query('ROLLBACK');
+    console.error("❌ Erreur import pièces maintenance:", error.message);
+    res.status(500).json({ error: "Erreur lors de l'import des pièces", details: error.message });
+  } finally {
+    dbClient.release();
+  }
+});
+
 // Démarrage du serveur
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);

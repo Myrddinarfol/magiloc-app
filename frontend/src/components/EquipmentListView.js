@@ -6,6 +6,7 @@ import CancelReservationModal from './modals/CancelReservationModal';
 import StartLocationModal from './modals/StartLocationModal';
 import ReturnModal from './modals/ReturnModal';
 import CreateReservationModal from './modals/CreateReservationModal';
+import MaintenanceDetailModal from '../pages/MaintenanceDetailModal';
 
 function EquipmentListView({
   equipmentData,
@@ -32,6 +33,8 @@ function EquipmentListView({
   const [equipmentToReturn, setEquipmentToReturn] = useState(null);
   const [showCreateReservationModal, setShowCreateReservationModal] = useState(false);
   const [equipmentToReserve, setEquipmentToReserve] = useState(null);
+  const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
+  const [equipmentToMaintain, setEquipmentToMaintain] = useState(null);
   const { equipmentFilter, setEquipmentFilter } = useUI();
 
   // Auto-reset filter when leaving sur-parc
@@ -582,7 +585,12 @@ function EquipmentListView({
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleOpenEquipmentDetail(equipment, currentPage);
+                                if (currentPage === 'maintenance') {
+                                  setEquipmentToMaintain(equipment);
+                                  setShowMaintenanceModal(true);
+                                } else {
+                                  handleOpenEquipmentDetail(equipment, currentPage);
+                                }
                               }}
                               className="btn-icon"
                               data-tooltip={currentPage === 'maintenance' ? 'Effectuer une maintenance' : 'Voir détails'}
@@ -714,6 +722,17 @@ function EquipmentListView({
           setEquipmentToReserve(null);
         }}
       />
+
+      {/* Modal de maintenance */}
+      {showMaintenanceModal && (
+        <MaintenanceDetailModal
+          equipment={equipmentToMaintain}
+          onClose={() => {
+            setShowMaintenanceModal(false);
+            setEquipmentToMaintain(null);
+          }}
+        />
+      )}
     </div>
   );
 }
