@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ClientAutocomplete from '../common/ClientAutocomplete';
 
 const CreateReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
   const today = new Date().toISOString().split('T')[0];
@@ -108,7 +109,7 @@ const CreateReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
           </div>
         )}
 
-        {/* CLIENT input */}
+        {/* CLIENT autocomplete input */}
         <div style={{ marginBottom: '20px' }}>
           <label style={{
             display: 'block',
@@ -119,30 +120,10 @@ const CreateReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
           }}>
             CLIENT <span style={{ color: '#dc2626' }}>*</span>
           </label>
-          <input
-            type="text"
+          <ClientAutocomplete
             value={formData.client}
-            onChange={(e) => setFormData({...formData, client: e.target.value})}
-            placeholder="Nom du client"
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              fontSize: '16px',
-              color: '#fff',
-              background: 'rgba(31, 41, 55, 0.8)',
-              border: '2px solid rgba(251, 191, 36, 0.3)',
-              borderRadius: '8px',
-              outline: 'none',
-              transition: 'all 0.3s ease'
-            }}
-            onFocus={(e) => {
-              e.target.style.borderColor = '#fbbf24';
-              e.target.style.boxShadow = '0 0 0 3px rgba(251, 191, 36, 0.1)';
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = 'rgba(251, 191, 36, 0.3)';
-              e.target.style.boxShadow = 'none';
-            }}
+            onChange={(clientName) => setFormData({...formData, client: clientName})}
+            placeholder="Nom du client (tapez pour chercher)"
           />
         </div>
 
