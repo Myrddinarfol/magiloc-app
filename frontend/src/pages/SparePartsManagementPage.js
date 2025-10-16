@@ -246,31 +246,74 @@ const SparePartsManagementPage = () => {
                 </div>
               </div>
               <div className="form-group">
-                <label>Équipement</label>
+                <label>Sélectionner l'Équipement</label>
                 <select
                   name="equipment_id"
                   value={formData.equipment_id || ''}
                   onChange={handleInputChange}
                   style={{
                     width: '100%',
-                    padding: '8px 12px',
+                    padding: '12px 16px',
                     fontSize: '14px',
                     color: '#fff',
                     background: 'rgba(31, 41, 55, 0.8)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    border: '2px solid rgba(255, 255, 255, 0.2)',
                     borderRadius: '4px',
                     fontFamily: 'inherit',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    minHeight: '45px'
                   }}
                 >
-                  <option value="" style={{ background: '#1f2937', color: '#fff' }}>Non lié à un équipement</option>
+                  <option value="" style={{ background: '#1f2937', color: '#fff' }}>-- Sélectionner un équipement --</option>
                   {equipmentData.map(eq => (
                     <option key={eq.id} value={eq.id} style={{ background: '#1f2937', color: '#fff' }}>
-                      {eq.designation} ({eq.cmu})
+                      {eq.designation} | CMU: {eq.cmu} | {eq.marque} {eq.modele}
                     </option>
                   ))}
                 </select>
               </div>
+
+              {/* Affichage détaillé de l'équipement sélectionné */}
+              {formData.equipment_id && (
+                <div style={{
+                  background: 'rgba(100, 200, 255, 0.1)',
+                  border: '2px solid rgba(100, 200, 255, 0.3)',
+                  borderRadius: '8px',
+                  padding: '16px',
+                  marginBottom: '20px'
+                }}>
+                  <h4 style={{ color: '#64c8ff', marginBottom: '12px', fontSize: '14px', fontWeight: 'bold' }}>
+                    📋 Équipement Sélectionné
+                  </h4>
+                  {(() => {
+                    const selectedEquipment = equipmentData.find(eq => eq.id === formData.equipment_id);
+                    return selectedEquipment ? (
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                        <div style={{ padding: '8px', background: 'rgba(31, 41, 55, 0.6)', borderRadius: '4px' }}>
+                          <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Désignation</div>
+                          <div style={{ color: '#fff', fontWeight: '600', fontSize: '14px' }}>{selectedEquipment.designation}</div>
+                        </div>
+                        <div style={{ padding: '8px', background: 'rgba(31, 41, 55, 0.6)', borderRadius: '4px' }}>
+                          <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>CMU</div>
+                          <div style={{ color: '#64c8ff', fontWeight: '600', fontSize: '14px' }}>{selectedEquipment.cmu}</div>
+                        </div>
+                        <div style={{ padding: '8px', background: 'rgba(31, 41, 55, 0.6)', borderRadius: '4px' }}>
+                          <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Marque</div>
+                          <div style={{ color: '#fff', fontWeight: '600', fontSize: '14px' }}>{selectedEquipment.marque || '-'}</div>
+                        </div>
+                        <div style={{ padding: '8px', background: 'rgba(31, 41, 55, 0.6)', borderRadius: '4px' }}>
+                          <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Modèle</div>
+                          <div style={{ color: '#fff', fontWeight: '600', fontSize: '14px' }}>{selectedEquipment.modele || '-'}</div>
+                        </div>
+                        <div style={{ padding: '8px', background: 'rgba(31, 41, 55, 0.6)', borderRadius: '4px', gridColumn: '1 / -1' }}>
+                          <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Numéro de Série</div>
+                          <div style={{ color: '#64c8ff', fontWeight: '600', fontSize: '14px' }}>{selectedEquipment.numeroSerie || '-'}</div>
+                        </div>
+                      </div>
+                    ) : null;
+                  })()}
+                </div>
+              )}
               <div className="form-row">
                 <div className="form-group">
                   <label>Coût Unitaire (€)</label>
