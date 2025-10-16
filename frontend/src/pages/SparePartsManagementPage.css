@@ -65,8 +65,9 @@
 }
 
 .spare-parts-table td {
-  padding: 12px;
-  vertical-align: middle;
+  padding: 16px 12px;
+  vertical-align: top;
+  min-height: 70px;
 }
 
 .part-reference {
