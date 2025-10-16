@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useUI } from '../hooks/useUI';
 import MaintenanceManagementPanel from '../components/maintenance/MaintenanceManagementPanel';
 import ValidateMaintenanceModal from '../components/modals/ValidateMaintenanceModal';
+import VGPBadgeCompact from '../components/common/VGPBadgeCompact';
 import './MaintenanceDetailPage.css';
 
 const MaintenanceDetailPage = ({ equipmentData = [] }) => {
@@ -28,7 +29,6 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
     try {
       if (!equipment) return;
 
-      // Préparer les données de maintenance pour l'API
       const maintenancePayload = {
         motif: data.motif || '',
         notes: data.notes || '',
@@ -38,7 +38,6 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
         technicien: data.technicien || ''
       };
 
-      // Appel API pour sauvegarder la maintenance
       const response = await fetch(`http://localhost:5000/api/equipment/${equipment.id}/maintenance/validate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -54,7 +53,6 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
       showToast('✅ Maintenance validée avec succès', 'success');
       setShowValidateModal(false);
 
-      // Rediriger vers la page maintenance après 1 seconde
       setTimeout(() => navigate('/maintenance'), 1000);
     } catch (err) {
       console.error('❌ Erreur sauvegarde maintenance:', err);
@@ -64,7 +62,7 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
 
   if (loading) {
     return (
-      <div className="maintenance-detail-page-loading">
+      <div className="maintenance-page-loading">
         <div className="loading-spinner"></div>
         <p>Chargement...</p>
       </div>
@@ -73,7 +71,7 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
 
   if (!equipment) {
     return (
-      <div className="maintenance-detail-page-error">
+      <div className="maintenance-page-error">
         <div className="error-container">
           <h2>❌ Équipement non trouvé</h2>
           <p>L'équipement n° {id} n'existe pas ou n'est pas disponible.</p>
@@ -86,55 +84,113 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
   }
 
   return (
-    <div className="maintenance-detail-page">
-      {/* Header */}
-      <div className="maintenance-detail-page-header">
-        <div className="maintenance-header-content">
+    <div className="maintenance-page">
+      {/* Left Sidebar - Equipment Info (25%) */}
+      <div className="maintenance-sidebar">
+        {/* Header - Back Button */}
+        <div className="sidebar-header">
           <button
             onClick={() => navigate('/maintenance')}
-            className="maintenance-back-btn"
+            className="sidebar-back-btn"
             title="Retour"
           >
-            ← Retour
+            <span className="back-arrow">←</span>
+            <span>Retour</span>
           </button>
+        </div>
 
-          <div className="maintenance-header-title">
-            <h1>{equipment.designation}</h1>
-            <p className="maintenance-header-subtitle">Gestion de Maintenance</p>
+        {/* Equipment Title */}
+        <div className="sidebar-title-section">
+          <h2 className="sidebar-equipment-name">{equipment.designation}</h2>
+          <p className="sidebar-equipment-cmu">{equipment.cmu}</p>
+        </div>
+
+        {/* Equipment Specs */}
+        <div className="sidebar-specs-section">
+          <div className="specs-grid">
+            <div className="spec-card">
+              <div className="spec-icon">🏷️</div>
+              <div className="spec-content">
+                <span className="spec-label">N° Série</span>
+                <span className="spec-value">{equipment.numeroSerie}</span>
+              </div>
+            </div>
+
+            <div className="spec-card">
+              <div className="spec-icon">🏭</div>
+              <div className="spec-content">
+                <span className="spec-label">Marque</span>
+                <span className="spec-value">{equipment.marque || 'N/A'}</span>
+              </div>
+            </div>
+
+            <div className="spec-card">
+              <div className="spec-icon">📦</div>
+              <div className="spec-content">
+                <span className="spec-label">Modèle</span>
+                <span className="spec-value">{equipment.modele || 'N/A'}</span>
+              </div>
+            </div>
+
+            <div className="spec-card">
+              <div className="spec-icon">📏</div>
+              <div className="spec-content">
+                <span className="spec-label">Longueur</span>
+                <span className="spec-value">{equipment.longueur || 'N/A'}</span>
+              </div>
+            </div>
+
+            <div className="spec-card">
+              <div className="spec-icon">✨</div>
+              <div className="spec-content">
+                <span className="spec-label">État</span>
+                <span className="spec-value">{equipment.etat || 'N/A'}</span>
+              </div>
+            </div>
+
+            <div className="spec-card">
+              <div className="spec-icon">💰</div>
+              <div className="spec-content">
+                <span className="spec-label">Prix/j</span>
+                <span className="spec-value">{equipment.prixHT ? `${equipment.prixHT}€` : 'N/A'}</span>
+              </div>
+            </div>
           </div>
+        </div>
 
-          <div className="maintenance-header-specs">
-            <div className="spec-item">
-              <span className="spec-label">CMU</span>
-              <span className="spec-value">{equipment.cmu}</span>
+        {/* VGP Capsule */}
+        <div className="sidebar-vgp-section">
+          <div className="vgp-capsule">
+            <div className="vgp-header">
+              <span className="vgp-icon">📅</span>
+              <span className="vgp-title">Prochain VGP</span>
             </div>
-            <div className="spec-item">
-              <span className="spec-label">N° Série</span>
-              <span className="spec-value">{equipment.numeroSerie}</span>
+            <div className="vgp-content">
+              <VGPBadgeCompact prochainVGP={equipment.prochainVgp || equipment.prochainVGP} />
             </div>
-            <div className="spec-item">
-              <span className="spec-label">Marque</span>
-              <span className="spec-value">{equipment.marque || 'N/A'}</span>
-            </div>
-            <div className="spec-item">
-              <span className="spec-label">Modèle</span>
-              <span className="spec-value">{equipment.modele || 'N/A'}</span>
-            </div>
-            <div className="spec-item">
-              <span className="spec-label">État</span>
-              <span className="spec-value">{equipment.etat || 'N/A'}</span>
-            </div>
-            <div className="spec-item">
-              <span className="spec-label">Longueur</span>
-              <span className="spec-value">{equipment.longueur || 'N/A'}</span>
-            </div>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="sidebar-divider"></div>
+
+        {/* Action Info */}
+        <div className="sidebar-info">
+          <div className="info-box">
+            <span className="info-emoji">🔧</span>
+            <p className="info-text">Effectuez une maintenance professionnelle en suivant les étapes ci-contre</p>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="maintenance-detail-page-content">
-        <div className="maintenance-page-panel">
+      {/* Right Content Area - Maintenance Management (75%) */}
+      <div className="maintenance-content">
+        <div className="content-header">
+          <h1>Gestion de Maintenance</h1>
+          <p>Complétez tous les détails de la maintenance ci-dessous</p>
+        </div>
+
+        <div className="content-panel">
           <MaintenanceManagementPanel
             equipment={equipment}
             onValidateMaintenance={(data) => {
