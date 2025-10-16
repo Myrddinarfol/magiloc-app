@@ -212,21 +212,35 @@ const Sidebar = () => {
       </nav>
 
       <div className="sidebar-middle">
-        <button
-          onClick={() => handleMobileNavigate('analytics')}
-          className={`nav-button ${currentPage === 'analytics' ? 'active' : ''}`}
-        >
-          <span className="nav-icon">📊</span>
-          <span className="nav-text">ANALYTICS</span>
-        </button>
-
-        <button
-          onClick={() => handleMobileNavigate('parc-loc')}
-          className={`nav-button ${currentPage === 'parc-loc' ? 'active' : ''}`}
-        >
-          <span className="nav-icon">🏪</span>
-          <span className="nav-text">PARC LOC</span>
-        </button>
+        {/* GESTION PARC avec sous-menus */}
+        <div className="nav-menu-section">
+          <button
+            onClick={() => toggleMenu('gestion-parc')}
+            className={`nav-button has-submenu ${currentPage === 'parc-loc' || currentPage === 'analytics' ? 'active' : ''}`}
+          >
+            <span className="nav-icon">🛠️</span>
+            <span className="nav-text">GESTION PARC</span>
+            <span className={`nav-arrow-bottom ${expandedMenus['gestion-parc'] ? 'expanded' : ''}`}>▼</span>
+          </button>
+          {expandedMenus['gestion-parc'] && (
+            <div className="nav-submenu">
+              <button
+                onClick={() => handleMobileNavigate('parc-loc')}
+                className={`nav-sub-button ${currentPage === 'parc-loc' ? 'active' : ''}`}
+              >
+                <span className="nav-sub-icon">🏪</span>
+                <span className="nav-sub-text">Parc Loc</span>
+              </button>
+              <button
+                onClick={() => handleMobileNavigate('analytics')}
+                className={`nav-sub-button ${currentPage === 'analytics' ? 'active' : ''}`}
+              >
+                <span className="nav-sub-icon">📊</span>
+                <span className="nav-sub-text">Analytics</span>
+              </button>
+            </div>
+          )}
+        </div>
 
         <button
           onClick={() => { setShowNotesHistory(true); closeMobileMenu(); }}
