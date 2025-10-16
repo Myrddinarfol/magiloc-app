@@ -5,16 +5,45 @@ import MaintenanceManagementPanel from '../components/maintenance/MaintenanceMan
 import ValidateMaintenanceModal from '../components/modals/ValidateMaintenanceModal';
 import './MaintenanceDetailPage.css';
 
-// Helper pour déterminer la couleur du statut VGP
-const getVGPStatusColor = (date) => {
-  if (!date) return 'gray';
+// Helper pour obtenir les détails du VGP
+const getVGPDetails = (date) => {
+  if (!date) {
+    return {
+      color: 'gray',
+      icon: '❓',
+      label: 'Non renseigné',
+      subLabel: 'Veuillez renseigner la date'
+    };
+  }
+
   const today = new Date();
   const vgpDate = new Date(date);
   const daysUntil = Math.ceil((vgpDate - today) / (1000 * 60 * 60 * 24));
 
-  if (daysUntil < 0) return 'red';
-  if (daysUntil < 30) return 'orange';
-  return 'green';
+  if (daysUntil < 0) {
+    return {
+      color: 'red',
+      icon: '⚠️',
+      label: 'DÉPASSÉ',
+      subLabel: `Depuis ${Math.abs(daysUntil)} jour${Math.abs(daysUntil) > 1 ? 's' : ''}`
+    };
+  }
+
+  if (daysUntil < 30) {
+    return {
+      color: 'orange',
+      icon: '⏰',
+      label: 'BIENTÔT',
+      subLabel: `Plus que ${daysUntil} jour${daysUntil > 1 ? 's' : ''}`
+    };
+  }
+
+  return {
+    color: 'green',
+    icon: '✅',
+    label: 'VALIDE',
+    subLabel: `Valide pour ${daysUntil} jours`
+  };
 };
 
 const MaintenanceDetailPage = ({ equipmentData = [] }) => {
@@ -169,13 +198,19 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
           </div>
         </div>
 
-        {/* VGP Status Card */}
-        <div className="sidebar-vgp-compact">
-          <div className={`vgp-status-card-compact vgp-status-${getVGPStatusColor(equipment.prochainVGP)}`}>
-            <div className="vgp-compact-icon">📅</div>
-            <div className="vgp-compact-content">
-              <div className="vgp-compact-label">Prochain VGP</div>
-              <div className="vgp-compact-date">{equipment.prochainVGP || 'Non renseigné'}</div>
+        {/* VGP Status Card - FULL VERSION */}
+        <div className="sidebar-vgp-section-full">
+          <div className={`vgp-status-card vgp-status-${getVGPDetails(equipment.prochainVGP).color}`}>
+            <div className="vgp-status-icon">{getVGPDetails(equipment.prochainVGP).icon}</div>
+            <div className="vgp-status-content">
+              <div className="vgp-status-label">{getVGPDetails(equipment.prochainVGP).label}</div>
+              <div className="vgp-status-date">{equipment.prochainVGP || 'Non renseigné'}</div>
+              <div className="vgp-status-sublabel">{getVGPDetails(equipment.prochainVGP).subLabel}</div>
+              {equipment.certificat && (
+                <div className="vgp-certificat-info">
+                  📎 {equipment.certificat}
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -147,80 +147,177 @@
   word-break: break-word;
 }
 
-/* VGP Compact in Sidebar */
-.sidebar-vgp-compact {
+/* VGP Full Section in Sidebar */
+.sidebar-vgp-section-full {
   margin-top: auto;
   padding-top: 20px;
   border-top: 1px solid rgba(220, 38, 38, 0.2);
 }
 
-.vgp-status-card-compact {
+/* VGP Status Card - FULL STYLING (imported from App.css) */
+.vgp-status-card {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  border-radius: 10px;
+  gap: 18px;
+  padding: 20px 18px;
+  border-radius: 12px;
   border: 2px solid;
-  transition: all 0.3s ease;
-  background: linear-gradient(135deg, rgba(220, 38, 38, 0.15) 0%, rgba(185, 28, 28, 0.08) 100%);
+  margin-top: 0;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.vgp-status-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.1;
+  z-index: 0;
+}
+
+.vgp-status-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Statut ROUGE - Dépassé */
 .vgp-status-red {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.2) 0%, rgba(185, 28, 28, 0.1) 100%);
   border-color: var(--color-danger);
-  background: linear-gradient(135deg, rgba(220, 38, 38, 0.15) 0%, rgba(185, 28, 28, 0.08) 100%);
+  animation: pulseRed 2s infinite;
 }
 
+@keyframes pulseRed {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(220, 38, 38, 0);
+  }
+}
+
+/* Statut ORANGE - Bientôt */
 .vgp-status-orange {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(217, 119, 6, 0.1) 100%);
   border-color: var(--color-warning);
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.08) 100%);
+  animation: pulseOrange 2s infinite;
 }
 
+@keyframes pulseOrange {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(245, 158, 11, 0);
+  }
+}
+
+/* Statut VERT - OK */
 .vgp-status-green {
+  background: linear-gradient(135deg, rgba(22, 163, 74, 0.2) 0%, rgba(21, 128, 61, 0.1) 100%);
   border-color: var(--color-success);
-  background: linear-gradient(135deg, rgba(22, 163, 74, 0.15) 0%, rgba(21, 128, 61, 0.08) 100%);
 }
 
+.vgp-status-green:hover {
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+}
+
+/* Statut GRIS - Non renseigné */
 .vgp-status-gray {
+  background: linear-gradient(135deg, rgba(156, 163, 175, 0.2) 0%, rgba(107, 114, 128, 0.1) 100%);
   border-color: var(--text-muted);
-  background: linear-gradient(135deg, rgba(156, 163, 175, 0.15) 0%, rgba(107, 114, 128, 0.08) 100%);
 }
 
-.vgp-compact-icon {
-  font-size: 22px;
+/* Icône du statut VGP */
+.vgp-status-icon {
+  font-size: 36px;
   flex-shrink: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
 }
 
-.vgp-compact-content {
+.vgp-status-red .vgp-status-icon {
+  background: rgba(220, 38, 38, 0.2);
+  animation: shake 0.5s ease-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+
+.vgp-status-orange .vgp-status-icon {
+  background: rgba(245, 158, 11, 0.2);
+}
+
+.vgp-status-green .vgp-status-icon {
+  background: rgba(22, 163, 74, 0.2);
+}
+
+/* Contenu du statut VGP */
+.vgp-status-content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 6px;
 }
 
-.vgp-compact-label {
-  font-size: 10px;
+.vgp-status-label {
+  font-size: 16px;
   font-weight: 700;
-  color: var(--color-gray-400);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
 }
 
-.vgp-compact-date {
-  font-size: 13px;
+.vgp-status-red .vgp-status-label {
+  color: var(--color-danger);
+  text-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+}
+
+.vgp-status-orange .vgp-status-label {
+  color: var(--color-warning);
+  text-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+}
+
+.vgp-status-green .vgp-status-label {
+  color: var(--color-success);
+  text-shadow: 0 2px 4px rgba(22, 163, 74, 0.3);
+}
+
+.vgp-status-gray .vgp-status-label {
+  color: var(--text-muted);
+}
+
+.vgp-status-date {
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-primary);
+  margin: 2px 0;
 }
 
-.vgp-status-red .vgp-compact-label {
-  color: var(--color-danger);
+.vgp-status-sublabel {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
 }
 
-.vgp-status-orange .vgp-compact-label {
-  color: var(--color-warning);
-}
-
-.vgp-status-green .vgp-compact-label {
-  color: var(--color-success);
+.vgp-certificat-info {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-weight: 500;
 }
 
 /* Validate Button in Sidebar */
@@ -232,7 +329,7 @@
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s;
-  background: var(--color-primary);
+  background: var(--color-success);
   color: white;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -241,9 +338,9 @@
 }
 
 .btn-validate-maintenance-sidebar:hover {
-  background: var(--color-primary-dark);
+  background: #15803d;
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.3);
+  box-shadow: 0 6px 16px rgba(22, 163, 74, 0.3);
 }
 
 /* ═════════════════════════════════════════════════════════════════════════ */
