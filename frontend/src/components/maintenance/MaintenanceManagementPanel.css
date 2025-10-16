@@ -1,7 +1,11 @@
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* MAINTENANCE MANAGEMENT PANEL - THEME NOIR/GRIS/ROUGE */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
 .maintenance-management-panel {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 25px;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
@@ -11,42 +15,44 @@
 .maintenance-top-section {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 15px;
+  gap: 20px;
 }
 
 .motif-section,
 .notes-retour-section {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .motif-section h4,
 .notes-retour-section h4 {
   margin: 0;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
   color: var(--text-primary);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
 }
 
 .maintenance-textarea {
-  padding: 10px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 16px 18px;
+  border: 2px solid rgba(220, 38, 38, 0.2);
   background: var(--bg-primary);
   color: var(--text-primary);
-  border-radius: 8px;
+  border-radius: 10px;
   font-family: inherit;
-  font-size: 13px;
+  font-size: 15px;
   resize: vertical;
   transition: all 0.2s;
+  min-height: 120px;
+  line-height: 1.6;
 }
 
 .maintenance-textarea:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
@@ -55,8 +61,8 @@
 
 .maintenance-main-panel {
   background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
-  border: 1px solid rgba(220, 38, 38, 0.3);
-  border-radius: 12px;
+  border: 2px solid rgba(220, 38, 38, 0.3);
+  border-radius: 14px;
   overflow: hidden;
 }
 
@@ -65,23 +71,23 @@
   display: flex;
   gap: 0;
   background: rgba(0, 0, 0, 0.2);
-  border-bottom: 1px solid rgba(220, 38, 38, 0.3);
+  border-bottom: 2px solid rgba(220, 38, 38, 0.3);
   padding: 0;
 }
 
 .maintenance-tab {
   flex: 1;
-  padding: 12px 16px;
+  padding: 18px 22px;
   background: transparent;
   border: none;
   color: var(--text-secondary);
-  font-weight: 600;
-  font-size: 13px;
+  font-weight: 700;
+  font-size: 15px;
   text-transform: uppercase;
   letter-spacing: 1px;
   cursor: pointer;
   transition: all 0.2s;
-  border-bottom: 3px solid transparent;
+  border-bottom: 4px solid transparent;
 }
 
 .maintenance-tab:hover {
@@ -97,75 +103,79 @@
 
 /* CONTENT */
 .maintenance-content {
-  padding: 20px;
-  min-height: 300px;
+  padding: 28px;
+  min-height: 450px;
 }
 
 /* NOTES TAB */
 .maintenance-notes-textarea {
   width: 100%;
-  padding: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 16px 18px;
+  border: 2px solid rgba(220, 38, 38, 0.2);
   background: var(--bg-primary);
   color: var(--text-primary);
-  border-radius: 8px;
+  border-radius: 10px;
   font-family: monospace;
-  font-size: 13px;
+  font-size: 15px;
   resize: vertical;
   transition: all 0.2s;
+  min-height: 200px;
+  line-height: 1.6;
 }
 
 .maintenance-notes-textarea:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
 }
 
 /* PIECES TAB */
 .maintenance-pieces-tab {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 18px;
 }
 
 .pieces-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  max-height: 350px;
+  gap: 12px;
+  max-height: 400px;
   overflow-y: auto;
 }
 
 .no-pieces {
-  padding: 20px;
+  padding: 30px 20px;
   text-align: center;
   color: var(--text-secondary);
   font-style: italic;
+  font-size: 15px;
 }
 
 .piece-item {
   background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(100, 200, 255, 0.2);
-  border-radius: 8px;
-  padding: 10px;
+  border: 2px solid rgba(220, 38, 38, 0.2);
+  border-radius: 10px;
+  padding: 14px;
 }
 
 .piece-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 80px 40px;
-  gap: 10px;
+  grid-template-columns: 1fr 1fr 100px 50px;
+  gap: 12px;
   align-items: center;
 }
 
 .piece-select,
 .piece-designation,
 .piece-quantity {
-  padding: 8px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 12px 14px;
+  border: 2px solid rgba(220, 38, 38, 0.2);
   background: var(--bg-primary);
   color: var(--text-primary);
-  border-radius: 6px;
-  font-size: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
   transition: all 0.2s;
 }
 
@@ -174,111 +184,121 @@
 .piece-quantity:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(100, 200, 255, 0.15);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
 }
 
 /* TEMPS TAB */
 .maintenance-temps-tab {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
 }
 
 .temps-input-group {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 18px;
 }
 
 .temps-input-group label {
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
-  min-width: 200px;
+  min-width: 220px;
+  font-size: 15px;
 }
 
 .temps-input {
-  width: 150px;
-  padding: 10px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 180px;
+  padding: 12px 14px;
+  border: 2px solid rgba(220, 38, 38, 0.2);
   background: var(--bg-primary);
   color: var(--text-primary);
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 500;
   transition: all 0.2s;
 }
 
 .temps-input:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
 }
 
 .temps-unit {
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .temps-summary {
-  padding: 12px 16px;
-  background: rgba(76, 175, 80, 0.1);
-  border: 1px solid rgba(76, 175, 80, 0.3);
-  border-radius: 8px;
+  padding: 16px 20px;
+  background: rgba(220, 38, 38, 0.1);
+  border: 2px solid rgba(220, 38, 38, 0.2);
+  border-radius: 10px;
   color: var(--text-primary);
 }
 
 .temps-summary p {
   margin: 0;
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 600;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
-/* AIDE A LA MAINTENANCE */
+/* AIDE A LA MAINTENANCE - CAPSULES ROUGES */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
 .maintenance-aide-section {
-  background: rgba(100, 200, 255, 0.08);
-  border: 2px solid rgba(100, 200, 255, 0.2);
-  border-radius: 12px;
-  padding: 16px;
+  background: rgba(220, 38, 38, 0.08);
+  border: 2px solid rgba(220, 38, 38, 0.25);
+  border-radius: 14px;
+  padding: 22px;
 }
 
 .maintenance-aide-section h4 {
-  margin: 0 0 12px 0;
-  font-size: 14px;
-  font-weight: 600;
-  color: #64c8ff;
+  margin: 0 0 16px 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: #dc2626;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 .aide-tabs {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
 }
 
 .aide-tab {
-  background: rgba(31, 41, 55, 0.6);
-  border: 1px solid rgba(100, 200, 255, 0.15);
-  border-radius: 8px;
-  padding: 12px;
+  background: rgba(31, 41, 55, 0.8);
+  border: 2px solid rgba(220, 38, 38, 0.2);
+  border-radius: 10px;
+  padding: 18px 20px;
+  transition: all 0.2s;
+}
+
+.aide-tab:hover {
+  background: rgba(31, 41, 55, 1);
+  border-color: rgba(220, 38, 38, 0.4);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.1);
 }
 
 .aide-tab h5 {
-  margin: 0 0 8px 0;
-  font-size: 12px;
-  font-weight: 600;
-  color: #64c8ff;
+  margin: 0 0 10px 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #dc2626;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .aide-tab p {
   margin: 0;
-  font-size: 12px;
+  font-size: 15px;
   color: var(--text-secondary);
-  line-height: 1.5;
-  max-height: 80px;
+  line-height: 1.6;
+  max-height: 100px;
   overflow-y: auto;
 }
 
@@ -288,23 +308,23 @@
 
 .maintenance-bottom-section {
   display: flex;
-  gap: 20px;
+  gap: 24px;
   align-items: center;
   justify-content: space-between;
 }
 
 .vgp-section {
   flex: 1;
-  background: rgba(220, 38, 38, 0.08);
-  border: 1px solid rgba(220, 38, 38, 0.2);
-  border-radius: 8px;
-  padding: 12px 16px;
+  background: rgba(220, 38, 38, 0.1);
+  border: 2px solid rgba(220, 38, 38, 0.25);
+  border-radius: 12px;
+  padding: 18px 22px;
 }
 
 .vgp-section h4 {
-  margin: 0 0 8px 0;
-  font-size: 12px;
-  font-weight: 600;
+  margin: 0 0 12px 0;
+  font-size: 15px;
+  font-weight: 700;
   color: var(--color-primary);
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -313,8 +333,8 @@
 .vgp-info {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  font-size: 13px;
+  gap: 10px;
+  font-size: 15px;
 }
 
 .vgp-info span {
@@ -323,36 +343,45 @@
 
 .vgp-info strong {
   color: var(--text-primary);
+  font-weight: 600;
 }
 
 .vgp-checkbox {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   cursor: pointer;
   color: var(--text-secondary);
   user-select: none;
+  font-size: 15px;
+  font-weight: 500;
 }
 
 .vgp-checkbox input[type="checkbox"] {
   cursor: pointer;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 }
 
 .btn-validate-maintenance {
-  padding: 12px 24px;
-  font-size: 14px;
-  font-weight: 600;
+  padding: 16px 32px;
+  font-size: 15px;
+  font-weight: 700;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s;
+  background: #dc2626;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  min-width: 200px;
 }
 
 .btn-validate-maintenance:hover {
+  background: #b91c1c;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.3);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
@@ -381,7 +410,7 @@
 
   .maintenance-tab {
     border-bottom: none;
-    border-left: 3px solid transparent;
+    border-left: 4px solid transparent;
   }
 
   .maintenance-tab.active {
