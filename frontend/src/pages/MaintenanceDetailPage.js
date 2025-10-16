@@ -241,7 +241,7 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
             setShowValidateModal(true);
           }}
         >
-          ✅ VALIDER
+          ✅ VALIDER MAINTENANCE
         </button>
 
       </div>
@@ -249,8 +249,8 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
       {/* Right Content Area - Maintenance Management (75%) */}
       <div className="maintenance-content">
         <div className="content-header">
-          <h1>Gestion de Maintenance</h1>
-          <p>Complétez tous les détails de la maintenance ci-dessous</p>
+          <h1>Maintenance de {equipment.designation}</h1>
+          <p>Remplissez les détails de la maintenance en cours</p>
         </div>
 
         <div className="content-panel">
