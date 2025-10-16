@@ -1,9 +1,129 @@
 // Système de gestion des notes de mise à jour
 // Pour ajouter une nouvelle version, ajoutez un objet au début du tableau
 
-export const CURRENT_VERSION = '0.9.7';
+export const CURRENT_VERSION = '0.10.0';
 
 export const releaseNotes = [
+  {
+    version: '0.10.0',
+    date: '2025-10-16',
+    title: '🔧 Gestion des Pièces Détachées + Interface Avancée de Sélection d\'Équipement',
+    sections: [
+      {
+        title: '🆕 Onglet CLIENT - Gestion complète',
+        items: [
+          'Nouvel onglet CLIENT dans le menu GESTION PARC (👥)',
+          'Gestion complète des clients : Création, Modification, Suppression',
+          'Formulaire avec champs : Nom (*requis), Email, Téléphone, Adresse, Contact Principal, Notes',
+          'Validation des champs avec messages d\'erreur clairs',
+          'Table affichant tous les clients avec actions d\'édition/suppression',
+          'Toast notifications pour les actions réussies/échouées',
+        ]
+      },
+      {
+        title: '🔩 Onglet PIECES DETACHEES - Gestion complète',
+        items: [
+          'Nouvel onglet PIECES_DETACHEES dans le menu MAINTENANCE (🔩)',
+          'Gestion complète des pièces détachées : Création, Modification, Suppression',
+          'Lien automatique avec les équipements du parc',
+          'Table avec colonnes : Référence, Désignation, Équipement, Coût Unitaire, Quantité, Fournisseur',
+          'Calcul automatique du coût total des pièces filtrées',
+          'Filtrage dynamique par équipement avec compteur',
+          'Affichage équipement enrichi : Désignation (CMU), Marque, Modèle en multi-lignes',
+        ]
+      },
+      {
+        title: '🔍 Interface Avancée de Sélection d\'Équipement',
+        items: [
+          'Modal agrandi de 600px → 900px pour meilleure interface',
+          'Section de recherche par caractéristique avec 4 menus déroulants :',
+          '  • Désignation (liste de toutes les désignations uniques)',
+          '  • CMU (liste de tous les CMU uniques)',
+          '  • Marque (liste de toutes les marques uniques)',
+          '  • Modèle (liste de tous les modèles uniques)',
+          'Filtrage en cascade : quand tu sélectionnes une Désignation, le menu CMU affiche UNIQUEMENT les CMU pour cette désignation, etc.',
+          'Zéro option invalide ou incompatible',
+          'Liste des équipements correspondants avec affichage : Désignation (CMU) + Marque Modèle • Série',
+          'Sélection par clic sur un équipement (mise en surbrillance bleue)',
+          'Section de confirmation en vert ✅ affichant tous les détails complets',
+        ]
+      },
+      {
+        title: '✨ Fonctionnalités du Filtrage en Cascade',
+        items: [
+          'Filtrage dynamique et intelligent en temps réel',
+          'Sélectionne "Palan Manuel" → CMU propose uniquement les CMU disponibles pour Palan Manuel',
+          'Sélectionne CMU "500kg" → Marque propose uniquement les marques Palan 500kg',
+          'Sélectionne Marque "ACME" → Modèle propose uniquement les modèles ACME pour cette combo',
+          'Sélectionne Modèle → Liste finale affiche équipements correspondants',
+          'Impossible de créer une combinaison inexistante',
+          'Meilleure UX et zéro confusion avec les anciennes méthodes',
+        ]
+      },
+      {
+        title: '📋 Composant ClientAutocomplete',
+        items: [
+          'Autocomplete intelligent pour sélection clients dans modal réservation',
+          'Filtrage en temps réel lors de la saisie du nom',
+          'Navigation au clavier : Flèches ↑↓, Enter pour sélectionner, Escape pour fermer',
+          'Affichage email et téléphone dans les suggestions',
+          'Fermeture automatique au clic externe',
+          'Design harmonisé avec le reste de l\'interface (bordure jaune/ambre)',
+        ]
+      },
+      {
+        title: '🎨 Design & Styling',
+        items: [
+          'Sélects de filtrage avec fond foncé rgba(31, 41, 55, 0.8) et texte blanc',
+          'Options avec background #1f2937 et texte blanc (lisibilité 100%)',
+          'Bordures bleues (#64c8ff) pour section filtres',
+          'Section résultats scrollable (max 250px)',
+          'Équipements avec hover effect et classe "selected" en bleu',
+          'Grille 2x2 pour les 4 critères de filtrage',
+          'Icônes cohérentes : 🔍 pour filtres, ✅ pour confirmation',
+          'Tables avec hauteur ligne 70px minimum pour texte multi-ligne',
+          'Affichage équipement en 2 lignes : Désignation + Brand/Model',
+        ]
+      },
+      {
+        title: '🔧 Architecture Technique',
+        items: [
+          'ClientContext + ClientProvider pour gestion d\'état globale des clients',
+          'SparePartsContext + SparePartsProvider pour gestion d\'état des pièces',
+          'Hooks personnalisés : useClient() et useSpareParts()',
+          'Pages : ClientManagementPage.js et SparePartsManagementPage.js',
+          'Composant réutilisable : ClientAutocomplete.js',
+          'Backend : 15+ routes API pour CRUD clients et pièces détachées',
+          'Migration SQL : 3 tables (clients, spare_parts, spare_parts_usage)',
+        ]
+      },
+      {
+        title: '🐛 Correctifs & Validations',
+        items: [
+          'Validation formulaire client : nom requis avec message spécifique',
+          'Validation formulaire pièce détachée : référence requise, désignation requise, quantité ≥ 1',
+          'Affichage message "Aucune pièce enregistrée" quand liste vide',
+          'Rechargement automatique de la liste après création/modification',
+          'Réinitialisation des filtres lors fermeture du modal',
+          'Gestion erreurs API avec affichage de messages clairs',
+        ]
+      },
+      {
+        title: '📂 Fichiers Modifiés/Créés',
+        items: [
+          'Créés : ClientManagementPage.js, SparePartsManagementPage.js',
+          'Créés : ClientContext.js, SparePartsContext.js',
+          'Créés : useClient.js, useSpareParts.js hooks',
+          'Créés : ClientAutocomplete.js (composant réutilisable)',
+          'Créés : CSS files pour pages et composants',
+          'Modifiés : App.js (ajout providers et routes)',
+          'Modifiés : Sidebar.js (ajout CLIENT et PIECES_DETACHEES)',
+          'Modifiés : CreateReservationModal.js (intégration ClientAutocomplete)',
+          'Backend : +200 lignes (routes API + migration DB)',
+        ]
+      }
+    ]
+  },
   {
     version: '0.9.7',
     date: '2025-10-13',
