@@ -169,7 +169,20 @@ const SparePartsManagementPage = () => {
                     <tr key={part.id}>
                       <td className="part-reference">{part.reference}</td>
                       <td className="part-designation">{part.designation}</td>
-                      <td className="part-equipment">{equipment ? `${equipment.designation} (${equipment.cmu})` : 'Non lié'}</td>
+                      <td className="part-equipment">
+                        {equipment ? (
+                          <div>
+                            <div style={{ fontWeight: '600', marginBottom: '4px' }}>
+                              {equipment.designation} ({equipment.cmu})
+                            </div>
+                            <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+                              {equipment.marque} {equipment.modele}
+                            </div>
+                          </div>
+                        ) : (
+                          <span style={{ color: '#6b7280' }}>Non lié</span>
+                        )}
+                      </td>
                       <td className="part-cost">{part.cost ? `${parseFloat(part.cost).toFixed(2)}€` : '-'}</td>
                       <td className="part-quantity">{part.quantity || 0}</td>
                       <td className="part-supplier">{part.supplier || '-'}</td>
