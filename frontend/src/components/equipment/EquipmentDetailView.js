@@ -191,23 +191,66 @@ const EquipmentDetailView = ({
             </div>
           )}
 
-          {/* Section Maintenance - affichée uniquement pour "En Maintenance" quand on vient de l'onglet Maintenance */}
+          {/* LAYOUT 25/75 POUR MAINTENANCE */}
           {equipment.statut === 'En Maintenance' && previousPage === 'maintenance' && (
-            <div className="detail-section">
-              <h3>🔧 Gestion Maintenance</h3>
-              <div className="maintenance-panel">
-                <div className="maintenance-motif-box">
-                  <h4>📋 Motif de maintenance</h4>
-                  <div className="motif-content">
-                    {equipment.motifMaintenance || 'Aucun motif renseigné'}
+            <div className="maintenance-detail-layout">
+              {/* SIDEBAR 25% - INFOS TECHNIQUES COMPACTES + HISTORIQUE */}
+              <div className="maintenance-sidebar">
+                {/* SECTION INFOS TECHNIQUES COMPACTE */}
+                <div className="maintenance-sidebar-section">
+                  <h4>📋 Infos Techniques</h4>
+                  <div className="maintenance-sidebar-item">
+                    <span className="maintenance-sidebar-label">Modèle</span>
+                    <span className="maintenance-sidebar-value">{equipment.modele || 'N/A'}</span>
+                  </div>
+                  <div className="maintenance-sidebar-item">
+                    <span className="maintenance-sidebar-label">Marque</span>
+                    <span className="maintenance-sidebar-value">{equipment.marque || 'N/A'}</span>
+                  </div>
+                  <div className="maintenance-sidebar-item">
+                    <span className="maintenance-sidebar-label">N° Série</span>
+                    <span className="maintenance-sidebar-value serial">{equipment.numeroSerie}</span>
+                  </div>
+                  <div className="maintenance-sidebar-item">
+                    <span className="maintenance-sidebar-label">Longueur</span>
+                    <span className="maintenance-sidebar-value">{equipment.longueur || 'N/A'}</span>
+                  </div>
+                  <div className="maintenance-sidebar-item">
+                    <span className="maintenance-sidebar-label">État</span>
+                    <span className="maintenance-sidebar-value">{equipment.etat || 'N/A'}</span>
                   </div>
                 </div>
-                <div className="maintenance-notes-box">
-                  <h4>📝 Notes de retour</h4>
-                  <div className="notes-content">
-                    {equipment.noteRetour || 'Aucune note de retour'}
+
+                {/* SECTION HISTORIQUE */}
+                <div className="maintenance-sidebar-section">
+                  <h4>📚 Historique</h4>
+                  <div className="maintenance-history-buttons">
+                    <button
+                      onClick={onLoadLocationHistory}
+                      className="maintenance-history-btn"
+                    >
+                      📜 Locations
+                    </button>
+                    <button
+                      onClick={onLoadMaintenanceHistory}
+                      className="maintenance-history-btn"
+                    >
+                      🔧 Maintenance
+                    </button>
                   </div>
                 </div>
+              </div>
+
+              {/* CONTENT 75% - GESTION MAINTENANCE */}
+              <div className="maintenance-content">
+                <MaintenanceManagementPanel
+                  equipment={equipment}
+                  onValidateMaintenance={(data) => {
+                    setMaintenanceData(data);
+                    setShowValidateMaintenanceModal(true);
+                  }}
+                  maintenanceData={maintenanceData}
+                />
               </div>
             </div>
           )}
@@ -631,6 +674,21 @@ const EquipmentDetailView = ({
               onEditLocationInfo(action);
             }
           }}
+        />
+      )}
+
+      {/* Modal de validation de maintenance */}
+      {showValidateMaintenanceModal && (
+        <ValidateMaintenanceModal
+          equipment={equipment}
+          maintenance={maintenanceData}
+          onConfirm={(data) => {
+            setShowValidateMaintenanceModal(false);
+            // Appeler la fonction de sauvegarde maintenance
+            // À implémenter: onValidateMaintenance(equipment, data);
+            console.log('Maintenance validée:', data);
+          }}
+          onCancel={() => setShowValidateMaintenanceModal(false)}
         />
       )}
     </div>
