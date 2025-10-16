@@ -5,6 +5,9 @@ import VGPSection from './VGPSection';
 import { useUI } from '../../hooks/useUI';
 import CreateReservationModal from '../modals/CreateReservationModal';
 import EditLocationModal from '../modals/EditLocationModal';
+import MaintenanceManagementPanel from '../maintenance/MaintenanceManagementPanel';
+import ValidateMaintenanceModal from '../modals/ValidateMaintenanceModal';
+import './EquipmentDetailView.css';
 
 const EquipmentDetailView = ({
   equipment,
@@ -26,6 +29,8 @@ const EquipmentDetailView = ({
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [showCreateReservationModal, setShowCreateReservationModal] = useState(false);
   const [showEditLocationModal, setShowEditLocationModal] = useState(false);
+  const [showValidateMaintenanceModal, setShowValidateMaintenanceModal] = useState(false);
+  const [maintenanceData, setMaintenanceData] = useState({});
 
   return (
     <div>
