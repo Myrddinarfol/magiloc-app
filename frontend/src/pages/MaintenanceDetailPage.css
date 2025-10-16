@@ -1,25 +1,14 @@
 /* ═════════════════════════════════════════════════════════════════════════ */
 /* MAINTENANCE PAGE - PROFESSIONAL 25/75 LAYOUT */
-/* Thème: Noir, Gris, Rouge */
+/* Thème: Noir, Gris, Rouge (cohérent avec App.css) */
 /* ═════════════════════════════════════════════════════════════════════════ */
 
-:root {
-  --primary-color: #dc2626;
-  --bg-dark: #0f172a;
-  --bg-darker: #111827;
-  --bg-card: #1f2937;
-  --bg-secondary: #374151;
-  --text-primary: #f1f5f9;
-  --text-secondary: #d1d5db;
-  --border-color: #4b5563;
-  --sidebar-bg: linear-gradient(135deg, #111827 0%, #1f2937 100%);
-  --accent-gray: #9ca3af;
-}
+/* Utilise les variables CSS globales d'App.css - Pas de surcharge :root */
 
 .maintenance-page {
   display: flex;
   height: 100vh;
-  background: var(--bg-dark);
+  background: var(--bg-main);
   overflow: hidden;
 }
 
@@ -29,7 +18,7 @@
 
 .maintenance-sidebar {
   width: 25%;
-  background: var(--sidebar-bg);
+  background: linear-gradient(135deg, var(--color-gray-900) 0%, var(--color-gray-800) 100%);
   border-right: 2px solid rgba(220, 38, 38, 0.3);
   display: flex;
   flex-direction: column;
@@ -146,7 +135,7 @@
 .spec-label {
   font-size: 10px;
   font-weight: 700;
-  color: var(--accent-gray);
+  color: var(--color-gray-400);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -248,7 +237,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, #0f172a 0%, #1a1f36 100%);
+  background: linear-gradient(135deg, var(--bg-main) 0%, var(--bg-secondary) 100%);
   overflow: hidden;
 }
 
@@ -294,7 +283,7 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: linear-gradient(135deg, #0f172a 0%, #1a1f36 100%);
+  background: linear-gradient(135deg, var(--bg-main) 0%, var(--bg-secondary) 100%);
   gap: 20px;
 }
 
@@ -329,12 +318,12 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: linear-gradient(135deg, #0f172a 0%, #1a1f36 100%);
+  background: linear-gradient(135deg, var(--bg-main) 0%, var(--bg-secondary) 100%);
 }
 
 .error-container {
   background: var(--bg-card);
-  border: 2px solid var(--primary-color);
+  border: 2px solid var(--color-primary);
   border-radius: 12px;
   padding: 40px;
   text-align: center;
@@ -344,7 +333,7 @@
 .error-container h2 {
   margin: 0 0 10px 0;
   font-size: 22px;
-  color: var(--primary-color);
+  color: var(--color-primary);
 }
 
 .error-container p {

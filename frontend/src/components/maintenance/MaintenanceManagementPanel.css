@@ -38,7 +38,7 @@
 .maintenance-textarea {
   padding: 16px 18px;
   border: 2px solid rgba(220, 38, 38, 0.2);
-  background: var(--bg-primary);
+  background: var(--bg-card);
   color: var(--text-primary);
   border-radius: 10px;
   font-family: inherit;
@@ -112,7 +112,7 @@
   width: 100%;
   padding: 16px 18px;
   border: 2px solid rgba(220, 38, 38, 0.2);
-  background: var(--bg-primary);
+  background: var(--bg-card);
   color: var(--text-primary);
   border-radius: 10px;
   font-family: monospace;
@@ -171,7 +171,7 @@
 .piece-quantity {
   padding: 12px 14px;
   border: 2px solid rgba(220, 38, 38, 0.2);
-  background: var(--bg-primary);
+  background: var(--bg-card);
   color: var(--text-primary);
   border-radius: 8px;
   font-size: 14px;
@@ -211,7 +211,7 @@
   width: 180px;
   padding: 12px 14px;
   border: 2px solid rgba(220, 38, 38, 0.2);
-  background: var(--bg-primary);
+  background: var(--bg-card);
   color: var(--text-primary);
   border-radius: 8px;
   font-size: 15px;
@@ -259,7 +259,7 @@
   margin: 0 0 16px 0;
   font-size: 17px;
   font-weight: 700;
-  color: #dc2626;
+  color: var(--color-primary);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -288,7 +288,7 @@
   margin: 0 0 10px 0;
   font-size: 15px;
   font-weight: 700;
-  color: #dc2626;
+  color: var(--color-primary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -371,7 +371,7 @@
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s;
-  background: #dc2626;
+  background: var(--color-primary);
   color: white;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -379,7 +379,7 @@
 }
 
 .btn-validate-maintenance:hover {
-  background: #b91c1c;
+  background: var(--color-primary-dark);
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(220, 38, 38, 0.3);
 }
