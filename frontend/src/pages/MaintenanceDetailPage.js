@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useUI } from '../hooks/useUI';
 import MaintenanceManagementPanel from '../components/maintenance/MaintenanceManagementPanel';
 import ValidateMaintenanceModal from '../components/modals/ValidateMaintenanceModal';
-import VGPBadgeCompact from '../components/common/VGPBadgeCompact';
 import './MaintenanceDetailPage.css';
 
 const MaintenanceDetailPage = ({ equipmentData = [] }) => {
@@ -158,29 +157,6 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
           </div>
         </div>
 
-        {/* VGP Capsule */}
-        <div className="sidebar-vgp-section">
-          <div className="vgp-capsule">
-            <div className="vgp-header">
-              <span className="vgp-icon">📅</span>
-              <span className="vgp-title">Prochain VGP</span>
-            </div>
-            <div className="vgp-content">
-              <VGPBadgeCompact prochainVGP={equipment.prochainVgp || equipment.prochainVGP} />
-            </div>
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div className="sidebar-divider"></div>
-
-        {/* Action Info */}
-        <div className="sidebar-info">
-          <div className="info-box">
-            <span className="info-emoji">🔧</span>
-            <p className="info-text">Effectuez une maintenance professionnelle en suivant les étapes ci-contre</p>
-          </div>
-        </div>
       </div>
 
       {/* Right Content Area - Maintenance Management (75%) */}
