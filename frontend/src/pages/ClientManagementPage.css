@@ -1,0 +1,133 @@
+.client-management-page {
+  padding: 20px;
+}
+
+.client-controls {
+  margin: 20px 0;
+  display: flex;
+  gap: 10px;
+}
+
+.clients-table-container {
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  overflow: auto;
+  margin-top: 20px;
+}
+
+.clients-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.clients-table thead {
+  background: var(--accent-color);
+  color: white;
+  position: sticky;
+  top: 0;
+}
+
+.clients-table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.clients-table tbody tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: background-color 0.2s;
+}
+
+.clients-table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.clients-table td {
+  padding: 12px;
+  vertical-align: middle;
+}
+
+.client-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.client-email,
+.client-phone,
+.client-contact {
+  color: var(--text-secondary);
+  font-size: 0.9em;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.btn-sm {
+  padding: 6px 10px;
+  font-size: 0.9em;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.client-modal {
+  max-width: 600px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-radius: 4px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(100, 200, 255, 0.2);
+}
+
+.modal-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.loading-state {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+}

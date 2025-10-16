@@ -1,0 +1,189 @@
+.spare-parts-management-page {
+  padding: 20px;
+}
+
+.spare-parts-controls {
+  margin: 20px 0;
+  display: flex;
+  gap: 15px;
+  align-items: flex-end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 250px;
+}
+
+.filter-group label {
+  font-weight: 600;
+  font-size: 0.9em;
+}
+
+.filter-group select {
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-radius: 4px;
+  font-family: inherit;
+}
+
+.spare-parts-table-container {
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  overflow: auto;
+  margin-top: 20px;
+}
+
+.spare-parts-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.spare-parts-table thead {
+  background: var(--accent-color);
+  color: white;
+  position: sticky;
+  top: 0;
+}
+
+.spare-parts-table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.spare-parts-table tbody tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: background-color 0.2s;
+}
+
+.spare-parts-table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.spare-parts-table td {
+  padding: 12px;
+  vertical-align: middle;
+}
+
+.part-reference {
+  font-weight: 600;
+  color: var(--accent-color);
+  font-family: monospace;
+}
+
+.part-designation {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.part-equipment {
+  color: var(--text-secondary);
+  font-size: 0.9em;
+}
+
+.part-cost {
+  color: var(--success-color);
+  font-weight: 600;
+}
+
+.part-quantity {
+  text-align: center;
+  background: rgba(100, 200, 255, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.part-supplier {
+  color: var(--text-secondary);
+  font-size: 0.9em;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.btn-sm {
+  padding: 6px 10px;
+  font-size: 0.9em;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.spare-parts-summary {
+  margin-top: 15px;
+  padding: 15px;
+  background: var(--bg-secondary);
+  border-left: 4px solid var(--accent-color);
+  border-radius: 4px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.spare-part-modal {
+  max-width: 600px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-radius: 4px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(100, 200, 255, 0.2);
+}
+
+.modal-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.loading-state {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+}

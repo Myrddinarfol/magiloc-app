@@ -206,6 +206,13 @@ const Sidebar = () => {
                 <span className="nav-sub-icon">✅</span>
                 <span className="nav-sub-text">VGP</span>
               </button>
+              <button
+                onClick={() => handleMobileNavigate('spare-parts')}
+                className={`nav-sub-button ${currentPage === 'spare-parts' ? 'active' : ''}`}
+              >
+                <span className="nav-sub-icon">🔩</span>
+                <span className="nav-sub-text">Pièces Détachées</span>
+              </button>
             </div>
           )}
         </div>
@@ -224,6 +231,13 @@ const Sidebar = () => {
           </button>
           {expandedMenus['gestion-parc'] && (
             <div className="nav-submenu">
+              <button
+                onClick={() => handleMobileNavigate('clients')}
+                className={`nav-sub-button ${currentPage === 'clients' ? 'active' : ''}`}
+              >
+                <span className="nav-sub-icon">👥</span>
+                <span className="nav-sub-text">Clients</span>
+              </button>
               <button
                 onClick={() => handleMobileNavigate('parc-loc')}
                 className={`nav-sub-button ${currentPage === 'parc-loc' ? 'active' : ''}`}

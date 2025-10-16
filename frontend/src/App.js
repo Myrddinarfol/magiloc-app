@@ -3,6 +3,8 @@ import { Analytics } from '@vercel/analytics/react';
 import { AuthProvider } from './context/AuthContext';
 import { EquipmentProvider } from './context/EquipmentContext';
 import { UIProvider } from './context/UIContext';
+import { ClientProvider } from './context/ClientContext';
+import { SparePartsProvider } from './context/SparePartsContext';
 import { useAuth } from './hooks/useAuth';
 import { useEquipment } from './hooks/useEquipment';
 import { useUI } from './hooks/useUI';
@@ -22,6 +24,8 @@ import MaintenancePlanningPage from './pages/MaintenancePlanningPage';
 import VGPManagementPage from './pages/VGPManagementPage';
 import LocationListPage from './pages/LocationListPage';
 import LocationPlanningPage from './pages/LocationPlanningPage';
+import ClientManagementPage from './pages/ClientManagementPage';
+import SparePartsManagementPage from './pages/SparePartsManagementPage';
 
 // Components
 import Sidebar from './components/layout/Sidebar';
@@ -312,6 +316,10 @@ const MainApp = ({ shouldStartTour }) => {
         return <DashboardPage />;
       case 'analytics':
         return <AnalyticsPage />;
+      case 'clients':
+        return <ClientManagementPage />;
+      case 'spare-parts':
+        return <SparePartsManagementPage />;
       case 'maintenance-dashboard':
         return <MaintenanceDashboardPage />;
       case 'maintenance-list':
@@ -467,7 +475,11 @@ function App() {
     <AuthProvider>
       <EquipmentProvider>
         <UIProvider>
-          <AppContent />
+          <ClientProvider>
+            <SparePartsProvider>
+              <AppContent />
+            </SparePartsProvider>
+          </ClientProvider>
         </UIProvider>
       </EquipmentProvider>
     </AuthProvider>
