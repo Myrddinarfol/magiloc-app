@@ -26,6 +26,13 @@ const SparePartsManagementPage = () => {
     loadSpareParts();
   }, []);
 
+  const [equipmentFilters, setEquipmentFilters] = useState({
+    designation: '',
+    cmu: '',
+    marque: '',
+    modele: ''
+  });
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -34,6 +41,34 @@ const SparePartsManagementPage = () => {
               name === 'quantity' || name === 'cost' ? parseFloat(value) || '' : value
     }));
   };
+
+  const handleFilterChange = (field, value) => {
+    setEquipmentFilters(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const getUniqueValues = (field) => {
+    const values = equipmentData
+      .map(eq => eq[field])
+      .filter(Boolean)
+      .filter((val, idx, self) => self.indexOf(val) === idx)
+      .sort();
+    return values;
+  };
+
+  const getFilteredEquipment = () => {
+    return equipmentData.filter(eq => {
+      if (equipmentFilters.designation && eq.designation !== equipmentFilters.designation) return false;
+      if (equipmentFilters.cmu && eq.cmu !== equipmentFilters.cmu) return false;
+      if (equipmentFilters.marque && eq.marque !== equipmentFilters.marque) return false;
+      if (equipmentFilters.modele && eq.modele !== equipmentFilters.modele) return false;
+      return true;
+    });
+  };
+
+  const selectedEquipmentInfo = equipmentData.find(eq => eq.id === formData.equipment_id);
 
   const handleAddClick = () => {
     setEditingPart(null);
@@ -46,18 +81,36 @@ const SparePartsManagementPage = () => {
       supplier: '',
       notes: ''
     });
+    setEquipmentFilters({
+      designation: '',
+      cmu: '',
+      marque: '',
+      modele: ''
+    });
     setShowModal(true);
   };
 
   const handleEditClick = (part) => {
     setEditingPart(part);
     setFormData(part);
+    setEquipmentFilters({
+      designation: '',
+      cmu: '',
+      marque: '',
+      modele: ''
+    });
     setShowModal(true);
   };
 
   const handleModalClose = () => {
     setShowModal(false);
     setEditingPart(null);
+    setEquipmentFilters({
+      designation: '',
+      cmu: '',
+      marque: '',
+      modele: ''
+    });
   };
 
   const handleFormSubmit = async () => {
@@ -245,73 +298,115 @@ const SparePartsManagementPage = () => {
                   />
                 </div>
               </div>
-              <div className="form-group">
-                <label>Sélectionner l'Équipement</label>
-                <select
-                  name="equipment_id"
-                  value={formData.equipment_id || ''}
-                  onChange={handleInputChange}
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    fontSize: '14px',
-                    color: '#fff',
-                    background: 'rgba(31, 41, 55, 0.8)',
-                    border: '2px solid rgba(255, 255, 255, 0.2)',
-                    borderRadius: '4px',
-                    fontFamily: 'inherit',
-                    cursor: 'pointer',
-                    minHeight: '45px'
-                  }}
-                >
-                  <option value="" style={{ background: '#1f2937', color: '#fff' }}>-- Sélectionner un équipement --</option>
-                  {equipmentData.map(eq => (
-                    <option key={eq.id} value={eq.id} style={{ background: '#1f2937', color: '#fff' }}>
-                      {eq.designation} | CMU: {eq.cmu} | {eq.marque} {eq.modele}
-                    </option>
-                  ))}
-                </select>
+              {/* Section de recherche d'équipement par filtres */}
+              <div className="equipment-filter-section">
+                <h3>🔍 Sélectionner l'Équipement par Caractéristique</h3>
+
+                <div className="filter-criteria-grid">
+                  <div className="filter-criterion">
+                    <label>Désignation</label>
+                    <select
+                      value={equipmentFilters.designation}
+                      onChange={(e) => handleFilterChange('designation', e.target.value)}
+                    >
+                      <option value="">-- Tous --</option>
+                      {getUniqueValues('designation').map(val => (
+                        <option key={val} value={val}>{val}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="filter-criterion">
+                    <label>CMU</label>
+                    <select
+                      value={equipmentFilters.cmu}
+                      onChange={(e) => handleFilterChange('cmu', e.target.value)}
+                    >
+                      <option value="">-- Tous --</option>
+                      {getUniqueValues('cmu').map(val => (
+                        <option key={val} value={val}>{val}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="filter-criterion">
+                    <label>Marque</label>
+                    <select
+                      value={equipmentFilters.marque}
+                      onChange={(e) => handleFilterChange('marque', e.target.value)}
+                    >
+                      <option value="">-- Tous --</option>
+                      {getUniqueValues('marque').map(val => (
+                        <option key={val} value={val}>{val}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="filter-criterion">
+                    <label>Modèle</label>
+                    <select
+                      value={equipmentFilters.modele}
+                      onChange={(e) => handleFilterChange('modele', e.target.value)}
+                    >
+                      <option value="">-- Tous --</option>
+                      {getUniqueValues('modele').map(val => (
+                        <option key={val} value={val}>{val}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Liste des équipements correspondant aux filtres */}
+                <div className="equipment-results">
+                  {getFilteredEquipment().length > 0 ? (
+                    getFilteredEquipment().map(eq => (
+                      <div
+                        key={eq.id}
+                        className={`equipment-result-item ${formData.equipment_id === eq.id ? 'selected' : ''}`}
+                        onClick={() => setFormData(prev => ({ ...prev, equipment_id: eq.id }))}
+                      >
+                        <div className="equipment-result-item-main">
+                          {eq.designation} ({eq.cmu})
+                        </div>
+                        <div className="equipment-result-item-secondary">
+                          {eq.marque} {eq.modele} • Série: {eq.numeroSerie}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div style={{ padding: '16px', textAlign: 'center', color: '#9ca3af' }}>
+                      Aucun équipement ne correspond aux filtres sélectionnés
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Affichage détaillé de l'équipement sélectionné */}
-              {formData.equipment_id && (
-                <div style={{
-                  background: 'rgba(100, 200, 255, 0.1)',
-                  border: '2px solid rgba(100, 200, 255, 0.3)',
-                  borderRadius: '8px',
-                  padding: '16px',
-                  marginBottom: '20px'
-                }}>
-                  <h4 style={{ color: '#64c8ff', marginBottom: '12px', fontSize: '14px', fontWeight: 'bold' }}>
-                    📋 Équipement Sélectionné
-                  </h4>
-                  {(() => {
-                    const selectedEquipment = equipmentData.find(eq => eq.id === formData.equipment_id);
-                    return selectedEquipment ? (
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                        <div style={{ padding: '8px', background: 'rgba(31, 41, 55, 0.6)', borderRadius: '4px' }}>
-                          <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Désignation</div>
-                          <div style={{ color: '#fff', fontWeight: '600', fontSize: '14px' }}>{selectedEquipment.designation}</div>
-                        </div>
-                        <div style={{ padding: '8px', background: 'rgba(31, 41, 55, 0.6)', borderRadius: '4px' }}>
-                          <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>CMU</div>
-                          <div style={{ color: '#64c8ff', fontWeight: '600', fontSize: '14px' }}>{selectedEquipment.cmu}</div>
-                        </div>
-                        <div style={{ padding: '8px', background: 'rgba(31, 41, 55, 0.6)', borderRadius: '4px' }}>
-                          <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Marque</div>
-                          <div style={{ color: '#fff', fontWeight: '600', fontSize: '14px' }}>{selectedEquipment.marque || '-'}</div>
-                        </div>
-                        <div style={{ padding: '8px', background: 'rgba(31, 41, 55, 0.6)', borderRadius: '4px' }}>
-                          <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Modèle</div>
-                          <div style={{ color: '#fff', fontWeight: '600', fontSize: '14px' }}>{selectedEquipment.modele || '-'}</div>
-                        </div>
-                        <div style={{ padding: '8px', background: 'rgba(31, 41, 55, 0.6)', borderRadius: '4px', gridColumn: '1 / -1' }}>
-                          <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Numéro de Série</div>
-                          <div style={{ color: '#64c8ff', fontWeight: '600', fontSize: '14px' }}>{selectedEquipment.numeroSerie || '-'}</div>
-                        </div>
-                      </div>
-                    ) : null;
-                  })()}
+              {selectedEquipmentInfo && (
+                <div className="equipment-selected-info">
+                  <h4>✅ Équipement Sélectionné</h4>
+                  <div className="equipment-info-grid">
+                    <div className="equipment-info-item">
+                      <div className="equipment-info-label">Désignation</div>
+                      <div className="equipment-info-value">{selectedEquipmentInfo.designation}</div>
+                    </div>
+                    <div className="equipment-info-item">
+                      <div className="equipment-info-label">CMU</div>
+                      <div className="equipment-info-value highlight">{selectedEquipmentInfo.cmu}</div>
+                    </div>
+                    <div className="equipment-info-item">
+                      <div className="equipment-info-label">Marque</div>
+                      <div className="equipment-info-value">{selectedEquipmentInfo.marque || '-'}</div>
+                    </div>
+                    <div className="equipment-info-item">
+                      <div className="equipment-info-label">Modèle</div>
+                      <div className="equipment-info-value">{selectedEquipmentInfo.modele || '-'}</div>
+                    </div>
+                    <div className="equipment-info-item" style={{ gridColumn: '1 / -1' }}>
+                      <div className="equipment-info-label">Numéro de Série</div>
+                      <div className="equipment-info-value highlight">{selectedEquipmentInfo.numeroSerie || '-'}</div>
+                    </div>
+                  </div>
                 </div>
               )}
               <div className="form-row">
