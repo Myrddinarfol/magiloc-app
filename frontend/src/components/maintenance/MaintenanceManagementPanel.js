@@ -60,6 +60,17 @@ const MaintenanceManagementPanel = ({
     }));
   };
 
+  // Mettre à jour l'aide à la maintenance
+  const handleUpdateAide = (field, value) => {
+    setMaintenance(prev => ({
+      ...prev,
+      maintenance_helpers: {
+        ...prev.maintenance_helpers,
+        [field]: value
+      }
+    }));
+  };
+
   return (
     <div className="maintenance-management-panel">
       {/* MOTIF ET NOTES DE RETOUR - En haut côte à côte */}
@@ -224,56 +235,56 @@ const MaintenanceManagementPanel = ({
         </div>
       </div>
 
-      {/* AIDE A LA MAINTENANCE */}
+      {/* AIDE A LA MAINTENANCE - ÉDITABLE */}
       <div className="maintenance-aide-section">
         <h4>💡 AIDE A LA MAINTENANCE</h4>
         <div className="aide-tabs">
-          <div className="aide-tab">
+          <div className="aide-tab aide-tab-editable">
             <h5>📝 Tips & Conseils</h5>
-            <p>{equipment.maintenanceHelpers?.tips_conseils || 'Aucun conseil enregistré'}</p>
+            <textarea
+              value={maintenance.maintenance_helpers?.tips_conseils || ''}
+              onChange={(e) => handleUpdateAide('tips_conseils', e.target.value)}
+              placeholder="Entrez les conseils et astuces de maintenance..."
+              className="aide-textarea"
+            />
           </div>
-          <div className="aide-tab">
+          <div className="aide-tab aide-tab-editable">
             <h5>🔗 Liens Utiles</h5>
-            <p>{equipment.maintenanceHelpers?.liens_utiles || 'Aucun lien enregistré'}</p>
+            <textarea
+              value={maintenance.maintenance_helpers?.liens_utiles || ''}
+              onChange={(e) => handleUpdateAide('liens_utiles', e.target.value)}
+              placeholder="Listez les liens utiles (manuels, docs, etc)..."
+              className="aide-textarea"
+            />
           </div>
-          <div className="aide-tab">
+          <div className="aide-tab aide-tab-editable">
             <h5>⚠️ Pièces Critiques</h5>
-            <p>{equipment.maintenanceHelpers?.pieces_critiques || 'Aucune pièce critique enregistrée'}</p>
+            <textarea
+              value={maintenance.maintenance_helpers?.pieces_critiques || ''}
+              onChange={(e) => handleUpdateAide('pieces_critiques', e.target.value)}
+              placeholder="Documentez les pièces critiques à surveiller..."
+              className="aide-textarea"
+            />
           </div>
-          <div className="aide-tab">
+          <div className="aide-tab aide-tab-editable">
             <h5>📞 Contact Constructeur</h5>
-            <p>{equipment.maintenanceHelpers?.contact_constructeur_nom || 'Non disponible'}</p>
+            <textarea
+              value={maintenance.maintenance_helpers?.contact_constructeur_nom || ''}
+              onChange={(e) => handleUpdateAide('contact_constructeur_nom', e.target.value)}
+              placeholder="Informations de contact du constructeur..."
+              className="aide-textarea"
+            />
           </div>
-          <div className="aide-tab">
-            <h5>🔴 Historique Problèmes</h5>
-            <p>{equipment.maintenanceHelpers?.historique_problemes || 'Aucun problème récurrent'}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* VGP + BOUTON VALIDER */}
-      <div className="maintenance-bottom-section">
-        <div className="vgp-section">
-          <h4>📅 VGP</h4>
-          <div className="vgp-info">
-            <span>Prochain VGP: <strong>{equipment.prochainVGP || 'N/A'}</strong></span>
-            <label className="vgp-checkbox">
-              <input
-                type="checkbox"
-                checked={maintenance.vgp_effectuee}
-                onChange={(e) => setMaintenance(prev => ({ ...prev, vgp_effectuee: e.target.checked }))}
-              />
-              VGP effectuée pendant cette maintenance
-            </label>
+          <div className="aide-tab aide-tab-editable">
+            <h5>📋 Historique Problèmes</h5>
+            <textarea
+              value={maintenance.maintenance_helpers?.historique_problemes || ''}
+              onChange={(e) => handleUpdateAide('historique_problemes', e.target.value)}
+              placeholder="Documentez les problèmes récurrents..."
+              className="aide-textarea"
+            />
           </div>
         </div>
-
-        <button
-          className="btn btn-success btn-validate-maintenance"
-          onClick={() => onValidateMaintenance(maintenance)}
-        >
-          ✅ VALIDER LA MAINTENANCE
-        </button>
       </div>
     </div>
   );

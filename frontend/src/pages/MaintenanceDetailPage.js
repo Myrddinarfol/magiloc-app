@@ -5,6 +5,18 @@ import MaintenanceManagementPanel from '../components/maintenance/MaintenanceMan
 import ValidateMaintenanceModal from '../components/modals/ValidateMaintenanceModal';
 import './MaintenanceDetailPage.css';
 
+// Helper pour déterminer la couleur du statut VGP
+const getVGPStatusColor = (date) => {
+  if (!date) return 'gray';
+  const today = new Date();
+  const vgpDate = new Date(date);
+  const daysUntil = Math.ceil((vgpDate - today) / (1000 * 60 * 60 * 24));
+
+  if (daysUntil < 0) return 'red';
+  if (daysUntil < 30) return 'orange';
+  return 'green';
+};
+
 const MaintenanceDetailPage = ({ equipmentData = [] }) => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -156,6 +168,27 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
             </div>
           </div>
         </div>
+
+        {/* VGP Status Card */}
+        <div className="sidebar-vgp-compact">
+          <div className={`vgp-status-card-compact vgp-status-${getVGPStatusColor(equipment.prochainVGP)}`}>
+            <div className="vgp-compact-icon">📅</div>
+            <div className="vgp-compact-content">
+              <div className="vgp-compact-label">Prochain VGP</div>
+              <div className="vgp-compact-date">{equipment.prochainVGP || 'Non renseigné'}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Validate Button */}
+        <button
+          className="btn-validate-maintenance-sidebar"
+          onClick={() => {
+            setShowValidateModal(true);
+          }}
+        >
+          ✅ VALIDER
+        </button>
 
       </div>
 
