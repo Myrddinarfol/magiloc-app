@@ -198,19 +198,38 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
           </div>
         </div>
 
-        {/* VGP Status Card - FULL VERSION */}
-        <div className="sidebar-vgp-section-full">
+        {/* VGP Section - Exact copy from fiches matériels */}
+        <div className="sidebar-vgp-section">
+          <div className="vgp-section-header-sidebar">
+            <h4 className="vgp-section-title">Contrôles VGP</h4>
+          </div>
+
+          {/* Certificat Info */}
+          <div className="vgp-detail-grid">
+            <div className="vgp-info-item">
+              <span className="vgp-info-label">Certificat:</span>
+              {equipment.certificat ? (
+                <a
+                  href={`https://www.google.com/search?q=${equipment.certificat}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="certificat-link"
+                >
+                  {equipment.certificat} 🔗
+                </a>
+              ) : (
+                <span className="vgp-info-value">Non renseigné</span>
+              )}
+            </div>
+          </div>
+
+          {/* VGP Status Card */}
           <div className={`vgp-status-card vgp-status-${getVGPDetails(equipment.prochainVGP).color}`}>
             <div className="vgp-status-icon">{getVGPDetails(equipment.prochainVGP).icon}</div>
             <div className="vgp-status-content">
               <div className="vgp-status-label">{getVGPDetails(equipment.prochainVGP).label}</div>
               <div className="vgp-status-date">{equipment.prochainVGP || 'Non renseigné'}</div>
               <div className="vgp-status-sublabel">{getVGPDetails(equipment.prochainVGP).subLabel}</div>
-              {equipment.certificat && (
-                <div className="vgp-certificat-info">
-                  📎 {equipment.certificat}
-                </div>
-              )}
             </div>
           </div>
         </div>

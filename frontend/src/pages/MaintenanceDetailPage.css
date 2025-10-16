@@ -147,19 +147,88 @@
   word-break: break-word;
 }
 
-/* VGP Full Section in Sidebar */
-.sidebar-vgp-section-full {
+/* VGP Section in Sidebar - Full Reproduction */
+.sidebar-vgp-section {
   margin-top: auto;
   padding-top: 20px;
   border-top: 1px solid rgba(220, 38, 38, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.vgp-section-header-sidebar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.vgp-section-title {
+  color: var(--text-primary);
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Certificat Link - Blue and Clickable */
+.certificat-link {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.certificat-link:hover {
+  color: #60a5fa;
+  text-decoration: underline;
+  transform: translateX(3px);
+}
+
+/* VGP Detail Grid */
+.vgp-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 8px;
+  padding: 12px;
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  border-radius: 8px;
+}
+
+.vgp-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vgp-info-label {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vgp-info-value {
+  color: var(--text-primary);
+  font-size: 14px;
 }
 
 /* VGP Status Card - FULL STYLING (imported from App.css) */
 .vgp-status-card {
   display: flex;
   align-items: center;
-  gap: 18px;
-  padding: 20px 18px;
+  gap: 20px;
+  padding: 22px 20px;
   border-radius: 12px;
   border: 2px solid;
   margin-top: 0;
@@ -234,16 +303,16 @@
 
 /* Icône du statut VGP */
 .vgp-status-icon {
-  font-size: 36px;
+  font-size: 44px;
   flex-shrink: 0;
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 50px;
-  height: 50px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.1);
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .vgp-status-red .vgp-status-icon {
@@ -274,9 +343,10 @@
 }
 
 .vgp-status-label {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
 .vgp-status-red .vgp-status-label {
@@ -299,24 +369,15 @@
 }
 
 .vgp-status-date {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--text-primary);
-  margin: 2px 0;
+  margin: 3px 0;
 }
 
 .vgp-status-sublabel {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-secondary);
-  font-weight: 500;
-}
-
-.vgp-certificat-info {
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-top: 4px;
-  padding-top: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
   font-weight: 500;
 }
 
