@@ -1,4 +1,5 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route, useParams } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import { AuthProvider } from './context/AuthContext';
 import { EquipmentProvider } from './context/EquipmentContext';
@@ -21,6 +22,7 @@ import AnalyticsPage from './pages/AnalyticsPage';
 import MaintenanceDashboardPage from './pages/MaintenanceDashboardPage';
 import MaintenanceListPage from './pages/MaintenanceListPage';
 import MaintenancePlanningPage from './pages/MaintenancePlanningPage';
+import MaintenanceDetailPage from './pages/MaintenanceDetailPage';
 import VGPManagementPage from './pages/VGPManagementPage';
 import LocationListPage from './pages/LocationListPage';
 import LocationPlanningPage from './pages/LocationPlanningPage';
@@ -486,6 +488,12 @@ function App() {
   );
 }
 
+// Wrapper pour MaintenanceDetailPage avec accès au EquipmentContext
+const MaintenanceDetailPageWrapper = () => {
+  const { equipmentData } = useEquipment();
+  return <MaintenanceDetailPage equipmentData={equipmentData} />;
+};
+
 // Composant de routage principal
 const AppContent = () => {
   const { isAuthenticated } = useAuth();
@@ -517,10 +525,12 @@ const AppContent = () => {
   }
 
   return (
-    <>
-      <MainApp shouldStartTour={shouldStartTour} />
-      <Analytics />
-    </>
+    <Router>
+      <Routes>
+        <Route path="/maintenance/:id" element={<MaintenanceDetailPageWrapper />} />
+        <Route path="*" element={<><MainApp shouldStartTour={shouldStartTour} /><Analytics /></>} />
+      </Routes>
+    </Router>
   );
 };
 

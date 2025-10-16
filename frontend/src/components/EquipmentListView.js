@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useUI } from '../hooks/useUI';
 import PageHeader from './common/PageHeader';
 import VGPBadgeCompact from './common/VGPBadgeCompact';
@@ -6,7 +7,6 @@ import CancelReservationModal from './modals/CancelReservationModal';
 import StartLocationModal from './modals/StartLocationModal';
 import ReturnModal from './modals/ReturnModal';
 import CreateReservationModal from './modals/CreateReservationModal';
-import MaintenanceDetailModal from '../pages/MaintenanceDetailModal';
 
 function EquipmentListView({
   equipmentData,
@@ -33,9 +33,8 @@ function EquipmentListView({
   const [equipmentToReturn, setEquipmentToReturn] = useState(null);
   const [showCreateReservationModal, setShowCreateReservationModal] = useState(false);
   const [equipmentToReserve, setEquipmentToReserve] = useState(null);
-  const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
-  const [equipmentToMaintain, setEquipmentToMaintain] = useState(null);
   const { equipmentFilter, setEquipmentFilter } = useUI();
+  const navigate = useNavigate();
 
   // Auto-reset filter when leaving sur-parc
   useEffect(() => {
@@ -586,8 +585,7 @@ function EquipmentListView({
                               onClick={(e) => {
                                 e.stopPropagation();
                                 if (currentPage === 'maintenance') {
-                                  setEquipmentToMaintain(equipment);
-                                  setShowMaintenanceModal(true);
+                                  navigate(`/maintenance/${equipment.id}`);
                                 } else {
                                   handleOpenEquipmentDetail(equipment, currentPage);
                                 }
@@ -722,17 +720,6 @@ function EquipmentListView({
           setEquipmentToReserve(null);
         }}
       />
-
-      {/* Modal de maintenance */}
-      {showMaintenanceModal && (
-        <MaintenanceDetailModal
-          equipment={equipmentToMaintain}
-          onClose={() => {
-            setShowMaintenanceModal(false);
-            setEquipmentToMaintain(null);
-          }}
-        />
-      )}
     </div>
   );
 }
