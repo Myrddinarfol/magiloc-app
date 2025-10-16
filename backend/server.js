@@ -651,6 +651,335 @@ app.delete("/api/equipment/:id", async (req, res) => {
   }
 });
 
+// ===== ROUTES CLIENTS =====
+
+// GET tous les clients
+app.get("/api/clients", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT * FROM clients ORDER BY nom ASC`
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error("❌ Erreur récupération clients:", err.message);
+    res.status(500).json({ error: "Erreur base de données" });
+  }
+});
+
+// GET un client spécifique
+app.get("/api/clients/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      `SELECT * FROM clients WHERE id = $1`,
+      [id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Client non trouvé" });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("❌ Erreur récupération client:", err.message);
+    res.status(500).json({ error: "Erreur base de données" });
+  }
+});
+
+// POST ajouter un nouveau client
+app.post("/api/clients", async (req, res) => {
+  try {
+    const { nom, email, telephone, adresse, contact_principal, notes } = req.body;
+
+    if (!nom) {
+      return res.status(400).json({ error: "Le nom du client est requis" });
+    }
+
+    console.log("➕ Ajout nouveau client:", nom);
+
+    const result = await pool.query(
+      `INSERT INTO clients (nom, email, telephone, adresse, contact_principal, notes)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [nom, email || null, telephone || null, adresse || null, contact_principal || null, notes || null]
+    );
+
+    console.log("✅ Client ajouté:", result.rows[0]);
+    res.json({ message: "✅ Client ajouté", client: result.rows[0] });
+  } catch (err) {
+    console.error("❌ Erreur insertion client:", err.message);
+    if (err.code === '23505') {
+      res.status(409).json({ error: "Ce nom de client existe déjà" });
+    } else {
+      res.status(500).json({ error: "Erreur lors de l'ajout", details: err.message });
+    }
+  }
+});
+
+// PATCH mettre à jour un client
+app.patch("/api/clients/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nom, email, telephone, adresse, contact_principal, notes } = req.body;
+
+    const updateFields = [];
+    const values = [];
+    let paramIndex = 1;
+
+    if (nom !== undefined) {
+      updateFields.push(`nom = $${paramIndex++}`);
+      values.push(nom);
+    }
+    if (email !== undefined) {
+      updateFields.push(`email = $${paramIndex++}`);
+      values.push(email);
+    }
+    if (telephone !== undefined) {
+      updateFields.push(`telephone = $${paramIndex++}`);
+      values.push(telephone);
+    }
+    if (adresse !== undefined) {
+      updateFields.push(`adresse = $${paramIndex++}`);
+      values.push(adresse);
+    }
+    if (contact_principal !== undefined) {
+      updateFields.push(`contact_principal = $${paramIndex++}`);
+      values.push(contact_principal);
+    }
+    if (notes !== undefined) {
+      updateFields.push(`notes = $${paramIndex++}`);
+      values.push(notes);
+    }
+
+    updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
+
+    if (updateFields.length <= 1) {
+      return res.status(400).json({ error: "Aucun champ à mettre à jour" });
+    }
+
+    values.push(id);
+    const query = `UPDATE clients SET ${updateFields.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
+
+    const result = await pool.query(query, values);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Client non trouvé" });
+    }
+
+    res.json({ message: "✅ Client mis à jour", client: result.rows[0] });
+  } catch (err) {
+    console.error("❌ Erreur mise à jour client:", err.message);
+    res.status(500).json({ error: "Erreur lors de la mise à jour" });
+  }
+});
+
+// DELETE supprimer un client
+app.delete("/api/clients/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    console.log(`🗑️ Suppression client ${id}`);
+
+    const result = await pool.query(
+      `DELETE FROM clients WHERE id = $1 RETURNING *`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Client non trouvé" });
+    }
+
+    console.log(`✅ Client ${id} supprimé`);
+    res.json({ message: "✅ Client supprimé", client: result.rows[0] });
+  } catch (err) {
+    console.error("❌ Erreur suppression client:", err.message);
+    res.status(500).json({ error: "Erreur lors de la suppression" });
+  }
+});
+
+// ===== ROUTES PIECES DETACHEES =====
+
+// GET toutes les pièces détachées
+app.get("/api/spare-parts", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT sp.*, e.designation as equipment_designation
+       FROM spare_parts sp
+       LEFT JOIN equipments e ON sp.equipment_id = e.id
+       ORDER BY sp.reference ASC`
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error("❌ Erreur récupération pièces:", err.message);
+    res.status(500).json({ error: "Erreur base de données" });
+  }
+});
+
+// GET pièces détachées d'un équipement
+app.get("/api/equipment/:id/spare-parts", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      `SELECT * FROM spare_parts WHERE equipment_id = $1 ORDER BY reference ASC`,
+      [id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error("❌ Erreur récupération pièces équipement:", err.message);
+    res.status(500).json({ error: "Erreur base de données" });
+  }
+});
+
+// POST ajouter une pièce détachée
+app.post("/api/spare-parts", async (req, res) => {
+  try {
+    const { reference, designation, equipment_id, cost, quantity, supplier, notes } = req.body;
+
+    if (!reference || !designation) {
+      return res.status(400).json({ error: "Référence et désignation requises" });
+    }
+
+    console.log("➕ Ajout nouvelle pièce détachée:", reference);
+
+    const result = await pool.query(
+      `INSERT INTO spare_parts (reference, designation, equipment_id, cost, quantity, supplier, notes)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [reference, designation, equipment_id || null, cost || null, quantity || 1, supplier || null, notes || null]
+    );
+
+    console.log("✅ Pièce détachée ajoutée:", result.rows[0]);
+    res.json({ message: "✅ Pièce détachée ajoutée", sparePart: result.rows[0] });
+  } catch (err) {
+    console.error("❌ Erreur insertion pièce:", err.message);
+    if (err.code === '23505') {
+      res.status(409).json({ error: "Cette référence existe déjà" });
+    } else {
+      res.status(500).json({ error: "Erreur lors de l'ajout", details: err.message });
+    }
+  }
+});
+
+// PATCH mettre à jour une pièce détachée
+app.patch("/api/spare-parts/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reference, designation, equipment_id, cost, quantity, supplier, notes } = req.body;
+
+    const updateFields = [];
+    const values = [];
+    let paramIndex = 1;
+
+    if (reference !== undefined) {
+      updateFields.push(`reference = $${paramIndex++}`);
+      values.push(reference);
+    }
+    if (designation !== undefined) {
+      updateFields.push(`designation = $${paramIndex++}`);
+      values.push(designation);
+    }
+    if (equipment_id !== undefined) {
+      updateFields.push(`equipment_id = $${paramIndex++}`);
+      values.push(equipment_id);
+    }
+    if (cost !== undefined) {
+      updateFields.push(`cost = $${paramIndex++}`);
+      values.push(cost);
+    }
+    if (quantity !== undefined) {
+      updateFields.push(`quantity = $${paramIndex++}`);
+      values.push(quantity);
+    }
+    if (supplier !== undefined) {
+      updateFields.push(`supplier = $${paramIndex++}`);
+      values.push(supplier);
+    }
+    if (notes !== undefined) {
+      updateFields.push(`notes = $${paramIndex++}`);
+      values.push(notes);
+    }
+
+    updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
+
+    if (updateFields.length <= 1) {
+      return res.status(400).json({ error: "Aucun champ à mettre à jour" });
+    }
+
+    values.push(id);
+    const query = `UPDATE spare_parts SET ${updateFields.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
+
+    const result = await pool.query(query, values);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Pièce détachée non trouvée" });
+    }
+
+    res.json({ message: "✅ Pièce détachée mise à jour", sparePart: result.rows[0] });
+  } catch (err) {
+    console.error("❌ Erreur mise à jour pièce:", err.message);
+    res.status(500).json({ error: "Erreur lors de la mise à jour" });
+  }
+});
+
+// DELETE supprimer une pièce détachée
+app.delete("/api/spare-parts/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    console.log(`🗑️ Suppression pièce détachée ${id}`);
+
+    const result = await pool.query(
+      `DELETE FROM spare_parts WHERE id = $1 RETURNING *`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Pièce détachée non trouvée" });
+    }
+
+    console.log(`✅ Pièce ${id} supprimée`);
+    res.json({ message: "✅ Pièce détachée supprimée", sparePart: result.rows[0] });
+  } catch (err) {
+    console.error("❌ Erreur suppression pièce:", err.message);
+    res.status(500).json({ error: "Erreur lors de la suppression" });
+  }
+});
+
+// ===== USAGE DE PIECES DETACHEES =====
+
+// POST enregistrer l'utilisation d'une pièce lors d'une maintenance
+app.post("/api/spare-parts/:id/usage", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { maintenance_id, quantity_used, cost_used, notes } = req.body;
+
+    console.log("➕ Utilisation pièce:", id);
+
+    const result = await pool.query(
+      `INSERT INTO spare_parts_usage (spare_part_id, maintenance_id, quantity_used, cost_used, notes)
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [id, maintenance_id || null, quantity_used || 1, cost_used || null, notes || null]
+    );
+
+    console.log("✅ Utilisation enregistrée:", result.rows[0]);
+    res.json({ message: "✅ Utilisation enregistrée", usage: result.rows[0] });
+  } catch (err) {
+    console.error("❌ Erreur enregistrement utilisation:", err.message);
+    res.status(500).json({ error: "Erreur lors de l'enregistrement", details: err.message });
+  }
+});
+
+// GET historique utilisation d'une pièce
+app.get("/api/spare-parts/:id/usage", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      `SELECT * FROM spare_parts_usage WHERE spare_part_id = $1 ORDER BY date_used DESC`,
+      [id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error("❌ Erreur récupération utilisation:", err.message);
+    res.status(500).json({ error: "Erreur base de données" });
+  }
+});
+
 // Démarrage du serveur
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
