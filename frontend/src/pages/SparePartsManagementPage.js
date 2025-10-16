@@ -12,6 +12,12 @@ const SparePartsManagementPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingPart, setEditingPart] = useState(null);
   const [filterEquipmentId, setFilterEquipmentId] = useState(null);
+  const [mainFilterEquipmentFilters, setMainFilterEquipmentFilters] = useState({
+    designation: '',
+    cmu: '',
+    marque: '',
+    modele: ''
+  });
   const [formData, setFormData] = useState({
     reference: '',
     designation: '',
@@ -47,6 +53,44 @@ const SparePartsManagementPage = () => {
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleMainFilterChange = (field, value) => {
+    setMainFilterEquipmentFilters(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const getMainUniqueValues = (field) => {
+    // Filtrer les équipements selon les autres filtres déjà sélectionnés
+    // (mais pas selon le champ courant pour éviter d'éliminer ses options)
+    const filtered = equipmentData.filter(eq => {
+      // Vérifier les filtres des autres champs (pas du champ courant)
+      if (field !== 'designation' && mainFilterEquipmentFilters.designation && eq.designation !== mainFilterEquipmentFilters.designation) return false;
+      if (field !== 'cmu' && mainFilterEquipmentFilters.cmu && eq.cmu !== mainFilterEquipmentFilters.cmu) return false;
+      if (field !== 'marque' && mainFilterEquipmentFilters.marque && eq.marque !== mainFilterEquipmentFilters.marque) return false;
+      if (field !== 'modele' && mainFilterEquipmentFilters.modele && eq.modele !== mainFilterEquipmentFilters.modele) return false;
+      return true;
+    });
+
+    // Récupérer les valeurs uniques pour ce champ
+    const values = filtered
+      .map(eq => eq[field])
+      .filter(Boolean)
+      .filter((val, idx, self) => self.indexOf(val) === idx)
+      .sort();
+    return values;
+  };
+
+  const getMainFilteredEquipment = () => {
+    return equipmentData.filter(eq => {
+      if (mainFilterEquipmentFilters.designation && eq.designation !== mainFilterEquipmentFilters.designation) return false;
+      if (mainFilterEquipmentFilters.cmu && eq.cmu !== mainFilterEquipmentFilters.cmu) return false;
+      if (mainFilterEquipmentFilters.marque && eq.marque !== mainFilterEquipmentFilters.marque) return false;
+      if (mainFilterEquipmentFilters.modele && eq.modele !== mainFilterEquipmentFilters.modele) return false;
+      return true;
+    });
   };
 
   const getUniqueValues = (field) => {
@@ -184,28 +228,75 @@ const SparePartsManagementPage = () => {
   return (
     <div className="spare-parts-management-page">
       <PageHeader
-        title="🔧 Gestion des Pièces Détachées"
-        subtitle={`${filteredParts.length} pièce${filteredParts.length !== 1 ? 's' : ''}`}
+        icon="🔧"
+        title="Pièces Détachées"
+        subtitle="GESTION DES PIÈCES DE RECHANGE"
+        description="Gérez l'inventaire des pièces de rechange, consultez les stocks et les coûts associés à chaque équipement"
       />
 
       <div className="spare-parts-controls">
-        <div className="filter-group">
-          <label>Filtrer par équipement:</label>
-          <select
-            value={filterEquipmentId || ''}
-            onChange={(e) => setFilterEquipmentId(e.target.value ? parseInt(e.target.value) : null)}
-          >
-            <option value="">Toutes les pièces</option>
-            {equipmentData.map(eq => (
-              <option key={eq.id} value={eq.id}>
-                {eq.designation} ({eq.cmu})
-              </option>
-            ))}
-          </select>
-        </div>
         <button className="btn btn-primary" onClick={handleAddClick}>
           ➕ Ajouter une Pièce
         </button>
+      </div>
+
+      {/* Sections de filtres intelligentes */}
+      <div className="filters-container">
+        <select
+          value={mainFilterEquipmentFilters.designation}
+          onChange={(e) => handleMainFilterChange('designation', e.target.value)}
+          className="filter-select"
+        >
+          <option value="">Toutes les désignations</option>
+          {getMainUniqueValues('designation').map(val => (
+            <option key={val} value={val}>{val}</option>
+          ))}
+        </select>
+
+        <select
+          value={mainFilterEquipmentFilters.cmu}
+          onChange={(e) => handleMainFilterChange('cmu', e.target.value)}
+          className="filter-select"
+        >
+          <option value="">Tous les CMU</option>
+          {getMainUniqueValues('cmu').map(val => (
+            <option key={val} value={val}>{val}</option>
+          ))}
+        </select>
+
+        <select
+          value={mainFilterEquipmentFilters.marque}
+          onChange={(e) => handleMainFilterChange('marque', e.target.value)}
+          className="filter-select"
+        >
+          <option value="">Toutes les marques</option>
+          {getMainUniqueValues('marque').map(val => (
+            <option key={val} value={val}>{val}</option>
+          ))}
+        </select>
+
+        <select
+          value={mainFilterEquipmentFilters.modele}
+          onChange={(e) => handleMainFilterChange('modele', e.target.value)}
+          className="filter-select"
+        >
+          <option value="">Tous les modèles</option>
+          {getMainUniqueValues('modele').map(val => (
+            <option key={val} value={val}>{val}</option>
+          ))}
+        </select>
+
+        {(mainFilterEquipmentFilters.designation || mainFilterEquipmentFilters.cmu || mainFilterEquipmentFilters.marque || mainFilterEquipmentFilters.modele) && (
+          <button
+            className="btn btn-danger"
+            onClick={() => {
+              setFilterEquipmentId(null);
+              setMainFilterEquipmentFilters({ designation: '', cmu: '', marque: '', modele: '' });
+            }}
+          >
+            ✕ Effacer filtres
+          </button>
+        )}
       </div>
 
       {filteredParts.length === 0 ? (

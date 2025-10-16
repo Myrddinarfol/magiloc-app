@@ -1,0 +1,395 @@
+.maintenance-management-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* SECTION HAUT - MOTIF ET NOTES DE RETOUR */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.maintenance-top-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.motif-section,
+.notes-retour-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.motif-section h4,
+.notes-retour-section h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.maintenance-textarea {
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  resize: vertical;
+  transition: all 0.2s;
+}
+
+.maintenance-textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* PANNEAU PRINCIPAL DE MAINTENANCE */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.maintenance-main-panel {
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* TABS */
+.maintenance-tabs {
+  display: flex;
+  gap: 0;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(220, 38, 38, 0.3);
+  padding: 0;
+}
+
+.maintenance-tab {
+  flex: 1;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 3px solid transparent;
+}
+
+.maintenance-tab:hover {
+  background: rgba(220, 38, 38, 0.1);
+  color: var(--text-primary);
+}
+
+.maintenance-tab.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+  background: rgba(220, 38, 38, 0.1);
+}
+
+/* CONTENT */
+.maintenance-content {
+  padding: 20px;
+  min-height: 300px;
+}
+
+/* NOTES TAB */
+.maintenance-notes-textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 13px;
+  resize: vertical;
+  transition: all 0.2s;
+}
+
+.maintenance-notes-textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+}
+
+/* PIECES TAB */
+.maintenance-pieces-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.pieces-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.no-pieces {
+  padding: 20px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.piece-item {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(100, 200, 255, 0.2);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.piece-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 80px 40px;
+  gap: 10px;
+  align-items: center;
+}
+
+.piece-select,
+.piece-designation,
+.piece-quantity {
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-radius: 6px;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.piece-select:focus,
+.piece-designation:focus,
+.piece-quantity:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(100, 200, 255, 0.15);
+}
+
+/* TEMPS TAB */
+.maintenance-temps-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.temps-input-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.temps-input-group label {
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 200px;
+}
+
+.temps-input {
+  width: 150px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.temps-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+}
+
+.temps-unit {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.temps-summary {
+  padding: 12px 16px;
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  border-radius: 8px;
+  color: var(--text-primary);
+}
+
+.temps-summary p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* AIDE A LA MAINTENANCE */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.maintenance-aide-section {
+  background: rgba(100, 200, 255, 0.08);
+  border: 2px solid rgba(100, 200, 255, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.maintenance-aide-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64c8ff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.aide-tabs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.aide-tab {
+  background: rgba(31, 41, 55, 0.6);
+  border: 1px solid rgba(100, 200, 255, 0.15);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.aide-tab h5 {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64c8ff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.aide-tab p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  max-height: 80px;
+  overflow-y: auto;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* SECTION BAS - VGP ET BOUTON VALIDER */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.maintenance-bottom-section {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.vgp-section {
+  flex: 1;
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-radius: 8px;
+  padding: 12px 16px;
+}
+
+.vgp-section h4 {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.vgp-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.vgp-info span {
+  color: var(--text-secondary);
+}
+
+.vgp-info strong {
+  color: var(--text-primary);
+}
+
+.vgp-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  user-select: none;
+}
+
+.vgp-checkbox input[type="checkbox"] {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+}
+
+.btn-validate-maintenance {
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-validate-maintenance:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* RESPONSIVE */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 1024px) {
+  .maintenance-top-section {
+    grid-template-columns: 1fr;
+  }
+
+  .maintenance-bottom-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .aide-tabs {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .maintenance-tabs {
+    flex-direction: column;
+  }
+
+  .maintenance-tab {
+    border-bottom: none;
+    border-left: 3px solid transparent;
+  }
+
+  .maintenance-tab.active {
+    border-left-color: var(--color-primary);
+    border-bottom: none;
+  }
+
+  .piece-row {
+    grid-template-columns: 1fr;
+  }
+}

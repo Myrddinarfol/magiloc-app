@@ -585,7 +585,7 @@ function EquipmentListView({
                                 handleOpenEquipmentDetail(equipment, currentPage);
                               }}
                               className="btn-icon"
-                              data-tooltip="Voir détails"
+                              data-tooltip={currentPage === 'maintenance' ? 'Effectuer une maintenance' : 'Voir détails'}
                             >
                               📜
                             </button>

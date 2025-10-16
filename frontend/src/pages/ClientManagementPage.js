@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useClient } from '../hooks/useClient';
+import { useEquipment } from '../hooks/useEquipment';
 import { useUI } from '../hooks/useUI';
 import PageHeader from '../components/common/PageHeader';
 import '../pages/ClientManagementPage.css';
 
 const ClientManagementPage = () => {
   const { clients, isLoading, loadClients, addClient, updateClient, deleteClient } = useClient();
+  const { equipmentData } = useEquipment();
   const { showToast } = useUI();
   const [showModal, setShowModal] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
@@ -85,6 +87,53 @@ const ClientManagementPage = () => {
     }
   };
 
+  // Extraire les clients uniques des réservations et locations
+  const getUniqueClientsFromEquipment = () => {
+    const clientsSet = new Set();
+    const clientsList = [];
+
+    equipmentData.forEach(eq => {
+      // Ajouter les clients des réservations et locations en cours
+      if ((eq.statut === 'En Réservation' || eq.statut === 'En Location') && eq.client && eq.client.trim()) {
+        if (!clientsSet.has(eq.client.toLowerCase())) {
+          clientsSet.add(eq.client.toLowerCase());
+          clientsList.push(eq.client);
+        }
+      }
+    });
+
+    return clientsList;
+  };
+
+  // Importer les clients depuis les réservations et locations
+  const handleImportClientsFromEquipment = async () => {
+    const newClientsToImport = getUniqueClientsFromEquipment();
+    const existingClientNames = clients.map(c => c.nom.toLowerCase());
+    const clientsToAdd = newClientsToImport.filter(name => !existingClientNames.includes(name.toLowerCase()));
+
+    if (clientsToAdd.length === 0) {
+      showToast('✅ Tous les clients des réservations/locations sont déjà dans la base', 'info');
+      return;
+    }
+
+    try {
+      let addedCount = 0;
+      for (const clientName of clientsToAdd) {
+        try {
+          await addClient({ nom: clientName.trim() });
+          addedCount++;
+        } catch (err) {
+          console.error(`Erreur ajout client ${clientName}:`, err);
+        }
+      }
+
+      showToast(`✅ ${addedCount} client${addedCount > 1 ? 's' : ''} importé${addedCount > 1 ? 's' : ''} avec succès`, 'success');
+      await loadClients();
+    } catch (err) {
+      showToast(`❌ Erreur lors de l'import: ${err.message}`, 'error');
+    }
+  };
+
   if (isLoading) {
     return <div className="loading-state">Chargement des clients...</div>;
   }
@@ -92,13 +141,22 @@ const ClientManagementPage = () => {
   return (
     <div className="client-management-page">
       <PageHeader
-        title="👥 Gestion des Clients"
-        subtitle={`${clients.length} client${clients.length !== 1 ? 's' : ''} enregistré${clients.length !== 1 ? 's' : ''}`}
+        icon="👥"
+        title="Gestion des Clients"
+        subtitle="ANNUAIRE CLIENT"
+        description="Gérez vos contacts clients, leurs informations de contact et leurs historiques de réservations"
       />
 
       <div className="client-controls">
         <button className="btn btn-primary" onClick={handleAddClick}>
           ➕ Ajouter un Client
+        </button>
+        <button
+          className="btn btn-success"
+          onClick={handleImportClientsFromEquipment}
+          title="Importe automatiquement tous les clients présents dans les réservations et locations en cours"
+        >
+          📥 Importer des Réservations/Locations
         </button>
       </div>
 
