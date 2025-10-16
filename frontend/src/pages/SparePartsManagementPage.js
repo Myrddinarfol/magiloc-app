@@ -50,7 +50,19 @@ const SparePartsManagementPage = () => {
   };
 
   const getUniqueValues = (field) => {
-    const values = equipmentData
+    // Filtrer les équipements selon les autres filtres déjà sélectionnés
+    // (mais pas selon le champ courant pour éviter d'éliminer ses options)
+    const filtered = equipmentData.filter(eq => {
+      // Vérifier les filtres des autres champs (pas du champ courant)
+      if (field !== 'designation' && equipmentFilters.designation && eq.designation !== equipmentFilters.designation) return false;
+      if (field !== 'cmu' && equipmentFilters.cmu && eq.cmu !== equipmentFilters.cmu) return false;
+      if (field !== 'marque' && equipmentFilters.marque && eq.marque !== equipmentFilters.marque) return false;
+      if (field !== 'modele' && equipmentFilters.modele && eq.modele !== equipmentFilters.modele) return false;
+      return true;
+    });
+
+    // Récupérer les valeurs uniques pour ce champ
+    const values = filtered
       .map(eq => eq[field])
       .filter(Boolean)
       .filter((val, idx, self) => self.indexOf(val) === idx)
