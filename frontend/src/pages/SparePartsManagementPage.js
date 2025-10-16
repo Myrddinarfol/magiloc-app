@@ -6,7 +6,7 @@ import PageHeader from '../components/common/PageHeader';
 import '../pages/SparePartsManagementPage.css';
 
 const SparePartsManagementPage = () => {
-  const { spareParts, isLoading, loadSpareParts, addSparePart, updateSparePart, deleteSparePart } = useSpareParts();
+  const { spareParts, isLoading, loadSpareParts, addSparePart, updateSparePart, deleteSparePart, setSpareParts } = useSpareParts();
   const { equipmentData } = useEquipment();
   const { showToast } = useUI();
   const [showModal, setShowModal] = useState(false);
@@ -61,8 +61,19 @@ const SparePartsManagementPage = () => {
   };
 
   const handleFormSubmit = async () => {
-    if (!formData.reference.trim() || !formData.designation.trim()) {
-      showToast('Référence et désignation requises', 'error');
+    // Validation des champs obligatoires
+    if (!formData.reference.trim()) {
+      showToast('❌ La référence est obligatoire', 'error');
+      return;
+    }
+
+    if (!formData.designation.trim()) {
+      showToast('❌ La désignation est obligatoire', 'error');
+      return;
+    }
+
+    if (formData.quantity < 1) {
+      showToast('❌ La quantité doit être au moins 1', 'error');
       return;
     }
 
@@ -75,6 +86,8 @@ const SparePartsManagementPage = () => {
         showToast('✅ Pièce ajoutée avec succès', 'success');
       }
       handleModalClose();
+      // Recharger les pièces
+      await loadSpareParts();
     } catch (err) {
       showToast(`❌ Erreur: ${err.message}`, 'error');
     }
@@ -225,10 +238,21 @@ const SparePartsManagementPage = () => {
                   name="equipment_id"
                   value={formData.equipment_id || ''}
                   onChange={handleInputChange}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    fontSize: '14px',
+                    color: '#fff',
+                    background: 'rgba(31, 41, 55, 0.8)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: '4px',
+                    fontFamily: 'inherit',
+                    cursor: 'pointer'
+                  }}
                 >
-                  <option value="">Non lié à un équipement</option>
+                  <option value="" style={{ background: '#1f2937', color: '#fff' }}>Non lié à un équipement</option>
                   {equipmentData.map(eq => (
-                    <option key={eq.id} value={eq.id}>
+                    <option key={eq.id} value={eq.id} style={{ background: '#1f2937', color: '#fff' }}>
                       {eq.designation} ({eq.cmu})
                     </option>
                   ))}
