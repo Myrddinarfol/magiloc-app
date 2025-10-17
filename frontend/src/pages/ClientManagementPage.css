@@ -9,169 +9,99 @@
   flex-wrap: wrap;
 }
 
-/* ==================== GRILLE DE CARTES ==================== */
+/* ==================== LISTE DE LIGNES ==================== */
 
-.clients-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
-  gap: 20px;
+.clients-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   margin-top: 20px;
 }
 
-/* ==================== CARTE CLIENT ==================== */
+/* ==================== LIGNE CLIENT ==================== */
 
-.client-card {
+.client-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 20px;
   background: linear-gradient(135deg, rgba(38, 38, 38, 0.95) 0%, rgba(26, 26, 26, 0.98) 100%);
   border: 1px solid rgba(220, 38, 38, 0.2);
   border-radius: 12px;
-  overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+  min-height: 100px;
 }
 
-.client-card:hover {
+.client-row:hover {
   border-color: rgba(220, 38, 38, 0.4);
   box-shadow: 0 8px 24px rgba(220, 38, 38, 0.3), 0 4px 12px rgba(0, 0, 0, 0.4);
   transform: translateY(-4px);
 }
 
-/* ==================== HEADER CARTE ==================== */
+/* ==================== SECTION INFO ==================== */
 
-.client-card-header {
-  padding: 20px;
-  border-bottom: 1px solid rgba(220, 38, 38, 0.15);
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  background: linear-gradient(135deg, rgba(45, 45, 45, 0.5) 0%, rgba(30, 30, 30, 0.3) 100%);
-}
-
-.client-card-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.client-info {
   flex: 1;
-}
-
-.client-icon {
-  font-size: 28px;
-  flex-shrink: 0;
-  opacity: 0.8;
-}
-
-.client-card-title h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 700;
-  color: #ffffff;
-  letter-spacing: 0.5px;
-  word-break: break-word;
-}
-
-.client-card-actions {
-  display: flex;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
-.btn-icon-sm {
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 6px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.btn-icon-sm:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-  transform: scale(1.05);
-}
-
-.btn-icon-sm.btn-history:hover {
-  border-color: rgba(59, 130, 246, 0.4);
-  background: rgba(59, 130, 246, 0.15);
-}
-
-.btn-icon-sm.btn-edit:hover {
-  border-color: rgba(156, 163, 175, 0.4);
-  background: rgba(156, 163, 175, 0.15);
-}
-
-.btn-icon-sm.btn-delete:hover {
-  border-color: rgba(239, 68, 68, 0.4);
-  background: rgba(239, 68, 68, 0.15);
-}
-
-.btn-icon-sm:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* ==================== CONTENU CARTE ==================== */
-
-.client-card-content {
-  padding: 16px 20px;
-  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.client-info-row {
+.client-name-section {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
-  font-size: 14px;
 }
 
-.info-icon {
-  font-size: 16px;
+.icon-name {
+  font-size: 24px;
   flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.client-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+}
+
+.client-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 36px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #d1d5db;
+}
+
+.detail-icon {
+  font-size: 14px;
   opacity: 0.7;
-  min-width: 20px;
+  min-width: 16px;
   text-align: center;
 }
 
-.info-label {
-  color: #9ca3af;
-  font-weight: 600;
-  min-width: 80px;
-  flex-shrink: 0;
-}
-
-.info-value {
-  color: #d1d5db;
+.detail-value {
   word-break: break-word;
-  flex: 1;
 }
 
-.client-info-row:empty {
-  display: none;
-}
+/* ==================== SECTION ACTIONS ==================== */
 
-/* ==================== FOOTER CARTE ==================== */
-
-.client-card-footer {
-  padding: 16px 20px;
-  border-top: 1px solid rgba(220, 38, 38, 0.15);
+.client-actions {
   display: flex;
   gap: 8px;
-  justify-content: flex-start;
-  flex-wrap: wrap;
-  background: linear-gradient(135deg, rgba(30, 30, 30, 0.3) 0%, rgba(20, 20, 20, 0.2) 100%);
+  flex-wrap: nowrap;
+  flex-shrink: 0;
 }
 
 /* ==================== BOUTONS ==================== */
@@ -328,32 +258,50 @@
 /* ==================== RESPONSIVE DESIGN ==================== */
 
 @media (max-width: 1024px) {
-  .clients-grid {
-    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  .client-row {
+    gap: 16px;
+    padding: 16px;
+    min-height: auto;
+  }
+
+  .client-details {
+    padding-left: 32px;
+  }
+
+  .client-actions {
+    gap: 6px;
+  }
+
+  .btn-sm {
+    padding: 9px 12px;
+    font-size: 11px;
   }
 }
 
 @media (max-width: 768px) {
-  .clients-grid {
-    grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
-  }
-
-  .client-card-header {
+  .client-row {
     flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px;
   }
 
-  .client-card-actions {
+  .client-info {
     width: 100%;
-    justify-content: flex-end;
   }
 
-  .client-card-footer {
-    flex-direction: column;
+  .client-actions {
+    width: 100%;
+    justify-content: stretch;
   }
 
   .btn-sm {
-    width: 100%;
+    flex: 1;
     justify-content: center;
+  }
+
+  .client-details {
+    padding-left: 32px;
   }
 
   .form-row {
@@ -375,37 +323,40 @@
     justify-content: center;
   }
 
-  .client-card {
+  .client-row {
+    padding: 12px;
     border-radius: 8px;
   }
 
-  .client-card-header {
-    padding: 16px;
+  .client-name-section {
+    gap: 8px;
   }
 
-  .client-card-content {
-    padding: 12px 16px;
+  .icon-name {
+    font-size: 20px;
   }
 
-  .client-card-footer {
-    padding: 12px 16px;
-  }
-
-  .client-icon {
-    font-size: 24px;
-  }
-
-  .client-card-title h3 {
+  .client-name {
     font-size: 16px;
   }
 
-  .info-label {
-    min-width: 70px;
+  .detail-item {
+    font-size: 13px;
   }
 
-  .btn-icon-sm {
-    width: 32px;
-    height: 32px;
-    font-size: 14px;
+  .client-details {
+    padding-left: 28px;
+    gap: 6px;
+  }
+
+  .client-actions {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .btn-sm {
+    flex: 1 1 calc(50% - 3px);
+    min-width: 0;
   }
 }

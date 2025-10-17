@@ -191,91 +191,59 @@ const ClientManagementPage = () => {
           <p>Aucun client enregistré. Cliquez sur le bouton pour en ajouter un.</p>
         </div>
       ) : (
-        <div className="clients-grid">
+        <div className="clients-list">
           {clients.map(client => (
-            <div key={client.id} className="client-card">
-              {/* Header avec nom et actions rapides */}
-              <div className="client-card-header">
-                <div className="client-card-title">
-                  <span className="client-icon">👤</span>
-                  <h3>{client.nom}</h3>
+            <div key={client.id} className="client-row">
+              {/* Section Informations */}
+              <div className="client-info">
+                <div className="client-name-section">
+                  <span className="icon-name">👤</span>
+                  <span className="client-name">{client.nom}</span>
                 </div>
-                <div className="client-card-actions">
-                  <button
-                    className="btn-icon-sm btn-history"
-                    onClick={() => handleShowClientHistory(client)}
-                    title="Voir l'historique de locations"
-                    disabled={loadingHistory}
-                  >
-                    📋
-                  </button>
-                  <button
-                    className="btn-icon-sm btn-edit"
-                    onClick={() => handleEditClick(client)}
-                    title="Modifier les informations"
-                  >
-                    ✎
-                  </button>
-                  <button
-                    className="btn-icon-sm btn-delete"
-                    onClick={() => handleDelete(client.id)}
-                    title="Supprimer ce client"
-                  >
-                    ✕
-                  </button>
+
+                <div className="client-details">
+                  {client.email && (
+                    <div className="detail-item">
+                      <span className="detail-icon">✉️</span>
+                      <span className="detail-value">{client.email}</span>
+                    </div>
+                  )}
+                  {client.telephone && (
+                    <div className="detail-item">
+                      <span className="detail-icon">📞</span>
+                      <span className="detail-value">{client.telephone}</span>
+                    </div>
+                  )}
+                  {client.contact_principal && (
+                    <div className="detail-item">
+                      <span className="detail-icon">🔗</span>
+                      <span className="detail-value">{client.contact_principal}</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Contenu avec info client */}
-              <div className="client-card-content">
-                {client.email && (
-                  <div className="client-info-row">
-                    <span className="info-icon">✉️</span>
-                    <span className="info-label">Email:</span>
-                    <span className="info-value">{client.email}</span>
-                  </div>
-                )}
-                {client.telephone && (
-                  <div className="client-info-row">
-                    <span className="info-icon">📞</span>
-                    <span className="info-label">Téléphone:</span>
-                    <span className="info-value">{client.telephone}</span>
-                  </div>
-                )}
-                {client.contact_principal && (
-                  <div className="client-info-row">
-                    <span className="info-icon">🔗</span>
-                    <span className="info-label">Contact:</span>
-                    <span className="info-value">{client.contact_principal}</span>
-                  </div>
-                )}
-                {client.adresse && (
-                  <div className="client-info-row">
-                    <span className="info-icon">📍</span>
-                    <span className="info-label">Adresse:</span>
-                    <span className="info-value">{client.adresse}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Footer avec boutons principaux */}
-              <div className="client-card-footer">
+              {/* Section Actions */}
+              <div className="client-actions">
                 <button
                   className="btn btn-sm btn-info"
                   onClick={() => handleShowClientHistory(client)}
                   disabled={loadingHistory}
+                  title="Voir l'historique de locations"
                 >
                   📋 Historique
                 </button>
                 <button
                   className="btn btn-sm btn-secondary"
                   onClick={() => handleEditClick(client)}
+                  title="Modifier les informations"
                 >
                   ✎ Modifier
                 </button>
                 <button
                   className="btn btn-sm btn-danger"
                   onClick={() => handleDelete(client.id)}
+                  title="Supprimer ce client"
                 >
                   ✕ Supprimer
                 </button>
