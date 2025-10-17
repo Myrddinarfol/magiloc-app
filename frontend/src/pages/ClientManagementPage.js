@@ -4,6 +4,7 @@ import { useEquipment } from '../hooks/useEquipment';
 import { useUI } from '../hooks/useUI';
 import PageHeader from '../components/common/PageHeader';
 import ClientLocationHistoryModal from '../components/modals/ClientLocationHistoryModal';
+import DeleteClientModal from '../components/modals/DeleteClientModal';
 import { historyService } from '../services/historyService';
 import '../pages/ClientManagementPage.css';
 
@@ -18,6 +19,8 @@ const ClientManagementPage = () => {
   const [selectedClientName, setSelectedClientName] = useState('');
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [clientToDelete, setClientToDelete] = useState(null);
   const [formData, setFormData] = useState({
     nom: '',
     email: '',
@@ -83,15 +86,26 @@ const ClientManagementPage = () => {
     }
   };
 
-  const handleDelete = async (clientId) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce client ?')) {
-      try {
-        await deleteClient(clientId);
-        showToast('✅ Client supprimé avec succès', 'success');
-      } catch (err) {
-        showToast(`❌ Erreur: ${err.message}`, 'error');
-      }
+  const handleDelete = (client) => {
+    setClientToDelete(client);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!clientToDelete) return;
+    try {
+      await deleteClient(clientToDelete.id);
+      showToast('✅ Client supprimé avec succès', 'success');
+      setShowDeleteModal(false);
+      setClientToDelete(null);
+    } catch (err) {
+      showToast(`❌ Erreur: ${err.message}`, 'error');
     }
+  };
+
+  const handleCloseDeleteModal = () => {
+    setShowDeleteModal(false);
+    setClientToDelete(null);
   };
 
   const handleShowClientHistory = async (client) => {
@@ -294,7 +308,7 @@ const ClientManagementPage = () => {
                 </button>
                 <button
                   className="action-button client-action-delete"
-                  onClick={() => handleDelete(client.id)}
+                  onClick={() => handleDelete(client)}
                   title="Supprimer ce client"
                   data-tooltip="Supprimer"
                 >
@@ -389,6 +403,15 @@ const ClientManagementPage = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal Suppression Client */}
+      {showDeleteModal && clientToDelete && (
+        <DeleteClientModal
+          client={clientToDelete}
+          onClose={handleCloseDeleteModal}
+          onConfirm={handleConfirmDelete}
+        />
       )}
 
       {/* Modal Historique de Locations par Client */}
