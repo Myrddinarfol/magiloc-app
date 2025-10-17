@@ -49,7 +49,7 @@ const getVGPDetails = (date) => {
 const MaintenanceDetailPage = ({ equipmentData = [] }) => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { showToast } = useUI();
+  const { showToast, maintenanceData: contextMaintenanceData, setMaintenanceData: setContextMaintenanceData } = useUI();
 
   const [equipment, setEquipment] = useState(null);
   const [showValidateModal, setShowValidateModal] = useState(false);
@@ -62,21 +62,48 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
       const found = equipmentData.find(eq => eq.id === parseInt(id));
       setEquipment(found || null);
       setLoading(false);
+
+      // Initialize maintenance data with existing motif from equipment
+      if (found && found.motifMaintenance) {
+        setMaintenanceData(prev => ({
+          ...prev,
+          motif_maintenance: found.motifMaintenance
+        }));
+      }
     }
   }, [id, equipmentData]);
+
+  // Auto-populate maintenance data from UIContext (when returning from location or putting in maintenance)
+  // This takes priority over equipment's existing motif
+  useEffect(() => {
+    if (contextMaintenanceData && (contextMaintenanceData.motif || contextMaintenanceData.noteRetour)) {
+      setMaintenanceData(prev => ({
+        ...prev,
+        motif_maintenance: contextMaintenanceData.motif || prev.motif_maintenance || '',
+        note_retour: contextMaintenanceData.noteRetour || prev.note_retour || ''
+      }));
+      // Clear the context data after using it (prevent cross-equipment data leakage)
+      setContextMaintenanceData({ motif: '', noteRetour: '' });
+    }
+  }, [contextMaintenanceData, setContextMaintenanceData]);
 
   const handleConfirmMaintenance = async (data) => {
     try {
       if (!equipment) return;
 
+      console.log('📤 Envoi données maintenance:', data);
+
+      // Mapper les données du formulaire aux clés attendues par le backend
       const maintenancePayload = {
-        motif: data.motif || '',
-        notes: data.notes || '',
-        pieces: data.pieces || [],
-        tempsHeures: data.tempsHeures || 0,
-        vgpEffectuee: data.vgpEffectuee || false,
+        motif: data.motif_maintenance || '',
+        notes: data.notes_maintenance || '',
+        pieces: data.pieces_utilisees || [],
+        tempsHeures: data.main_oeuvre_heures || 0,
+        vgpEffectuee: data.vgp_effectuee || false,
         technicien: data.technicien || ''
       };
+
+      console.log('📦 Payload envoyé:', maintenancePayload);
 
       const response = await fetch(`http://localhost:5000/api/equipment/${equipment.id}/maintenance/validate`, {
         method: 'POST',
@@ -85,7 +112,9 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        const errorText = await response.text();
+        console.error('❌ Réponse erreur:', errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
 
       const result = await response.json();
@@ -125,25 +154,38 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
 
   return (
     <div className="maintenance-page">
-      {/* Left Sidebar - Equipment Info (25%) */}
-      <div className="maintenance-sidebar">
-        {/* Header - Back Button */}
-        <div className="sidebar-header">
-          <button
-            onClick={() => navigate('/maintenance')}
-            className="sidebar-back-btn"
-            title="Retour"
-          >
-            <span className="back-arrow">←</span>
-            <span>Retour</span>
-          </button>
+      {/* HEADER - FULL WIDTH */}
+      <div className="maintenance-header">
+        <div className="maintenance-header-content">
+          <div className="maintenance-header-icon">🔧</div>
+          <div className="maintenance-header-text">
+            <h1>Maintenance de l'appareil :</h1>
+            <p>Gestion complète de la maintenance - {equipment.designation}</p>
+          </div>
         </div>
+      </div>
 
-        {/* Equipment Title */}
-        <div className="sidebar-title-section">
-          <h2 className="sidebar-equipment-name">{equipment.designation}</h2>
-          <p className="sidebar-equipment-cmu">{equipment.cmu}</p>
-        </div>
+      {/* BODY - 25/75 LAYOUT */}
+      <div className="maintenance-body">
+        {/* Left Sidebar - Equipment Info (25%) */}
+        <div className="maintenance-sidebar">
+          {/* Back Button */}
+          <div className="sidebar-header">
+            <button
+              onClick={() => navigate('/maintenance')}
+              className="sidebar-back-btn"
+              title="Retour"
+            >
+              <span className="back-arrow">←</span>
+              <span>Retour</span>
+            </button>
+          </div>
+
+          {/* Equipment Title */}
+          <div className="sidebar-title-section">
+            <h2 className="sidebar-equipment-name">{equipment.designation}</h2>
+            <p className="sidebar-equipment-cmu">{equipment.cmu}</p>
+          </div>
 
         {/* Equipment Specs */}
         <div className="sidebar-specs-section">
@@ -248,11 +290,6 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
 
       {/* Right Content Area - Maintenance Management (75%) */}
       <div className="maintenance-content">
-        <div className="content-header">
-          <h1>Maintenance de {equipment.designation}</h1>
-          <p>Remplissez les détails de la maintenance en cours</p>
-        </div>
-
         <div className="content-panel">
           <MaintenanceManagementPanel
             equipment={equipment}
@@ -263,6 +300,7 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
             maintenanceData={maintenanceData}
           />
         </div>
+      </div>
       </div>
 
       {/* Validation Modal */}
