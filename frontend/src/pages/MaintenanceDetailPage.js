@@ -1,8 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useUI } from '../hooks/useUI';
+import { useEquipment } from '../hooks/useEquipment';
+import { useHistory } from '../hooks/useHistory';
+import { cacheService } from '../services/cacheService';
+import { historyService } from '../services/historyService';
 import MaintenanceManagementPanel from '../components/maintenance/MaintenanceManagementPanel';
 import ValidateMaintenanceModal from '../components/modals/ValidateMaintenanceModal';
+import LocationHistoryModal from '../components/modals/LocationHistoryModal';
+import MaintenanceHistoryModal from '../components/modals/MaintenanceHistoryModal';
 import './MaintenanceDetailPage.css';
 
 // Helper pour convertir une date française DD/MM/YYYY en Date object
@@ -17,6 +23,52 @@ const parseFrenchDate = (dateStr) => {
 
   // Sinon, essayer de parser comme ISO ou autre format
   return new Date(dateStr);
+};
+
+// Helper pour convertir l'équipement du format snake_case (DB) en camelCase (Frontend)
+const normalizeEquipment = (equipment) => {
+  if (!equipment) return equipment;
+
+  const { formatDateToFrench } = {
+    formatDateToFrench: (dateStr) => {
+      if (!dateStr) return null;
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) return dateStr;
+
+      const date = new Date(dateStr);
+      if (isNaN(date)) return dateStr;
+
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+
+      return `${day}/${month}/${year}`;
+    }
+  };
+
+  return {
+    id: equipment.id,
+    designation: equipment.designation,
+    cmu: equipment.cmu,
+    modele: equipment.modele,
+    marque: equipment.marque,
+    longueur: equipment.longueur,
+    infosComplementaires: equipment.infos_complementaires,
+    numeroSerie: equipment.numero_serie,
+    prixHT: equipment.prix_ht_jour,
+    etat: equipment.etat,
+    certificat: equipment.certificat,
+    dernierVGP: formatDateToFrench(equipment.dernier_vgp),
+    prochainVGP: formatDateToFrench(equipment.prochain_vgp),
+    statut: equipment.statut,
+    client: equipment.client,
+    debutLocation: formatDateToFrench(equipment.debut_location),
+    finLocationTheorique: formatDateToFrench(equipment.fin_location_theorique),
+    rentreeLe: formatDateToFrench(equipment.rentre_le),
+    numeroOffre: equipment.numero_offre,
+    notesLocation: equipment.notes_location,
+    motifMaintenance: equipment.motif_maintenance,
+    noteRetour: equipment.note_retour
+  };
 };
 
 // Helper pour obtenir les détails du VGP
@@ -75,11 +127,19 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { showToast, maintenanceData: contextMaintenanceData, setMaintenanceData: setContextMaintenanceData } = useUI();
+  const { setEquipmentData: setContextEquipmentData } = useEquipment();
 
   const [equipment, setEquipment] = useState(null);
   const [showValidateModal, setShowValidateModal] = useState(false);
   const [maintenanceData, setMaintenanceData] = useState({});
   const [loading, setLoading] = useState(true);
+  const maintenancePanelRef = useRef(null);
+
+  // États pour les historiques
+  const [showLocationHistory, setShowLocationHistory] = useState(false);
+  const [showMaintenanceHistory, setShowMaintenanceHistory] = useState(false);
+  const [locationHistory, setLocationHistory] = useState([]);
+  const [maintenanceHistory, setMaintenanceHistory] = useState([]);
 
   // Trouver l'équipement
   useEffect(() => {
@@ -111,6 +171,15 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
       setContextMaintenanceData({ motif: '', noteRetour: '' });
     }
   }, [contextMaintenanceData, setContextMaintenanceData]);
+
+  // Ouvrir le modal avec les données du formulaire
+  const handleOpenValidationModal = () => {
+    if (maintenancePanelRef.current && maintenancePanelRef.current.getMaintenanceData) {
+      const formData = maintenancePanelRef.current.getMaintenanceData();
+      setMaintenanceData(formData);
+    }
+    setShowValidateModal(true);
+  };
 
   const handleConfirmMaintenance = async (data) => {
     try {
@@ -144,6 +213,27 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
 
       const result = await response.json();
       console.log('✅ Maintenance validée:', result);
+      console.log('🔄 Équipement retourné par backend:', result.equipment);
+
+      // Mettre à jour le contexte avec l'équipement mis à jour (statut = Sur Parc)
+      if (result.equipment) {
+        // Normaliser l'équipement pour qu'il soit compatible avec le format frontend (camelCase)
+        const normalizedEquipment = normalizeEquipment(result.equipment);
+        console.log('✅ Équipement normalisé:', normalizedEquipment);
+
+        const updatedEquipmentList = equipmentData.map(eq =>
+          eq.id === normalizedEquipment.id ? normalizedEquipment : eq
+        );
+
+        // Mettre à jour le contexte
+        setContextEquipmentData(updatedEquipmentList);
+        console.log('✅ Contexte d\'équipement mis à jour');
+
+        // Mettre à jour le cache aussi
+        cacheService.set(updatedEquipmentList);
+        console.log('✅ Cache d\'équipement mis à jour');
+      }
+
       showToast('✅ Maintenance validée avec succès', 'success');
       setShowValidateModal(false);
 
@@ -151,6 +241,33 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
     } catch (err) {
       console.error('❌ Erreur sauvegarde maintenance:', err);
       showToast(`❌ Erreur: ${err.message}`, 'error');
+    }
+  };
+
+  // Handlers pour charger les historiques
+  const handleLoadLocationHistory = async () => {
+    try {
+      if (!equipment) return;
+      console.log('📜 Chargement historique locations...');
+      const data = await historyService.getLocationHistory(equipment.id);
+      setLocationHistory(data);
+      setShowLocationHistory(true);
+    } catch (err) {
+      console.error('❌ Erreur chargement historique locations:', err);
+      showToast('Erreur lors du chargement de l\'historique des locations', 'error');
+    }
+  };
+
+  const handleLoadMaintenanceHistory = async () => {
+    try {
+      if (!equipment) return;
+      console.log('🔧 Chargement historique maintenance...');
+      const data = await historyService.getMaintenanceHistory(equipment.id);
+      setMaintenanceHistory(data);
+      setShowMaintenanceHistory(true);
+    } catch (err) {
+      console.error('❌ Erreur chargement historique maintenance:', err);
+      showToast('Erreur lors du chargement de l\'historique de maintenance', 'error');
     }
   };
 
@@ -301,12 +418,33 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
           </div>
         </div>
 
+        {/* History Section */}
+        <div className="sidebar-history-section">
+          <div className="history-section-header">
+            <h4 className="history-section-title">📚 Historique</h4>
+          </div>
+          <div className="history-buttons-container">
+            <button
+              className="btn-history-item"
+              onClick={handleLoadLocationHistory}
+              title="Voir l'historique des locations"
+            >
+              📜 Locations
+            </button>
+            <button
+              className="btn-history-item"
+              onClick={handleLoadMaintenanceHistory}
+              title="Voir l'historique de maintenance"
+            >
+              🔧 Maintenance
+            </button>
+          </div>
+        </div>
+
         {/* Validate Button */}
         <button
           className="btn-validate-maintenance-sidebar"
-          onClick={() => {
-            setShowValidateModal(true);
-          }}
+          onClick={handleOpenValidationModal}
         >
           ✅ VALIDER MAINTENANCE
         </button>
@@ -317,6 +455,7 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
       <div className="maintenance-content">
         <div className="content-panel">
           <MaintenanceManagementPanel
+            ref={maintenancePanelRef}
             equipment={equipment}
             onValidateMaintenance={(data) => {
               setMaintenanceData(data);
@@ -335,6 +474,22 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
           maintenance={maintenanceData}
           onConfirm={handleConfirmMaintenance}
           onCancel={() => setShowValidateModal(false)}
+        />
+      )}
+
+      {/* Location History Modal */}
+      {showLocationHistory && (
+        <LocationHistoryModal
+          history={locationHistory}
+          onClose={() => setShowLocationHistory(false)}
+        />
+      )}
+
+      {/* Maintenance History Modal */}
+      {showMaintenanceHistory && (
+        <MaintenanceHistoryModal
+          history={maintenanceHistory}
+          onClose={() => setShowMaintenanceHistory(false)}
         />
       )}
     </div>

@@ -1,67 +1,82 @@
 import React from 'react';
+import './HistoryModals.css';
 
 const LocationHistoryModal = ({ history, onClose }) => {
   return (
-    <div className="release-notes-overlay">
-      <div className="reservation-modal" style={{ maxWidth: '900px' }}>
-        <div className="modal-header">
-          <h2>📜 Historique des Locations</h2>
-          <button onClick={onClose} className="close-button">✕</button>
+    <div className="history-overlay">
+      <div className="history-modal">
+        {/* Header */}
+        <div className="history-modal-header">
+          <div className="history-modal-title">
+            <span className="history-modal-icon">📜</span>
+            <h2>Historique des Locations</h2>
+            <span className="history-count">{history.length}</span>
+          </div>
+          <button onClick={onClose} className="history-close-btn">✕</button>
         </div>
 
-        <div className="modal-content">
+        {/* Content */}
+        <div className="history-modal-content">
           {history.length === 0 ? (
-            <p className="history-empty">
-              📋 Aucun historique de location pour cet équipement
-            </p>
+            <div className="history-empty-state">
+              <div className="history-empty-icon">📋</div>
+              <p>Aucun historique de location pour cet équipement</p>
+            </div>
           ) : (
-            <div className="history-table-container">
-              <table className="history-table">
+            <div className="history-scroll-container">
+              <table className="history-data-table">
                 <thead>
                   <tr>
-                    <th>Client</th>
-                    <th>Début</th>
-                    <th>Retour réel</th>
-                    <th>Durée</th>
-                    <th>CA HT</th>
-                    <th>N° Offre</th>
-                    <th>Note</th>
+                    <th className="col-client">Client</th>
+                    <th className="col-dates">Dates</th>
+                    <th className="col-duration">Durée</th>
+                    <th className="col-ca">CA HT</th>
+                    <th className="col-offre">Offre</th>
+                    <th className="col-notes">Notes</th>
                   </tr>
                 </thead>
                 <tbody>
                   {history.map((loc, index) => {
                     const hasCA = loc.ca_total_ht && loc.duree_jours_ouvres && loc.prix_ht_jour;
                     const caDetail = hasCA
-                      ? `${loc.duree_jours_ouvres}j × ${loc.prix_ht_jour}€/j${loc.remise_ld ? ' - 20% (LD)' : ''}`
+                      ? `${loc.duree_jours_ouvres}j × ${loc.prix_ht_jour}€/j${loc.remise_ld ? ' -20%' : ''}`
                       : '';
 
                     return (
-                      <tr key={index}>
-                        <td className="history-client-name">{loc.client || 'N/A'}</td>
-                        <td>{loc.date_debut ? new Date(loc.date_debut).toLocaleDateString('fr-FR') : 'N/A'}</td>
-                        <td>{loc.date_retour_reel ? new Date(loc.date_retour_reel).toLocaleDateString('fr-FR') : 'N/A'}</td>
-                        <td>
+                      <tr key={index} className="history-row">
+                        <td className="col-client">
+                          <span className="history-client-badge">{loc.client || 'N/A'}</span>
+                        </td>
+                        <td className="col-dates">
+                          <div className="history-dates">
+                            <span className="date-label">Début:</span>
+                            <span className="date-value">{loc.date_debut ? new Date(loc.date_debut).toLocaleDateString('fr-FR') : 'N/A'}</span>
+                            <span className="date-label">Retour:</span>
+                            <span className="date-value">{loc.date_retour_reel ? new Date(loc.date_retour_reel).toLocaleDateString('fr-FR') : 'N/A'}</span>
+                          </div>
+                        </td>
+                        <td className="col-duration">
                           {loc.duree_jours_ouvres ? (
-                            <span className="history-duration">{loc.duree_jours_ouvres} j</span>
-                          ) : 'N/A'}
+                            <span className="history-duration-badge">{loc.duree_jours_ouvres} j</span>
+                          ) : <span className="history-na">N/A</span>}
                         </td>
-                        <td>
+                        <td className="col-ca">
                           {hasCA ? (
-                            <div className="history-ca-container">
-                              <span className="history-ca-amount">
-                                {parseFloat(loc.ca_total_ht).toFixed(2)}€
-                              </span>
-                              <span className="history-ca-detail">
-                                {caDetail}
-                              </span>
+                            <div className="history-ca-info">
+                              <span className="ca-amount">{parseFloat(loc.ca_total_ht).toFixed(2)}€</span>
+                              <span className="ca-detail">{caDetail}</span>
                             </div>
-                          ) : 'N/A'}
+                          ) : <span className="history-na">N/A</span>}
                         </td>
-                        <td>{loc.numero_offre || '-'}</td>
-                        <td>
+                        <td className="col-offre">
+                          <span className="history-offre">{loc.numero_offre || '-'}</span>
+                        </td>
+                        <td className="col-notes">
                           {loc.note_retour ? (
-                            <div className="history-note">{loc.note_retour}</div>
-                          ) : '-'}
+                            <span className="history-note-text" title={loc.note_retour}>
+                              {loc.note_retour}
+                            </span>
+                          ) : <span className="history-na">-</span>}
                         </td>
                       </tr>
                     );
@@ -72,8 +87,9 @@ const LocationHistoryModal = ({ history, onClose }) => {
           )}
         </div>
 
-        <div className="modal-footer">
-          <button onClick={onClose} className="btn btn-gray">
+        {/* Footer */}
+        <div className="history-modal-footer">
+          <button onClick={onClose} className="history-btn-close">
             Fermer
           </button>
         </div>

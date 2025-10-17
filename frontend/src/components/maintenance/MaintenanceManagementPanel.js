@@ -1,12 +1,12 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { useSpareParts } from '../../hooks/useSpareParts';
 import './MaintenanceManagementPanel.css';
 
-const MaintenanceManagementPanel = ({
+const MaintenanceManagementPanel = forwardRef(({
   equipment,
   onValidateMaintenance,
   maintenanceData = {}
-}) => {
+}, ref) => {
   const { spareParts } = useSpareParts();
   const [activeTab, setActiveTab] = useState('notes'); // notes, pieces, temps
 
@@ -36,6 +36,11 @@ const MaintenanceManagementPanel = ({
       }));
     }
   }, [maintenanceData]);
+
+  // Exposer la méthode pour récupérer les données de maintenance depuis le parent
+  useImperativeHandle(ref, () => ({
+    getMaintenanceData: () => maintenance
+  }));
 
   // Pièces détachées liées à cet équipement
   const equipmentSpareParts = useMemo(() => {
@@ -311,6 +316,6 @@ const MaintenanceManagementPanel = ({
       </div>
     </div>
   );
-};
+});
 
 export default MaintenanceManagementPanel;

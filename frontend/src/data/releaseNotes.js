@@ -1,13 +1,141 @@
 // Système de gestion des notes de mise à jour
 // Pour ajouter une nouvelle version, ajoutez un objet au début du tableau
 
-export const CURRENT_VERSION = '0.10.0';
+export const CURRENT_VERSION = '0.9.8';
 
 export const releaseNotes = [
   {
-    version: '0.10.0',
-    date: '2025-10-16',
-    title: '🔧 Gestion des Pièces Détachées + Interface Avancée de Sélection d\'Équipement',
+    version: '0.9.8',
+    date: '2025-10-17',
+    title: '🔧 Gestion Maintenance + Historiques Modernes + UI Améliorée',
+    sections: [
+      {
+        title: '🐛 Fix Critique - Validation Maintenance',
+        items: [
+          'Fix bug : Le matériel restait en statut "En Maintenance" après validation',
+          'Cause : Le frontend ne mettait pas à jour le contexte React après validation backend',
+          'Solution : Normalisation de l\'équipement + mise à jour contexte + cache',
+          'Maintenant : Le matériel passe correctement en "Sur Parc" et disparaît de l\'onglet maintenance',
+        ]
+      },
+      {
+        title: '📚 Historiques Intégrés dans Fiches Maintenance',
+        items: [
+          'Nouvelle section "Historiques" dans le panneau gauche de gestion maintenance',
+          '2 boutons : 📜 Locations et 🔧 Maintenance',
+          'Affichage modal complet de tous les historiques associés',
+          'Design cohérent avec les fiches matériels (thème noir/rouge)',
+          'Accès direct depuis page de maintenance (avant validation)',
+        ]
+      },
+      {
+        title: '✨ Modals Historiques Redesignées',
+        items: [
+          'Refonte complète des modals Location & Maintenance History',
+          'Thème moderne : Noir/Gris/Rouge avec gradients élégants',
+          'Animations fluides : fadeIn overlay + slideUp modal + hover effects',
+          'Header rouge dégradé avec icône, titre et compteur de lignes',
+          'Overlay avec blur backdrop (8px) pour effet professionnel',
+          'Table avec colonnes bien dimensionnées et espacement optimal',
+        ]
+      },
+      {
+        title: '📊 Table Historique Locations Améliorée',
+        items: [
+          'Colonnes optimisées : Client (badge rouge), Dates (début/retour), Durée, CA HT, Offre, Notes',
+          'Client affiché en badge rouge gradient avec ombres',
+          'Dates avec labels et valeurs pour meilleure lisibilité',
+          'Durée en badge gris/rouge arrondi',
+          'CA HT avec montant en vert + détail du calcul en italique',
+          'Notes de retour en texte italique rouge avec border gauche',
+          'Lignes avec hover effect qui les highlight légèrement',
+        ]
+      },
+      {
+        title: '🔧 Table Historique Maintenance Améliorée',
+        items: [
+          'Colonnes optimisées : Période (entrée/sortie), Motif, Durée, Travaux, Notes',
+          'Période affichée avec labels pour clarté (Entrée/Sortie)',
+          'Motif en badge rouge transparent avec border gauche',
+          'Durée en badge compact',
+          'Travaux avec parsing JSON (extraction notes_maintenance ou pieces_utilisees)',
+          'Truncate et ellipsis avec tooltip au survol sur textes longs',
+          'Notes retour en rose/rouge italic avec border distinctive',
+        ]
+      },
+      {
+        title: '🎨 Boutons Historiques - Design Sobre & Moderne',
+        items: [
+          'Nouveau design frosted glass (backdrop-filter: blur(4px))',
+          'Couleurs neutres : gris-blanc clair au lieu du rouge agressif',
+          'Fond translucide : rgba(255, 255, 255, 0.06)',
+          'Border blanc subtil : rgba(255, 255, 255, 0.15)',
+          'Texte gris clair : #d0d0d0',
+          'Hover : fond s\'éclaircit + border blanc + texte devient blanc',
+          'Effect shadow doux et inset au hover pour profondeur',
+          'Animations smooth avec cubic-bezier parfait',
+        ]
+      },
+      {
+        title: '✨ CSS Dédié - HistoryModals.css',
+        items: [
+          'Nouveau fichier CSS pour isolation des styles : HistoryModals.css',
+          '700+ lignes de CSS professionnel et moderne',
+          'Thème sombre complet avec variables cohérentes',
+          'Animations complètes : fadeInOverlay, slideUpModal, hover effects',
+          'Responsive design : desktop, tablette, mobile',
+          'Scrollbar customisée en rouge (8px large, arrondie)',
+          'Custom scrolling momentum iOS (-webkit-overflow-scrolling)',
+        ]
+      },
+      {
+        title: '🔧 Gestion Normalization Équipement',
+        items: [
+          'Nouvelle fonction normalizeEquipment() dans MaintenanceDetailPage.js',
+          'Convertit équipement du format DB (snake_case) au frontend (camelCase)',
+          'Formate toutes les dates en français (DD/MM/YYYY)',
+          'Essentiellement pour combatibilité backend → frontend',
+          'Évite les erreurs de mapping après validation maintenance',
+        ]
+      },
+      {
+        title: '📂 Fichiers Modifiés/Créés',
+        items: [
+          'Créé : HistoryModals.css (700+ lignes, design moderne)',
+          'Modifié : MaintenanceDetailPage.js (+50 lignes imports + handlers)',
+          'Modifié : LocationHistoryModal.js (refonte complète, nouveau structure)',
+          'Modifié : MaintenanceHistoryModal.js (refonte complète, formatTravaux)',
+          'Modifié : MaintenanceDetailPage.css (amélioration boutons historiques)',
+          'Total : +850 insertions pour un design pro et maintainable',
+        ]
+      },
+      {
+        title: '🎯 Architecture Améliorée',
+        items: [
+          'Contexte équipement : mise à jour directe avec normalizeEquipment()',
+          'Cache local : synchronisé après validation maintenance',
+          'Historiques : chargement lazy via historyService (optimisation)',
+          'Modals : complètement découplés dans HistoryModals.css (isolation)',
+          'Type-safe : propriétés cohérentes frontend ↔ backend',
+        ]
+      },
+      {
+        title: '✅ Tests de Vérification',
+        items: [
+          'Validation maintenance : le matériel passe en "Sur Parc" ✓',
+          'Contexte : l\'équipement disparaît de l\'onglet maintenance ✓',
+          'Historiques : boutons chargent les modals correctement ✓',
+          'Modals : design moderne et animations fluides ✓',
+          'Responsive : fonctionne sur desktop, tablette, mobile ✓',
+          'Performance : pas de lag lors du chargement des historiques ✓',
+        ]
+      }
+    ]
+  },
+  {
+    version: '0.9.7',
+    date: '2025-10-13',
+    title: '✨ Modals Stylés Actions Réservation/Location + Correctifs Navigation',
     sections: [
       {
         title: '🆕 Onglet CLIENT - Gestion complète',

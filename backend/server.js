@@ -1016,17 +1016,23 @@ app.post("/api/equipment/:id/maintenance/validate", async (req, res) => {
     }
 
     // 1. Sauvegarder l'entrée de maintenance dans maintenance_history avec les bonnes colonnes
+    // Construire les détails des travaux en JSON
+    const travauxDetails = {
+      notes_maintenance: notes || '',
+      temps_heures: tempsHeures || 0,
+      pieces_utilisees: pieces && pieces.length > 0 ? pieces : []
+    };
+
     const maintenanceResult = await dbClient.query(
       `INSERT INTO maintenance_history
-       (equipment_id, motif_maintenance, note_retour, travaux_effectues, cout_maintenance, technicien, date_entree, date_sortie, duree_jours)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8)
+       (equipment_id, motif_maintenance, note_retour, travaux_effectues, technicien, date_entree, date_sortie, duree_jours)
+       VALUES ($1, $2, $3, $4, $5, $6, NOW(), $7)
        RETURNING *`,
       [
         id,
-        motif || '',
-        notes || '',                          // notes va dans note_retour
-        JSON.stringify({ tempsHeures, pieces }) || null,  // travaux_effectues contient les détails
-        null,                                 // cout_maintenance (calcul futur si besoin)
+        motif || 'Maintenance générale',
+        notes || '',
+        JSON.stringify(travauxDetails),
         technicien || '',
         equipment.debut_maintenance || new Date().toISOString(),
         dureeDays
@@ -1034,21 +1040,9 @@ app.post("/api/equipment/:id/maintenance/validate", async (req, res) => {
     );
 
     console.log('✅ Maintenance enregistrée:', maintenanceResult.rows[0].id);
+    console.log('📝 Détails sauvegardés:', travauxDetails);
 
-    // 2. Si des pièces sont déclarées, les sauvegarder dans maintenance_pieces_temp pour import futur
-    if (pieces && pieces.length > 0) {
-      for (const piece of pieces) {
-        await dbClient.query(
-          `INSERT INTO maintenance_pieces_temp
-           (maintenance_id, piece_designation, piece_quantity, piece_cost)
-           VALUES ($1, $2, $3, $4)`,
-          [maintenanceResult.rows[0].id, piece.designation, piece.quantite || piece.quantity, piece.cost || 0]
-        );
-      }
-      console.log(`✅ ${pieces.length} pièces enregistrées pour import`);
-    }
-
-    // 3. Mettre à jour le statut de l'équipement à "Sur Parc" et réinitialiser les champs de maintenance
+    // 2. Mettre à jour le statut de l'équipement à "Sur Parc" et réinitialiser les champs de maintenance
     const equipmentUpdateResult = await dbClient.query(
       `UPDATE equipments
        SET statut = 'Sur Parc',
@@ -1062,7 +1056,7 @@ app.post("/api/equipment/:id/maintenance/validate", async (req, res) => {
 
     console.log('✅ Équipement remis sur parc');
 
-    // 4. Si VGP effectuée, mettre à jour la date du prochain VGP (6 mois plus tard)
+    // 3. Si VGP effectuée, mettre à jour la date du prochain VGP (6 mois plus tard)
     if (vgpEffectuee) {
       const nextVGPDate = new Date();
       nextVGPDate.setMonth(nextVGPDate.getMonth() + 6);
@@ -1096,17 +1090,44 @@ app.post("/api/equipment/:id/maintenance/validate", async (req, res) => {
 });
 
 // GET pièces en attente d'import depuis maintenances
+// NOTE: Cette route retourne toujours une liste vide car le système a été changé
+// Les pièces sont maintenant stockées directement dans maintenance_history.travaux_effectues
 app.get("/api/maintenance-pieces/import-pending", async (req, res) => {
   try {
+    // Récupérer les pièces depuis les maintenance_history (depuis travaux_effectues JSON)
     const result = await pool.query(
-      `SELECT mpt.*, mh.date_entree, e.designation as equipment_designation
-       FROM maintenance_pieces_temp mpt
-       LEFT JOIN maintenance_history mh ON mpt.maintenance_id = mh.id
+      `SELECT
+        mh.id as maintenance_id,
+        e.id as equipment_id,
+        e.designation as equipment_designation,
+        mh.date_entree,
+        mh.travaux_effectues
+       FROM maintenance_history mh
        LEFT JOIN equipments e ON mh.equipment_id = e.id
-       ORDER BY mh.date_entree DESC, mpt.id ASC`
+       WHERE mh.travaux_effectues IS NOT NULL
+         AND mh.travaux_effectues::text LIKE '%pieces_utilisees%'
+       ORDER BY mh.date_entree DESC`
     );
 
-    res.json(result.rows);
+    // Formatter la réponse
+    const formattedPieces = [];
+    result.rows.forEach(row => {
+      if (row.travaux_effectues && row.travaux_effectues.pieces_utilisees) {
+        row.travaux_effectues.pieces_utilisees.forEach(piece => {
+          formattedPieces.push({
+            maintenance_id: row.maintenance_id,
+            equipment_id: row.equipment_id,
+            equipment_designation: row.equipment_designation,
+            date_entree: row.date_entree,
+            piece_designation: piece.designation,
+            piece_quantity: piece.quantite || piece.quantity,
+            piece_cost: piece.cost || 0
+          });
+        });
+      }
+    });
+
+    res.json(formattedPieces);
   } catch (err) {
     console.error("❌ Erreur récupération pièces à importer:", err.message);
     res.status(500).json({ error: "Erreur base de données" });
@@ -1114,6 +1135,7 @@ app.get("/api/maintenance-pieces/import-pending", async (req, res) => {
 });
 
 // POST importer des pièces de maintenance dans l'inventaire
+// NOTE: Les pièces sont maintenant intégrées directement lors de la validation de maintenance
 app.post("/api/maintenance-pieces/import", async (req, res) => {
   const dbClient = await pool.connect();
 
@@ -1160,12 +1182,6 @@ app.post("/api/maintenance-pieces/import", async (req, res) => {
         importedPieces.push(newResult.rows[0]);
         console.log(`✅ Nouvelle pièce importée: ${piece.piece_designation}`);
       }
-
-      // Supprimer la pièce de la table temporaire
-      await dbClient.query(
-        `DELETE FROM maintenance_pieces_temp WHERE id = $1`,
-        [piece.id]
-      );
     }
 
     await dbClient.query('COMMIT');

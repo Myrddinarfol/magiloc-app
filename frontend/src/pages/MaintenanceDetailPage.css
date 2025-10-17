@@ -441,6 +441,73 @@
   font-weight: 500;
 }
 
+/* History Section in Sidebar */
+.sidebar-history-section {
+  padding: 10px;
+  border-top: 1px solid rgba(220, 38, 38, 0.2);
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.06) 0%, rgba(185, 28, 28, 0.03) 100%);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.history-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.history-section-title {
+  color: var(--text-primary);
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.history-buttons-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.btn-history-item {
+  flex: 1;
+  min-width: 100px;
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  color: #d0d0d0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  backdrop-filter: blur(4px);
+}
+
+.btn-history-item:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 0 8px rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+.btn-history-item:active {
+  transform: translateY(0);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.1) inset;
+}
+
 /* Validate Button in Sidebar */
 .btn-validate-maintenance-sidebar {
   padding: 10px 14px;
