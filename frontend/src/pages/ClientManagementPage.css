@@ -8,12 +8,10 @@
   gap: 10px;
 }
 
-/* Conteneur moderne avec grille de cartes */
+/* Conteneur tableau traditionnel */
 .clients-table-container {
   margin-top: 20px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 16px;
+  overflow-x: auto;
 }
 
 /* Style de tableau modernisé */
@@ -21,106 +19,80 @@
   width: 100%;
   border-collapse: collapse;
   background: transparent;
-  display: contents;
 }
 
-/* Masquer l'en-tête du tableau */
+/* En-tête du tableau */
 .clients-table thead {
-  display: none;
-}
-
-/* Transformation des lignes en cartes */
-.clients-table tbody {
-  display: contents;
-}
-
-/* Chaque ligne devient une carte individuelle */
-.clients-table tbody tr {
-  background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(100, 200, 255, 0.05) 100%);
-  border-radius: 12px;
-  border: 1px solid rgba(100, 200, 255, 0.2);
-  padding: 20px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  position: relative;
-  overflow: hidden;
-
-  /* Important: afficher comme conteneur flex pour organiser les TD */
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-/* Pseudo-élément pour effet de bordure animée */
-.clients-table tbody tr::before {
-  content: '';
-  position: absolute;
+  background: linear-gradient(135deg, rgba(100, 200, 255, 0.1) 0%, rgba(74, 144, 226, 0.05) 100%);
+  position: sticky;
   top: 0;
-  left: -100%;
-  width: 100%;
-  height: 3px;
-  background: linear-gradient(90deg, #4a90e2, #357abd, #4a90e2);
-  transition: left 0.3s ease;
-  z-index: 1;
+  z-index: 10;
 }
 
-.clients-table tbody tr:hover::before {
-  left: 100%;
+.clients-table thead th {
+  padding: 16px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.9em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid rgba(100, 200, 255, 0.3);
+}
+
+/* Lignes du tableau */
+.clients-table tbody tr {
+  background: transparent;
+  border-bottom: 1px solid rgba(100, 200, 255, 0.15);
+  transition: all 0.2s ease;
+  position: relative;
 }
 
 .clients-table tbody tr:hover {
-  background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(100, 200, 255, 0.15) 100%);
-  box-shadow: 0 8px 24px rgba(74, 144, 226, 0.3);
-  transform: translateY(-4px);
-  border-color: rgba(100, 200, 255, 0.4);
+  background: linear-gradient(90deg, rgba(100, 200, 255, 0.08) 0%, transparent 100%);
+  border-bottom-color: rgba(100, 200, 255, 0.3);
 }
 
 .clients-table tbody tr:active {
-  transform: translateY(-2px);
+  background: linear-gradient(90deg, rgba(100, 200, 255, 0.12) 0%, transparent 100%);
 }
 
-/* Contenu des TD - organisation en 2 colonnes pour les champs de données */
+/* Cellules du tableau */
 .clients-table td {
-  padding: 0;
+  padding: 14px 12px;
+  vertical-align: middle;
   border: none;
 }
 
-/* Première colonne (Nom) - Pleine largeur */
+/* Colonne Nom */
 .clients-table td:nth-child(1) {
-  width: 100%;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 150px;
 }
 
-/* Deuxième et troisième colonnes (Email, Phone) - en grille 2 colonnes */
-.clients-table td:nth-child(2),
-.clients-table td:nth-child(3) {
-  width: 48%;
-  display: inline-block;
-}
-
+/* Colonne Email */
 .clients-table td:nth-child(2) {
-  margin-right: 4%;
+  min-width: 180px;
 }
 
-/* Contact principal - Pleine largeur */
+/* Colonne Téléphone */
+.clients-table td:nth-child(3) {
+  min-width: 140px;
+}
+
+/* Colonne Contact Principal */
 .clients-table td:nth-child(4) {
-  width: 100%;
+  min-width: 140px;
 }
 
-/* Actions - Pleine largeur avec bordure du haut */
+/* Colonne Actions */
 .clients-table td:nth-child(5) {
-  width: 100%;
-  padding-top: 12px;
-  margin-top: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 240px;
 }
 
 .client-name {
   font-weight: 700;
   color: var(--text-primary);
-  font-size: 1.15em;
-  letter-spacing: 0.5px;
+  font-size: 0.95em;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -128,7 +100,7 @@
 
 .client-name::before {
   content: '👤';
-  font-size: 1.2em;
+  font-size: 1.1em;
   opacity: 0.7;
   flex-shrink: 0;
 }
@@ -140,8 +112,10 @@
   font-size: 0.85em;
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin: 0;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .client-email::before {
