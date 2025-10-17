@@ -17,6 +17,7 @@ const ClientManagementPage = () => {
   const [selectedClientHistory, setSelectedClientHistory] = useState([]);
   const [selectedClientName, setSelectedClientName] = useState('');
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
     nom: '',
     email: '',
@@ -113,6 +114,14 @@ const ClientManagementPage = () => {
     setSelectedClientName('');
   };
 
+  // Filtrer les clients par terme de recherche
+  const filteredClients = clients.filter(client =>
+    client.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.telephone?.includes(searchTerm) ||
+    client.contact_principal?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   // Extraire les clients uniques des réservations et locations
   const getUniqueClientsFromEquipment = () => {
     const clientsSet = new Set();
@@ -186,13 +195,36 @@ const ClientManagementPage = () => {
         </button>
       </div>
 
+      <div className="search-bar-container">
+        <input
+          type="text"
+          className="search-bar-input"
+          placeholder="🔍 Rechercher un client (nom, email, téléphone, contact)..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        {searchTerm && (
+          <button
+            className="search-bar-clear"
+            onClick={() => setSearchTerm('')}
+            title="Effacer la recherche"
+          >
+            ✕
+          </button>
+        )}
+      </div>
+
       {clients.length === 0 ? (
         <div className="empty-state">
           <p>Aucun client enregistré. Cliquez sur le bouton pour en ajouter un.</p>
         </div>
+      ) : filteredClients.length === 0 ? (
+        <div className="empty-state">
+          <p>Aucun client ne correspond à votre recherche "{searchTerm}"</p>
+        </div>
       ) : (
         <div className="clients-list">
-          {clients.map(client => (
+          {filteredClients.map(client => (
             <div key={client.id} className="client-row">
               {/* Section Infos Compacte - GAUCHE */}
               <div className="client-info-compact">
