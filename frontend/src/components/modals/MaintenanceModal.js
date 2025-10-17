@@ -3,7 +3,7 @@ import { equipmentService } from '../../services/equipmentService';
 import { useUI } from '../../hooks/useUI';
 
 const MaintenanceModal = ({ equipment, onClose, onSuccess }) => {
-  const { showToast } = useUI();
+  const { showToast, setMaintenanceData } = useUI();
   const [motif, setMotif] = useState('');
 
   const handleSubmit = async () => {
@@ -19,6 +19,12 @@ const MaintenanceModal = ({ equipment, onClose, onSuccess }) => {
         statut: 'En Maintenance',
         motifMaintenance: motif.trim(),
         debutMaintenance: new Date().toISOString()
+      });
+
+      // Store motif in UIContext for auto-population in MaintenanceDetailPage
+      setMaintenanceData({
+        motif: motif.trim(),
+        noteRetour: ''
       });
 
       console.log('✅ Matériel mis en maintenance');

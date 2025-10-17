@@ -115,6 +115,19 @@ async function resetDatabase() {
     await pool.query(schema);
     console.log(colors.green + '✓ Tables créées avec succès' + colors.reset);
 
+    // Exécution des migrations
+    console.log(colors.cyan + '🔄 Exécution des migrations...' + colors.reset);
+    const migrationsDir = path.join(__dirname, 'migrations');
+    const migrationFiles = fs.readdirSync(migrationsDir).filter(f => f.endsWith('.sql')).sort();
+
+    for (const migrationFile of migrationFiles) {
+      const migrationPath = path.join(migrationsDir, migrationFile);
+      const migration = fs.readFileSync(migrationPath, 'utf8');
+      console.log(colors.blue + `  ↳ Exécution de ${migrationFile}...` + colors.reset);
+      await pool.query(migration);
+    }
+    console.log(colors.green + '✓ Migrations exécutées avec succès' + colors.reset);
+
     // Vérification
     const result = await pool.query(`
       SELECT table_name

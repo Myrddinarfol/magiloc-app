@@ -99,6 +99,8 @@ const MainApp = ({ shouldStartTour }) => {
     setShowMaintenanceModal,
     showCompleteMaintenance,
     setShowCompleteMaintenance,
+    maintenanceData,
+    setMaintenanceData,
     handleResetData,
     handleGoBack,
     handleOpenEquipmentDetail,
@@ -238,6 +240,12 @@ const MainApp = ({ shouldStartTour }) => {
 
       // Appeler le service de retour
       await equipmentService.returnEquipment(equipment.id, returnData);
+
+      // Stocker les données dans UIContext pour la page de maintenance
+      setMaintenanceData({
+        motif: 'Retour Location, à vérifier',
+        noteRetour: returnNotes || ''
+      });
 
       showToast('Retour effectué avec succès ! Le matériel est en maintenance.', 'success');
       await loadEquipments();

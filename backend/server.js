@@ -666,6 +666,40 @@ app.get("/api/clients", async (req, res) => {
   }
 });
 
+// GET historique des locations d'un client (DOIT ÊTRE AVANT la route générique :id)
+app.get("/api/clients/:id/location-history", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // D'abord, récupérer le nom du client
+    const clientResult = await pool.query(
+      `SELECT nom FROM clients WHERE id = $1`,
+      [id]
+    );
+
+    if (clientResult.rows.length === 0) {
+      return res.status(404).json({ error: "Client non trouvé" });
+    }
+
+    const clientName = clientResult.rows[0].nom;
+
+    // Puis, récupérer l'historique des locations de ce client
+    const result = await pool.query(
+      `SELECT lh.*, e.designation as equipment_designation
+       FROM location_history lh
+       LEFT JOIN equipments e ON lh.equipment_id = e.id
+       WHERE lh.client = $1
+       ORDER BY lh.date_debut DESC`,
+      [clientName]
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("❌ Erreur historique locations client:", err.message);
+    res.status(500).json({ error: "Erreur lors de la récupération de l'historique" });
+  }
+});
+
 // GET un client spécifique
 app.get("/api/clients/:id", async (req, res) => {
   try {
@@ -988,9 +1022,22 @@ app.post("/api/equipment/:id/maintenance/validate", async (req, res) => {
 
   try {
     const { id } = req.params;
-    const { motif, notes, pieces, tempsHeures, vgpEffectuee, technicien } = req.body;
 
-    console.log(`✅ Validation maintenance équipement ${id}`, { motif, notes, tempsHeures, vgpEffectuee });
+    // Log complet du body reçu
+    console.log('📨 BODY REÇU COMPLET:', JSON.stringify(req.body, null, 2));
+
+    const { motif, notes, pieces, tempsHeures, vgpEffectuee, technicien, vgp_effectuee } = req.body;
+
+    // Accepter les deux formats (camelCase et snake_case)
+    const vgpDone = vgpEffectuee !== undefined ? vgpEffectuee : vgp_effectuee;
+
+    console.log(`✅ Validation maintenance équipement ${id}`);
+    console.log('   - motif:', motif);
+    console.log('   - notes:', notes);
+    console.log('   - tempsHeures:', tempsHeures);
+    console.log('   - vgpEffectuee (camelCase):', vgpEffectuee, 'type:', typeof vgpEffectuee);
+    console.log('   - vgp_effectuee (snake_case):', vgp_effectuee, 'type:', typeof vgp_effectuee);
+    console.log('   - vgpDone (valeur finale):', vgpDone, 'type:', typeof vgpDone);
 
     await dbClient.query('BEGIN');
 
@@ -1025,8 +1072,8 @@ app.post("/api/equipment/:id/maintenance/validate", async (req, res) => {
 
     const maintenanceResult = await dbClient.query(
       `INSERT INTO maintenance_history
-       (equipment_id, motif_maintenance, note_retour, travaux_effectues, technicien, date_entree, date_sortie, duree_jours)
-       VALUES ($1, $2, $3, $4, $5, $6, NOW(), $7)
+       (equipment_id, motif_maintenance, note_retour, travaux_effectues, technicien, date_entree, date_sortie, duree_jours, vgp_effectuee)
+       VALUES ($1, $2, $3, $4, $5, $6, NOW(), $7, $8)
        RETURNING *`,
       [
         id,
@@ -1035,12 +1082,14 @@ app.post("/api/equipment/:id/maintenance/validate", async (req, res) => {
         JSON.stringify(travauxDetails),
         technicien || '',
         equipment.debut_maintenance || new Date().toISOString(),
-        dureeDays
+        dureeDays,
+        vgpDone || false
       ]
     );
 
     console.log('✅ Maintenance enregistrée:', maintenanceResult.rows[0].id);
     console.log('📝 Détails sauvegardés:', travauxDetails);
+    console.log('📅 VGP effectuée sauvegardée:', maintenanceResult.rows[0].vgp_effectuee);
 
     // 2. Mettre à jour le statut de l'équipement à "Sur Parc" et réinitialiser les champs de maintenance
     const equipmentUpdateResult = await dbClient.query(
@@ -1057,7 +1106,7 @@ app.post("/api/equipment/:id/maintenance/validate", async (req, res) => {
     console.log('✅ Équipement remis sur parc');
 
     // 3. Si VGP effectuée, mettre à jour la date du prochain VGP (6 mois plus tard)
-    if (vgpEffectuee) {
+    if (vgpDone) {
       const nextVGPDate = new Date();
       nextVGPDate.setMonth(nextVGPDate.getMonth() + 6);
       const nextVGPISO = nextVGPDate.toISOString().split('T')[0];

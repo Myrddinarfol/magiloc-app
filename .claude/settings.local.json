@@ -21,7 +21,9 @@
       "Bash(git commit -m \"$(cat <<''EOF''\nFeat: Paramètres app + Plein écran + Dashboard optimisé\n\n⚙️ Nouveaux contrôles application :\n- Bouton paramètres (⚙️) avec modal élégant\n- Option thème sombre (actif) / clair (bientôt disponible)\n- Bouton plein écran (📤/📥) pour MODE APP\n- Boutons stylisés sous le logo avec effets hover\n\n📊 Dashboard amélioré :\n- Ajout TE3000 et TE1600 dans produits phares\n- Couleurs distinctives (violet et cyan)\n- Capsules en grille 2x2 côte à côte\n- Hauteur alignée avec panneau de statuts\n- Design compact et optimisé\n\n🎨 Modal Paramètres :\n- Position fixed pour éviter problème de découpage\n- Backdrop blur pour effet moderne\n- Animations fadeIn et slideUp\n- Preview thème avec dégradés\n- Badge \"Bientôt disponible\" pour mode clair\n\n🔧 Améliorations CSS :\n- Featured equipment en grid 2 colonnes\n- Réduction padding et tailles de police\n- Transform translateY au lieu de translateX\n- Modal overlay z-index 10000 pour visibilité\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git commit:*)",
       "Bash(npm run build:*)",
-      "Bash(cmd /c taskkill:*)"
+      "Bash(cmd /c taskkill:*)",
+      "Bash(lsof:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

@@ -593,7 +593,7 @@ function EquipmentListView({
                               className="btn-icon"
                               data-tooltip={currentPage === 'maintenance' ? 'Effectuer une maintenance' : 'Voir détails'}
                             >
-                              📜
+                              {currentPage === 'maintenance' ? '🛠️' : '📜'}
                             </button>
                             {currentPage === 'en-offre' && (
                               <button

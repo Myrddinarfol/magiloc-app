@@ -3,19 +3,36 @@ import './HistoryModals.css';
 
 const MaintenanceHistoryModal = ({ history, onClose }) => {
   const formatTravaux = (travaux) => {
-    if (!travaux) return 'Non renseigné';
+    if (!travaux) return '-';
 
     // Si c'est un string JSON, essayer de parser
     if (typeof travaux === 'string') {
       try {
         const parsed = JSON.parse(travaux);
-        if (parsed.notes_maintenance) return parsed.notes_maintenance;
-        if (parsed.pieces_utilisees) {
-          const pieces = parsed.pieces_utilisees;
-          if (Array.isArray(pieces) && pieces.length > 0) {
-            return pieces.map(p => p.designation).join(', ');
-          }
+        const parts = [];
+
+        // Notes de maintenance
+        if (parsed.notes_maintenance && parsed.notes_maintenance.trim()) {
+          parts.push(`Notes: ${parsed.notes_maintenance}`);
         }
+
+        // Pièces détachées utilisées
+        if (parsed.pieces_utilisees && Array.isArray(parsed.pieces_utilisees) && parsed.pieces_utilisees.length > 0) {
+          const piecesStr = parsed.pieces_utilisees.map(p => p.designation || p).join(', ');
+          parts.push(`Pièces: ${piecesStr}`);
+        }
+
+        // Temps de main d'oeuvre
+        if (parsed.temps_heures && parsed.temps_heures > 0) {
+          parts.push(`Durée: ${parsed.temps_heures}h`);
+        }
+
+        // Si rien n'a été rempli
+        if (parts.length === 0) {
+          return '-';
+        }
+
+        return parts.join(' • ');
       } catch (e) {
         return travaux;
       }
@@ -52,7 +69,7 @@ const MaintenanceHistoryModal = ({ history, onClose }) => {
                     <th className="col-motif">Motif</th>
                     <th className="col-duration">Durée</th>
                     <th className="col-travaux">Travaux effectués</th>
-                    <th className="col-notes">Notes retour</th>
+                    <th className="col-vgp">VGP effectuée</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -80,12 +97,10 @@ const MaintenanceHistoryModal = ({ history, onClose }) => {
                             {formatTravaux(maint.travaux_effectues)}
                           </span>
                         </td>
-                        <td className="col-notes">
-                          {maint.note_retour ? (
-                            <span className="maintenance-note-text" title={maint.note_retour}>
-                              {maint.note_retour}
-                            </span>
-                          ) : <span className="history-na">-</span>}
+                        <td className="col-vgp">
+                          <span className="maintenance-vgp-badge">
+                            {maint.vgp_effectuee ? '✅ Oui' : '❌ Non'}
+                          </span>
                         </td>
                       </tr>
                     );
