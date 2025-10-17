@@ -276,26 +276,29 @@ const ClientManagementPage = () => {
               {/* Panneau Actions - DROITE */}
               <div className="client-actions-panel">
                 <button
-                  className="btn btn-sm btn-info"
+                  className="action-button client-action-history"
                   onClick={() => handleShowClientHistory(client)}
                   disabled={loadingHistory}
                   title="Voir l'historique de locations"
+                  data-tooltip="Historique"
                 >
-                  📋<span>Historique</span>
+                  📋
                 </button>
                 <button
-                  className="btn btn-sm btn-secondary"
+                  className="action-button client-action-edit"
                   onClick={() => handleEditClick(client)}
                   title="Modifier les informations"
+                  data-tooltip="Modifier"
                 >
-                  ✎<span>Modifier</span>
+                  ✎
                 </button>
                 <button
-                  className="btn btn-sm btn-danger"
+                  className="action-button client-action-delete"
                   onClick={() => handleDelete(client.id)}
                   title="Supprimer ce client"
+                  data-tooltip="Supprimer"
                 >
-                  ✕<span>Supprimer</span>
+                  ✕
                 </button>
               </div>
             </div>

@@ -235,100 +235,82 @@
 .client-actions-panel {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   justify-content: center;
+  align-items: center;
 }
 
-/* ==================== BOUTONS D'ACTIONS ==================== */
+/* ==================== BOUTONS D'ACTIONS - Style PARC ==================== */
 
-.btn-sm {
-  padding: 11px 16px;
-  font-size: 13px;
+/* Boutons d'actions clients (style icônes comme dans PARC) */
+.client-actions-panel .action-button {
+  min-width: 52px;
+  min-height: 52px;
+  font-size: 24px;
+  padding: 10px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  font-weight: 600;
-  white-space: nowrap;
-  flex-shrink: 0;
-  min-height: 44px;
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-sm::before {
-  font-size: 20px;
-  display: inline-block;
-  flex-shrink: 0;
-}
-
-.btn-sm span {
-  display: inline;
-}
-
-/* Info Button - Style Historique (Bleu) */
-.btn-sm.btn-info {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05));
+  transition: all 0.3s ease;
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1));
   color: #60a5fa;
-  border: 1.5px solid rgba(59, 130, 246, 0.4);
-  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.1);
 }
 
-.btn-sm.btn-info:hover:not(:disabled) {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(59, 130, 246, 0.15));
+.client-actions-panel .action-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.35), rgba(59, 130, 246, 0.2));
   border-color: rgba(59, 130, 246, 0.6);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
   transform: translateY(-2px);
 }
 
-.btn-sm.btn-info:active:not(:disabled) {
+.client-actions-panel .action-button:active:not(:disabled) {
   transform: translateY(0);
 }
 
-/* Secondary Button - Style Modification (Gris) */
-.btn-sm.btn-secondary {
-  background: linear-gradient(135deg, rgba(107, 114, 128, 0.15), rgba(107, 114, 128, 0.05));
+/* Historique - Bleu (défaut) */
+.client-action-history {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1));
+  border-color: rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+}
+
+.client-action-history:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.35), rgba(59, 130, 246, 0.2));
+  border-color: rgba(59, 130, 246, 0.6);
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
+}
+
+/* Modifier - Gris */
+.client-action-edit {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.2), rgba(107, 114, 128, 0.1));
+  border-color: rgba(107, 114, 128, 0.3);
   color: #d1d5db;
-  border: 1.5px solid rgba(107, 114, 128, 0.4);
-  box-shadow: 0 2px 6px rgba(107, 114, 128, 0.1);
 }
 
-.btn-sm.btn-secondary:hover:not(:disabled) {
-  background: linear-gradient(135deg, rgba(107, 114, 128, 0.25), rgba(107, 114, 128, 0.15));
+.client-action-edit:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.35), rgba(107, 114, 128, 0.2));
   border-color: rgba(107, 114, 128, 0.6);
-  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.25);
-  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(107, 114, 128, 0.4);
 }
 
-.btn-sm.btn-secondary:active:not(:disabled) {
-  transform: translateY(0);
+/* Supprimer - Rouge */
+.client-action-delete {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
 }
 
-/* Danger Button - Style Suppression (Rouge) */
-.btn-sm.btn-danger {
-  background: linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(220, 38, 38, 0.05));
-  color: #f87171;
-  border: 1.5px solid rgba(220, 38, 38, 0.4);
-  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.1);
+.client-action-delete:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.35), rgba(239, 68, 68, 0.2));
+  border-color: rgba(239, 68, 68, 0.6);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
 }
 
-.btn-sm.btn-danger:hover:not(:disabled) {
-  background: linear-gradient(135deg, rgba(220, 38, 38, 0.25), rgba(220, 38, 38, 0.15));
-  border-color: rgba(220, 38, 38, 0.6);
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-  transform: translateY(-2px);
-}
-
-.btn-sm.btn-danger:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-/* Button Disabled */
-.btn-sm:disabled {
+/* Bouton désactivé */
+.client-actions-panel .action-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none !important;
@@ -423,16 +405,8 @@
 
   .client-actions-panel {
     flex-direction: row;
-    justify-content: flex-start;
-  }
-
-  .btn-sm {
-    flex: 1;
     justify-content: center;
-  }
-
-  .btn-sm span {
-    display: inline;
+    gap: 10px;
   }
 }
 
@@ -462,17 +436,7 @@
 
   .client-actions-panel {
     flex-direction: row;
-  }
-
-  .btn-sm {
-    flex: 1;
-    justify-content: center;
-    padding: 8px 10px;
-    font-size: 10px;
-  }
-
-  .btn-sm span {
-    display: none;
+    gap: 8px;
   }
 
   .form-row {
@@ -497,6 +461,7 @@
   .client-row {
     padding: 12px;
     border-radius: 8px;
+    min-height: auto;
   }
 
   .info-header {
@@ -514,6 +479,7 @@
   .field-line {
     font-size: 11px;
     gap: 6px;
+    min-height: 24px;
   }
 
   .contact-badge {
@@ -531,18 +497,13 @@
   }
 
   .client-actions-panel {
-    flex-direction: column;
+    flex-direction: row;
     gap: 6px;
   }
 
-  .btn-sm {
-    width: 100%;
-    justify-content: center;
-    padding: 8px;
-    font-size: 10px;
-  }
-
-  .btn-sm span {
-    display: none;
+  .client-actions-panel .action-button {
+    min-width: 46px;
+    min-height: 46px;
+    font-size: 20px;
   }
 }
