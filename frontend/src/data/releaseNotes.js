@@ -1,9 +1,110 @@
 // Système de gestion des notes de mise à jour
 // Pour ajouter une nouvelle version, ajoutez un objet au début du tableau
 
-export const CURRENT_VERSION = '0.9.8';
+export const CURRENT_VERSION = '0.9.8.3';
 
 export const releaseNotes = [
+  {
+    version: '0.9.8.3',
+    date: '2025-10-18',
+    title: '✨ Gestion Clients Améliorée + Fix CSS Specificity Boutons',
+    sections: [
+      {
+        title: '👥 Nouveau Onglet CLIENT - Gestion Complète',
+        items: [
+          'Nouvel onglet CLIENT dans le menu GESTION PARC (👥)',
+          'Gestion complète des clients : Création, Modification, Suppression',
+          'Formulaire riche avec champs : Nom (*requis), Email, Téléphone, Adresse, Contacts, Notes',
+          'Support multi-contacts avec affichage en badges (un contact par ligne)',
+          'Barre de recherche en temps réel (filtrage nom, email, téléphone, contact)',
+          'Bouton import automatique depuis réservations/locations en cours',
+          'Toast notifications pour toutes les actions',
+        ]
+      },
+      {
+        title: '🎨 Interface Clients - Layout 3 Colonnes Optimisé',
+        items: [
+          'Design complet : Infos | Notes | Actions',
+          'Section infos : nom + email + téléphone + adresse + contacts (badges)',
+          'Section notes : panneau central affichant les notes détaillées',
+          'Section actions : 3 boutons (historique 📋, modifier ✏️, supprimer ✕)',
+          'Ligne client élégante : fond dégradé, border rouge, hover animation',
+          'Responsive : 3 colonnes desktop → 1 colonne mobile',
+        ]
+      },
+      {
+        title: '🗑️ Modal Suppression Client Stylisée',
+        items: [
+          'Modal confirmation réutilisable : DeleteClientModal',
+          'Design identique à DeleteConfirmModal de PARC LOC',
+          'Icône poubelle 🗑️ animée (bounce 2s)',
+          'Titre rouge "⚠️ SUPPRESSION DÉFINITIVE"',
+          'Nom client affiché en jaune/ambre (#fbbf24)',
+          'Message alerte : "Cette action est irréversible !"',
+          'Boutons Annuler (gris) et Supprimer (rouge) avec hover effects',
+        ]
+      },
+      {
+        title: '👤 Historique Locations par Client',
+        items: [
+          'Nouveau bouton 📋 "Historique" dans chaque client',
+          'Modal affichant toutes les locations/réservations associées',
+          'Design moderne : header rouge dégradé, backdrop blur 8px',
+          'Animations : fadeIn overlay + slideUp modal',
+          'Table avec colonnes : Client, Dates, Durée, CA HT, Notes',
+          'Intégration complète avec historyService',
+        ]
+      },
+      {
+        title: '🔧 Fix Critique - CSS Specificity Boutons Actions',
+        items: [
+          'Cause : Sélecteur parent .client-actions-panel avait plus haute spécificité',
+          'Symptôme : Couleurs des boutons ne s\'appliquaient pas (restaient bleues)',
+          'Solution : Augmentation spécificité des sélecteurs de couleur',
+          'Résultat :',
+          '  • ✏️ Modifier → Amber/Jaune gradient (#fbbf24)',
+          '  • ✕ Supprimer → Rouge gradient (#dc2626)',
+          '  • 📋 Historique → Bleu gradient (#60a5fa)',
+          'Build successfully compiled - CSS changes now effective',
+        ]
+      },
+      {
+        title: '📂 Fichiers Créés/Modifiés',
+        items: [
+          'Créés : ClientManagementPage.js (430 lignes)',
+          'Créés : ClientManagementPage.css (510 lignes)',
+          'Créés : DeleteClientModal.js (195 lignes, composant modal)',
+          'Créés : ClientLocationHistoryModal.js (intégration historique)',
+          'Modifiés : Sidebar.js (ajout menu CLIENT)',
+          'Modifiés : App.js (routes + context integration)',
+          'Modifiés : useClient.js hook (CRUD clients)',
+        ]
+      },
+      {
+        title: '✨ UX Améliorations',
+        items: [
+          'Validation : nom client requis avec message spécifique',
+          'Affichage : listes vides avec message informatif',
+          'Feedback : toasts de succès/erreur après chaque action',
+          'Performance : recherche en temps réel optimisée',
+          'Import : détection automatique clients uniques de réservations/locations',
+          'Responsive : design 3 colonnes adapté à tous les écrans',
+        ]
+      },
+      {
+        title: '✅ Tests de Vérification',
+        items: [
+          'Création client : validation + sauvegarde ✓',
+          'Modification client : champs éditables + mise à jour ✓',
+          'Suppression client : modal confirmation + historique protégé ✓',
+          'Recherche : filtrage temps réel multi-champs ✓',
+          'Import : détection et ajout clients uniques ✓',
+          'Couleurs boutons : toutes les couleurs affichées correctement ✓',
+          'Responsive : layout adapté mobile/tablet/desktop ✓',
+        ]
+      }
+    ]
+  },
   {
     version: '0.9.8',
     date: '2025-10-17',
