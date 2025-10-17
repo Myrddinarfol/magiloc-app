@@ -5,6 +5,20 @@ import MaintenanceManagementPanel from '../components/maintenance/MaintenanceMan
 import ValidateMaintenanceModal from '../components/modals/ValidateMaintenanceModal';
 import './MaintenanceDetailPage.css';
 
+// Helper pour convertir une date française DD/MM/YYYY en Date object
+const parseFrenchDate = (dateStr) => {
+  if (!dateStr) return null;
+
+  // Si c'est au format français DD/MM/YYYY
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
+    const [day, month, year] = dateStr.split('/');
+    return new Date(`${year}-${month}-${day}T00:00:00Z`);
+  }
+
+  // Sinon, essayer de parser comme ISO ou autre format
+  return new Date(dateStr);
+};
+
 // Helper pour obtenir les détails du VGP
 const getVGPDetails = (date) => {
   if (!date) {
@@ -17,7 +31,18 @@ const getVGPDetails = (date) => {
   }
 
   const today = new Date();
-  const vgpDate = new Date(date);
+  const vgpDate = parseFrenchDate(date);
+
+  // Vérifier si la date est valide
+  if (isNaN(vgpDate.getTime())) {
+    return {
+      color: 'gray',
+      icon: '❌',
+      label: 'Date invalide',
+      subLabel: 'Format de date non reconnu'
+    };
+  }
+
   const daysUntil = Math.ceil((vgpDate - today) / (1000 * 60 * 60 * 24));
 
   if (daysUntil < 0) {
