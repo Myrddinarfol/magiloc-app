@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useSpareParts } from '../../hooks/useSpareParts';
 import './MaintenanceManagementPanel.css';
 
@@ -15,10 +15,27 @@ const MaintenanceManagementPanel = ({
     notes_maintenance: maintenanceData.notes_maintenance || '',
     main_oeuvre_heures: maintenanceData.main_oeuvre_heures || '',
     motif_maintenance: maintenanceData.motif_maintenance || '',
+    note_retour: maintenanceData.note_retour || '',
     pieces_utilisees: maintenanceData.pieces_utilisees || [],
     vgp_effectuee: maintenanceData.vgp_effectuee || false,
     ...maintenanceData
   });
+
+  // Synchronize maintenance data when prop changes (from parent component)
+  useEffect(() => {
+    if (maintenanceData && Object.keys(maintenanceData).length > 0) {
+      setMaintenance(prev => ({
+        ...prev,
+        notes_maintenance: maintenanceData.notes_maintenance || prev.notes_maintenance || '',
+        main_oeuvre_heures: maintenanceData.main_oeuvre_heures || prev.main_oeuvre_heures || '',
+        motif_maintenance: maintenanceData.motif_maintenance || prev.motif_maintenance || '',
+        note_retour: maintenanceData.note_retour || prev.note_retour || '',
+        pieces_utilisees: maintenanceData.pieces_utilisees || prev.pieces_utilisees || [],
+        vgp_effectuee: maintenanceData.vgp_effectuee !== undefined ? maintenanceData.vgp_effectuee : (prev.vgp_effectuee || false),
+        ...maintenanceData
+      }));
+    }
+  }, [maintenanceData]);
 
   // Pièces détachées liées à cet équipement
   const equipmentSpareParts = useMemo(() => {
@@ -87,11 +104,11 @@ const MaintenanceManagementPanel = ({
         </div>
 
         <div className="notes-retour-section">
-          <h4>📝 NOTES DE RETOUR</h4>
+          <h4>📝 NOTES DU RETOUR DE LOCATION</h4>
           <textarea
             value={maintenance.note_retour || ''}
             onChange={(e) => setMaintenance(prev => ({ ...prev, note_retour: e.target.value }))}
-            placeholder="Notes de retour du client..."
+            placeholder="Notes du retour de location..."
             rows="3"
             className="maintenance-textarea"
           />
