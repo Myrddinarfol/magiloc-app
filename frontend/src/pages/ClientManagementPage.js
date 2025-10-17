@@ -202,24 +202,30 @@ const ClientManagementPage = () => {
                 </div>
 
                 <div className="client-details">
-                  {client.email && (
-                    <div className="detail-item">
-                      <span className="detail-icon">✉️</span>
-                      <span className="detail-value">{client.email}</span>
-                    </div>
-                  )}
-                  {client.telephone && (
-                    <div className="detail-item">
-                      <span className="detail-icon">📞</span>
-                      <span className="detail-value">{client.telephone}</span>
-                    </div>
-                  )}
-                  {client.contact_principal && (
-                    <div className="detail-item">
-                      <span className="detail-icon">🔗</span>
-                      <span className="detail-value">{client.contact_principal}</span>
-                    </div>
-                  )}
+                  <div className="detail-item">
+                    <span className="detail-icon">✉️</span>
+                    <span className="detail-value">{client.email || 'Non renseigné'}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-icon">📞</span>
+                    <span className="detail-value">{client.telephone || 'Non renseigné'}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-icon">📍</span>
+                    <span className="detail-value">{client.adresse || 'Non renseigné'}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-icon">🔗</span>
+                    <span className="detail-value contacts-list">
+                      {client.contact_principal ? (
+                        client.contact_principal.split('\n').map((contact, idx) => (
+                          <div key={idx} className="contact-item">{contact.trim()}</div>
+                        ))
+                      ) : (
+                        'Aucun contact'
+                      )}
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -305,14 +311,15 @@ const ClientManagementPage = () => {
                 />
               </div>
               <div className="form-group">
-                <label>Contact Principal</label>
-                <input
-                  type="text"
+                <label>Contacts (un par ligne)</label>
+                <textarea
                   name="contact_principal"
                   value={formData.contact_principal}
                   onChange={handleInputChange}
-                  placeholder="Nom du contact"
+                  placeholder="Ajouter un contact par ligne&#10;Exemple:&#10;Jean Dupont - Directeur&#10;Marie Martin - Assistante"
+                  rows="4"
                 />
+                <small className="form-hint">Entrez un contact par ligne pour en ajouter plusieurs</small>
               </div>
               <div className="form-group">
                 <label>Notes</label>
