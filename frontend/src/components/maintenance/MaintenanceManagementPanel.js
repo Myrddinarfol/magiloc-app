@@ -88,6 +88,12 @@ const MaintenanceManagementPanel = ({
     }));
   };
 
+  const handleValidateMaintenance = () => {
+    if (onValidateMaintenance) {
+      onValidateMaintenance(maintenance);
+    }
+  };
+
   return (
     <div className="maintenance-management-panel">
       {/* MOTIF ET NOTES DE RETOUR - En haut côte à côte */}
@@ -302,6 +308,23 @@ const MaintenanceManagementPanel = ({
             />
           </div>
         </div>
+      </div>
+
+      {/* BOUTON VALIDER MAINTENANCE */}
+      <div className="maintenance-validate-section">
+        <button
+          className="btn btn-success btn-lg"
+          onClick={handleValidateMaintenance}
+          style={{
+            width: '100%',
+            padding: '16px',
+            fontSize: '18px',
+            fontWeight: 'bold',
+            marginTop: '20px'
+          }}
+        >
+          ✅ VALIDER LA MAINTENANCE
+        </button>
       </div>
     </div>
   );

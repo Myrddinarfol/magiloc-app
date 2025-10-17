@@ -990,44 +990,91 @@ app.post("/api/equipment/:id/maintenance/validate", async (req, res) => {
     const { id } = req.params;
     const { motif, notes, pieces, tempsHeures, vgpEffectuee, technicien } = req.body;
 
-    console.log(`✅ Validation maintenance équipement ${id}`);
+    console.log(`✅ Validation maintenance équipement ${id}`, { motif, notes, tempsHeures, vgpEffectuee });
 
     await dbClient.query('BEGIN');
 
-    // 1. Sauvegarder l'entrée de maintenance dans maintenance_history
+    // Récupérer l'équipement pour avoir la date de début de maintenance
+    const equipmentResult = await dbClient.query(
+      'SELECT * FROM equipments WHERE id = $1',
+      [id]
+    );
+
+    if (equipmentResult.rows.length === 0) {
+      await dbClient.query('ROLLBACK');
+      return res.status(404).json({ error: "Équipement non trouvé" });
+    }
+
+    const equipment = equipmentResult.rows[0];
+
+    // Calculer la durée de maintenance
+    let dureeDays = null;
+    if (equipment.debut_maintenance) {
+      const debutMaintenance = new Date(equipment.debut_maintenance);
+      const dateActuelle = new Date();
+      dureeDays = Math.ceil((dateActuelle - debutMaintenance) / (1000 * 60 * 60 * 24));
+    }
+
+    // 1. Sauvegarder l'entrée de maintenance dans maintenance_history avec les bonnes colonnes
     const maintenanceResult = await dbClient.query(
       `INSERT INTO maintenance_history
-       (equipment_id, motif_maintenance, notes_maintenance, pieces_utilisees_json,
-        main_oeuvre_heures, vgp_effectuee, technicien_nom, date_entree)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+       (equipment_id, motif_maintenance, note_retour, travaux_effectues, cout_maintenance, technicien, date_entree, date_sortie, duree_jours)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8)
        RETURNING *`,
-      [id, motif, notes, JSON.stringify(pieces || []), tempsHeures || 0, vgpEffectuee || false, technicien || '']
+      [
+        id,
+        motif || '',
+        notes || '',                          // notes va dans note_retour
+        JSON.stringify({ tempsHeures, pieces }) || null,  // travaux_effectues contient les détails
+        null,                                 // cout_maintenance (calcul futur si besoin)
+        technicien || '',
+        equipment.debut_maintenance || new Date().toISOString(),
+        dureeDays
+      ]
     );
 
     console.log('✅ Maintenance enregistrée:', maintenanceResult.rows[0].id);
 
-    // 2. Mettre à jour le statut de l'équipement à "Sur Parc"
-    const equipmentResult = await dbClient.query(
-      `UPDATE equipments
-       SET statut = 'Sur Parc', vgp = $2, date_vgp = CASE WHEN $2 THEN NOW() ELSE date_vgp END
-       WHERE id = $1
-       RETURNING *`,
-      [id, vgpEffectuee || false]
-    );
-
-    console.log('✅ Équipement mis à jour, VGP:', vgpEffectuee);
-
-    // 3. Si des pièces sont déclarées, les sauvegarder dans maintenance_pieces_temp pour import futur
+    // 2. Si des pièces sont déclarées, les sauvegarder dans maintenance_pieces_temp pour import futur
     if (pieces && pieces.length > 0) {
       for (const piece of pieces) {
         await dbClient.query(
           `INSERT INTO maintenance_pieces_temp
            (maintenance_id, piece_designation, piece_quantity, piece_cost)
            VALUES ($1, $2, $3, $4)`,
-          [maintenanceResult.rows[0].id, piece.designation, piece.quantity, piece.cost]
+          [maintenanceResult.rows[0].id, piece.designation, piece.quantite || piece.quantity, piece.cost || 0]
         );
       }
       console.log(`✅ ${pieces.length} pièces enregistrées pour import`);
+    }
+
+    // 3. Mettre à jour le statut de l'équipement à "Sur Parc" et réinitialiser les champs de maintenance
+    const equipmentUpdateResult = await dbClient.query(
+      `UPDATE equipments
+       SET statut = 'Sur Parc',
+           motif_maintenance = NULL,
+           debut_maintenance = NULL,
+           note_retour = NULL
+       WHERE id = $1
+       RETURNING *`,
+      [id]
+    );
+
+    console.log('✅ Équipement remis sur parc');
+
+    // 4. Si VGP effectuée, mettre à jour la date du prochain VGP (1 an plus tard)
+    if (vgpEffectuee) {
+      const nextVGPDate = new Date();
+      nextVGPDate.setFullYear(nextVGPDate.getFullYear() + 1);
+      const nextVGPISO = nextVGPDate.toISOString().split('T')[0];
+
+      await dbClient.query(
+        `UPDATE equipments
+         SET prochain_vgp = $1, dernier_vgp = CURRENT_DATE
+         WHERE id = $2`,
+        [nextVGPISO, id]
+      );
+      console.log('✅ VGP mise à jour, prochain VGP:', nextVGPISO);
     }
 
     // Commit de la transaction
@@ -1036,12 +1083,12 @@ app.post("/api/equipment/:id/maintenance/validate", async (req, res) => {
     res.json({
       message: "✅ Maintenance validée avec succès",
       maintenance: maintenanceResult.rows[0],
-      equipment: equipmentResult.rows[0]
+      equipment: equipmentUpdateResult.rows[0]
     });
 
   } catch (error) {
     await dbClient.query('ROLLBACK');
-    console.error("❌ Erreur validation maintenance:", error.message);
+    console.error("❌ Erreur validation maintenance:", error.message, error.stack);
     res.status(500).json({ error: "Erreur lors de la validation de la maintenance", details: error.message });
   } finally {
     dbClient.release();
