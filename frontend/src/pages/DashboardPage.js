@@ -57,7 +57,14 @@ const DashboardPage = () => {
     // 4. Réservations dépassées (date début < aujourd'hui mais toujours en réservation)
     const overdueReservations = equipmentData.filter(eq => {
       if (eq.statut === 'En Réservation' && eq.debutLocation) {
-        const startDate = new Date(eq.debutLocation);
+        // Parser date au format DD/MM/YYYY ou YYYY-MM-DD
+        let startDate;
+        if (eq.debutLocation.includes('/')) {
+          const [day, month, year] = eq.debutLocation.split('/');
+          startDate = new Date(year, month - 1, day);
+        } else {
+          startDate = new Date(eq.debutLocation);
+        }
         startDate.setHours(0, 0, 0, 0);
         return startDate < today;
       }
