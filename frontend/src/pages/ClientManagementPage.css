@@ -283,30 +283,30 @@
   box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
 }
 
-/* Modifier - Gris */
+/* Modifier - Amber/Jaune (comme btn-reservation) */
 .client-action-edit {
-  background: linear-gradient(135deg, rgba(107, 114, 128, 0.2), rgba(107, 114, 128, 0.1));
-  border-color: rgba(107, 114, 128, 0.3);
-  color: #d1d5db;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.1));
+  border-color: rgba(251, 191, 36, 0.3);
+  color: #fbbf24;
 }
 
 .client-action-edit:hover:not(:disabled) {
-  background: linear-gradient(135deg, rgba(107, 114, 128, 0.35), rgba(107, 114, 128, 0.2));
-  border-color: rgba(107, 114, 128, 0.6);
-  box-shadow: 0 4px 16px rgba(107, 114, 128, 0.4);
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.4), rgba(251, 191, 36, 0.2));
+  border-color: rgba(251, 191, 36, 0.6);
+  box-shadow: 0 4px 16px rgba(251, 191, 36, 0.5);
 }
 
-/* Supprimer - Rouge */
+/* Supprimer - Rouge (comme btn-cancel) */
 .client-action-delete {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
-  border-color: rgba(239, 68, 68, 0.3);
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.2), rgba(220, 38, 38, 0.1));
+  border-color: rgba(220, 38, 38, 0.3);
   color: #fca5a5;
 }
 
 .client-action-delete:hover:not(:disabled) {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.35), rgba(239, 68, 68, 0.2));
-  border-color: rgba(239, 68, 68, 0.6);
-  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.4), rgba(220, 38, 38, 0.2));
+  border-color: rgba(220, 38, 38, 0.6);
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.5);
 }
 
 /* Bouton désactivé */
