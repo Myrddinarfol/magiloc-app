@@ -194,64 +194,76 @@ const ClientManagementPage = () => {
         <div className="clients-list">
           {clients.map(client => (
             <div key={client.id} className="client-row">
-              {/* Section Informations */}
-              <div className="client-info">
-                <div className="client-name-section">
+              {/* Section Infos Compacte - GAUCHE */}
+              <div className="client-info-compact">
+                <div className="info-header">
                   <span className="icon-name">👤</span>
                   <span className="client-name">{client.nom}</span>
                 </div>
 
-                <div className="client-details">
-                  <div className="detail-item">
-                    <span className="detail-icon">✉️</span>
-                    <span className="detail-value">{client.email || 'Non renseigné'}</span>
+                <div className="info-fields">
+                  <div className="field-line">
+                    <span className="field-icon">✉️</span>
+                    <span className="field-value">{client.email || '-'}</span>
                   </div>
-                  <div className="detail-item">
-                    <span className="detail-icon">📞</span>
-                    <span className="detail-value">{client.telephone || 'Non renseigné'}</span>
+                  <div className="field-line">
+                    <span className="field-icon">📞</span>
+                    <span className="field-value">{client.telephone || '-'}</span>
                   </div>
-                  <div className="detail-item">
-                    <span className="detail-icon">📍</span>
-                    <span className="detail-value">{client.adresse || 'Non renseigné'}</span>
+                  <div className="field-line">
+                    <span className="field-icon">📍</span>
+                    <span className="field-value">{client.adresse || '-'}</span>
                   </div>
-                  <div className="detail-item">
-                    <span className="detail-icon">🔗</span>
-                    <span className="detail-value contacts-list">
+                  <div className="field-line">
+                    <span className="field-icon">🔗</span>
+                    <div className="contacts-compact">
                       {client.contact_principal ? (
                         client.contact_principal.split('\n').map((contact, idx) => (
-                          <div key={idx} className="contact-item">{contact.trim()}</div>
+                          <div key={idx} className="contact-badge">{contact.trim()}</div>
                         ))
                       ) : (
-                        'Aucun contact'
+                        <span className="contacts-empty">-</span>
                       )}
-                    </span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Section Actions */}
-              <div className="client-actions">
+              {/* Capsule Notes - CENTRE */}
+              <div className="client-notes-panel">
+                <div className="notes-title">📝 Notes</div>
+                <div className="notes-content">
+                  {client.notes ? (
+                    <p>{client.notes}</p>
+                  ) : (
+                    <p className="notes-empty">Aucune note</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Panneau Actions - DROITE */}
+              <div className="client-actions-panel">
                 <button
                   className="btn btn-sm btn-info"
                   onClick={() => handleShowClientHistory(client)}
                   disabled={loadingHistory}
                   title="Voir l'historique de locations"
                 >
-                  📋 Historique
+                  📋<span>Historique</span>
                 </button>
                 <button
                   className="btn btn-sm btn-secondary"
                   onClick={() => handleEditClick(client)}
                   title="Modifier les informations"
                 >
-                  ✎ Modifier
+                  ✎<span>Modifier</span>
                 </button>
                 <button
                   className="btn btn-sm btn-danger"
                   onClick={() => handleDelete(client.id)}
                   title="Supprimer ce client"
                 >
-                  ✕ Supprimer
+                  ✕<span>Supprimer</span>
                 </button>
               </div>
             </div>
