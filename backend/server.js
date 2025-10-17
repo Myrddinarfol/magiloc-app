@@ -1062,10 +1062,10 @@ app.post("/api/equipment/:id/maintenance/validate", async (req, res) => {
 
     console.log('✅ Équipement remis sur parc');
 
-    // 4. Si VGP effectuée, mettre à jour la date du prochain VGP (1 an plus tard)
+    // 4. Si VGP effectuée, mettre à jour la date du prochain VGP (6 mois plus tard)
     if (vgpEffectuee) {
       const nextVGPDate = new Date();
-      nextVGPDate.setFullYear(nextVGPDate.getFullYear() + 1);
+      nextVGPDate.setMonth(nextVGPDate.getMonth() + 6);
       const nextVGPISO = nextVGPDate.toISOString().split('T')[0];
 
       await dbClient.query(
@@ -1074,7 +1074,7 @@ app.post("/api/equipment/:id/maintenance/validate", async (req, res) => {
          WHERE id = $2`,
         [nextVGPISO, id]
       );
-      console.log('✅ VGP mise à jour, prochain VGP:', nextVGPISO);
+      console.log('✅ VGP mise à jour (+6 mois), prochain VGP:', nextVGPISO);
     }
 
     // Commit de la transaction
