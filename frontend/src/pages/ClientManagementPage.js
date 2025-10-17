@@ -3,6 +3,8 @@ import { useClient } from '../hooks/useClient';
 import { useEquipment } from '../hooks/useEquipment';
 import { useUI } from '../hooks/useUI';
 import PageHeader from '../components/common/PageHeader';
+import ClientLocationHistoryModal from '../components/modals/ClientLocationHistoryModal';
+import { historyService } from '../services/historyService';
 import '../pages/ClientManagementPage.css';
 
 const ClientManagementPage = () => {
@@ -11,6 +13,10 @@ const ClientManagementPage = () => {
   const { showToast } = useUI();
   const [showModal, setShowModal] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
+  const [showClientHistory, setShowClientHistory] = useState(false);
+  const [selectedClientHistory, setSelectedClientHistory] = useState([]);
+  const [selectedClientName, setSelectedClientName] = useState('');
+  const [loadingHistory, setLoadingHistory] = useState(false);
   const [formData, setFormData] = useState({
     nom: '',
     email: '',
@@ -85,6 +91,26 @@ const ClientManagementPage = () => {
         showToast(`❌ Erreur: ${err.message}`, 'error');
       }
     }
+  };
+
+  const handleShowClientHistory = async (client) => {
+    setSelectedClientName(client.nom);
+    setLoadingHistory(true);
+    try {
+      const history = await historyService.getClientLocationHistory(client.id);
+      setSelectedClientHistory(history);
+      setShowClientHistory(true);
+    } catch (err) {
+      showToast(`❌ Erreur lors de la récupération de l'historique: ${err.message}`, 'error');
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
+  const handleCloseClientHistory = () => {
+    setShowClientHistory(false);
+    setSelectedClientHistory([]);
+    setSelectedClientName('');
   };
 
   // Extraire les clients uniques des réservations et locations
@@ -185,18 +211,29 @@ const ClientManagementPage = () => {
                   <td className="client-contact">{client.contact_principal || '-'}</td>
                   <td className="actions">
                     <button
+                      className="btn btn-sm btn-info"
+                      onClick={() => handleShowClientHistory(client)}
+                      title="Voir l'historique de locations"
+                      disabled={loadingHistory}
+                    >
+                      <span style={{ marginRight: '4px' }}>📋</span>
+                      Historique
+                    </button>
+                    <button
                       className="btn btn-sm btn-secondary"
                       onClick={() => handleEditClick(client)}
-                      title="Modifier"
+                      title="Modifier les informations"
                     >
-                      ✏️
+                      <span style={{ marginRight: '4px' }}>✎</span>
+                      Modifier
                     </button>
                     <button
                       className="btn btn-sm btn-danger"
                       onClick={() => handleDelete(client.id)}
-                      title="Supprimer"
+                      title="Supprimer ce client"
                     >
-                      🗑️
+                      <span style={{ marginRight: '4px' }}>✕</span>
+                      Supprimer
                     </button>
                   </td>
                 </tr>
@@ -288,6 +325,15 @@ const ClientManagementPage = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal Historique de Locations par Client */}
+      {showClientHistory && (
+        <ClientLocationHistoryModal
+          clientName={selectedClientName}
+          history={selectedClientHistory}
+          onClose={handleCloseClientHistory}
+        />
       )}
     </div>
   );

@@ -8,66 +8,254 @@
   gap: 10px;
 }
 
+/* Conteneur moderne avec grille de cartes */
 .clients-table-container {
-  background: var(--bg-secondary);
-  border-radius: 8px;
-  overflow: auto;
   margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
 }
 
+/* Style de tableau modernisé */
 .clients-table {
   width: 100%;
   border-collapse: collapse;
+  background: transparent;
+  display: contents;
 }
 
+/* Masquer l'en-tête du tableau */
 .clients-table thead {
-  background: var(--accent-color);
-  color: white;
-  position: sticky;
-  top: 0;
+  display: none;
 }
 
-.clients-table th {
-  padding: 12px;
-  text-align: left;
-  font-weight: 600;
+/* Transformation des lignes en cartes */
+.clients-table tbody {
+  display: contents;
 }
 
+/* Chaque ligne devient une carte individuelle */
 .clients-table tbody tr {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  transition: background-color 0.2s;
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(100, 200, 255, 0.05) 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(100, 200, 255, 0.2);
+  padding: 20px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+
+  /* Important: afficher comme conteneur flex pour organiser les TD */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Pseudo-élément pour effet de bordure animée */
+.clients-table tbody tr::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, #4a90e2, #357abd, #4a90e2);
+  transition: left 0.3s ease;
+  z-index: 1;
+}
+
+.clients-table tbody tr:hover::before {
+  left: 100%;
 }
 
 .clients-table tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.05);
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(100, 200, 255, 0.15) 100%);
+  box-shadow: 0 8px 24px rgba(74, 144, 226, 0.3);
+  transform: translateY(-4px);
+  border-color: rgba(100, 200, 255, 0.4);
 }
 
+.clients-table tbody tr:active {
+  transform: translateY(-2px);
+}
+
+/* Contenu des TD - organisation en 2 colonnes pour les champs de données */
 .clients-table td {
-  padding: 12px;
-  vertical-align: middle;
+  padding: 0;
+  border: none;
+}
+
+/* Première colonne (Nom) - Pleine largeur */
+.clients-table td:nth-child(1) {
+  width: 100%;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Deuxième et troisième colonnes (Email, Phone) - en grille 2 colonnes */
+.clients-table td:nth-child(2),
+.clients-table td:nth-child(3) {
+  width: 48%;
+  display: inline-block;
+}
+
+.clients-table td:nth-child(2) {
+  margin-right: 4%;
+}
+
+/* Contact principal - Pleine largeur */
+.clients-table td:nth-child(4) {
+  width: 100%;
+}
+
+/* Actions - Pleine largeur avec bordure du haut */
+.clients-table td:nth-child(5) {
+  width: 100%;
+  padding-top: 12px;
+  margin-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .client-name {
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
+  font-size: 1.15em;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.client-name::before {
+  content: '👤';
+  font-size: 1.2em;
+  opacity: 0.7;
+  flex-shrink: 0;
 }
 
 .client-email,
 .client-phone,
 .client-contact {
   color: var(--text-secondary);
-  font-size: 0.9em;
+  font-size: 0.85em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.client-email::before {
+  content: '✉️';
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.client-phone::before {
+  content: '📞';
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.client-contact::before {
+  content: '🔗';
+  opacity: 0.6;
+  flex-shrink: 0;
 }
 
 .actions {
   display: flex;
-  gap: 8px;
-  justify-content: flex-end;
+  gap: 6px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  width: 100%;
 }
 
 .btn-sm {
-  padding: 6px 10px;
-  font-size: 0.9em;
+  padding: 7px 14px;
+  font-size: 0.85em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  white-space: nowrap;
+  min-width: fit-content;
+}
+
+.btn-sm::before {
+  display: inline-block;
+  font-size: 1.1em;
+}
+
+/* Bouton Historique - Style Info (Bleu) */
+.btn-sm.btn-info {
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+  border: 1px solid rgba(53, 122, 189, 0.5);
+}
+
+.btn-sm.btn-info:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5a9ff5 0%, #3d87d4 100%);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.5);
+  transform: translateY(-2px);
+  border-color: rgba(53, 122, 189, 0.8);
+}
+
+.btn-sm.btn-info:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(74, 144, 226, 0.3);
+}
+
+/* Bouton Modifier - Style Secondary (Gris) */
+.btn-sm.btn-secondary {
+  background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+  border: 1px solid rgba(84, 91, 98, 0.5);
+}
+
+.btn-sm.btn-secondary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #7d8a92 0%, #636d76 100%);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.5);
+  transform: translateY(-2px);
+  border-color: rgba(84, 91, 98, 0.8);
+}
+
+.btn-sm.btn-secondary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(108, 117, 125, 0.3);
+}
+
+/* Bouton Supprimer - Style Danger (Rouge) */
+.btn-sm.btn-danger {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+  border: 1px solid rgba(200, 35, 51, 0.5);
+}
+
+.btn-sm.btn-danger:hover:not(:disabled) {
+  background: linear-gradient(135deg, #e74c5f 0%, #d9374d 100%);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.5);
+  transform: translateY(-2px);
+  border-color: rgba(200, 35, 51, 0.8);
+}
+
+.btn-sm.btn-danger:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(220, 53, 69, 0.3);
+}
+
+/* État désactivé */
+.btn-sm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
 }
 
 .empty-state {
@@ -130,4 +318,50 @@
   text-align: center;
   padding: 40px;
   color: var(--text-secondary);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .clients-table-container {
+    grid-template-columns: 1fr;
+  }
+
+  .clients-table tbody tr {
+    padding: 16px;
+  }
+
+  .btn-sm {
+    padding: 6px 12px;
+    font-size: 0.8em;
+  }
+}
+
+@media (max-width: 480px) {
+  .clients-table-container {
+    gap: 12px;
+  }
+
+  .clients-table tbody tr {
+    padding: 14px;
+    border-radius: 10px;
+  }
+
+  .client-name {
+    font-size: 1.05em;
+  }
+
+  .btn-sm {
+    padding: 5px 10px;
+    font-size: 0.75em;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .btn-sm {
+    width: 100%;
+    justify-content: center;
+  }
 }

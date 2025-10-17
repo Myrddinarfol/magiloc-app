@@ -15,5 +15,12 @@ export const historyService = {
     const response = await fetch(`${API_URL}/api/equipment/${equipmentId}/maintenance-history`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     return response.json();
+  },
+
+  // Récupérer l'historique des locations d'un client
+  async getClientLocationHistory(clientId) {
+    const response = await fetch(`${API_URL}/api/clients/${clientId}/location-history`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
   }
 };
