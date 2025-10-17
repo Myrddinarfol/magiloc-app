@@ -7,9 +7,62 @@
 
 .maintenance-page {
   display: flex;
+  flex-direction: column;
   height: 100vh;
   background: var(--bg-main);
   overflow: hidden;
+}
+
+/* HEADER - FULL WIDTH AT TOP */
+.maintenance-header {
+  display: flex;
+  align-items: center;
+  padding: 20px 32px;
+  background: linear-gradient(90deg, rgba(220, 38, 38, 0.12) 0%, rgba(220, 38, 38, 0.06) 100%);
+  border-bottom: 2px solid rgba(220, 38, 38, 0.2);
+  flex-shrink: 0;
+  gap: 20px;
+}
+
+.maintenance-header-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.maintenance-header-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.maintenance-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.maintenance-header-text h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+
+.maintenance-header-text p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* BODY - 25/75 LAYOUT */
+.maintenance-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  gap: 0;
 }
 
 /* ═════════════════════════════════════════════════════════════════════════ */
@@ -18,13 +71,14 @@
 
 .maintenance-sidebar {
   width: 25%;
+  flex-shrink: 0;
   background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
   border-right: 2px solid rgba(220, 38, 38, 0.3);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  padding: 20px;
-  gap: 20px;
+  padding: 12px;
+  gap: 12px;
   box-shadow: inset -2px 0 20px rgba(0, 0, 0, 0.5);
 }
 
@@ -32,7 +86,7 @@
 .sidebar-header {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 4px;
 }
 
 .sidebar-back-btn {
@@ -66,47 +120,52 @@
 
 /* Title Section */
 .sidebar-title-section {
-  margin-bottom: 10px;
+  margin-bottom: 4px;
 }
 
 .sidebar-equipment-name {
-  margin: 0 0 8px 0;
-  font-size: 18px;
+  margin: 0 0 4px 0;
+  font-size: 15px;
   font-weight: 700;
   color: var(--text-primary);
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
 .sidebar-equipment-cmu {
   margin: 0;
-  font-size: 12px;
-  color: var(--color-primary);
-  font-weight: 600;
+  padding: 6px 10px;
+  font-size: 13px;
+  color: white;
+  background: var(--color-primary);
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
+  border-radius: 6px;
+  display: inline-block;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
 }
 
 /* Specs Section */
 .sidebar-specs-section {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .specs-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 10px;
+  gap: 6px;
 }
 
 .spec-card {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
+  gap: 10px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(220, 38, 38, 0.2);
-  border-radius: 10px;
-  padding: 16px;
+  border-radius: 8px;
+  padding: 10px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: default;
 }
@@ -119,7 +178,7 @@
 }
 
 .spec-icon {
-  font-size: 24px;
+  font-size: 18px;
   flex-shrink: 0;
   line-height: 1;
 }
@@ -127,21 +186,21 @@
 .spec-content {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   flex: 1;
   min-width: 0;
 }
 
 .spec-label {
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 700;
   color: var(--color-gray-400);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
 }
 
 .spec-value {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--text-primary);
   word-break: break-word;
@@ -150,28 +209,28 @@
 /* VGP Section in Sidebar - Full Reproduction */
 .sidebar-vgp-section {
   margin-top: auto;
-  padding-top: 20px;
+  padding-top: 10px;
   border-top: 1px solid rgba(220, 38, 38, 0.2);
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  padding-bottom: 24px;
+  gap: 8px;
+  padding-bottom: 8px;
 }
 
 .vgp-section-header-sidebar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 5px;
+  margin-bottom: 2px;
 }
 
 .vgp-section-title {
   color: var(--text-primary);
   margin: 0;
-  font-size: 15px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
 }
 
 /* Certificat Link - Blue and Clickable */
@@ -179,58 +238,58 @@
   color: #3b82f6;
   text-decoration: none;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 12px;
   transition: all 0.2s;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   cursor: pointer;
 }
 
 .certificat-link:hover {
   color: #60a5fa;
   text-decoration: underline;
-  transform: translateX(3px);
+  transform: translateX(2px);
 }
 
 /* VGP Detail Grid */
 .vgp-detail-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
-  margin-bottom: 8px;
-  padding: 12px;
+  gap: 6px;
+  margin-bottom: 4px;
+  padding: 8px;
   background: rgba(59, 130, 246, 0.08);
   border: 1px solid rgba(59, 130, 246, 0.15);
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
 .vgp-info-item {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .vgp-info-label {
   color: var(--text-secondary);
   font-weight: 600;
-  font-size: 11px;
+  font-size: 9px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
 }
 
 .vgp-info-value {
   color: var(--text-primary);
-  font-size: 14px;
+  font-size: 12px;
 }
 
 /* VGP Status Card - FULL STYLING (imported from App.css) */
 .vgp-status-card {
   display: flex;
   align-items: center;
-  gap: 20px;
-  padding: 22px 20px;
-  border-radius: 12px;
+  gap: 12px;
+  padding: 12px 12px;
+  border-radius: 8px;
   border: 2px solid;
   margin-top: 0;
   position: relative;
@@ -304,15 +363,15 @@
 
 /* Icône du statut VGP */
 .vgp-status-icon {
-  font-size: 44px;
+  font-size: 32px;
   flex-shrink: 0;
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
-  border-radius: 10px;
+  width: 45px;
+  height: 45px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.15);
 }
 
@@ -340,13 +399,13 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 2px;
 }
 
 .vgp-status-label {
-  font-size: 18px;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
 }
 
@@ -370,25 +429,25 @@
 }
 
 .vgp-status-date {
-  font-size: 15px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-primary);
-  margin: 3px 0;
+  margin: 1px 0;
 }
 
 .vgp-status-sublabel {
-  font-size: 13px;
+  font-size: 10px;
   color: var(--text-secondary);
   font-weight: 500;
 }
 
 /* Validate Button in Sidebar */
 .btn-validate-maintenance-sidebar {
-  padding: 14px 20px;
-  font-size: 14px;
+  padding: 10px 14px;
+  font-size: 12px;
   font-weight: 700;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
   background: var(--color-success);
@@ -396,7 +455,7 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   width: 100%;
-  margin-top: 16px;
+  margin-top: 8px;
 }
 
 .btn-validate-maintenance-sidebar:hover {
@@ -415,6 +474,7 @@
   flex-direction: column;
   background: linear-gradient(135deg, var(--bg-main) 0%, var(--bg-secondary) 100%);
   overflow: hidden;
+  min-width: 0;
 }
 
 /* Content Header */
@@ -448,7 +508,7 @@
 .content-panel {
   flex: 1;
   overflow-y: auto;
-  padding: 30px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
 }

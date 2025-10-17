@@ -7,7 +7,7 @@ import EquipmentListView from '../components/EquipmentListView';
 
 const LocationListPage = () => {
   const { equipmentData, loadEquipments } = useEquipment();
-  const { setSelectedEquipment, handleOpenEquipmentDetail, showToast } = useUI();
+  const { setSelectedEquipment, handleOpenEquipmentDetail, showToast, setMaintenanceData } = useUI();
 
   // Gestionnaire de retour de location
   const handleReturnLocation = async (equipment, returnDate, returnNotes) => {
@@ -20,6 +20,12 @@ const LocationListPage = () => {
       };
 
       await equipmentService.returnEquipment(equipment.id, returnData);
+
+      // 📝 Passer les notes au contexte pour la fiche de maintenance
+      setMaintenanceData({
+        motif: equipment.motifMaintenance || '',
+        noteRetour: returnNotes || ''
+      });
 
       showToast('Retour effectué avec succès ! Le matériel est en maintenance.', 'success');
       await loadEquipments();

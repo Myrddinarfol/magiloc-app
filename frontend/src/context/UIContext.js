@@ -36,6 +36,12 @@ export const UIProvider = ({ children }) => {
   // Filtre pour les équipements (modèles)
   const [equipmentFilter, setEquipmentFilter] = useState(null);
 
+  // Données de maintenance (pour passer les notes de retour vers la fiche de maintenance)
+  const [maintenanceData, setMaintenanceData] = useState({
+    motif: '',
+    noteRetour: ''
+  });
+
   // Release Notes
   const [showReleaseNotes, setShowReleaseNotes] = useState(() => {
     const lastSeenVersion = localStorage.getItem(VERSION_KEY);
@@ -139,7 +145,9 @@ export const UIProvider = ({ children }) => {
       toasts,
       showToast,
       equipmentFilter,
-      setEquipmentFilter
+      setEquipmentFilter,
+      maintenanceData,
+      setMaintenanceData
     }}>
       {children}
     </UIContext.Provider>
