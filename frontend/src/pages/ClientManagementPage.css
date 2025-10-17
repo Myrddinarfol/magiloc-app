@@ -8,91 +8,96 @@
   gap: 10px;
 }
 
-/* Conteneur tableau traditionnel */
+/* Conteneur tableau */
 .clients-table-container {
   margin-top: 20px;
   overflow-x: auto;
 }
 
-/* Style de tableau modernisé */
+/* Style de tableau - Cohérent avec App.css */
 .clients-table {
   width: 100%;
-  border-collapse: collapse;
-  background: transparent;
+  border-collapse: separate;
+  border-spacing: 0 12px;
 }
 
 /* En-tête du tableau */
 .clients-table thead {
-  background: linear-gradient(135deg, rgba(100, 200, 255, 0.1) 0%, rgba(74, 144, 226, 0.05) 100%);
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
 }
 
 .clients-table thead th {
-  padding: 16px 12px;
-  text-align: left;
-  font-weight: 600;
-  color: var(--text-primary);
-  font-size: 0.9em;
+  background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 13px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 2px solid rgba(100, 200, 255, 0.3);
+  letter-spacing: 1px;
+  padding: 18px 16px;
+  border: none;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 /* Lignes du tableau */
 .clients-table tbody tr {
-  background: transparent;
-  border-bottom: 1px solid rgba(100, 200, 255, 0.15);
-  transition: all 0.2s ease;
-  position: relative;
+  height: auto;
+  transition: all 0.3s ease;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, rgba(38, 38, 38, 0.95), rgba(26, 26, 26, 0.98));
 }
 
 .clients-table tbody tr:hover {
-  background: linear-gradient(90deg, rgba(100, 200, 255, 0.08) 0%, transparent 100%);
-  border-bottom-color: rgba(100, 200, 255, 0.3);
-}
-
-.clients-table tbody tr:active {
-  background: linear-gradient(90deg, rgba(100, 200, 255, 0.12) 0%, transparent 100%);
+  transform: translateX(8px) scale(1.01);
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+  background: linear-gradient(135deg, rgba(45, 45, 45, 0.98), rgba(30, 30, 30, 1));
 }
 
 /* Cellules du tableau */
 .clients-table td {
-  padding: 14px 12px;
-  vertical-align: middle;
+  padding: 20px 16px;
+  font-size: 15px;
+  color: #f3f4f6;
+  font-weight: 500;
   border: none;
+  background: transparent;
+  vertical-align: middle;
 }
 
-/* Colonne Nom */
-.clients-table td:nth-child(1) {
-  min-width: 150px;
+.clients-table td:first-child {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  padding-left: 24px;
 }
 
-/* Colonne Email */
-.clients-table td:nth-child(2) {
-  min-width: 180px;
+.clients-table td:last-child {
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  padding-right: 24px;
 }
 
-/* Colonne Téléphone */
-.clients-table td:nth-child(3) {
-  min-width: 140px;
+.clients-table th,
+.clients-table td {
+  text-align: left;
 }
 
-/* Colonne Contact Principal */
-.clients-table td:nth-child(4) {
-  min-width: 140px;
+.clients-table th {
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-/* Colonne Actions */
-.clients-table td:nth-child(5) {
-  min-width: 240px;
+.clients-table td {
+  color: var(--text-primary);
 }
 
 .client-name {
   font-weight: 700;
-  color: var(--text-primary);
-  font-size: 0.95em;
+  color: #ffffff;
+  font-size: 16px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -101,15 +106,15 @@
 .client-name::before {
   content: '👤';
   font-size: 1.1em;
-  opacity: 0.7;
+  opacity: 0.8;
   flex-shrink: 0;
 }
 
 .client-email,
 .client-phone,
 .client-contact {
-  color: var(--text-secondary);
-  font-size: 0.85em;
+  color: #d1d5db;
+  font-size: 14px;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -120,114 +125,108 @@
 
 .client-email::before {
   content: '✉️';
-  opacity: 0.6;
+  opacity: 0.7;
   flex-shrink: 0;
 }
 
 .client-phone::before {
   content: '📞';
-  opacity: 0.6;
+  opacity: 0.7;
   flex-shrink: 0;
 }
 
 .client-contact::before {
   content: '🔗';
-  opacity: 0.6;
+  opacity: 0.7;
   flex-shrink: 0;
 }
 
 .actions {
   display: flex;
-  gap: 6px;
-  justify-content: space-between;
+  gap: 8px;
+  justify-content: flex-start;
   flex-wrap: wrap;
-  width: 100%;
+  align-items: center;
 }
 
 .btn-sm {
-  padding: 7px 14px;
-  font-size: 0.85em;
+  padding: 10px 16px;
+  font-size: 13px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 6px;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-weight: 500;
+  transition: all 0.3s ease;
+  font-weight: 600;
   white-space: nowrap;
   min-width: fit-content;
-}
-
-.btn-sm::before {
-  display: inline-block;
-  font-size: 1.1em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* Bouton Historique - Style Info (Bleu) */
 .btn-sm.btn-info {
-  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
-  color: white;
-  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
-  border: 1px solid rgba(53, 122, 189, 0.5);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1));
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .btn-sm.btn-info:hover:not(:disabled) {
-  background: linear-gradient(135deg, #5a9ff5 0%, #3d87d4 100%);
-  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.5);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(59, 130, 246, 0.2));
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
   transform: translateY(-2px);
-  border-color: rgba(53, 122, 189, 0.8);
 }
 
 .btn-sm.btn-info:active:not(:disabled) {
   transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(74, 144, 226, 0.3);
 }
 
 /* Bouton Modifier - Style Secondary (Gris) */
 .btn-sm.btn-secondary {
-  background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
-  color: white;
-  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
-  border: 1px solid rgba(84, 91, 98, 0.5);
+  background: linear-gradient(135deg, rgba(156, 163, 175, 0.2), rgba(156, 163, 175, 0.1));
+  color: #9ca3af;
+  border: 1px solid rgba(156, 163, 175, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .btn-sm.btn-secondary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #7d8a92 0%, #636d76 100%);
-  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.5);
+  background: linear-gradient(135deg, rgba(156, 163, 175, 0.3), rgba(156, 163, 175, 0.2));
+  border-color: rgba(156, 163, 175, 0.5);
+  box-shadow: 0 4px 12px rgba(156, 163, 175, 0.3);
   transform: translateY(-2px);
-  border-color: rgba(84, 91, 98, 0.8);
 }
 
 .btn-sm.btn-secondary:active:not(:disabled) {
   transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(108, 117, 125, 0.3);
 }
 
 /* Bouton Supprimer - Style Danger (Rouge) */
 .btn-sm.btn-danger {
-  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-  color: white;
-  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
-  border: 1px solid rgba(200, 35, 51, 0.5);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .btn-sm.btn-danger:hover:not(:disabled) {
-  background: linear-gradient(135deg, #e74c5f 0%, #d9374d 100%);
-  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.5);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(239, 68, 68, 0.2));
+  border-color: rgba(239, 68, 68, 0.5);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
   transform: translateY(-2px);
-  border-color: rgba(200, 35, 51, 0.8);
 }
 
 .btn-sm.btn-danger:active:not(:disabled) {
   transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(220, 53, 69, 0.3);
 }
 
 /* État désactivé */
 .btn-sm:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
   transform: none !important;
 }
