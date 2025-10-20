@@ -1,9 +1,101 @@
 // Système de gestion des notes de mise à jour
 // Pour ajouter une nouvelle version, ajoutez un objet au début du tableau
 
-export const CURRENT_VERSION = '0.9.8.3';
+export const CURRENT_VERSION = '0.9.8.4';
 
 export const releaseNotes = [
+  {
+    version: '0.9.8.4',
+    date: '2025-10-20',
+    title: '📊 Système de Location Longue Durée - Sélection Manuelle',
+    sections: [
+      {
+        title: '🎯 Location Longue Durée Flexible - Manuel vs Automatique',
+        items: [
+          'Remplacement du système automatique (21+ jours ouvrés) par sélection manuelle',
+          'Nouvelle checkbox "📊 Location Longue Durée (-20% remise)" dans modals',
+          'Souplesse commerciale : adaptation aux situations non-standard',
+          'Permet des remises dégressives en fonction de la stratégie client',
+        ]
+      },
+      {
+        title: '✅ Modals de Réservation Améliorés',
+        items: [
+          'ReservationModal.js : Checkbox longue durée à la création',
+          'CreateReservationModal.js : Checkbox longue durée (création depuis PARC LOC)',
+          'EditLocationModal.js : Possibilité d\'éditer le statut longue durée',
+          'Interface consistante : même checkbox UI dans tous les modals',
+          'Validation et sauvegarde du champ estLongDuree',
+        ]
+      },
+      {
+        title: '🎨 Affichage Détail Équipement Amélioré',
+        items: [
+          'Nouvelle section : "Longue Durée: ✅ Oui (-20%)" ou "❌ Non"',
+          'Styling conditionnel : vert (#10b981) si longue durée, gris (#9ca3af) sinon',
+          'Affichage tarif appliqué : "[prix réduit]€/j au lieu de [prix original]€/j"',
+          'Section tarifaire avec arrière-plan vert clair et border',
+          'Suppression du calcul automatique des jours ouvrés pour détermination',
+        ]
+      },
+      {
+        title: '🔄 Flux Utilisateur Complet',
+        items: [
+          'Création : Checkbox → Sauvegarde estLongDuree en base',
+          'Affichage : Vue détail montre le statut et tarif appliqué',
+          'Édition : Modification possible du statut via EditLocationModal',
+          'Persistance : Valeur stockée et restituée correctement',
+        ]
+      },
+      {
+        title: '💾 Base de Données',
+        items: [
+          'Nouveau champ estLongDuree (boolean/integer) sur table equipments',
+          'Support valeurs boolean (true/false) et integer (1/0)',
+          'Compatibilité : Equipment detail gère les deux formats',
+          'Validation : Conversion automatique estLongDuree === true || estLongDuree === 1',
+        ]
+      },
+      {
+        title: '🔧 Architecture Technique',
+        items: [
+          'equipmentService.update() : Passe estLongDuree sans modification',
+          'React Hooks : Form state avec estLongDuree: false par défaut',
+          'EquipmentDetailView : Calcul isLongDuration avec coalescing sécurisé',
+          'Pas de breaking changes : compatible avec anciennes données',
+        ]
+      },
+      {
+        title: '✨ Améliorations UX',
+        items: [
+          'Checkbox avec emoji 📊 et label explicite "(-20% remise)"',
+          'Indication claire du bénéfice financier',
+          'Style cohérent : flex layout, cursor pointer, 18px checkbox',
+          'Intégration naturelle dans les formulaires de réservation',
+        ]
+      },
+      {
+        title: '📂 Fichiers Modifiés/Créés',
+        items: [
+          'Modifié : ReservationModal.js (+checkbox, +form state)',
+          'Modifié : CreateReservationModal.js (+checkbox, +form state)',
+          'Modifié : EditLocationModal.js (+checkbox, +form init, +submit)',
+          'Modifié : EquipmentDetailView.js (affichage longue durée + tarif)',
+          'Inchangé : equipmentService.js (déjà générique)',
+        ]
+      },
+      {
+        title: '✅ Tests & Vérifications',
+        items: [
+          'Build : npm run build compile sans erreurs',
+          'Reservation : Checkbox fonctionnel, valeur sauvegardée',
+          'Detail view : Affichage correct du statut et tarif',
+          'Edit modal : Modification du statut longue durée persistée',
+          'Compatibilité : Anciennes données sans estLongDuree restent OK',
+        ]
+      }
+    ]
+  },
   {
     version: '0.9.8.3',
     date: '2025-10-18',
