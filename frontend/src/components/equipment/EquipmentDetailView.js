@@ -7,6 +7,7 @@ import CreateReservationModal from '../modals/CreateReservationModal';
 import EditLocationModal from '../modals/EditLocationModal';
 import MaintenanceManagementPanel from '../maintenance/MaintenanceManagementPanel';
 import ValidateMaintenanceModal from '../modals/ValidateMaintenanceModal';
+import StartLocationModal from '../modals/StartLocationModal';
 import './EquipmentDetailView.css';
 
 const EquipmentDetailView = ({
@@ -16,6 +17,7 @@ const EquipmentDetailView = ({
   onEditCertificat,
   onOpenReservation,
   onStartLocation,
+  onReturnLocation,
   onReturn,
   onEditTechInfo,
   onLoadLocationHistory,
@@ -30,6 +32,8 @@ const EquipmentDetailView = ({
   const [showCreateReservationModal, setShowCreateReservationModal] = useState(false);
   const [showEditLocationModal, setShowEditLocationModal] = useState(false);
   const [showValidateMaintenanceModal, setShowValidateMaintenanceModal] = useState(false);
+  const [showStartLocationModalDetail, setShowStartLocationModalDetail] = useState(false);
+  const [showReturnModalDetail, setShowReturnModalDetail] = useState(false);
   const [maintenanceData, setMaintenanceData] = useState({});
 
   return (
@@ -161,8 +165,8 @@ const EquipmentDetailView = ({
                   equipment.debutLocation,
                   equipment.finLocationTheorique
                 );
-                const isLongDuration = businessDays && businessDays >= 21;
                 const prixHT = equipment.prixHT ? parseFloat(equipment.prixHT) : null;
+                const isLongDuration = equipment.estLongDuree === true || equipment.estLongDuree === 1;
 
                 return (
                   <>
@@ -174,14 +178,26 @@ const EquipmentDetailView = ({
                         </span>
                       </div>
                     )}
-                    {isLongDuration && (
-                      <div className="detail-item" style={{ backgroundColor: '#fff3e0', padding: '10px', borderRadius: '8px', border: '2px solid #ff9800' }}>
-                        <span className="detail-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          ✅ Location Longue Durée:
+                    <div className="detail-item">
+                      <span className="detail-label">Longue Durée:</span>
+                      <span className="detail-value" style={{
+                        fontWeight: 'bold',
+                        color: isLongDuration ? '#10b981' : '#9ca3af',
+                        padding: '4px 12px',
+                        backgroundColor: isLongDuration ? 'rgba(16, 185, 129, 0.1)' : 'rgba(156, 163, 175, 0.1)',
+                        borderRadius: '6px',
+                        display: 'inline-block'
+                      }}>
+                        {isLongDuration ? '✅ Oui (-20%)' : '❌ Non'}
+                      </span>
+                    </div>
+                    {isLongDuration && prixHT && (
+                      <div className="detail-item" style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', padding: '10px', borderRadius: '8px', border: '2px solid rgba(16, 185, 129, 0.3)' }}>
+                        <span className="detail-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#10b981' }}>
+                          💰 Tarif appliqué:
                         </span>
-                        <span className="detail-value" style={{ fontWeight: 'bold', color: '#f57c00' }}>
-                          Remise 20% applicable
-                          {prixHT && ` (${(prixHT * 0.8).toFixed(2)}€/j au lieu de ${prixHT}€/j)`}
+                        <span className="detail-value" style={{ fontWeight: 'bold', color: '#10b981' }}>
+                          {(prixHT * 0.8).toFixed(2)}€/j au lieu de {prixHT}€/j
                         </span>
                       </div>
                     )}
@@ -359,7 +375,7 @@ const EquipmentDetailView = ({
             {equipment.statut === 'En Réservation' && (
               <>
                 <button
-                  onClick={() => setShowStartLocationModal(true)}
+                  onClick={() => setShowStartLocationModalDetail(true)}
                   style={{
                     padding: '8px 16px',
                     background: 'linear-gradient(135deg, #10b981, #059669)',
@@ -402,7 +418,7 @@ const EquipmentDetailView = ({
             {/* STATUT: En Location */}
             {equipment.statut === 'En Location' && (
               <button
-                onClick={() => setShowReturnModal(true)}
+                onClick={() => setShowReturnModalDetail(true)}
                 style={{
                   padding: '8px 16px',
                   background: 'linear-gradient(135deg, #10b981, #059669)',
@@ -690,6 +706,276 @@ const EquipmentDetailView = ({
           }}
           onCancel={() => setShowValidateMaintenanceModal(false)}
         />
+      )}
+
+      {/* Modal de démarrage de location - Detail View */}
+      {showStartLocationModalDetail && (
+        <StartLocationModal
+          show={true}
+          equipment={equipment}
+          onConfirm={(startDate) => {
+            setShowStartLocationModalDetail(false);
+            if (onStartLocation) {
+              onStartLocation(equipment, startDate);
+            }
+          }}
+          onCancel={() => setShowStartLocationModalDetail(false)}
+        />
+      )}
+
+      {/* Modal de retour de location - Detail View */}
+      {showReturnModalDetail && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.85)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 100000,
+          animation: 'fadeIn 0.3s ease-out'
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #1a1a1a, #2d2d2d)',
+            border: '3px solid #10b981',
+            borderRadius: '20px',
+            padding: '40px',
+            maxWidth: '500px',
+            width: '90%',
+            boxShadow: '0 20px 60px rgba(16, 185, 129, 0.5)',
+            animation: 'slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)'
+          }}>
+            <div style={{
+              fontSize: '64px',
+              textAlign: 'center',
+              marginBottom: '20px',
+              animation: 'bounce 0.6s ease-out'
+            }}>
+              ✅
+            </div>
+
+            <h2 style={{
+              color: '#10b981',
+              fontSize: '24px',
+              fontWeight: 'bold',
+              textAlign: 'center',
+              marginBottom: '20px'
+            }}>
+              Effectuer le retour
+            </h2>
+
+            {equipment && (
+              <div style={{
+                background: 'rgba(16, 185, 129, 0.1)',
+                border: '2px solid rgba(16, 185, 129, 0.3)',
+                borderRadius: '12px',
+                padding: '16px',
+                marginBottom: '20px'
+              }}>
+                <div style={{ color: '#fff', fontSize: '16px', fontWeight: 'bold', marginBottom: '8px' }}>
+                  {equipment.designation} {equipment.cmu}
+                </div>
+                <div style={{ color: '#9ca3af', fontSize: '14px' }}>
+                  {equipment.marque} {equipment.modele}
+                </div>
+                <div style={{ color: '#9ca3af', fontSize: '14px', marginTop: '4px' }}>
+                  N° Série: {equipment.numeroSerie}
+                </div>
+                {equipment.client && (
+                  <div style={{ color: '#fbbf24', fontSize: '14px', marginTop: '8px', fontWeight: '500' }}>
+                    Client: {equipment.client}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{
+                display: 'block',
+                color: '#d1d5db',
+                fontSize: '14px',
+                fontWeight: '600',
+                marginBottom: '8px'
+              }}>
+                Date de retour <span style={{ color: '#dc2626' }}>*</span>
+              </label>
+              <input
+                type="date"
+                id="returnDate"
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  fontSize: '16px',
+                  color: '#fff',
+                  background: 'rgba(31, 41, 55, 0.8)',
+                  border: '2px solid rgba(16, 185, 129, 0.3)',
+                  borderRadius: '8px',
+                  outline: 'none',
+                  transition: 'all 0.3s ease',
+                  boxSizing: 'border-box'
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = '#10b981';
+                  e.target.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.1)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                  e.target.style.boxShadow = 'none';
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{
+                display: 'block',
+                color: '#d1d5db',
+                fontSize: '14px',
+                fontWeight: '600',
+                marginBottom: '8px'
+              }}>
+                Notes de retour
+              </label>
+              <textarea
+                id="returnNotes"
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  fontSize: '16px',
+                  color: '#fff',
+                  background: 'rgba(31, 41, 55, 0.8)',
+                  border: '2px solid rgba(16, 185, 129, 0.3)',
+                  borderRadius: '8px',
+                  outline: 'none',
+                  transition: 'all 0.3s ease',
+                  minHeight: '100px',
+                  resize: 'vertical',
+                  boxSizing: 'border-box'
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = '#10b981';
+                  e.target.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.1)';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                  e.target.style.boxShadow = 'none';
+                }}
+                placeholder="Condition du matériel, remarques, etc..."
+              />
+            </div>
+
+            <div style={{
+              display: 'flex',
+              gap: '12px',
+              justifyContent: 'center'
+            }}>
+              <button
+                onClick={() => setShowReturnModalDetail(false)}
+                style={{
+                  padding: '14px 28px',
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  color: '#9ca3af',
+                  background: 'linear-gradient(135deg, rgba(55, 65, 81, 0.6), rgba(31, 41, 55, 0.6))',
+                  border: '2px solid rgba(75, 85, 99, 0.8)',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  minWidth: '140px'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = 'linear-gradient(135deg, rgba(75, 85, 99, 0.8), rgba(55, 65, 81, 0.8))';
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'linear-gradient(135deg, rgba(55, 65, 81, 0.6), rgba(31, 41, 55, 0.6))';
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = 'none';
+                }}
+              >
+                ✕ Annuler
+              </button>
+
+              <button
+                onClick={() => {
+                  const returnDate = document.getElementById('returnDate')?.value;
+                  const returnNotes = document.getElementById('returnNotes')?.value;
+
+                  if (!returnDate) {
+                    alert('Veuillez saisir la date de retour');
+                    return;
+                  }
+
+                  setShowReturnModalDetail(false);
+                  if (onReturnLocation) {
+                    onReturnLocation(equipment, returnDate, returnNotes);
+                  }
+                }}
+                style={{
+                  padding: '14px 28px',
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  color: '#fff',
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  border: '2px solid #10b981',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  minWidth: '140px'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = 'linear-gradient(135deg, #34d399, #10b981)';
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 8px 20px rgba(16, 185, 129, 0.6)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = 'none';
+                }}
+              >
+                ✅ Effectuer le retour
+              </button>
+            </div>
+
+            <style>
+              {`
+                @keyframes fadeIn {
+                  from {
+                    opacity: 0;
+                  }
+                  to {
+                    opacity: 1;
+                  }
+                }
+
+                @keyframes slideUp {
+                  from {
+                    transform: translateY(30px);
+                    opacity: 0;
+                  }
+                  to {
+                    transform: translateY(0);
+                    opacity: 1;
+                  }
+                }
+
+                @keyframes bounce {
+                  0%, 100% {
+                    transform: translateY(0);
+                  }
+                  50% {
+                    transform: translateY(-10px);
+                  }
+                }
+              `}
+            </style>
+          </div>
+        </div>
       )}
     </div>
   );

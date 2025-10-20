@@ -9,7 +9,8 @@ const ReservationModal = ({ equipment, onClose, onSuccess }) => {
     debutLocation: '',
     finLocationTheorique: '',
     numeroOffre: '',
-    notesLocation: ''
+    notesLocation: '',
+    estLongDuree: false
   });
 
   const handleSubmit = async () => {
@@ -27,7 +28,8 @@ const ReservationModal = ({ equipment, onClose, onSuccess }) => {
         debutLocation: form.debutLocation || null,
         finLocationTheorique: form.finLocationTheorique || null,
         numeroOffre: form.numeroOffre.trim() || null,
-        notesLocation: form.notesLocation.trim() || null
+        notesLocation: form.notesLocation.trim() || null,
+        estLongDuree: form.estLongDuree
       });
 
       console.log('✅ Réservation créée');
@@ -37,7 +39,8 @@ const ReservationModal = ({ equipment, onClose, onSuccess }) => {
         debutLocation: '',
         finLocationTheorique: '',
         numeroOffre: '',
-        notesLocation: ''
+        notesLocation: '',
+        estLongDuree: false
       });
       onClose();
       onSuccess('en-offre'); // Naviguer vers réservations
@@ -118,16 +121,29 @@ const ReservationModal = ({ equipment, onClose, onSuccess }) => {
             />
           </div>
 
+          <div className="form-group" style={{marginTop: '20px'}}>
+            <label style={{display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '15px'}}>
+              <input
+                type="checkbox"
+                id="long-duration-input"
+                checked={form.estLongDuree}
+                onChange={(e) => setForm({...form, estLongDuree: e.target.checked})}
+                style={{cursor: 'pointer', width: '18px', height: '18px'}}
+              />
+              <span>📊 Location Longue Durée (-20% remise)</span>
+            </label>
+          </div>
+
           <p className="modal-info">
             <small>* Champ obligatoire</small>
           </p>
         </div>
 
         <div className="modal-footer">
-          <button onClick={onClose} className="btn btn-gray">
+          <button onClick={onClose} className="btn btn-secondary">
             Annuler
           </button>
-          <button onClick={handleSubmit} className="btn btn-primary">
+          <button onClick={handleSubmit} className="btn btn-confirm">
             ✅ Valider la Réservation
           </button>
         </div>

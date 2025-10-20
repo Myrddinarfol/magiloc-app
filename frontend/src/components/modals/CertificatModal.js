@@ -71,7 +71,7 @@ const CertificatModal = ({ equipment, onClose, onSave }) => {
           <button onClick={onClose} className="btn btn-gray">
             Annuler
           </button>
-          <button onClick={handleSave} className="btn btn-primary">
+          <button onClick={handleSave} className="btn btn-confirm">
             💾 Enregistrer
           </button>
         </div>

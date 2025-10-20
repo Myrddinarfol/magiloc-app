@@ -203,7 +203,7 @@ const AddEquipmentModal = ({ onClose, onSuccess }) => {
           <button onClick={onClose} className="btn btn-gray">
             Annuler
           </button>
-          <button onClick={handleSubmit} className="btn btn-primary">
+          <button onClick={handleSubmit} className="btn btn-add">
             ➕ Ajouter l'Équipement
           </button>
         </div>

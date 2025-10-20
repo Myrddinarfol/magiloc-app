@@ -8,7 +8,8 @@ const CreateReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
     debutLocation: today,
     finLocationTheorique: '',
     numeroOffre: '',
-    notesLocation: ''
+    notesLocation: '',
+    estLongDuree: false
   });
 
   if (!show) return null;
@@ -25,7 +26,8 @@ const CreateReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
       debutLocation: today,
       finLocationTheorique: '',
       numeroOffre: '',
-      notesLocation: ''
+      notesLocation: '',
+      estLongDuree: false
     });
   };
 
@@ -35,7 +37,8 @@ const CreateReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
       debutLocation: today,
       finLocationTheorique: '',
       numeroOffre: '',
-      notesLocation: ''
+      notesLocation: '',
+      estLongDuree: false
     });
     onCancel();
   };
@@ -277,6 +280,26 @@ const CreateReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
               e.target.style.boxShadow = 'none';
             }}
           />
+        </div>
+
+        {/* LONG DURATION checkbox */}
+        <div style={{ marginBottom: '24px' }}>
+          <label style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            cursor: 'pointer',
+            fontSize: '15px',
+            color: '#d1d5db'
+          }}>
+            <input
+              type="checkbox"
+              checked={formData.estLongDuree}
+              onChange={(e) => setFormData({...formData, estLongDuree: e.target.checked})}
+              style={{cursor: 'pointer', width: '18px', height: '18px'}}
+            />
+            <span>📊 Location Longue Durée (-20% remise)</span>
+          </label>
         </div>
 
         {/* Info message */}
