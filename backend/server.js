@@ -550,6 +550,7 @@ app.patch("/api/equipment/:id", async (req, res) => {
     console.log(`✅ COMMIT transaction...`);
     await dbClient.query('COMMIT');
 
+    console.log(`📤 Équipement retourné au frontend:`, JSON.stringify(result.rows[0], null, 2));
     res.json({
       message: "✅ Équipement mis à jour",
       equipment: result.rows[0]

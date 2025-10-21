@@ -29,7 +29,9 @@ const EditTechInfoModal = ({ equipment, onClose, onSuccess }) => {
         etat: form.etat || null
       };
 
-      await equipmentService.update(equipment.id, cleanedData);
+      const response = await equipmentService.update(equipment.id, cleanedData);
+      console.log('📤 Réponse du PATCH:', response);
+      console.log('🔍 Équipement retourné:', response?.equipment);
 
       console.log('✅ Informations techniques mises à jour');
       onSuccess('stay-on-detail'); // Rester sur la fiche détail
