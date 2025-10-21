@@ -205,6 +205,8 @@ app.get("/api/equipment", async (req, res) => {
         infos_complementaires as "infosComplementaires",
         numero_serie as "numeroSerie",
         prix_ht_jour as "prixHT",
+        minimum_facturation as "minimumFacturation",
+        minimum_facturation_apply as "minimumFacturationApply",
         etat,
         certificat,
         dernier_vgp as "dernierVGP",
