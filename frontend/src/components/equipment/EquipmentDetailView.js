@@ -62,8 +62,8 @@ const EquipmentDetailView = ({
             gap: '20px',
             marginTop: '20px'
           }}>
-            {/* COLONNE GAUCHE: Infos Techniques + Historique + Panneau de Contrôle */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            {/* COLONNE GAUCHE: Infos Techniques */}
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
               {/* Section Informations Techniques */}
               <div className="detail-section">
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
@@ -131,8 +131,14 @@ const EquipmentDetailView = ({
                   </span>
                 </div>
               </div>
+            </div>
 
-              {/* Historique - Gauche */}
+            {/* COLONNE DROITE: VGP + Historique + Panneau de Contrôle */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              {/* VGP Section */}
+              <VGPSection equipment={equipment} onEditCertificat={onEditCertificat} />
+
+              {/* Historique - Droite */}
               <div style={{
                 padding: '12px',
                 background: 'linear-gradient(135deg, #1a1a1a, #2d2d2d)',
@@ -196,7 +202,7 @@ const EquipmentDetailView = ({
                 </div>
               </div>
 
-              {/* Panneau de Contrôle - Gauche */}
+              {/* Panneau de Contrôle - Droite */}
               <div style={{
                 padding: '15px',
                 background: 'linear-gradient(135deg, #1a1a1a, #2d2d2d)',
@@ -296,13 +302,6 @@ const EquipmentDetailView = ({
                     🗑️ Supprimer
                   </button>
                 </div>
-              </div>
-            </div>
-
-            {/* COLONNE DROITE: VGP Réduit */}
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <div style={{ maxHeight: '500px', overflow: 'auto' }}>
-                <VGPSection equipment={equipment} onEditCertificat={onEditCertificat} />
               </div>
             </div>
           </div>
