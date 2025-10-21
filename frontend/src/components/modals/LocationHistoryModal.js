@@ -38,9 +38,13 @@ const LocationHistoryModal = ({ history, onClose }) => {
                 <tbody>
                   {history.map((loc, index) => {
                     const hasCA = loc.ca_total_ht && loc.duree_jours_ouvres && loc.prix_ht_jour;
-                    const caDetail = hasCA
-                      ? `${loc.duree_jours_ouvres}j × ${loc.prix_ht_jour}€/j${loc.remise_ld ? ' -20%' : ''}`
-                      : '';
+                    let caDetail = '';
+                    if (hasCA) {
+                      caDetail = `${loc.duree_jours_ouvres}j × ${loc.prix_ht_jour}€/j${loc.remise_ld ? ' -20%' : ''}`;
+                      if (loc.minimum_facturation_apply) {
+                        caDetail += ` (Min: ${loc.minimum_facturation}€)`;
+                      }
+                    }
 
                     return (
                       <tr key={index} className="history-row">
@@ -63,7 +67,14 @@ const LocationHistoryModal = ({ history, onClose }) => {
                         <td className="col-ca">
                           {hasCA ? (
                             <div className="history-ca-info">
-                              <span className="ca-amount">{parseFloat(loc.ca_total_ht).toFixed(2)}€</span>
+                              <span className="ca-amount">
+                                {parseFloat(loc.ca_total_ht).toFixed(2)}€
+                                {loc.minimum_facturation_apply && (
+                                  <span style={{ marginLeft: '4px', color: '#fbbf24', fontWeight: 'bold' }} title="Minimum de facturation appliqué">
+                                    💰
+                                  </span>
+                                )}
+                              </span>
                               <span className="ca-detail">{caDetail}</span>
                             </div>
                           ) : <span className="history-na">N/A</span>}

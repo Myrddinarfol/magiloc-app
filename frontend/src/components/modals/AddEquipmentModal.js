@@ -12,6 +12,7 @@ const AddEquipmentModal = ({ onClose, onSuccess }) => {
     longueur: '',
     numeroSerie: '',
     prixHT: '',
+    minimumFacturation: '',
     etat: '',
     certificat: '',
     infosComplementaires: ''
@@ -41,6 +42,7 @@ const AddEquipmentModal = ({ onClose, onSuccess }) => {
         longueur: '',
         numeroSerie: '',
         prixHT: '',
+        minimumFacturation: '',
         etat: '',
         certificat: '',
         infosComplementaires: ''
@@ -147,6 +149,19 @@ const AddEquipmentModal = ({ onClose, onSuccess }) => {
                 value={form.prixHT}
                 onChange={(e) => setForm({...form, prixHT: e.target.value})}
                 placeholder="Ex: 150.00"
+                className="form-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="minimum-facturation-add-input">Minimum de facturation :</label>
+              <input
+                id="minimum-facturation-add-input"
+                type="number"
+                step="0.01"
+                value={form.minimumFacturation}
+                onChange={(e) => setForm({...form, minimumFacturation: e.target.value})}
+                placeholder="Ex: 250.00"
                 className="form-input"
               />
             </div>

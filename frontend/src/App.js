@@ -235,7 +235,8 @@ const MainApp = ({ shouldStartTour }) => {
       // Préparer les données de retour
       const returnData = {
         rentreeLe: returnDate,
-        noteRetour: returnNotes || ''
+        noteRetour: returnNotes || '',
+        minimumFacturationApply: equipment.minimumFacturationApply || false
       };
 
       // Appeler le service de retour
@@ -269,7 +270,8 @@ const MainApp = ({ shouldStartTour }) => {
         debutLocation: formData.debutLocation || null,
         finLocationTheorique: formData.finLocationTheorique || null,
         numeroOffre: formData.numeroOffre || null,
-        notesLocation: formData.notesLocation || null
+        notesLocation: formData.notesLocation || null,
+        minimumFacturationApply: formData.minimumFacturationApply || false
       };
 
       // Mettre à jour le matériel

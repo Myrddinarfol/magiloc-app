@@ -16,6 +16,8 @@ CREATE TABLE IF NOT EXISTS equipments (
     infos_complementaires TEXT,
     numero_serie VARCHAR(100) UNIQUE NOT NULL,
     prix_ht_jour DECIMAL(10,2),
+    minimum_facturation DECIMAL(10,2) DEFAULT 0,
+    minimum_facturation_apply BOOLEAN DEFAULT FALSE,
     etat VARCHAR(50),
     certificat VARCHAR(100),
     dernier_vgp DATE,
@@ -65,6 +67,8 @@ CREATE TABLE IF NOT EXISTS location_history (
     prix_ht_jour DECIMAL(10,2),
     remise_ld BOOLEAN DEFAULT FALSE,
     ca_total_ht DECIMAL(10,2),
+    minimum_facturation_apply BOOLEAN DEFAULT FALSE,
+    minimum_facturation DECIMAL(10,2) DEFAULT 0,
     archived_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

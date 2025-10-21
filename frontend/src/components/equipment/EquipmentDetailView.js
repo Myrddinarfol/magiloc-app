@@ -102,6 +102,10 @@ const EquipmentDetailView = ({
               <span className="detail-value">{equipment.prixHT ? `${equipment.prixHT} €` : 'N/A'}</span>
             </div>
             <div className="detail-item">
+              <span className="detail-label">Minimum de facturation:</span>
+              <span className="detail-value">{equipment.minimumFacturation ? `${equipment.minimumFacturation} €` : 'N/A'}</span>
+            </div>
+            <div className="detail-item">
               <span className="detail-label">État:</span>
               <span className={`detail-value ${getEtatClass(equipment.etat)}`}>
                 {equipment.etat}

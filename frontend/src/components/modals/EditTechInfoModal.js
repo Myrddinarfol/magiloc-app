@@ -10,6 +10,7 @@ const EditTechInfoModal = ({ equipment, onClose, onSuccess }) => {
     longueur: equipment?.longueur || '',
     numeroSerie: equipment?.numeroSerie || '',
     prixHT: equipment?.prixHT || '',
+    minimumFacturation: equipment?.minimumFacturation || '',
     etat: equipment?.etat || ''
   });
 
@@ -24,6 +25,7 @@ const EditTechInfoModal = ({ equipment, onClose, onSuccess }) => {
         longueur: form.longueur || null,
         numeroSerie: form.numeroSerie || null,
         prixHT: form.prixHT ? parseFloat(form.prixHT) : null,
+        minimumFacturation: form.minimumFacturation ? parseFloat(form.minimumFacturation) : null,
         etat: form.etat || null
       };
 
@@ -108,6 +110,19 @@ const EditTechInfoModal = ({ equipment, onClose, onSuccess }) => {
               value={form.prixHT}
               onChange={(e) => setForm({...form, prixHT: e.target.value})}
               placeholder="Ex: 150.00"
+              className="form-input"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="minimum-facturation-input">Minimum de facturation :</label>
+            <input
+              id="minimum-facturation-input"
+              type="number"
+              step="0.01"
+              value={form.minimumFacturation}
+              onChange={(e) => setForm({...form, minimumFacturation: e.target.value})}
+              placeholder="Ex: 250.00"
               className="form-input"
             />
           </div>

@@ -9,7 +9,8 @@ const CreateReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
     finLocationTheorique: '',
     numeroOffre: '',
     notesLocation: '',
-    estLongDuree: false
+    estLongDuree: false,
+    minimumFacturationApply: false
   });
 
   if (!show) return null;
@@ -27,7 +28,8 @@ const CreateReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
       finLocationTheorique: '',
       numeroOffre: '',
       notesLocation: '',
-      estLongDuree: false
+      estLongDuree: false,
+      minimumFacturationApply: false
     });
   };
 
@@ -38,7 +40,8 @@ const CreateReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
       finLocationTheorique: '',
       numeroOffre: '',
       notesLocation: '',
-      estLongDuree: false
+      estLongDuree: false,
+      minimumFacturationApply: false
     });
     onCancel();
   };
@@ -299,6 +302,26 @@ const CreateReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
               style={{cursor: 'pointer', width: '18px', height: '18px'}}
             />
             <span>📊 Location Longue Durée (-20% remise)</span>
+          </label>
+        </div>
+
+        {/* MINIMUM FACTURATION checkbox */}
+        <div style={{ marginBottom: '24px' }}>
+          <label style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            cursor: 'pointer',
+            fontSize: '15px',
+            color: '#d1d5db'
+          }}>
+            <input
+              type="checkbox"
+              checked={formData.minimumFacturationApply}
+              onChange={(e) => setFormData({...formData, minimumFacturationApply: e.target.checked})}
+              style={{cursor: 'pointer', width: '18px', height: '18px'}}
+            />
+            <span>💰 Minimum de facturation appliqué ({equipment?.minimumFacturation ? `${equipment.minimumFacturation}€` : 'N/A'})</span>
           </label>
         </div>
 

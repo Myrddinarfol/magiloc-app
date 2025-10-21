@@ -308,7 +308,7 @@ app.patch("/api/equipment/:id", async (req, res) => {
     const { id } = req.params;
     const {
       certificat, statut, client: clientName, debutLocation, finLocationTheorique, numeroOffre, notesLocation,
-      modele, marque, longueur, numeroSerie, prixHT, etat, motifMaintenance, debutMaintenance
+      modele, marque, longueur, numeroSerie, prixHT, etat, motifMaintenance, debutMaintenance, minimumFacturation, minimumFacturationApply
     } = req.body;
 
     console.log(`📝 Body reçu:`, { statut, clientName, motifMaintenance, debutMaintenance });
@@ -395,6 +395,14 @@ app.patch("/api/equipment/:id", async (req, res) => {
     if (prixHT !== undefined) {
       updateFields.push(`prix_ht_jour = $${paramIndex++}`);
       values.push(prixHT);
+    }
+    if (minimumFacturation !== undefined) {
+      updateFields.push(`minimum_facturation = $${paramIndex++}`);
+      values.push(minimumFacturation);
+    }
+    if (minimumFacturationApply !== undefined) {
+      updateFields.push(`minimum_facturation_apply = $${paramIndex++}`);
+      values.push(minimumFacturationApply);
     }
     if (etat !== undefined) {
       updateFields.push(`etat = $${paramIndex++}`);
@@ -490,9 +498,9 @@ app.post("/api/equipment/:id/return", async (req, res) => {
 
   try {
     const { id } = req.params;
-    const { rentreeLe, noteRetour } = req.body;
+    const { rentreeLe, noteRetour, minimumFacturationApply } = req.body;
 
-    console.log(`🔄 Retour équipement ${id}:`, { rentreeLe, noteRetour });
+    console.log(`🔄 Retour équipement ${id}:`, { rentreeLe, noteRetour, minimumFacturationApply });
 
     await dbClient.query('BEGIN');
 
@@ -517,27 +525,44 @@ app.post("/api/equipment/:id/return", async (req, res) => {
     // 2. Calculer le CA de la location
     const businessDays = calculateBusinessDays(debutLocationISO, rentreLeISO);
     const prixHT = equipment.prix_ht_jour ? parseFloat(equipment.prix_ht_jour) : null;
+    const minimumFacturation = equipment.minimum_facturation ? parseFloat(equipment.minimum_facturation) : 0;
     const isLongDuration = businessDays && businessDays >= 21;
     let caTotal = null;
+    let finalMinimumFacturation = minimumFacturation;
 
     if (businessDays && prixHT) {
+      let calculatedCA;
       if (isLongDuration) {
         // Remise 20% pour location longue durée
-        caTotal = (businessDays * prixHT * 0.8).toFixed(2);
+        calculatedCA = (businessDays * prixHT * 0.8);
       } else {
-        caTotal = (businessDays * prixHT).toFixed(2);
+        calculatedCA = (businessDays * prixHT);
+      }
+
+      // Si minimum de facturation est appliqué à la création et que le CA dépasse le minimum, utiliser le CA
+      if (minimumFacturationApply && calculatedCA > minimumFacturation) {
+        caTotal = calculatedCA.toFixed(2);
+        finalMinimumFacturation = minimumFacturation;
+      } else if (minimumFacturationApply) {
+        // Utiliser le minimum
+        caTotal = minimumFacturation.toFixed(2);
+      } else {
+        // Pas de minimum appliqué, utiliser le CA calculé
+        caTotal = calculatedCA.toFixed(2);
+        finalMinimumFacturation = 0;
       }
     }
 
-    console.log(`📊 CA calculé: ${caTotal}€ HT (${businessDays} jours × ${prixHT}€/j${isLongDuration ? ' - 20% LD' : ''})`);
+    console.log(`📊 CA calculé: ${caTotal}€ HT (${businessDays} jours × ${prixHT}€/j${isLongDuration ? ' - 20% LD' : ''}${minimumFacturationApply ? `, Min: ${minimumFacturation}€` : ''})`);
 
     // 3. Archiver dans location_history avec le CA
     await dbClient.query(
       `INSERT INTO location_history (
         equipment_id, client, date_debut, date_fin_theorique, date_retour_reel,
         numero_offre, notes_location, note_retour, rentre_le,
-        duree_jours_ouvres, prix_ht_jour, remise_ld, ca_total_ht
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
+        duree_jours_ouvres, prix_ht_jour, remise_ld, ca_total_ht,
+        minimum_facturation_apply, minimum_facturation
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
       [
         id,
         equipment.client,
@@ -551,7 +576,9 @@ app.post("/api/equipment/:id/return", async (req, res) => {
         businessDays,
         prixHT,
         isLongDuration,
-        caTotal
+        caTotal,
+        minimumFacturationApply || false,
+        finalMinimumFacturation
       ]
     );
 
