@@ -60,65 +60,86 @@
 
 /* Conteneur du tableau */
 .tarifs-table-container {
-  background: var(--bg-secondary);
-  border-radius: 8px;
-  overflow: auto;
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
   margin-top: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4), 0 2px 6px rgba(220, 38, 38, 0.2);
+  border: 1px solid rgba(220, 38, 38, 0.3);
 }
 
 .tarifs-table {
   width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
+  border-collapse: separate;
+  border-spacing: 0 12px;
+  padding: 12px;
 }
 
 /* En-tête du tableau */
 .tarifs-table thead {
-  background: var(--bg-card);
-  border-bottom: 2px solid var(--color-primary);
-  position: sticky;
-  top: 0;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
 }
 
 .tarifs-table th {
-  padding: 14px 16px;
-  text-align: left;
-  font-weight: 600;
-  color: var(--text-primary);
-  font-size: 12px;
+  background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 13px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-left: 4px solid transparent;
-}
-
-.tarifs-table th:first-child {
-  border-left: 4px solid var(--color-primary);
+  letter-spacing: 1px;
+  padding: 18px 16px;
+  border: none;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  text-align: left;
 }
 
 /* Lignes du tableau */
 .tarifs-table tbody tr {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  transition: background-color 0.2s;
-  background: var(--bg-secondary);
+  height: 70px;
+  transition: all 0.3s ease;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, rgba(38, 38, 38, 0.95), rgba(26, 26, 26, 0.98));
 }
 
 .tarifs-table tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.05);
+  transform: translateX(8px) scale(1.01);
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+  background: linear-gradient(135deg, rgba(45, 45, 45, 0.98), rgba(30, 30, 30, 1));
 }
 
 .tarifs-table tbody tr.modified {
-  background-color: rgba(220, 38, 38, 0.1);
-  border-left: 4px solid var(--color-primary);
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.2), rgba(220, 38, 38, 0.1));
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
 }
 
 .tarifs-table tbody tr.modified:hover {
-  background-color: rgba(220, 38, 38, 0.15);
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.6);
 }
 
 .tarifs-table td {
-  padding: 16px;
-  color: var(--text-primary);
+  padding: 20px 16px;
+  font-size: 15px;
+  color: #f3f4f6;
+  font-weight: 500;
+  border: none;
+  background: transparent;
+  vertical-align: middle;
+}
+
+.tarifs-table td:first-child {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  padding-left: 24px;
+}
+
+.tarifs-table td:last-child {
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  padding-right: 24px;
 }
 
 /* Colonnes */
