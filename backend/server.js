@@ -4,9 +4,58 @@ dotenv.config();
 import express from "express";
 import cors from "cors";
 import pool from "./database/db.js";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from 'url';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FONCTION POUR EXÉCUTER LES MIGRATIONS
+// ═══════════════════════════════════════════════════════════════════════════
+async function runPendingMigrations() {
+  try {
+    console.log('🔄 Vérification des migrations...');
+
+    const migrationsDir = path.join(__dirname, 'migrations');
+    const files = fs.readdirSync(migrationsDir)
+      .filter(f => f.endsWith('.sql'))
+      .sort();
+
+    for (const file of files) {
+      const filePath = path.join(migrationsDir, file);
+      const sql = fs.readFileSync(filePath, 'utf-8');
+
+      console.log(`📝 Exécution migration: ${file}`);
+
+      const commands = sql.split(';').filter(cmd => cmd.trim());
+
+      for (const command of commands) {
+        if (command.trim()) {
+          try {
+            await pool.query(command);
+          } catch (err) {
+            // Ignorer les erreurs "already exists" ou "does not exist"
+            if (!err.message.includes('already exists') && !err.message.includes('does not exist')) {
+              console.error(`❌ Erreur migration ${file}:`, err.message);
+              throw err;
+            }
+          }
+        }
+      }
+    }
+
+    console.log('✅ Migrations vérifiées');
+  } catch (err) {
+    console.error('❌ Erreur lors des migrations:', err.message);
+    // Ne pas arrêter le serveur, continuer malgré l'erreur
+  }
+}
+
+// Exécuter les migrations avant de démarrer le serveur
+await runPendingMigrations();
 
 // Note: initDb() n'est plus appelé automatiquement
 // Utiliser "npm run reset-db" pour réinitialiser une base locale
