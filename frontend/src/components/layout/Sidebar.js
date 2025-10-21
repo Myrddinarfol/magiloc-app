@@ -223,7 +223,7 @@ const Sidebar = () => {
         <div className="nav-menu-section">
           <button
             onClick={() => toggleMenu('gestion-parc')}
-            className={`nav-button has-submenu ${currentPage === 'parc-loc' || currentPage === 'analytics' ? 'active' : ''}`}
+            className={`nav-button has-submenu ${currentPage === 'parc-loc' || currentPage === 'tarifs' || currentPage === 'analytics' ? 'active' : ''}`}
           >
             <span className="nav-icon">🛠️</span>
             <span className="nav-text">GESTION PARC</span>
@@ -244,6 +244,13 @@ const Sidebar = () => {
               >
                 <span className="nav-sub-icon">🏪</span>
                 <span className="nav-sub-text">Parc Loc</span>
+              </button>
+              <button
+                onClick={() => handleMobileNavigate('tarifs')}
+                className={`nav-sub-button ${currentPage === 'tarifs' ? 'active' : ''}`}
+              >
+                <span className="nav-sub-icon">💰</span>
+                <span className="nav-sub-text">Tarifs</span>
               </button>
               <button
                 onClick={() => handleMobileNavigate('analytics')}

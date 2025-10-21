@@ -28,6 +28,7 @@ import LocationListPage from './pages/LocationListPage';
 import LocationPlanningPage from './pages/LocationPlanningPage';
 import ClientManagementPage from './pages/ClientManagementPage';
 import SparePartsManagementPage from './pages/SparePartsManagementPage';
+import TarifsPage from './pages/TarifsPage';
 
 // Components
 import Sidebar from './components/layout/Sidebar';
@@ -347,6 +348,8 @@ const MainApp = ({ shouldStartTour }) => {
         return <ClientManagementPage />;
       case 'spare-parts':
         return <SparePartsManagementPage />;
+      case 'tarifs':
+        return <TarifsPage equipmentData={equipmentData} onRefresh={loadEquipments} />;
       case 'maintenance-dashboard':
         return <MaintenanceDashboardPage />;
       case 'maintenance-list':
