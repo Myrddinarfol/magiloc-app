@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { equipmentService } from '../services/equipmentService';
 import { useUI } from '../hooks/useUI';
+import PageHeader from '../components/common/PageHeader';
 import './TarifsPage.css';
 
 const TarifsPage = ({ equipmentData, onRefresh }) => {
@@ -174,24 +175,24 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
 
   return (
     <div className="tarifs-page">
-      <div className="tarifs-header">
-        <h2>💰 Gestion des Tarifs</h2>
-        <p className="tarifs-subtitle">Gérez et appliquez facilement les modifications tarifaires</p>
-      </div>
+      <PageHeader
+        icon="💰"
+        title="Gestion des Tarifs"
+        subtitle="TARIFICATION"
+        description="Gérez facilement les tarifs de location et les minima de facturation pour chaque type de matériel"
+      />
 
-      <div className="tarifs-toolbar">
-        <div className="tarifs-filters">
-          <label htmlFor="tarif-filter">Filtrer par type de matériel :</label>
+      <div className="tarifs-controls">
+        <div className="tarifs-filter-container">
           <select
-            id="tarif-filter"
             value={selectedFilter}
             onChange={(e) => setSelectedFilter(e.target.value)}
-            className="tarif-filter-select"
+            className="filter-select"
           >
             <option value="">-- Tous les matériels --</option>
             {groupedTariffs.map(tariff => (
               <option key={tariff.key} value={tariff.key}>
-                {tariff.label} ({tariff.count} équipement{tariff.count > 1 ? 's' : ''})
+                {tariff.label} ({tariff.count})
               </option>
             ))}
           </select>
@@ -200,7 +201,7 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
         <button
           onClick={handleSaveAll}
           disabled={!hasAnyChanges || isLoading}
-          className="btn btn-confirm tarif-btn-validate-all"
+          className="btn btn-success tarif-btn-validate-all"
         >
           ✅ Valider tout
         </button>
@@ -211,7 +212,7 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
           <p>Aucun matériel trouvé</p>
         </div>
       ) : (
-        <div className="tarifs-grid">
+        <div className="tarifs-table-container">
           <table className="tarifs-table">
             <thead>
               <tr>
@@ -226,7 +227,7 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
               {filteredTariffs.map(tariff => (
                 <tr key={tariff.key} className={`tarif-row ${hasChanges(tariff) ? 'modified' : ''}`}>
                   <td className="col-material">
-                    <strong>{tariff.label}</strong>
+                    <span className="material-name">{tariff.label}</span>
                   </td>
                   <td className="col-count">
                     <span className="count-badge">{tariff.count}</span>
@@ -255,7 +256,7 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
                     <button
                       onClick={() => handleSaveTarif(tariff)}
                       disabled={!hasChanges(tariff) || isLoading}
-                      className={`btn btn-small ${hasChanges(tariff) ? 'btn-confirm' : 'btn-disabled'}`}
+                      className={`btn btn-small ${hasChanges(tariff) ? 'btn-success' : 'btn-disabled'}`}
                     >
                       {hasChanges(tariff) ? '💾 MAJ' : '✓'}
                     </button>
