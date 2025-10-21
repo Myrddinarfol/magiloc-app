@@ -6,6 +6,38 @@ import { LOADING_CONFIG } from '../config/constants';
 
 export const EquipmentContext = createContext();
 
+// Fonction pour transformer les noms snake_case en camelCase
+const transformEquipmentData = (equipment) => {
+  if (Array.isArray(equipment)) {
+    return equipment.map(item => transformEquipmentData(item));
+  }
+
+  return {
+    ...equipment,
+    numeroSerie: equipment.numero_serie || equipment.numeroSerie,
+    prixHT: equipment.prix_ht_jour || equipment.prixHT,
+    minimumFacturation: equipment.minimum_facturation || equipment.minimumFacturation,
+    minimumFacturationApply: equipment.minimum_facturation_apply !== undefined
+      ? equipment.minimum_facturation_apply
+      : equipment.minimumFacturationApply,
+    cmu: equipment.cmu,
+    modele: equipment.modele,
+    marque: equipment.marque,
+    longueur: equipment.longueur,
+    etat: equipment.etat,
+    certificat: equipment.certificat,
+    infosComplementaires: equipment.infos_complementaires || equipment.infosComplementaires,
+    debutLocation: equipment.debut_location || equipment.debutLocation,
+    finLocationTheorique: equipment.fin_location_theorique || equipment.finLocationTheorique,
+    renteLe: equipment.rentre_le || equipment.renteLe,
+    numeroOffre: equipment.numero_offre || equipment.numeroOffre,
+    notesLocation: equipment.notes_location || equipment.notesLocation,
+    noteRetour: equipment.note_retour || equipment.noteRetour,
+    motifMaintenance: equipment.motif_maintenance || equipment.motifMaintenance,
+    debutMaintenance: equipment.debut_maintenance || equipment.debutMaintenance
+  };
+};
+
 export const EquipmentProvider = ({ children }) => {
   const { isAuthenticated } = useContext(AuthContext);
   const [equipmentData, setEquipmentData] = useState([]);
@@ -19,9 +51,11 @@ export const EquipmentProvider = ({ children }) => {
 
     // 🚀 OPTIMISATION : Essayer d'abord le cache si ce n'est pas un rechargement forcé
     if (!skipCache && attemptNumber === 1) {
-      const cachedData = cacheService.get();
+      let cachedData = cacheService.get();
       if (cachedData && cachedData.length > 0) {
         console.log('⚡ Chargement depuis le cache !');
+        // Transformer les données (snake_case -> camelCase)
+        cachedData = transformEquipmentData(cachedData);
         setEquipmentData(cachedData);
         setIsLoading(false);
         setLoadingMessage('Données chargées depuis le cache');
@@ -59,10 +93,13 @@ export const EquipmentProvider = ({ children }) => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), TIMEOUT);
 
-      const data = await equipmentService.getAll();
+      let data = await equipmentService.getAll();
       clearTimeout(timeoutId);
 
       console.log('✅ Données reçues:', data.length, 'équipements');
+
+      // Transformer les données (snake_case -> camelCase)
+      data = transformEquipmentData(data);
 
       // 💾 Sauvegarder dans le cache
       cacheService.set(data);
