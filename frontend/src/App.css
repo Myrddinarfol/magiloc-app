@@ -2244,7 +2244,7 @@ body.modal-open {
   background-color: var(--bg-secondary);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
-  max-width: calc(50% - 20px);
+  width: 100%;
 }
 
 .vgp-section-header {
