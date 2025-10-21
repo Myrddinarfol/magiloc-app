@@ -60,6 +60,25 @@ await runPendingMigrations();
 // Note: initDb() n'est plus appelé automatiquement
 // Utiliser "npm run reset-db" pour réinitialiser une base locale
 
+// ═══════════════════════════════════════════════════════════════════════════
+// ENDPOINT DIAGNOSTIC POUR VÉRIFIER LES COLONNES DE LA TABLE
+// ═══════════════════════════════════════════════════════════════════════════
+app.get("/api/diagnostic/columns", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT column_name, data_type FROM information_schema.columns
+       WHERE table_name = 'equipments' ORDER BY column_name`
+    );
+    console.log('📋 Colonnes de la table equipments:', result.rows.map(r => r.column_name));
+    res.json({
+      message: "Colonnes de la table equipments",
+      columns: result.rows
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Middleware CORS configuré
 app.use(cors({
   origin: [
@@ -360,7 +379,8 @@ app.patch("/api/equipment/:id", async (req, res) => {
       modele, marque, longueur, numeroSerie, prixHT, etat, motifMaintenance, debutMaintenance, minimumFacturation, minimumFacturationApply
     } = req.body;
 
-    console.log(`📝 Body reçu:`, { statut, clientName, motifMaintenance, debutMaintenance });
+    console.log(`📝 Body reçu:`, { statut, clientName, motifMaintenance, debutMaintenance, minimumFacturation, minimumFacturationApply });
+    console.log(`📊 Body complet:`, JSON.stringify(req.body, null, 2));
 
     // Récupérer l'état actuel de l'équipement
     console.log(`🔍 Récupération équipement ${id}...`);
@@ -467,6 +487,8 @@ app.patch("/api/equipment/:id", async (req, res) => {
     const query = `UPDATE equipments SET ${updateFields.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
 
     console.log(`🔄 Exécution UPDATE...`);
+    console.log(`📋 Champs à mettre à jour:`, updateFields);
+    console.log(`📝 Valeurs:`, values.slice(0, -1));
     const result = await dbClient.query(query, values);
     console.log(`✅ UPDATE réussi`);
 
