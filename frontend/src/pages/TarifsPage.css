@@ -172,11 +172,15 @@
 }
 
 .col-minimum {
-  width: 18%;
+  width: 16%;
+}
+
+.col-id-article {
+  width: 14%;
 }
 
 .col-action {
-  width: 12%;
+  width: 10%;
   text-align: center;
 }
 
@@ -316,12 +320,16 @@
   }
 
   .col-material {
-    width: 30%;
+    width: 28%;
   }
 
   .col-prix,
   .col-minimum {
-    width: 20%;
+    width: 18%;
+  }
+
+  .col-id-article {
+    width: 12%;
   }
 }
 

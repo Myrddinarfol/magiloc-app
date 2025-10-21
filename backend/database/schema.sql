@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS equipments (
     prix_ht_jour DECIMAL(10,2),
     minimum_facturation DECIMAL(10,2) DEFAULT 0,
     minimum_facturation_apply BOOLEAN DEFAULT FALSE,
+    id_article VARCHAR(50),
     etat VARCHAR(50),
     certificat VARCHAR(100),
     dernier_vgp DATE,

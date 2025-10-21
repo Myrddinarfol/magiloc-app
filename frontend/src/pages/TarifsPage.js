@@ -28,6 +28,7 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
           label: `${eq.designation} ${eq.cmu ? `- ${eq.cmu}` : ''}`,
           prixHT: eq.prixHT,
           minimumFacturation: eq.minimumFacturation,
+          idArticle: eq.idArticle,
           count: 0,
           equipmentIds: []
         };
@@ -78,7 +79,8 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
         prixHT: changes.prixHT !== undefined ? parseFloat(changes.prixHT) : tariff.prixHT,
         minimumFacturation: changes.minimumFacturation !== undefined
           ? parseFloat(changes.minimumFacturation)
-          : tariff.minimumFacturation
+          : tariff.minimumFacturation,
+        idArticle: changes.idArticle !== undefined ? changes.idArticle : tariff.idArticle
       };
 
       // Mettre à jour tous les équipements du groupe
@@ -131,7 +133,8 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
           prixHT: changes.prixHT !== undefined ? parseFloat(changes.prixHT) : tariff.prixHT,
           minimumFacturation: changes.minimumFacturation !== undefined
             ? parseFloat(changes.minimumFacturation)
-            : tariff.minimumFacturation
+            : tariff.minimumFacturation,
+          idArticle: changes.idArticle !== undefined ? changes.idArticle : tariff.idArticle
         };
 
         const updatePromises = tariff.equipmentIds.map(id =>
@@ -220,6 +223,7 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
                 <th className="col-count">Quantité</th>
                 <th className="col-prix">Prix HT/J (€)</th>
                 <th className="col-minimum">Minimum de facturation (€)</th>
+                <th className="col-id-article">ID ARTICLE</th>
                 <th className="col-action">Action</th>
               </tr>
             </thead>
@@ -250,6 +254,16 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
                       onChange={(e) => handleTarifChange(tariff.key, 'minimumFacturation', e.target.value)}
                       className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
                       disabled={isLoading}
+                    />
+                  </td>
+                  <td className="col-id-article">
+                    <input
+                      type="text"
+                      value={getTarifValue(tariff, 'idArticle')}
+                      onChange={(e) => handleTarifChange(tariff.key, 'idArticle', e.target.value)}
+                      className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
+                      disabled={isLoading}
+                      placeholder="-"
                     />
                   </td>
                   <td className="col-action">

@@ -207,6 +207,7 @@ app.get("/api/equipment", async (req, res) => {
         prix_ht_jour as "prixHT",
         minimum_facturation as "minimumFacturation",
         minimum_facturation_apply as "minimumFacturationApply",
+        id_article as "idArticle",
         etat,
         certificat,
         dernier_vgp as "dernierVGP",
@@ -378,7 +379,7 @@ app.patch("/api/equipment/:id", async (req, res) => {
     const { id } = req.params;
     const {
       certificat, statut, client: clientName, debutLocation, finLocationTheorique, numeroOffre, notesLocation,
-      modele, marque, longueur, numeroSerie, prixHT, etat, motifMaintenance, debutMaintenance, minimumFacturation, minimumFacturationApply
+      modele, marque, longueur, numeroSerie, prixHT, etat, motifMaintenance, debutMaintenance, minimumFacturation, minimumFacturationApply, idArticle
     } = req.body;
 
     console.log(`📝 Body reçu:`, { statut, clientName, motifMaintenance, debutMaintenance, minimumFacturation, minimumFacturationApply });
@@ -474,6 +475,10 @@ app.patch("/api/equipment/:id", async (req, res) => {
     if (minimumFacturationApply !== undefined) {
       updateFields.push(`minimum_facturation_apply = $${paramIndex++}`);
       values.push(minimumFacturationApply);
+    }
+    if (idArticle !== undefined) {
+      updateFields.push(`id_article = $${paramIndex++}`);
+      values.push(idArticle);
     }
     if (etat !== undefined) {
       updateFields.push(`etat = $${paramIndex++}`);

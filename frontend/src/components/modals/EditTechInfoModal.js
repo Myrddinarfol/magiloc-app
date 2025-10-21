@@ -11,6 +11,7 @@ const EditTechInfoModal = ({ equipment, onClose, onSuccess }) => {
     numeroSerie: equipment?.numeroSerie || '',
     prixHT: equipment?.prixHT || '',
     minimumFacturation: equipment?.minimumFacturation || '',
+    idArticle: equipment?.idArticle || '',
     etat: equipment?.etat || ''
   });
 
@@ -26,6 +27,7 @@ const EditTechInfoModal = ({ equipment, onClose, onSuccess }) => {
         numeroSerie: form.numeroSerie || null,
         prixHT: form.prixHT ? parseFloat(form.prixHT) : null,
         minimumFacturation: form.minimumFacturation ? parseFloat(form.minimumFacturation) : null,
+        idArticle: form.idArticle || null,
         etat: form.etat || null
       };
 
@@ -125,6 +127,18 @@ const EditTechInfoModal = ({ equipment, onClose, onSuccess }) => {
               value={form.minimumFacturation}
               onChange={(e) => setForm({...form, minimumFacturation: e.target.value})}
               placeholder="Ex: 250.00"
+              className="form-input"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="id-article-input">ID ARTICLE :</label>
+            <input
+              id="id-article-input"
+              type="text"
+              value={form.idArticle}
+              onChange={(e) => setForm({...form, idArticle: e.target.value})}
+              placeholder="Ex: ART-12345"
               className="form-input"
             />
           </div>

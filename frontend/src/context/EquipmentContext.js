@@ -20,6 +20,7 @@ const transformEquipmentData = (equipment) => {
     minimumFacturationApply: equipment.minimum_facturation_apply !== undefined
       ? equipment.minimum_facturation_apply
       : equipment.minimumFacturationApply,
+    idArticle: equipment.id_article || equipment.idArticle,
     cmu: equipment.cmu,
     modele: equipment.modele,
     marque: equipment.marque,

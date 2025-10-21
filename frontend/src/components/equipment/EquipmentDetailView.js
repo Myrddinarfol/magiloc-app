@@ -115,6 +115,12 @@ const EquipmentDetailView = ({
               <span className="detail-label">Infos:</span>
               <span className="detail-value">{equipment.infosComplementaires || 'N/A'}</span>
             </div>
+            <div className="detail-item">
+              <span className="detail-label">ID ARTICLE:</span>
+              <span className="detail-value" style={{ fontFamily: 'monospace', backgroundColor: 'rgba(220, 38, 38, 0.1)', padding: '4px 8px', borderRadius: '4px' }}>
+                {equipment.idArticle || 'N/A'}
+              </span>
+            </div>
           </div>
 
           {/* Section Location - affichée uniquement pour "En Réservation" et "En Location" */}
