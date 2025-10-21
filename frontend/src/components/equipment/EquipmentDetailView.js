@@ -62,8 +62,8 @@ const EquipmentDetailView = ({
             gap: '20px',
             marginTop: '20px'
           }}>
-            {/* COLONNE GAUCHE: Infos Techniques + Panneau de Contrôle */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {/* COLONNE GAUCHE: Infos Techniques + Historique + Panneau de Contrôle */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
               {/* Section Informations Techniques */}
               <div className="detail-section">
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
@@ -129,6 +129,70 @@ const EquipmentDetailView = ({
                   <span className="detail-value" style={{ fontFamily: 'monospace', backgroundColor: 'rgba(220, 38, 38, 0.1)', padding: '4px 8px', borderRadius: '4px' }}>
                     {equipment.idArticle || 'N/A'}
                   </span>
+                </div>
+              </div>
+
+              {/* Historique - Gauche */}
+              <div style={{
+                padding: '12px',
+                background: 'linear-gradient(135deg, #1a1a1a, #2d2d2d)',
+                borderRadius: '12px',
+                border: '2px solid #6b7280',
+                boxShadow: '0 4px 15px rgba(107, 114, 128, 0.3)'
+              }}>
+                <h4 style={{
+                  color: '#9ca3af',
+                  fontSize: '12px',
+                  fontWeight: 'bold',
+                  marginBottom: '8px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px'
+                }}>
+                  📚 Historique
+                </h4>
+                <div style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '6px'
+                }}>
+                  <button
+                    onClick={onLoadLocationHistory}
+                    style={{
+                      padding: '6px 12px',
+                      background: 'linear-gradient(135deg, #4b5563, #374151)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontWeight: 'bold',
+                      fontSize: '12px',
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s',
+                      boxShadow: '0 2px 8px rgba(75, 85, 99, 0.3)'
+                    }}
+                    onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+                    onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+                  >
+                    📜 Locations
+                  </button>
+                  <button
+                    onClick={onLoadMaintenanceHistory}
+                    style={{
+                      padding: '6px 12px',
+                      background: 'linear-gradient(135deg, #4b5563, #374151)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontWeight: 'bold',
+                      fontSize: '12px',
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s',
+                      boxShadow: '0 2px 8px rgba(75, 85, 99, 0.3)'
+                    }}
+                    onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+                    onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+                  >
+                    🔧 Maintenance
+                  </button>
                 </div>
               </div>
 
@@ -235,73 +299,10 @@ const EquipmentDetailView = ({
               </div>
             </div>
 
-            {/* COLONNE DROITE: VGP + Historique */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              {/* VGP Section */}
-              <VGPSection equipment={equipment} onEditCertificat={onEditCertificat} />
-
-              {/* Historique - Droite */}
-              <div style={{
-                padding: '15px',
-                background: 'linear-gradient(135deg, #1a1a1a, #2d2d2d)',
-                borderRadius: '12px',
-                border: '2px solid #6b7280',
-                boxShadow: '0 4px 15px rgba(107, 114, 128, 0.3)'
-              }}>
-                <h4 style={{
-                  color: '#9ca3af',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  marginBottom: '12px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '1px'
-                }}>
-                  📚 Historique
-                </h4>
-                <div style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: '8px'
-                }}>
-                  <button
-                    onClick={onLoadLocationHistory}
-                    style={{
-                      padding: '8px 16px',
-                      background: 'linear-gradient(135deg, #4b5563, #374151)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '8px',
-                      fontWeight: 'bold',
-                      fontSize: '13px',
-                      cursor: 'pointer',
-                      transition: 'transform 0.2s',
-                      boxShadow: '0 2px 8px rgba(75, 85, 99, 0.3)'
-                    }}
-                    onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
-                    onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
-                  >
-                    📜 Locations
-                  </button>
-                  <button
-                    onClick={onLoadMaintenanceHistory}
-                    style={{
-                      padding: '8px 16px',
-                      background: 'linear-gradient(135deg, #4b5563, #374151)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '8px',
-                      fontWeight: 'bold',
-                      fontSize: '13px',
-                      cursor: 'pointer',
-                      transition: 'transform 0.2s',
-                      boxShadow: '0 2px 8px rgba(75, 85, 99, 0.3)'
-                    }}
-                    onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
-                    onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
-                  >
-                    🔧 Maintenance
-                  </button>
-                </div>
+            {/* COLONNE DROITE: VGP Réduit */}
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <div style={{ maxHeight: '500px', overflow: 'auto' }}>
+                <VGPSection equipment={equipment} onEditCertificat={onEditCertificat} />
               </div>
             </div>
           </div>
