@@ -54,77 +54,331 @@ const EquipmentDetailView = ({
           </span>
         </div>
 
-        <div className="detail-grid">
-          {/* Section Informations Techniques */}
-          <div className="detail-section">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-              <h3 style={{ margin: 0 }}>Informations techniques</h3>
-              {currentPage === 'parc-loc' && (
-                <button
-                  className="btn btn-sm"
-                  onClick={onEditTechInfo}
-                  style={{
-                    background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
-                    color: 'white',
-                    border: 'none',
-                    padding: '8px 12px',
-                    fontSize: '18px',
-                    cursor: 'pointer',
-                    borderRadius: '8px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}
-                  title="Modifier les informations techniques"
-                >
-                  📜
-                </button>
-              )}
+        {/* LAYOUT 2 COLONNES POUR SUR PARC & PARC LOC */}
+        {(currentPage === 'sur-parc' || currentPage === 'parc-loc') ? (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '20px',
+            marginTop: '20px'
+          }}>
+            {/* COLONNE GAUCHE: Infos Techniques + Panneau de Contrôle */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {/* Section Informations Techniques */}
+              <div className="detail-section">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+                  <h3 style={{ margin: 0 }}>Informations techniques</h3>
+                  {currentPage === 'parc-loc' && (
+                    <button
+                      className="btn btn-sm"
+                      onClick={onEditTechInfo}
+                      style={{
+                        background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                        color: 'white',
+                        border: 'none',
+                        padding: '8px 12px',
+                        fontSize: '18px',
+                        cursor: 'pointer',
+                        borderRadius: '8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}
+                      title="Modifier les informations techniques"
+                    >
+                      📜
+                    </button>
+                  )}
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Modèle:</span>
+                  <span className="detail-value">{equipment.modele || 'N/A'}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Marque:</span>
+                  <span className="detail-value">{equipment.marque || 'N/A'}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Longueur:</span>
+                  <span className="detail-value">{equipment.longueur || 'N/A'}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">N° Série:</span>
+                  <span className="detail-value serial-number">{equipment.numeroSerie}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Prix HT/J:</span>
+                  <span className="detail-value">{equipment.prixHT ? `${equipment.prixHT} €` : 'N/A'}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Minimum de facturation:</span>
+                  <span className="detail-value">{equipment.minimumFacturation ? `${equipment.minimumFacturation} €` : 'N/A'}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">État:</span>
+                  <span className={`detail-value ${getEtatClass(equipment.etat)}`}>
+                    {equipment.etat}
+                  </span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Infos:</span>
+                  <span className="detail-value">{equipment.infosComplementaires || 'N/A'}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">ID ARTICLE:</span>
+                  <span className="detail-value" style={{ fontFamily: 'monospace', backgroundColor: 'rgba(220, 38, 38, 0.1)', padding: '4px 8px', borderRadius: '4px' }}>
+                    {equipment.idArticle || 'N/A'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Panneau de Contrôle - Gauche */}
+              <div style={{
+                padding: '15px',
+                background: 'linear-gradient(135deg, #1a1a1a, #2d2d2d)',
+                borderRadius: '12px',
+                border: '2px solid #dc2626',
+                boxShadow: '0 4px 15px rgba(220, 38, 38, 0.3)'
+              }}>
+                <h4 style={{
+                  color: '#dc2626',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  marginBottom: '12px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px'
+                }}>
+                  ⚙️ Panneau de Contrôle
+                </h4>
+                <div style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '8px'
+                }}>
+                  <button
+                    onClick={() => setShowCreateReservationModal(true)}
+                    style={{
+                      padding: '8px 16px',
+                      background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontWeight: 'bold',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s',
+                      boxShadow: '0 2px 8px rgba(251, 191, 36, 0.3)'
+                    }}
+                    onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+                    onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+                  >
+                    📋 Créer Réservation
+                  </button>
+                  <button
+                    onClick={() => setShowMaintenanceModal(true)}
+                    style={{
+                      padding: '8px 16px',
+                      background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontWeight: 'bold',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s',
+                      boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
+                    }}
+                    onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+                    onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+                  >
+                    🔧 Mettre en Maintenance
+                  </button>
+                  <button
+                    onClick={onEditTechInfo}
+                    style={{
+                      padding: '8px 16px',
+                      background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontWeight: 'bold',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s',
+                      boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+                    }}
+                    onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+                    onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+                  >
+                    📝 Éditer Infos
+                  </button>
+                  <button
+                    onClick={onDelete}
+                    style={{
+                      padding: '8px 16px',
+                      background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontWeight: 'bold',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s',
+                      boxShadow: '0 2px 8px rgba(220, 38, 38, 0.3)'
+                    }}
+                    onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+                    onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+                  >
+                    🗑️ Supprimer
+                  </button>
+                </div>
+              </div>
             </div>
-            <div className="detail-item">
-              <span className="detail-label">Modèle:</span>
-              <span className="detail-value">{equipment.modele || 'N/A'}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-label">Marque:</span>
-              <span className="detail-value">{equipment.marque || 'N/A'}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-label">Longueur:</span>
-              <span className="detail-value">{equipment.longueur || 'N/A'}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-label">N° Série:</span>
-              <span className="detail-value serial-number">{equipment.numeroSerie}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-label">Prix HT/J:</span>
-              <span className="detail-value">{equipment.prixHT ? `${equipment.prixHT} €` : 'N/A'}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-label">Minimum de facturation:</span>
-              <span className="detail-value">{equipment.minimumFacturation ? `${equipment.minimumFacturation} €` : 'N/A'}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-label">État:</span>
-              <span className={`detail-value ${getEtatClass(equipment.etat)}`}>
-                {equipment.etat}
-              </span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-label">Infos:</span>
-              <span className="detail-value">{equipment.infosComplementaires || 'N/A'}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-label">ID ARTICLE:</span>
-              <span className="detail-value" style={{ fontFamily: 'monospace', backgroundColor: 'rgba(220, 38, 38, 0.1)', padding: '4px 8px', borderRadius: '4px' }}>
-                {equipment.idArticle || 'N/A'}
-              </span>
+
+            {/* COLONNE DROITE: VGP + Historique */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {/* VGP Section */}
+              <VGPSection equipment={equipment} onEditCertificat={onEditCertificat} />
+
+              {/* Historique - Droite */}
+              <div style={{
+                padding: '15px',
+                background: 'linear-gradient(135deg, #1a1a1a, #2d2d2d)',
+                borderRadius: '12px',
+                border: '2px solid #6b7280',
+                boxShadow: '0 4px 15px rgba(107, 114, 128, 0.3)'
+              }}>
+                <h4 style={{
+                  color: '#9ca3af',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  marginBottom: '12px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px'
+                }}>
+                  📚 Historique
+                </h4>
+                <div style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '8px'
+                }}>
+                  <button
+                    onClick={onLoadLocationHistory}
+                    style={{
+                      padding: '8px 16px',
+                      background: 'linear-gradient(135deg, #4b5563, #374151)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontWeight: 'bold',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s',
+                      boxShadow: '0 2px 8px rgba(75, 85, 99, 0.3)'
+                    }}
+                    onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+                    onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+                  >
+                    📜 Locations
+                  </button>
+                  <button
+                    onClick={onLoadMaintenanceHistory}
+                    style={{
+                      padding: '8px 16px',
+                      background: 'linear-gradient(135deg, #4b5563, #374151)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontWeight: 'bold',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s',
+                      boxShadow: '0 2px 8px rgba(75, 85, 99, 0.3)'
+                    }}
+                    onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+                    onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+                  >
+                    🔧 Maintenance
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
+        ) : (
+          <>
+            {/* LAYOUT ORIGINAL POUR LES AUTRES PAGES */}
+            <div className="detail-grid">
+              {/* Section Informations Techniques */}
+              <div className="detail-section">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+                <h3 style={{ margin: 0 }}>Informations techniques</h3>
+                {currentPage === 'parc-loc' && (
+                  <button
+                    className="btn btn-sm"
+                    onClick={onEditTechInfo}
+                    style={{
+                      background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                      color: 'white',
+                      border: 'none',
+                      padding: '8px 12px',
+                      fontSize: '18px',
+                      cursor: 'pointer',
+                      borderRadius: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}
+                    title="Modifier les informations techniques"
+                  >
+                    📜
+                  </button>
+                )}
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Modèle:</span>
+                <span className="detail-value">{equipment.modele || 'N/A'}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Marque:</span>
+                <span className="detail-value">{equipment.marque || 'N/A'}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Longueur:</span>
+                <span className="detail-value">{equipment.longueur || 'N/A'}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">N° Série:</span>
+                <span className="detail-value serial-number">{equipment.numeroSerie}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Prix HT/J:</span>
+                <span className="detail-value">{equipment.prixHT ? `${equipment.prixHT} €` : 'N/A'}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Minimum de facturation:</span>
+                <span className="detail-value">{equipment.minimumFacturation ? `${equipment.minimumFacturation} €` : 'N/A'}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">État:</span>
+                <span className={`detail-value ${getEtatClass(equipment.etat)}`}>
+                  {equipment.etat}
+                </span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Infos:</span>
+                <span className="detail-value">{equipment.infosComplementaires || 'N/A'}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">ID ARTICLE:</span>
+                <span className="detail-value" style={{ fontFamily: 'monospace', backgroundColor: 'rgba(220, 38, 38, 0.1)', padding: '4px 8px', borderRadius: '4px' }}>
+                  {equipment.idArticle || 'N/A'}
+                </span>
+              </div>
+            </div>
 
-          {/* Section Location - affichée uniquement pour "En Réservation" et "En Location" */}
-          {(equipment.statut === 'En Réservation' || equipment.statut === 'En Location') && (
+            {/* Section Location - affichée uniquement pour "En Réservation" et "En Location" */}
+            {(equipment.statut === 'En Réservation' || equipment.statut === 'En Location') && (
             <div className="detail-section">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
                 <h3 style={{ margin: 0 }}>Location</h3>
@@ -279,19 +533,19 @@ const EquipmentDetailView = ({
                 />
               </div>
             </div>
-          )}
-        </div>
+            )}
+          </div>
 
-        {/* Section VGP */}
-        <VGPSection equipment={equipment} onEditCertificat={onEditCertificat} />
+          {/* Section VGP */}
+          <VGPSection equipment={equipment} onEditCertificat={onEditCertificat} />
 
-        {/* Conteneur 2 panneaux côte à côte */}
-        <div style={{
-          marginTop: '20px',
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '15px'
-        }}>
+          {/* Conteneur 2 panneaux côte à côte */}
+          <div style={{
+            marginTop: '20px',
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '15px'
+          }}>
           {/* PANNEAU GAUCHE: Historique (consultation neutre) */}
           <div style={{
             padding: '15px',
@@ -560,7 +814,9 @@ const EquipmentDetailView = ({
             )}
             </div>
           </div>
-        </div>
+          </div>
+          </>
+        )}
       </div>
 
       {/* Modal de confirmation d'annulation de réservation */}
