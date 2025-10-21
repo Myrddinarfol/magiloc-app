@@ -117,7 +117,12 @@ const MainApp = ({ shouldStartTour }) => {
   const handleModalSuccess = async (targetPage) => {
     console.log('🔄 handleModalSuccess - targetPage fournie:', targetPage);
 
-    await loadEquipments();
+    // Vider le cache pour forcer le rechargement depuis l'API
+    const { cacheService } = await import('./services/cacheService');
+    cacheService.clear();
+
+    // Forcer le rechargement depuis l'API
+    await loadEquipments(1, false, true);
 
     // Fermer tous les modals
     setShowCertificatModal(false);

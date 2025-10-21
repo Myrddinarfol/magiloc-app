@@ -46,11 +46,12 @@ export const EquipmentProvider = ({ children }) => {
   const [retryCount, setRetryCount] = useState(0);
 
   // Fonction de chargement des équipements avec cache
-  const loadEquipments = async (attemptNumber = 1, skipCache = false) => {
+  const loadEquipments = async (attemptNumber = 1, skipCache = false, forceRefresh = false) => {
     const { MAX_RETRIES, RETRY_DELAY, TIMEOUT } = LOADING_CONFIG;
 
     // 🚀 OPTIMISATION : Essayer d'abord le cache si ce n'est pas un rechargement forcé
-    if (!skipCache && attemptNumber === 1) {
+    // forceRefresh = true force le chargement depuis l'API
+    if (!skipCache && !forceRefresh && attemptNumber === 1) {
       let cachedData = cacheService.get();
       if (cachedData && cachedData.length > 0) {
         console.log('⚡ Chargement depuis le cache !');
