@@ -112,6 +112,20 @@ const MainApp = ({ shouldStartTour }) => {
 
   // State local pour le modal de confirmation de suppression
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
+  // State local pour suivre si on doit recharger la fiche après édition
+  const [shouldRefreshDetail, setShouldRefreshDetail] = React.useState(false);
+
+  // Mettre à jour la fiche détail quand les données changent
+  React.useEffect(() => {
+    if (shouldRefreshDetail && selectedEquipment && equipmentData.length > 0) {
+      const updatedEquipment = equipmentData.find(eq => eq.id === selectedEquipment.id);
+      if (updatedEquipment) {
+        console.log('🔄 Mise à jour automatique de la fiche détail:', updatedEquipment);
+        setSelectedEquipment(updatedEquipment);
+        setShouldRefreshDetail(false);
+      }
+    }
+  }, [equipmentData, selectedEquipment, shouldRefreshDetail]);
 
   // Gestionnaires de succès pour les modals - avec redirection intelligente
   const handleModalSuccess = async (targetPage) => {
@@ -121,7 +135,18 @@ const MainApp = ({ shouldStartTour }) => {
     const { cacheService } = await import('./services/cacheService');
     cacheService.clear();
 
-    // Forcer le rechargement depuis l'API
+    // Cas spécial : édition technique depuis PARC LOC
+    // On garde la fiche ouverte pour voir les modifications
+    if (targetPage === 'stay-on-detail') {
+      console.log('🔄 Rester sur la fiche détail après édition');
+      // Marquer qu'on doit rafraîchir la fiche
+      setShouldRefreshDetail(true);
+      // Recharger les données depuis l'API
+      await loadEquipments(1, false, true);
+      return; // Ne pas fermer la fiche
+    }
+
+    // Forcer le rechargement depuis l'API pour les autres cas
     await loadEquipments(1, false, true);
 
     // Fermer tous les modals
@@ -132,23 +157,6 @@ const MainApp = ({ shouldStartTour }) => {
     setShowAddEquipmentModal(false);
     setShowMaintenanceModal(false);
     setShowCompleteMaintenance(false);
-
-    // Cas spécial : édition technique depuis PARC LOC
-    // On garde la fiche ouverte pour voir les modifications
-    if (targetPage === 'stay-on-detail') {
-      console.log('🔄 Rester sur la fiche détail après édition');
-      // Attendre que loadEquipments soit terminé, puis recharger l'équipement
-      setTimeout(() => {
-        if (selectedEquipment) {
-          const updatedEquipment = equipmentData.find(eq => eq.id === selectedEquipment.id);
-          if (updatedEquipment) {
-            console.log('✅ Équipement mis à jour sur la fiche:', updatedEquipment);
-            setSelectedEquipment(updatedEquipment);
-          }
-        }
-      }, 100); // Petit délai pour s'assurer que equipmentData est à jour
-      return; // Ne pas fermer la fiche
-    }
 
     // Fermer la fiche détail (comportement par défaut)
     setSelectedEquipment(null);
