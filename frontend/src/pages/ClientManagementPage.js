@@ -197,11 +197,11 @@ const ClientManagementPage = () => {
       />
 
       <div className="client-controls">
-        <button className="btn btn-primary" onClick={handleAddClick}>
+        <button className="btn btn-add" onClick={handleAddClick}>
           ➕ Ajouter un Client
         </button>
         <button
-          className="btn btn-success"
+          className="btn btn-import"
           onClick={handleImportClientsFromEquipment}
           title="Importe automatiquement tous les clients présents dans les réservations et locations en cours"
         >
@@ -397,7 +397,7 @@ const ClientManagementPage = () => {
               <button className="btn btn-secondary" onClick={handleModalClose}>
                 Annuler
               </button>
-              <button className="btn btn-primary" onClick={handleFormSubmit}>
+              <button className="btn btn-add" onClick={handleFormSubmit}>
                 {editingClient ? 'Mettre à jour' : 'Ajouter'}
               </button>
             </div>

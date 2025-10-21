@@ -1574,6 +1574,57 @@ body.modal-open {
   font-size: 16px;
 }
 
+/* Bouton AJOUTER - Vert */
+.btn-add {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  color: white;
+  border: 1px solid #15803d;
+}
+
+.btn-add:hover {
+  background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(22, 163, 74, 0.3);
+}
+
+/* Bouton IMPORTER - Bleu */
+.btn-import {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: 1px solid #2563eb;
+}
+
+.btn-import:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+}
+
+/* Bouton SECONDAIRE pour les modals */
+.btn-secondary {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-secondary);
+  transform: translateY(-1px);
+}
+
+/* Bouton de CONFIRMATION/VALIDATION - Vert/Cyan Soft */
+.btn-confirm {
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+  color: white;
+  border: 1px solid #0891b2;
+}
+
+.btn-confirm:hover {
+  background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(6, 182, 212, 0.3);
+}
+
 /* Pages de liste */
 .page-header {
   margin-bottom: 20px;
@@ -3133,7 +3184,8 @@ button[data-tooltip]:hover::before {
 }
 
 .modal-header {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.6), rgba(17, 24, 39, 0.8));
+  border-bottom: 2px solid rgba(100, 200, 255, 0.15);
   padding: 25px 30px;
   display: flex;
   justify-content: space-between;
@@ -3146,7 +3198,12 @@ button[data-tooltip]:hover::before {
 .modal-header h2 {
   margin: 0;
   font-size: 20px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #64c8ff, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 .modal-content {
@@ -5586,9 +5643,9 @@ button[data-tooltip]:hover::before {
 }
 
 .modal-close:hover {
-  background: rgba(220, 38, 38, 0.2);
-  border-color: rgba(220, 38, 38, 0.5);
-  color: white;
+  background: rgba(6, 182, 212, 0.15);
+  border-color: rgba(6, 182, 212, 0.4);
+  color: #06b6d4;
 }
 
 .modal-body {

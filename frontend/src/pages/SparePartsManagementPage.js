@@ -235,7 +235,7 @@ const SparePartsManagementPage = () => {
       />
 
       <div className="spare-parts-controls">
-        <button className="btn btn-primary" onClick={handleAddClick}>
+        <button className="btn btn-add" onClick={handleAddClick}>
           ➕ Ajouter une Pièce
         </button>
       </div>
@@ -560,7 +560,7 @@ const SparePartsManagementPage = () => {
               <button className="btn btn-secondary" onClick={handleModalClose}>
                 Annuler
               </button>
-              <button className="btn btn-primary" onClick={handleFormSubmit}>
+              <button className="btn btn-add" onClick={handleFormSubmit}>
                 {editingPart ? 'Mettre à jour' : 'Ajouter'}
               </button>
             </div>

@@ -317,6 +317,8 @@ const MainApp = ({ shouldStartTour }) => {
           onDelete={handleDelete}
           onCancelReservation={handleCancelReservation}
           onCreateReservation={handleCreateReservation}
+          onStartLocation={handleStartLocation}
+          onReturnLocation={handleReturnLocation}
         />
       );
     }

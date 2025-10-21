@@ -304,13 +304,13 @@ function EquipmentListView({
         <div className="parc-loc-actions">
           <button
             onClick={() => setShowAddEquipmentModal(true)}
-            className="btn btn-success"
+            className="btn btn-add"
           >
             ➕ AJOUTER
           </button>
           <button
             onClick={() => setShowImporter(true)}
-            className="btn btn-primary"
+            className="btn btn-import"
           >
             📥 IMPORTER CSV
           </button>
