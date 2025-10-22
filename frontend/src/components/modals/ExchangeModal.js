@@ -10,26 +10,69 @@ const ExchangeModal = ({ show, equipment, equipmentData, onConfirm, onCancel }) 
   const [filterCMU, setFilterCMU] = useState('');
   const [filterLongueur, setFilterLongueur] = useState('');
 
-  // Récupérer les options de filtres disponibles (matériels Sur Parc)
+  // Récupérer les options de filtres intelligents et dépendants
   const filterOptions = useMemo(() => {
     const surParcEquipment = equipmentData.filter(eq => eq.statut === 'Sur Parc');
 
-    const designations = new Set();
-    const cmus = new Set();
-    const longueurs = new Set();
+    // Récupérer tous les filtres disponibles initialement
+    const allDesignations = new Set();
+    const allCMUs = new Set();
+    const allLongueurs = new Set();
+
+    // Construire des maps pour les relations Designation -> CMU -> Longueur
+    const designationToCMU = {}; // designation -> Set(cmu)
+    const cmuToLongueur = {}; // cmu -> Set(longueur)
+    const designationToLongueur = {}; // designation -> Set(longueur)
 
     surParcEquipment.forEach(eq => {
-      if (eq.designation) designations.add(eq.designation);
-      if (eq.cmu) cmus.add(eq.cmu);
-      if (eq.longueur) longueurs.add(eq.longueur);
+      if (eq.designation) {
+        allDesignations.add(eq.designation);
+        if (!designationToCMU[eq.designation]) designationToCMU[eq.designation] = new Set();
+        if (!designationToLongueur[eq.designation]) designationToLongueur[eq.designation] = new Set();
+      }
+      if (eq.cmu) {
+        allCMUs.add(eq.cmu);
+        if (!cmuToLongueur[eq.cmu]) cmuToLongueur[eq.cmu] = new Set();
+      }
+      if (eq.longueur) allLongueurs.add(eq.longueur);
+
+      // Construire les relations
+      if (eq.designation && eq.cmu) {
+        designationToCMU[eq.designation].add(eq.cmu);
+      }
+      if (eq.cmu && eq.longueur) {
+        cmuToLongueur[eq.cmu].add(eq.longueur);
+      }
+      if (eq.designation && eq.longueur) {
+        designationToLongueur[eq.designation].add(eq.longueur);
+      }
     });
 
+    // Déterminer les options disponibles basées sur les filtres actuels
+    let availableDesignations = Array.from(allDesignations).sort();
+    let availableCMUs = Array.from(allCMUs).sort();
+    let availableLongueurs = Array.from(allLongueurs).sort();
+
+    // Si une Désignation est sélectionnée, filtrer les CMU et Longueurs
+    if (filterDesignation) {
+      availableCMUs = Array.from(designationToCMU[filterDesignation] || []).sort();
+      availableLongueurs = Array.from(designationToLongueur[filterDesignation] || []).sort();
+
+      // Si CMU est aussi sélectionnée, affiner les Longueurs
+      if (filterCMU && cmuToLongueur[filterCMU]) {
+        availableLongueurs = Array.from(cmuToLongueur[filterCMU]).sort();
+      }
+    } else if (filterCMU) {
+      // Si CMU sans Désignation, affiner les Longueurs
+      availableLongueurs = Array.from(cmuToLongueur[filterCMU] || []).sort();
+    }
+
     return {
-      designations: Array.from(designations).sort(),
-      cmus: Array.from(cmus).sort(),
-      longueurs: Array.from(longueurs).sort()
+      designations: availableDesignations,
+      cmus: availableCMUs,
+      longueurs: availableLongueurs
     };
-  }, [equipmentData]);
+  }, [equipmentData, filterDesignation, filterCMU]);
 
   // Filtrer les matériels disponibles (Sur Parc) avec filtres intelligents
   const availableEquipment = useMemo(() => {
@@ -72,6 +115,20 @@ const ExchangeModal = ({ show, equipment, equipmentData, onConfirm, onCancel }) 
       exchangeReason: exchangeReason.trim()
     });
     handleClose();
+  };
+
+  const handleDesignationChange = (value) => {
+    setFilterDesignation(value);
+    // Réinitialiser CMU et Longueur quand on change la Désignation
+    // car les anciennes valeurs peuvent ne pas être compatibles
+    setFilterCMU('');
+    setFilterLongueur('');
+  };
+
+  const handleCMUChange = (value) => {
+    setFilterCMU(value);
+    // Réinitialiser Longueur car elle dépend de la CMU
+    setFilterLongueur('');
   };
 
   const handleClose = () => {
@@ -122,7 +179,7 @@ const ExchangeModal = ({ show, equipment, equipmentData, onConfirm, onCancel }) 
           }}>
             <select
               value={filterDesignation}
-              onChange={(e) => setFilterDesignation(e.target.value)}
+              onChange={(e) => handleDesignationChange(e.target.value)}
               style={{
                 padding: '10px 14px',
                 borderRadius: '8px',
@@ -143,7 +200,7 @@ const ExchangeModal = ({ show, equipment, equipmentData, onConfirm, onCancel }) 
 
             <select
               value={filterCMU}
-              onChange={(e) => setFilterCMU(e.target.value)}
+              onChange={(e) => handleCMUChange(e.target.value)}
               style={{
                 padding: '10px 14px',
                 borderRadius: '8px',
