@@ -1,9 +1,126 @@
 // Système de gestion des notes de mise à jour
 // Pour ajouter une nouvelle version, ajoutez un objet au début du tableau
 
-export const CURRENT_VERSION = '0.9.8.4';
+export const CURRENT_VERSION = '0.9.8.5';
 
 export const releaseNotes = [
+  {
+    version: '0.9.8.5',
+    date: '2025-10-22',
+    title: '⚡ UX Moderne - Améliorations Expérience Utilisateur',
+    sections: [
+      {
+        title: '🔄 Synchronisation des Données en Temps Réel',
+        items: [
+          'Équipement rafraîchi automatiquement après annulation de réservation',
+          'Données mises à jour après démarrage de location',
+          'État synchronisé après retour de matériel',
+          'Interface reflète instantanément les changements d\'état',
+        ]
+      },
+      {
+        title: '📋 Validation Intelligente des Formulaires',
+        items: [
+          'Validation des plages de dates dans tous les modals',
+          '"Fin théorique" doit être après "Début location"',
+          'Date de retour ne peut pas être avant le début de location',
+          'Date de démarrage validée par rapport à la réservation',
+          'Messages d\'erreur clairs et localisés en français',
+        ]
+      },
+      {
+        title: '💾 Préservation de l\'État des Formulaires',
+        items: [
+          'Les formulaires conservent leurs données lors de fermeture/réouverture',
+          'ReservationModal : Persistance automatique des 7 champs',
+          'EditLocationModal : État préservé pendant l\'édition',
+          'Données nettoyées après soumission réussie',
+          'Les utilisateurs ne perdent plus leur travail accidentellement',
+        ]
+      },
+      {
+        title: '✅ Confirmations pour Actions Destructrices',
+        items: [
+          'CancelReservationModal : Design rouge avec confirmation visuelle',
+          'ReturnModal : Validation avant effectuer le retour',
+          'StartLocationModal : Vérification des dates avant démarrage',
+          'Remplacement des alert() par showToast() pour meilleure UX',
+          'Messages cohérents et professionnels via système de notifications',
+        ]
+      },
+      {
+        title: '🧹 Nettoyage de la Codebase',
+        items: [
+          'Consolidation du ReturnModal : une seule implémentation',
+          'Suppression de 250+ lignes de code dupliqué',
+          'Cohérence entre EquipmentListView et EquipmentDetailView',
+          'Source unique de vérité pour chaque composant modal',
+          'Meilleure maintenabilité et testabilité',
+        ]
+      },
+      {
+        title: '🎯 Contexte Global (UIContext)',
+        items: [
+          'Ajout reservationFormData pour persistance',
+          'Ajout editTechInfoFormData pour édition',
+          'Ajout addEquipmentFormData (préparé pour futures améliorations)',
+          'Gestion cohérente de l\'état global des formulaires',
+        ]
+      },
+      {
+        title: '📊 Modales Améliorées',
+        items: [
+          'CreateReservationModal : Validation dates + persistance',
+          'EditLocationModal : Persistance + validation',
+          'ReturnModal : Validation dates + confirmations + showToast',
+          'StartLocationModal : Validation dates + meilleure feedback',
+          'CancelReservationModal : Confirmations visuelles existantes',
+        ]
+      },
+      {
+        title: '✨ Améliorations UX Globales',
+        items: [
+          'Patterns modernes des applications web d\'entreprise',
+          'Feedback utilisateur instantané et clair',
+          'Prévention des erreurs côté client',
+          'Formulaires respectant les bonnes pratiques React',
+          'Experience fluide et prévisible',
+        ]
+      },
+      {
+        title: '🔧 Architecture & Bonnes Pratiques',
+        items: [
+          'Utilisation des Hooks React (useEffect, useState)',
+          'Context API pour state management global',
+          'Separation of concerns avec composants modulaires',
+          'Validation avant transmission au backend',
+          'Gestion d\'erreurs robuste avec try/catch',
+        ]
+      },
+      {
+        title: '📂 Fichiers Modifiés',
+        items: [
+          'Modifié : UIContext.js (ajout form data persistence)',
+          'Modifié : CreateReservationModal.js (validation + persistance)',
+          'Modifié : EditLocationModal.js (persistance + validation)',
+          'Modifié : ReturnModal.js (validation + showToast)',
+          'Modifié : StartLocationModal.js (validation + showToast)',
+          'Modifié : EquipmentDetailView.js (consolidation ReturnModal)',
+          'Modifié : App.js (refresh equipment data après opérations)',
+        ]
+      },
+      {
+        title: '✅ Tests & Vérifications',
+        items: [
+          'Build npm run build compile sans erreurs',
+          'Tous les modals fonctionnent avec persistance',
+          'Validations bloquent les soumissions invalides',
+          'Confirmations visibles avant actions destructrices',
+          'Données restent synchronisées après opérations',
+        ]
+      }
+    ]
+  },
   {
     version: '0.9.8.4',
     date: '2025-10-20',
