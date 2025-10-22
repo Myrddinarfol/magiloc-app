@@ -14,6 +14,8 @@ import {
   clientValidation,
   paginationValidation
 } from './middleware/validation.js';
+import { convertFrenchDateToISO, formatDateToFrench, calculateBusinessDays } from './utils/dateHelpers.js';
+import authRoutes from './routes/auth.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -101,94 +103,6 @@ app.use(cors({
 
 app.use(express.json());
 
-// Fonction pour convertir date française DD/MM/YYYY vers ISO YYYY-MM-DD
-function convertFrenchDateToISO(dateStr) {
-  if (!dateStr) return null;
-
-  // Si c'est déjà au format ISO complet (YYYY-MM-DDTHH:MM:SS), extraire la date
-  if (/^\d{4}-\d{2}-\d{2}T/.test(dateStr)) {
-    return dateStr.split('T')[0];
-  }
-
-  // Si c'est déjà au format ISO date simple (YYYY-MM-DD), retourner tel quel
-  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
-    return dateStr;
-  }
-
-  // Si c'est au format français DD/MM/YYYY
-  if (/^\d{2}\/\d{2}\/\d{4}/.test(dateStr)) {
-    const [day, month, year] = dateStr.split('/');
-    return `${year}-${month}-${day}`;
-  }
-
-  // Essayer de parser comme date JavaScript
-  try {
-    const date = new Date(dateStr);
-    if (!isNaN(date.getTime())) {
-      return date.toISOString().split('T')[0];
-    }
-  } catch (e) {
-    console.error('Erreur conversion date:', dateStr, e.message);
-  }
-
-  return dateStr;
-}
-
-// Fonction pour convertir date ISO vers format français DD/MM/YYYY
-function formatDateToFrench(dateStr) {
-  if (!dateStr) return null;
-
-  // Si déjà au format français
-  if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
-    return dateStr;
-  }
-
-  // Convertir depuis ISO ou Date object
-  const date = new Date(dateStr);
-  if (isNaN(date)) return dateStr;
-
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year = date.getFullYear();
-
-  return `${day}/${month}/${year}`;
-}
-
-// Fonction pour calculer les jours ouvrés (lundi-vendredi, hors jours fériés français)
-function calculateBusinessDays(startDateStr, endDateStr) {
-  if (!startDateStr || !endDateStr) return null;
-
-  const startDate = new Date(startDateStr);
-  const endDate = new Date(endDateStr);
-
-  if (isNaN(startDate) || isNaN(endDate) || endDate < startDate) return null;
-
-  // Jours fériés français 2025-2026
-  const holidays = [
-    '2025-01-01', '2025-04-21', '2025-05-01', '2025-05-08', '2025-05-29', '2025-06-09',
-    '2025-07-14', '2025-08-15', '2025-11-01', '2025-11-11', '2025-12-25',
-    '2026-01-01', '2026-04-06', '2026-05-01', '2026-05-08', '2026-05-14', '2026-05-25',
-    '2026-07-14', '2026-08-15', '2026-11-01', '2026-11-11', '2026-12-25'
-  ];
-
-  let businessDays = 0;
-  const currentDate = new Date(startDate);
-
-  while (currentDate <= endDate) {
-    const dayOfWeek = currentDate.getDay();
-    const dateStr = currentDate.toISOString().split('T')[0];
-
-    // Compter seulement si c'est un jour de semaine (1-5) et pas un jour férié
-    if (dayOfWeek !== 0 && dayOfWeek !== 6 && !holidays.includes(dateStr)) {
-      businessDays++;
-    }
-
-    currentDate.setDate(currentDate.getDate() + 1);
-  }
-
-  return businessDays;
-}
-
 // Routes de base
 app.get("/", (req, res) => {
   res.json({ message: "MagiLoc API is running!" });
@@ -199,64 +113,9 @@ app.get("/api/health", (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// AUTHENTIFICATION JWT
+// AUTHENTIFICATION JWT (Modular routes from routes/auth.js)
 // ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * POST /api/auth/login
- * Authentifie l'utilisateur et retourne un JWT token
- *
- * Body: { password: string }
- * Response: { token: string, expiresIn: string }
- */
-app.post("/api/auth/login", (req, res) => {
-  try {
-    const { password } = req.body;
-    const AUTH_PASSWORD = process.env.AUTH_PASSWORD || 'MAGILOC25';
-
-    if (!password) {
-      return res.status(400).json({
-        error: 'Bad request',
-        message: 'Password is required'
-      });
-    }
-
-    if (password !== AUTH_PASSWORD) {
-      return res.status(401).json({
-        error: 'Unauthorized',
-        message: 'Invalid password'
-      });
-    }
-
-    const token = generateToken();
-    res.json({
-      token,
-      expiresIn: '7d',
-      type: 'Bearer',
-      message: 'Login successful'
-    });
-  } catch (err) {
-    console.error('❌ Login error:', err);
-    res.status(500).json({
-      error: 'Internal server error',
-      message: err.message
-    });
-  }
-});
-
-/**
- * POST /api/auth/verify
- * Vérifie qu'un token est valide
- *
- * Headers: Authorization: Bearer <token>
- * Response: { authenticated: boolean }
- */
-app.post("/api/auth/verify", verifyToken, (req, res) => {
-  res.json({
-    authenticated: true,
-    user: req.user
-  });
-});
+app.use('/api/auth', authRoutes);
 
 // Route pour récupérer tous les équipements (avec pagination optionnelle)
 /**
