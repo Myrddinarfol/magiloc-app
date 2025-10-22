@@ -309,6 +309,9 @@ const MainApp = ({ shouldStartTour }) => {
     try {
       const { equipmentService } = await import('./services/equipmentService');
 
+      // Extraire le motif d'échange s'il est présent
+      const exchangeReason = replacementEquipment.exchangeReason || '';
+
       // Déterminer les actions selon le statut actuel
       const isReservation = currentEquipment.statut === 'En Réservation';
       const isLocation = currentEquipment.statut === 'En Location';
@@ -334,7 +337,7 @@ const MainApp = ({ shouldStartTour }) => {
           finLocationTheorique: currentEquipment.finLocationTheorique,
           departEnlevement: currentEquipment.departEnlevement,
           numeroOffre: currentEquipment.numeroOffre,
-          notesLocation: currentEquipment.notesLocation
+          notesLocation: exchangeReason ? `[ÉCHANGE] ${currentEquipment.notesLocation ? currentEquipment.notesLocation + ' | ' : ''}Motif: ${exchangeReason}` : currentEquipment.notesLocation
         });
 
         showToast(`✅ Échange effectué ! ${currentEquipment.designation} → Sur Parc | ${replacementEquipment.designation} → En Réservation`, 'success');
@@ -343,7 +346,7 @@ const MainApp = ({ shouldStartTour }) => {
         //    et copier client/dates au matériel de remplacement
         await equipmentService.update(currentEquipment.id, {
           statut: 'En Maintenance',
-          motif: 'Échange location',
+          motif: exchangeReason ? `Échange location - ${exchangeReason}` : 'Échange location',
           noteRetour: `Matériel échangé - Remplacement: ${replacementEquipment.numeroSerie}`
         });
 
@@ -352,7 +355,8 @@ const MainApp = ({ shouldStartTour }) => {
           statut: 'En Location',
           client: currentEquipment.client,
           debutLocation: currentEquipment.debutLocation,
-          finLocationTheorique: currentEquipment.finLocationTheorique
+          finLocationTheorique: currentEquipment.finLocationTheorique,
+          departEnlevement: currentEquipment.departEnlevement
         });
 
         showToast(`✅ Échange effectué ! ${currentEquipment.designation} → En Maintenance | ${replacementEquipment.designation} → En Location`, 'success');

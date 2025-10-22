@@ -4,7 +4,31 @@ import { useUI } from '../../hooks/useUI';
 const ExchangeModal = ({ show, equipment, equipmentData, onConfirm, onCancel }) => {
   const { showToast } = useUI();
   const [selectedReplacement, setSelectedReplacement] = useState(null);
+  const [exchangeReason, setExchangeReason] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterEtat, setFilterEtat] = useState(''); // Filtre par état
+  const [filterMarque, setFilterMarque] = useState(''); // Filtre par marque
+
+  // Récupérer les valeurs uniques pour les filtres
+  const uniqueEtats = useMemo(() => {
+    const etats = new Set();
+    equipmentData.forEach(eq => {
+      if (eq.statut === 'Sur Parc' && eq.designation === equipment?.designation && eq.cmu === equipment?.cmu) {
+        if (eq.etat) etats.add(eq.etat);
+      }
+    });
+    return Array.from(etats).sort();
+  }, [equipment, equipmentData]);
+
+  const uniqueMarques = useMemo(() => {
+    const marques = new Set();
+    equipmentData.forEach(eq => {
+      if (eq.statut === 'Sur Parc' && eq.designation === equipment?.designation && eq.cmu === equipment?.cmu) {
+        if (eq.marque) marques.add(eq.marque);
+      }
+    });
+    return Array.from(marques).sort();
+  }, [equipment, equipmentData]);
 
   // Filtrer les matériels disponibles (Sur Parc) avec même désignation et CMU
   const availableEquipment = useMemo(() => {
@@ -19,13 +43,21 @@ const ExchangeModal = ({ show, equipment, equipmentData, onConfirm, onCancel }) 
       if (eq.designation !== equipment.designation) return false;
       // Même CMU
       if (eq.cmu !== equipment.cmu) return false;
-      // Filtre recherche si applicable
-      if (searchTerm && !eq.numeroSerie.toLowerCase().includes(searchTerm.toLowerCase())) {
-        return false;
+      // Filtre par état
+      if (filterEtat && eq.etat !== filterEtat) return false;
+      // Filtre par marque
+      if (filterMarque && eq.marque !== filterMarque) return false;
+      // Filtre recherche par N° Série ou modèle
+      if (searchTerm) {
+        const searchLower = searchTerm.toLowerCase();
+        if (!eq.numeroSerie.toLowerCase().includes(searchLower) &&
+            !eq.modele.toLowerCase().includes(searchLower)) {
+          return false;
+        }
       }
       return true;
     });
-  }, [equipment, equipmentData, searchTerm]);
+  }, [equipment, equipmentData, searchTerm, filterEtat, filterMarque]);
 
   const handleConfirm = () => {
     if (!selectedReplacement) {
@@ -33,13 +65,20 @@ const ExchangeModal = ({ show, equipment, equipmentData, onConfirm, onCancel }) 
       return;
     }
 
-    onConfirm(selectedReplacement);
+    // Passer les données de remplacement avec le motif d'échange
+    onConfirm({
+      ...selectedReplacement,
+      exchangeReason: exchangeReason.trim()
+    });
     handleClose();
   };
 
   const handleClose = () => {
     setSelectedReplacement(null);
     setSearchTerm('');
+    setExchangeReason('');
+    setFilterEtat('');
+    setFilterMarque('');
     onCancel();
   };
 
@@ -71,16 +110,80 @@ const ExchangeModal = ({ show, equipment, equipmentData, onConfirm, onCancel }) 
             </p>
           </div>
 
-          {/* Recherche */}
-          <div style={{marginBottom: '15px'}}>
-            <input
-              type="text"
-              placeholder="Rechercher par N° Série..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+          {/* Recherche intelligente par filtres */}
+          <div style={{marginBottom: '20px', padding: '15px', backgroundColor: 'rgba(100, 150, 255, 0.08)', borderRadius: '8px', border: '1px solid rgba(100, 150, 255, 0.2)'}}>
+            <p style={{margin: '0 0 12px 0', fontSize: '13px', color: '#64c8ff', fontWeight: '600', textTransform: 'uppercase'}}>
+              🔍 Filtres de recherche
+            </p>
+
+            {/* Filtre par État */}
+            <div style={{marginBottom: '12px'}}>
+              <label style={{display: 'block', fontSize: '13px', color: '#d1d5db', marginBottom: '6px', fontWeight: '600'}}>
+                État
+              </label>
+              <select
+                value={filterEtat}
+                onChange={(e) => setFilterEtat(e.target.value)}
+                className="form-input"
+                style={{width: '100%', cursor: 'pointer'}}
+              >
+                <option value="">Tous les états</option>
+                {uniqueEtats.map(etat => (
+                  <option key={etat} value={etat}>{etat}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Filtre par Marque */}
+            <div style={{marginBottom: '12px'}}>
+              <label style={{display: 'block', fontSize: '13px', color: '#d1d5db', marginBottom: '6px', fontWeight: '600'}}>
+                Marque
+              </label>
+              <select
+                value={filterMarque}
+                onChange={(e) => setFilterMarque(e.target.value)}
+                className="form-input"
+                style={{width: '100%', cursor: 'pointer'}}
+              >
+                <option value="">Toutes les marques</option>
+                {uniqueMarques.map(marque => (
+                  <option key={marque} value={marque}>{marque}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Recherche par N° Série ou Modèle */}
+            <div>
+              <label style={{display: 'block', fontSize: '13px', color: '#d1d5db', marginBottom: '6px', fontWeight: '600'}}>
+                Recherche
+              </label>
+              <input
+                type="text"
+                placeholder="Chercher par N° Série ou Modèle..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="form-input"
+                style={{width: '100%'}}
+              />
+            </div>
+          </div>
+
+          {/* Motif d'échange */}
+          <div style={{marginBottom: '20px'}}>
+            <label style={{display: 'block', fontSize: '13px', color: '#d1d5db', marginBottom: '6px', fontWeight: '600'}}>
+              📋 Motif d'Échange
+            </label>
+            <textarea
+              placeholder="Exemple: Matériel défectueux, Calibration nécessaire, Usure..."
+              value={exchangeReason}
+              onChange={(e) => setExchangeReason(e.target.value)}
               className="form-input"
-              style={{width: '100%'}}
+              rows="3"
+              style={{width: '100%', fontFamily: 'inherit', resize: 'vertical'}}
             />
+            <small style={{color: '#9ca3af', marginTop: '4px', display: 'block'}}>
+              Décrivez le motif de cet échange
+            </small>
           </div>
 
           {/* Liste des matériels disponibles */}
