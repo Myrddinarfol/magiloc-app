@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useUI } from '../hooks/useUI';
 import PageHeader from './common/PageHeader';
 import VGPBadgeCompact from './common/VGPBadgeCompact';
@@ -38,6 +38,33 @@ function EquipmentListView({
   const [equipmentToExchange, setEquipmentToExchange] = useState(null);
   const { equipmentFilter, setEquipmentFilter } = useUI();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // 🔄 Initialiser les filtres depuis l'URL au mount
+  useEffect(() => {
+    const searchFromUrl = searchParams.get('search') || '';
+    const designationFromUrl = searchParams.get('designation') || '';
+    const cmuFromUrl = searchParams.get('cmu') || '';
+    const longueurFromUrl = searchParams.get('longueur') || '';
+
+    setSearchTerm(searchFromUrl);
+    setFilterDesignation(designationFromUrl);
+    setFilterCMU(cmuFromUrl);
+    setFilterLongueur(longueurFromUrl);
+  }, []); // ⚠️ Uniquement au mount, pas à chaque changement d'URL
+
+  // 🔄 Mettre à jour l'URL quand les filtres changent
+  useEffect(() => {
+    const newParams = new URLSearchParams();
+
+    if (searchTerm) newParams.set('search', searchTerm);
+    if (filterDesignation) newParams.set('designation', filterDesignation);
+    if (filterCMU) newParams.set('cmu', filterCMU);
+    if (filterLongueur) newParams.set('longueur', filterLongueur);
+
+    // Mettre à jour l'URL sans recharger la page
+    setSearchParams(newParams);
+  }, [searchTerm, filterDesignation, filterCMU, filterLongueur, setSearchParams]);
 
   // Auto-reset filter when leaving sur-parc
   useEffect(() => {
