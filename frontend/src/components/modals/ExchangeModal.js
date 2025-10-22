@@ -11,6 +11,7 @@ const ExchangeModal = ({ show, equipment, equipmentData, onConfirm, onCancel }) 
   const [filterLongueur, setFilterLongueur] = useState('');
   const [isBreakdownExchange, setIsBreakdownExchange] = useState(false);
   const [earlyStopDate, setEarlyStopDate] = useState('');
+  const [sendToMaintenanceReservation, setSendToMaintenanceReservation] = useState(false);
 
   // Récupérer les options de filtres intelligents et dépendants
   const filterOptions = useMemo(() => {
@@ -116,7 +117,8 @@ const ExchangeModal = ({ show, equipment, equipmentData, onConfirm, onCancel }) 
       ...selectedReplacement,
       exchangeReason: exchangeReason.trim(),
       isBreakdownExchange: isBreakdownExchange,
-      earlyStopDate: earlyStopDate || null
+      earlyStopDate: earlyStopDate || null,
+      sendToMaintenanceReservation: sendToMaintenanceReservation
     });
     handleClose();
   };
@@ -144,6 +146,7 @@ const ExchangeModal = ({ show, equipment, equipmentData, onConfirm, onCancel }) 
     setFilterLongueur('');
     setIsBreakdownExchange(false);
     setEarlyStopDate('');
+    setSendToMaintenanceReservation(false);
     onCancel();
   };
 
@@ -318,6 +321,24 @@ const ExchangeModal = ({ show, equipment, equipmentData, onConfirm, onCancel }) 
               Décrivez le motif de cet échange
             </small>
           </div>
+
+          {/* Checkbox: Mettre en maintenance - SEULEMENT pour Réservations en cours */}
+          {equipment.statut === 'En Réservation' && (
+            <div style={{marginBottom: '20px', padding: '14px', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.1)'}}>
+              <label style={{display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '14px', color: '#d1d5db'}}>
+                <input
+                  type="checkbox"
+                  checked={sendToMaintenanceReservation}
+                  onChange={(e) => setSendToMaintenanceReservation(e.target.checked)}
+                  style={{cursor: 'pointer', width: '18px', height: '18px'}}
+                />
+                <span>🔧 Mettre en maintenance</span>
+              </label>
+              <small style={{color: '#9ca3af', marginTop: '8px', display: 'block', marginLeft: '28px'}}>
+                Si le matériel réservé présente un défaut et ne peut être loué en l'état
+              </small>
+            </div>
+          )}
 
           {/* Checkbox: Échange matériel en panne - SEULEMENT pour Locations en cours */}
           {equipment.statut === 'En Location' && (

@@ -314,23 +314,39 @@ const MainApp = ({ shouldStartTour }) => {
       const exchangeReason = replacementEquipment.exchangeReason || '';
       const isBreakdownExchange = replacementEquipment.isBreakdownExchange || false;
       const earlyStopDate = replacementEquipment.earlyStopDate || null;
+      const sendToMaintenanceReservation = replacementEquipment.sendToMaintenanceReservation || false;
 
       // Déterminer les actions selon le statut actuel
       const isReservation = currentEquipment.statut === 'En Réservation';
       const isLocation = currentEquipment.statut === 'En Location';
 
       if (isReservation) {
-        // ✅ CAS RÉSERVATION: Mettre le matériel actuel en Sur Parc
-        //    et copier client/dates au matériel de remplacement
-        await equipmentService.update(currentEquipment.id, {
-          statut: 'Sur Parc',
-          client: null,
-          debutLocation: null,
-          finLocationTheorique: null,
-          departEnlevement: null,
-          numeroOffre: null,
-          notesLocation: null
-        });
+        // ✅ CAS RÉSERVATION: Deux options selon le checkbox "Mettre en maintenance"
+
+        if (sendToMaintenanceReservation) {
+          // Option A: Envoyer en Maintenance si le matériel réservé a un défaut
+          await equipmentService.update(currentEquipment.id, {
+            statut: 'En Maintenance',
+            motif: exchangeReason || 'Défaut détecté - Matériel réservé non utilisable',
+            client: null,
+            debutLocation: null,
+            finLocationTheorique: null,
+            departEnlevement: null,
+            numeroOffre: null,
+            notesLocation: null
+          });
+        } else {
+          // Option B: Mettre en Sur Parc (comportement normal)
+          await equipmentService.update(currentEquipment.id, {
+            statut: 'Sur Parc',
+            client: null,
+            debutLocation: null,
+            finLocationTheorique: null,
+            departEnlevement: null,
+            numeroOffre: null,
+            notesLocation: null
+          });
+        }
 
         // Mettre le matériel de remplacement en réservation avec les mêmes données
         await equipmentService.update(replacementEquipment.id, {
@@ -343,7 +359,8 @@ const MainApp = ({ shouldStartTour }) => {
           notesLocation: exchangeReason ? `[ÉCHANGE] ${currentEquipment.notesLocation ? currentEquipment.notesLocation + ' | ' : ''}Motif: ${exchangeReason}` : currentEquipment.notesLocation
         });
 
-        showToast(`✅ Échange effectué ! ${currentEquipment.designation} → Sur Parc | ${replacementEquipment.designation} → En Réservation`, 'success');
+        const oldStatus = sendToMaintenanceReservation ? 'En Maintenance' : 'Sur Parc';
+        showToast(`✅ Échange effectué ! ${currentEquipment.designation} → ${oldStatus} | ${replacementEquipment.designation} → En Réservation`, 'success');
       } else if (isLocation) {
         // ✅ CAS LOCATION: Gérer l'échange avec ou sans panne
         const today = new Date().toISOString().split('T')[0];
