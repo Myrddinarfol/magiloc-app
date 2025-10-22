@@ -258,9 +258,39 @@ app.post("/api/auth/verify", verifyToken, (req, res) => {
   });
 });
 
-// Route pour récupérer tous les équipements
+// Route pour récupérer tous les équipements (avec pagination optionnelle)
+/**
+ * GET /api/equipment?page=1&limit=50&search=designation
+ *
+ * Query params (tous optionnels):
+ * - page: numéro de page (défaut: 1)
+ * - limit: nombre d'équipements par page (défaut: 500 pour compatibilité)
+ * - search: recherche simple sur la désignation
+ *
+ * Response:
+ * - Si pagination: { data: [], page, limit, total, totalPages }
+ * - Si pas pagination: []
+ */
 app.get("/api/equipment", async (req, res) => {
   try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(500, Math.max(1, parseInt(req.query.limit) || 500));
+    const search = (req.query.search || '').trim();
+    const usePagination = req.query.page !== undefined || req.query.limit !== undefined;
+
+    const offset = (page - 1) * limit;
+
+    // Construire la requête avec filtres optionnels
+    let whereClause = '';
+    const params = [];
+
+    if (search) {
+      whereClause = 'WHERE designation ILIKE $1';
+      params.push(`%${search}%`);
+    }
+
+    // Requête principal
+    const paramIndex = params.length + 1;
     const result = await pool.query(`
       SELECT
         id,
@@ -289,8 +319,10 @@ app.get("/api/equipment", async (req, res) => {
         motif_maintenance as "motifMaintenance",
         note_retour as "noteRetour"
       FROM equipments
+      ${whereClause}
       ORDER BY id
-    `);
+      ${usePagination ? `LIMIT $${paramIndex} OFFSET $${paramIndex + 1}` : ''}
+    `, usePagination ? [...params, limit, offset] : params);
 
     // Formater toutes les dates au format français
     const equipmentsWithFrenchDates = result.rows.map(eq => ({
@@ -302,6 +334,30 @@ app.get("/api/equipment", async (req, res) => {
       rentreeLe: formatDateToFrench(eq.rentreeLe)
     }));
 
+    // Si pagination: retourner object avec métadonnées
+    if (usePagination) {
+      // Requête COUNT pour le total
+      const countResult = await pool.query(
+        `SELECT COUNT(*) as total FROM equipments ${whereClause}`,
+        params
+      );
+      const total = parseInt(countResult.rows[0].total);
+      const totalPages = Math.ceil(total / limit);
+
+      return res.json({
+        data: equipmentsWithFrenchDates,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1
+        }
+      });
+    }
+
+    // Sinon: retourner le array directement (compatibilité)
     res.json(equipmentsWithFrenchDates);
   } catch (err) {
     console.error("❌ Erreur DB:", err.message);
