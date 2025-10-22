@@ -15,6 +15,10 @@
   animation: fadeIn 0.3s ease-in-out;
 }
 
+body.light-theme .loading-state-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -36,6 +40,15 @@
   min-width: 400px;
   border: 1px solid rgba(220, 38, 38, 0.2);
   animation: slideUp 0.4s ease-out;
+}
+
+body.light-theme .loading-content {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-color: rgba(220, 38, 38, 0.15);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(220, 38, 38, 0.2),
+    0 0 40px rgba(220, 38, 38, 0.1);
 }
 
 @keyframes slideUp {
@@ -79,10 +92,18 @@
   letter-spacing: 0.3px;
 }
 
+body.light-theme .loading-message {
+  color: #1f2937;
+}
+
 .loading-info {
   margin-top: 25px;
   padding-top: 20px;
   border-top: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+body.light-theme .loading-info {
+  border-top-color: rgba(220, 38, 38, 0.1);
 }
 
 .loading-info p {
@@ -90,6 +111,10 @@
   color: #9ca3af;
   margin: 8px 0;
   line-height: 1.6;
+}
+
+body.light-theme .loading-info p {
+  color: #6b7280;
 }
 
 .loading-info p:first-child {
