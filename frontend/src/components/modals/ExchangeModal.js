@@ -9,6 +9,8 @@ const ExchangeModal = ({ show, equipment, equipmentData, onConfirm, onCancel }) 
   const [filterDesignation, setFilterDesignation] = useState('');
   const [filterCMU, setFilterCMU] = useState('');
   const [filterLongueur, setFilterLongueur] = useState('');
+  const [isBreakdownExchange, setIsBreakdownExchange] = useState(false);
+  const [earlyStopDate, setEarlyStopDate] = useState('');
 
   // Récupérer les options de filtres intelligents et dépendants
   const filterOptions = useMemo(() => {
@@ -112,7 +114,9 @@ const ExchangeModal = ({ show, equipment, equipmentData, onConfirm, onCancel }) 
     // Passer les données de remplacement avec le motif d'échange
     onConfirm({
       ...selectedReplacement,
-      exchangeReason: exchangeReason.trim()
+      exchangeReason: exchangeReason.trim(),
+      isBreakdownExchange: isBreakdownExchange,
+      earlyStopDate: earlyStopDate || null
     });
     handleClose();
   };
@@ -138,6 +142,8 @@ const ExchangeModal = ({ show, equipment, equipmentData, onConfirm, onCancel }) 
     setFilterDesignation('');
     setFilterCMU('');
     setFilterLongueur('');
+    setIsBreakdownExchange(false);
+    setEarlyStopDate('');
     onCancel();
   };
 
@@ -311,6 +317,55 @@ const ExchangeModal = ({ show, equipment, equipmentData, onConfirm, onCancel }) 
             <small style={{color: '#9ca3af', marginTop: '4px', display: 'block'}}>
               Décrivez le motif de cet échange
             </small>
+          </div>
+
+          {/* Checkbox: Échange matériel en panne */}
+          <div style={{marginBottom: '20px', padding: '14px', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.1)'}}>
+            <label style={{display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '14px', color: '#d1d5db', marginBottom: '12px'}}>
+              <input
+                type="checkbox"
+                checked={isBreakdownExchange}
+                onChange={(e) => setIsBreakdownExchange(e.target.checked)}
+                style={{cursor: 'pointer', width: '18px', height: '18px'}}
+              />
+              <span>🔧 Échange matériel en panne</span>
+            </label>
+
+            {/* Champ date d'arrêt - Affiché si le checkbox est coché */}
+            {isBreakdownExchange && (
+              <div style={{marginTop: '12px'}}>
+                <label style={{display: 'block', fontSize: '12px', color: '#9ca3af', marginBottom: '6px', fontWeight: '600', textTransform: 'uppercase'}}>
+                  📅 Date d'arrêt de location avant échange
+                </label>
+                <input
+                  type="date"
+                  value={earlyStopDate}
+                  onChange={(e) => setEarlyStopDate(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    fontSize: '13px',
+                    color: '#fff',
+                    background: 'rgba(31, 41, 55, 0.6)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    borderRadius: '6px',
+                    outline: 'none',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#10b981';
+                    e.target.style.boxShadow = '0 0 0 2px rgba(16, 185, 129, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                />
+                <small style={{color: '#9ca3af', marginTop: '4px', display: 'block'}}>
+                  Si le matériel était déjà en panne, indiquez la date à laquelle il a cessé d'être utilisable
+                </small>
+              </div>
+            )}
           </div>
 
           {/* Liste des matériels disponibles - Cartes enrichies */}

@@ -308,9 +308,12 @@ const MainApp = ({ shouldStartTour }) => {
 
     try {
       const { equipmentService } = await import('./services/equipmentService');
+      const { historyService } = await import('./services/historyService');
 
-      // Extraire le motif d'échange s'il est présent
+      // Extraire les données d'échange
       const exchangeReason = replacementEquipment.exchangeReason || '';
+      const isBreakdownExchange = replacementEquipment.isBreakdownExchange || false;
+      const earlyStopDate = replacementEquipment.earlyStopDate || null;
 
       // Déterminer les actions selon le statut actuel
       const isReservation = currentEquipment.statut === 'En Réservation';
@@ -342,21 +345,53 @@ const MainApp = ({ shouldStartTour }) => {
 
         showToast(`✅ Échange effectué ! ${currentEquipment.designation} → Sur Parc | ${replacementEquipment.designation} → En Réservation`, 'success');
       } else if (isLocation) {
-        // ✅ CAS LOCATION: Mettre le matériel actuel en Maintenance
-        //    et copier client/dates au matériel de remplacement
+        // ✅ CAS LOCATION: Gérer l'échange avec ou sans panne
+        const today = new Date().toISOString().split('T')[0];
+
+        // Date d'arrêt de location: earlyStopDate si fournie, sinon aujourd'hui
+        const actualStopDate = earlyStopDate || today;
+
+        // Déterminer le motif de maintenance
+        let maintenanceReason = '';
+        if (isBreakdownExchange) {
+          // Cas: Échange matériel en panne cochée
+          maintenanceReason = exchangeReason || 'Matériel en panne - Échange';
+        } else {
+          // Cas: Simple échange (motif automatique)
+          maintenanceReason = 'Échange, matériel à vérifier';
+        }
+
+        // Mettre le matériel actuel en Maintenance
         await equipmentService.update(currentEquipment.id, {
           statut: 'En Maintenance',
-          motif: exchangeReason ? `Échange location - ${exchangeReason}` : 'Échange location',
+          motif: maintenanceReason,
           noteRetour: `Matériel échangé - Remplacement: ${replacementEquipment.numeroSerie}`
         });
 
+        // Enregistrer l'historique de location de l'ancien matériel
+        // (comme un retour classique avec la date d'arrêt correcte)
+        await historyService.addHistory(currentEquipment.id, {
+          type: 'Retour',
+          statut: 'En Maintenance',
+          client: currentEquipment.client,
+          debutLocation: currentEquipment.debutLocation,
+          finLocationReelle: actualStopDate, // Date d'arrêt de location
+          motif: maintenanceReason,
+          notes: exchangeReason ? `Motif d'échange: ${exchangeReason}` : 'Échange de matériel'
+        });
+
         // Mettre le matériel de remplacement en location avec les mêmes données
+        // Sauf la date de début qui est aujourd'hui
         await equipmentService.update(replacementEquipment.id, {
           statut: 'En Location',
           client: currentEquipment.client,
-          debutLocation: currentEquipment.debutLocation,
+          debutLocation: today, // Date de début = jour de l'échange
           finLocationTheorique: currentEquipment.finLocationTheorique,
-          departEnlevement: currentEquipment.departEnlevement
+          departEnlevement: currentEquipment.departEnlevement,
+          numeroOffre: currentEquipment.numeroOffre,
+          notesLocation: currentEquipment.notesLocation,
+          estLongDuree: currentEquipment.estLongDuree,
+          minimumFacturationApply: currentEquipment.minimumFacturationApply
         });
 
         showToast(`✅ Échange effectué ! ${currentEquipment.designation} → En Maintenance | ${replacementEquipment.designation} → En Location`, 'success');
