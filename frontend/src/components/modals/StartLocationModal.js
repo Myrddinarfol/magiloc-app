@@ -1,14 +1,28 @@
 import React, { useState } from 'react';
+import { useUI } from '../../hooks/useUI';
 
 const StartLocationModal = ({ show, equipment, onConfirm, onCancel }) => {
+  const { showToast } = useUI();
   const today = new Date().toISOString().split('T')[0];
   const [startDate, setStartDate] = useState(today);
 
   if (!show) return null;
 
-  const handleConfirm = () => {
+  const validateStartDate = () => {
     if (!startDate) {
-      alert('Veuillez saisir la date de début de location');
+      showToast('Veuillez saisir la date de début de location', 'warning');
+      return false;
+    }
+    // Validate that start date is not before the reservation date
+    if (equipment?.debutLocationTheorique && startDate < equipment.debutLocationTheorique) {
+      showToast('La date de début de location doit être après la date prévue', 'error');
+      return false;
+    }
+    return true;
+  };
+
+  const handleConfirm = () => {
+    if (!validateStartDate()) {
       return;
     }
     onConfirm(startDate);
