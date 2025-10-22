@@ -313,34 +313,119 @@ const ExchangeModal = ({ show, equipment, equipmentData, onConfirm, onCancel }) 
             </small>
           </div>
 
-          {/* Liste des matériels disponibles */}
+          {/* Liste des matériels disponibles - Cartes enrichies */}
+          <p style={{margin: '0 0 12px 0', fontSize: '13px', color: '#64c8ff', fontWeight: '600', textTransform: 'uppercase'}}>
+            Matériels disponibles sur parc
+          </p>
           {availableEquipment.length > 0 ? (
-            <div style={{maxHeight: '300px', overflowY: 'auto'}}>
+            <div style={{maxHeight: '400px', overflowY: 'auto', paddingRight: '8px'}}>
               {availableEquipment.map(eq => (
                 <div
                   key={eq.id}
                   onClick={() => setSelectedReplacement(eq)}
                   style={{
-                    padding: '12px',
-                    marginBottom: '8px',
+                    padding: '14px',
+                    marginBottom: '10px',
                     backgroundColor: selectedReplacement?.id === eq.id
-                      ? 'rgba(100, 200, 255, 0.2)'
+                      ? 'rgba(100, 200, 255, 0.15)'
                       : 'rgba(255, 255, 255, 0.05)',
                     border: selectedReplacement?.id === eq.id
                       ? '2px solid #64c8ff'
-                      : '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '6px',
+                      : '1px solid rgba(255, 255, 255, 0.15)',
+                    borderRadius: '8px',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease'
                   }}
                   className={selectedReplacement?.id === eq.id ? 'exchange-item-selected' : ''}
                 >
-                  <p style={{margin: '0 0 6px 0', fontWeight: '600', color: '#fff'}}>
-                    {eq.numeroSerie}
-                  </p>
-                  <p style={{margin: '0', fontSize: '13px', color: '#9ca3af'}}>
-                    État: <strong>{eq.etat || 'Non défini'}</strong>
-                  </p>
+                  {/* Ligne 1: N° Série + État */}
+                  <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px'}}>
+                    <p style={{margin: '0', fontWeight: '700', color: '#fff', fontSize: '15px'}}>
+                      🏷️ {eq.numeroSerie}
+                    </p>
+                    <span style={{
+                      padding: '4px 10px',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      backgroundColor: eq.etat === 'Neuf' ? 'rgba(16, 185, 129, 0.2)' :
+                                       eq.etat === 'Bon état' ? 'rgba(59, 130, 246, 0.2)' :
+                                       eq.etat === 'À réviser' ? 'rgba(251, 191, 36, 0.2)' :
+                                       'rgba(156, 163, 175, 0.2)',
+                      color: eq.etat === 'Neuf' ? '#10b981' :
+                             eq.etat === 'Bon état' ? '#3b82f6' :
+                             eq.etat === 'À réviser' ? '#fbbf24' :
+                             '#9ca3af'
+                    }}>
+                      {eq.etat || 'État inconnu'}
+                    </span>
+                  </div>
+
+                  {/* Ligne 2: Marque + Modèle */}
+                  <div style={{marginBottom: '8px', display: 'flex', gap: '12px'}}>
+                    <div style={{flex: 1}}>
+                      <p style={{margin: '0 0 3px 0', fontSize: '11px', color: '#9ca3af', fontWeight: '600', textTransform: 'uppercase'}}>Marque</p>
+                      <p style={{margin: '0', fontSize: '13px', color: '#d1d5db', fontWeight: '500'}}>{eq.marque || 'N/A'}</p>
+                    </div>
+                    <div style={{flex: 1}}>
+                      <p style={{margin: '0 0 3px 0', fontSize: '11px', color: '#9ca3af', fontWeight: '600', textTransform: 'uppercase'}}>Modèle</p>
+                      <p style={{margin: '0', fontSize: '13px', color: '#d1d5db', fontWeight: '500'}}>{eq.modele || 'N/A'}</p>
+                    </div>
+                  </div>
+
+                  {/* Ligne 3: Longueur + CMU */}
+                  <div style={{marginBottom: '8px', display: 'flex', gap: '12px'}}>
+                    <div style={{flex: 1}}>
+                      <p style={{margin: '0 0 3px 0', fontSize: '11px', color: '#9ca3af', fontWeight: '600', textTransform: 'uppercase'}}>Longueur</p>
+                      <p style={{margin: '0', fontSize: '13px', color: '#d1d5db', fontWeight: '500'}}>{eq.longueur || 'N/A'}</p>
+                    </div>
+                    <div style={{flex: 1}}>
+                      <p style={{margin: '0 0 3px 0', fontSize: '11px', color: '#9ca3af', fontWeight: '600', textTransform: 'uppercase'}}>CMU</p>
+                      <p style={{margin: '0', fontSize: '13px', color: '#d1d5db', fontWeight: '500'}}>{eq.cmu || 'N/A'}</p>
+                    </div>
+                  </div>
+
+                  {/* Ligne 4: VGP + Étalonnage */}
+                  <div style={{marginBottom: '8px', display: 'flex', gap: '12px'}}>
+                    <div style={{flex: 1}}>
+                      <p style={{margin: '0 0 3px 0', fontSize: '11px', color: '#9ca3af', fontWeight: '600', textTransform: 'uppercase'}}>VGP</p>
+                      <p style={{margin: '0', fontSize: '13px', color: eq.prochainVGP ? '#fbbf24' : '#d1d5db', fontWeight: '500'}}>
+                        {eq.prochainVGP ? new Date(eq.prochainVGP).toLocaleDateString('fr-FR') : 'N/A'}
+                      </p>
+                    </div>
+                    <div style={{flex: 1}}>
+                      <p style={{margin: '0 0 3px 0', fontSize: '11px', color: '#9ca3af', fontWeight: '600', textTransform: 'uppercase'}}>Étalonnage</p>
+                      <p style={{margin: '0', fontSize: '13px', color: eq.prochainEtalonnage ? '#fbbf24' : '#d1d5db', fontWeight: '500'}}>
+                        {eq.prochainEtalonnage ? new Date(eq.prochainEtalonnage).toLocaleDateString('fr-FR') : 'N/A'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Ligne 5: ID Article + Hauteur (si applicable) */}
+                  {(eq.idArticle || eq.hauteur) && (
+                    <div style={{marginBottom: '8px', display: 'flex', gap: '12px'}}>
+                      {eq.idArticle && (
+                        <div style={{flex: 1}}>
+                          <p style={{margin: '0 0 3px 0', fontSize: '11px', color: '#9ca3af', fontWeight: '600', textTransform: 'uppercase'}}>ID Article</p>
+                          <p style={{margin: '0', fontSize: '13px', color: '#d1d5db', fontWeight: '500'}}>{eq.idArticle}</p>
+                        </div>
+                      )}
+                      {eq.hauteur && (
+                        <div style={{flex: 1}}>
+                          <p style={{margin: '0 0 3px 0', fontSize: '11px', color: '#9ca3af', fontWeight: '600', textTransform: 'uppercase'}}>Hauteur</p>
+                          <p style={{margin: '0', fontSize: '13px', color: '#d1d5db', fontWeight: '500'}}>{eq.hauteur}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Ligne 6: Observations */}
+                  {eq.observations && (
+                    <div style={{marginTop: '10px', paddingTop: '10px', borderTop: '1px solid rgba(255, 255, 255, 0.1)'}}>
+                      <p style={{margin: '0 0 3px 0', fontSize: '11px', color: '#9ca3af', fontWeight: '600', textTransform: 'uppercase'}}>📝 Observations</p>
+                      <p style={{margin: '0', fontSize: '12px', color: '#d1d5db', fontStyle: 'italic'}}>{eq.observations}</p>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -352,7 +437,7 @@ const ExchangeModal = ({ show, equipment, equipmentData, onConfirm, onCancel }) 
               backgroundColor: 'rgba(255, 255, 255, 0.05)',
               borderRadius: '8px'
             }}>
-              <p>Aucun matériel disponible sur parc pour cet équipement</p>
+              <p>Aucun matériel disponible sur parc correspondant à vos critères</p>
             </div>
           )}
         </div>
