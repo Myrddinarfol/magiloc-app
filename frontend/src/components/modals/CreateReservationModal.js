@@ -7,6 +7,7 @@ const CreateReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
     client: '',
     debutLocation: today,
     finLocationTheorique: '',
+    departEnlevement: '',
     numeroOffre: '',
     notesLocation: '',
     estLongDuree: false,
@@ -26,6 +27,7 @@ const CreateReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
       client: '',
       debutLocation: today,
       finLocationTheorique: '',
+      departEnlevement: '',
       numeroOffre: '',
       notesLocation: '',
       estLongDuree: false,
@@ -38,6 +40,7 @@ const CreateReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
       client: '',
       debutLocation: today,
       finLocationTheorique: '',
+      departEnlevement: '',
       numeroOffre: '',
       notesLocation: '',
       estLongDuree: false,
@@ -205,6 +208,46 @@ const CreateReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
               e.target.style.boxShadow = 'none';
             }}
           />
+        </div>
+
+        {/* DEPART/ENLEVEMENT input */}
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{
+            display: 'block',
+            color: '#d1d5db',
+            fontSize: '14px',
+            fontWeight: '600',
+            marginBottom: '8px'
+          }}>
+            📤 DÉPART/ENLÈVEMENT
+          </label>
+          <input
+            type="date"
+            value={formData.departEnlevement}
+            onChange={(e) => setFormData({...formData, departEnlevement: e.target.value})}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              fontSize: '16px',
+              color: '#fff',
+              background: 'rgba(31, 41, 55, 0.8)',
+              border: '2px solid rgba(251, 191, 36, 0.3)',
+              borderRadius: '8px',
+              outline: 'none',
+              transition: 'all 0.3s ease'
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = '#fbbf24';
+              e.target.style.boxShadow = '0 0 0 3px rgba(251, 191, 36, 0.1)';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'rgba(251, 191, 36, 0.3)';
+              e.target.style.boxShadow = 'none';
+            }}
+          />
+          <small style={{color: '#9ca3af', marginTop: '4px', display: 'block'}}>
+            Date à titre indicatif (expédition ou enlèvement client)
+          </small>
         </div>
 
         {/* N° OFFRE input */}

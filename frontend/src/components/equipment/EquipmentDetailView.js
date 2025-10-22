@@ -417,6 +417,10 @@ const EquipmentDetailView = ({
                 <span className="detail-value">{equipment.finLocationTheorique || 'N/A'}</span>
               </div>
               <div className="detail-item">
+                <span className="detail-label">📤 Départ/Enlèvement:</span>
+                <span className="detail-value">{equipment.departEnlevement || 'N/A'}</span>
+              </div>
+              <div className="detail-item">
                 <span className="detail-label">N° Offre:</span>
                 <span className="detail-value">{equipment.numeroOffre || 'N/A'}</span>
               </div>

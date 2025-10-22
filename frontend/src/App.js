@@ -284,8 +284,10 @@ const MainApp = ({ shouldStartTour }) => {
         client: formData.client,
         debutLocation: formData.debutLocation || null,
         finLocationTheorique: formData.finLocationTheorique || null,
+        departEnlevement: formData.departEnlevement || null,
         numeroOffre: formData.numeroOffre || null,
         notesLocation: formData.notesLocation || null,
+        estLongDuree: formData.estLongDuree || false,
         minimumFacturationApply: formData.minimumFacturationApply || false
       };
 

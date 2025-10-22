@@ -55,7 +55,7 @@ const ReservationModal = ({ equipment, onClose, onSuccess }) => {
 
   return (
     <div className="release-notes-overlay">
-      <div className="reservation-modal">
+      <div className="reservation-modal" style={{maxWidth: '600px'}}>
         <div className="modal-header">
           <h2>📅 Créer une Réservation</h2>
           <button onClick={onClose} className="close-button">✕</button>
