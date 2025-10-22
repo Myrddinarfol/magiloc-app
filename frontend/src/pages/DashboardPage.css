@@ -347,7 +347,135 @@
   background: linear-gradient(135deg, #eab308, #ca8a04);
 }
 
-/* Responsive */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* MODE CLAIR - LIGHT THEME SUPPORT */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+body.light-theme .alerts-section h2 {
+  color: var(--color-primary);
+}
+
+body.light-theme .alert-capsule {
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+  border: 2px solid var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .alert-capsule:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+body.light-theme .alert-capsule.clickable:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+body.light-theme .alert-capsule.alert-critical {
+  border-color: rgba(220, 38, 38, 0.3);
+  box-shadow: 0 2px 10px rgba(220, 38, 38, 0.1);
+  background: linear-gradient(135deg, #fef2f2, #fecaca);
+}
+
+body.light-theme .alert-capsule.alert-danger {
+  border-color: rgba(220, 38, 38, 0.3);
+  box-shadow: 0 2px 10px rgba(220, 38, 38, 0.1);
+  background: linear-gradient(135deg, #fef2f2, #fecaca);
+}
+
+body.light-theme .alert-capsule.alert-warning {
+  border-color: rgba(245, 158, 11, 0.3);
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.1);
+  background: linear-gradient(135deg, #fffbeb, #fcd34d);
+}
+
+body.light-theme .alert-capsule.alert-info {
+  border-color: rgba(59, 130, 246, 0.3);
+  box-shadow: 0 2px 10px rgba(59, 130, 246, 0.1);
+  background: linear-gradient(135deg, #eff6ff, #bfdbfe);
+}
+
+body.light-theme .alert-capsule-number {
+  color: var(--text-primary);
+}
+
+body.light-theme .alert-capsule-label {
+  color: var(--text-secondary);
+}
+
+body.light-theme .alert-badge-round {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+body.light-theme .ruptures-panel {
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+  border: 2px solid var(--color-primary);
+  box-shadow: 0 4px 25px rgba(220, 38, 38, 0.1);
+}
+
+body.light-theme .ruptures-panel h2 {
+  color: var(--color-primary);
+}
+
+body.light-theme .ruptures-subtitle {
+  color: var(--text-secondary);
+}
+
+body.light-theme .ruptures-empty {
+  color: var(--text-secondary);
+}
+
+body.light-theme .rupture-item {
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+  border: 2px solid var(--border-color);
+}
+
+body.light-theme .rupture-item:hover {
+  border-color: #d1d5db;
+  background: linear-gradient(135deg, #f3f4f6, #f1f5f9);
+}
+
+body.light-theme .rupture-level-0 {
+  border-color: rgba(220, 38, 38, 0.5);
+  background: linear-gradient(135deg, #fef2f2, #fee2e2);
+}
+
+body.light-theme .rupture-level-0:hover {
+  background: linear-gradient(135deg, #fecaca, #fca5a5);
+}
+
+body.light-theme .rupture-level-1 {
+  border-color: rgba(245, 158, 11, 0.5);
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+}
+
+body.light-theme .rupture-level-1:hover {
+  background: linear-gradient(135deg, #fde68a, #fcd34d);
+}
+
+body.light-theme .rupture-level-2 {
+  border-color: rgba(234, 179, 8, 0.5);
+  background: linear-gradient(135deg, #fffbeb, #fef08a);
+}
+
+body.light-theme .rupture-level-2:hover {
+  background: linear-gradient(135deg, #facc15, #f59e0b);
+}
+
+body.light-theme .rupture-model {
+  color: var(--text-primary);
+}
+
+body.light-theme .rupture-stock {
+  color: var(--text-secondary);
+}
+
+body.light-theme .rupture-available {
+  color: var(--text-primary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* RESPONSIVE */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
 @media (max-width: 1200px) {
   .alerts-grid {
     grid-template-columns: repeat(2, 1fr);

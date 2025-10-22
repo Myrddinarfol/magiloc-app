@@ -675,6 +675,230 @@
 }
 
 /* ═════════════════════════════════════════════════════════════════════════ */
+/* LIGHT THEME SUPPORT */
+/* ═════════════════════════════════════════════════════════════════════════ */
+
+body.light-theme .maintenance-sidebar {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-right: 2px solid var(--border-color);
+  box-shadow: inset -2px 0 20px rgba(0, 0, 0, 0.05);
+}
+
+body.light-theme .sidebar-back-btn {
+  background: rgba(220, 38, 38, 0.08);
+  border: 1.5px solid var(--color-primary);
+  color: var(--color-primary);
+}
+
+body.light-theme .sidebar-back-btn:hover {
+  background: rgba(220, 38, 38, 0.12);
+  box-shadow: 0 0 16px rgba(220, 38, 38, 0.15), inset 0 0 8px rgba(220, 38, 38, 0.05);
+}
+
+body.light-theme .sidebar-equipment-name {
+  color: var(--text-primary);
+}
+
+body.light-theme .spec-card {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid var(--border-color);
+}
+
+body.light-theme .spec-card:hover {
+  background: rgba(220, 38, 38, 0.05);
+  border-color: rgba(220, 38, 38, 0.2);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.08);
+}
+
+body.light-theme .spec-label {
+  color: var(--text-muted);
+}
+
+body.light-theme .spec-value {
+  color: var(--text-primary);
+}
+
+body.light-theme .vgp-detail-grid {
+  background: rgba(59, 130, 246, 0.05);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+}
+
+body.light-theme .vgp-info-label {
+  color: var(--text-secondary);
+}
+
+body.light-theme .vgp-info-value {
+  color: var(--text-primary);
+}
+
+body.light-theme .certificat-link {
+  color: #3b82f6;
+}
+
+body.light-theme .certificat-link:hover {
+  color: #2563eb;
+}
+
+/* VGP Status - Light Theme */
+body.light-theme .vgp-status-red {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, rgba(185, 28, 28, 0.05) 100%);
+  border-color: var(--color-danger);
+}
+
+body.light-theme .vgp-status-orange {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.05) 100%);
+  border-color: var(--color-warning);
+}
+
+body.light-theme .vgp-status-green {
+  background: linear-gradient(135deg, rgba(22, 163, 74, 0.1) 0%, rgba(21, 128, 61, 0.05) 100%);
+  border-color: var(--color-success);
+}
+
+body.light-theme .vgp-status-green:hover {
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.15);
+}
+
+body.light-theme .vgp-status-gray {
+  background: linear-gradient(135deg, rgba(156, 163, 175, 0.1) 0%, rgba(107, 114, 128, 0.05) 100%);
+  border-color: var(--text-muted);
+}
+
+body.light-theme .vgp-status-icon {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+body.light-theme .vgp-status-red .vgp-status-icon {
+  background: rgba(220, 38, 38, 0.1);
+}
+
+body.light-theme .vgp-status-orange .vgp-status-icon {
+  background: rgba(245, 158, 11, 0.1);
+}
+
+body.light-theme .vgp-status-green .vgp-status-icon {
+  background: rgba(22, 163, 74, 0.1);
+}
+
+body.light-theme .vgp-status-label {
+  text-shadow: none;
+}
+
+body.light-theme .vgp-status-date {
+  color: var(--text-primary);
+}
+
+body.light-theme .vgp-status-sublabel {
+  color: var(--text-secondary);
+}
+
+/* Sidebar History Section - Light Theme */
+body.light-theme .sidebar-history-section {
+  border-top: 1px solid var(--border-color);
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.03) 0%, rgba(185, 28, 28, 0.01) 100%);
+}
+
+body.light-theme .history-section-title {
+  color: var(--text-primary);
+}
+
+body.light-theme .btn-history-item {
+  border: 1px solid var(--border-color);
+  background: rgba(0, 0, 0, 0.03);
+  color: var(--text-secondary);
+}
+
+body.light-theme .btn-history-item:hover {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 0 8px rgba(0, 0, 0, 0.02);
+}
+
+body.light-theme .btn-validate-maintenance-sidebar {
+  background: var(--color-success);
+  color: white;
+}
+
+body.light-theme .btn-validate-maintenance-sidebar:hover {
+  background: #15803d;
+  box-shadow: 0 6px 16px rgba(22, 163, 74, 0.2);
+}
+
+/* Content Area - Light Theme */
+body.light-theme .maintenance-content {
+  background: linear-gradient(135deg, var(--bg-main) 0%, var(--bg-secondary) 100%);
+}
+
+body.light-theme .maintenance-header {
+  background: linear-gradient(90deg, rgba(220, 38, 38, 0.06) 0%, rgba(220, 38, 38, 0.03) 100%);
+  border-bottom: 2px solid var(--border-color);
+}
+
+body.light-theme .content-header {
+  background: linear-gradient(90deg, rgba(220, 38, 38, 0.06) 0%, rgba(220, 38, 38, 0.03) 100%);
+  border-bottom: 2px solid var(--border-color);
+}
+
+body.light-theme .content-header h1 {
+  color: var(--text-primary);
+}
+
+body.light-theme .content-header p {
+  color: var(--text-secondary);
+}
+
+/* Scrollbars - Light Theme */
+body.light-theme .maintenance-sidebar::-webkit-scrollbar-track,
+body.light-theme .content-panel::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+body.light-theme .maintenance-sidebar::-webkit-scrollbar-thumb,
+body.light-theme .content-panel::-webkit-scrollbar-thumb {
+  background: rgba(220, 38, 38, 0.2);
+  border-radius: 3px;
+}
+
+body.light-theme .maintenance-sidebar::-webkit-scrollbar-thumb:hover,
+body.light-theme .content-panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(220, 38, 38, 0.35);
+}
+
+/* Loading State - Light Theme */
+body.light-theme .maintenance-page-loading {
+  background: linear-gradient(135deg, var(--bg-main) 0%, var(--bg-secondary) 100%);
+}
+
+body.light-theme .loading-spinner {
+  border: 3px solid rgba(220, 38, 38, 0.1);
+  border-top: 3px solid #dc2626;
+  box-shadow: 0 0 20px rgba(220, 38, 38, 0.1);
+}
+
+body.light-theme .maintenance-page-loading p {
+  color: var(--text-secondary);
+}
+
+/* Error State - Light Theme */
+body.light-theme .maintenance-page-error {
+  background: linear-gradient(135deg, var(--bg-main) 0%, var(--bg-secondary) 100%);
+}
+
+body.light-theme .error-container {
+  background: var(--bg-card);
+  border: 2px solid var(--color-primary);
+}
+
+body.light-theme .error-container h2 {
+  color: var(--color-primary);
+}
+
+body.light-theme .error-container p {
+  color: var(--text-secondary);
+}
+
+/* ═════════════════════════════════════════════════════════════════════════ */
 /* RESPONSIVE DESIGN */
 /* ═════════════════════════════════════════════════════════════════════════ */
 

@@ -492,6 +492,188 @@
 }
 
 /* ═════════════════════════════════════════════════════════════════════════ */
+/* LIGHT THEME SUPPORT */
+/* ═════════════════════════════════════════════════════════════════════════ */
+
+body.light-theme .history-overlay {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+}
+
+body.light-theme .history-modal {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 2px solid var(--border-color);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 40px rgba(59, 130, 246, 0.05);
+}
+
+body.light-theme .history-modal-header {
+  background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+  border-bottom: 2px solid var(--border-color);
+}
+
+body.light-theme .history-modal-icon {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+body.light-theme .history-modal-title h2 {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+body.light-theme .history-count {
+  background: rgba(0, 0, 0, 0.1);
+  color: var(--text-primary);
+}
+
+body.light-theme .history-close-btn {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1.5px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+body.light-theme .history-close-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  border-color: #d1d5db;
+}
+
+body.light-theme .history-modal-content {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+}
+
+body.light-theme .history-empty-state {
+  color: var(--text-secondary);
+}
+
+body.light-theme .history-empty-icon {
+  opacity: 0.3;
+  color: var(--text-muted);
+}
+
+body.light-theme .history-empty-state p {
+  color: var(--text-secondary);
+}
+
+body.light-theme .history-scroll-container::-webkit-scrollbar-track {
+  background: rgba(59, 130, 246, 0.05);
+}
+
+body.light-theme .history-scroll-container::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+body.light-theme .history-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.3);
+}
+
+/* TABLE - Light Theme */
+body.light-theme .history-data-table thead {
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.08) 0%, rgba(37, 99, 235, 0.05) 100%);
+}
+
+body.light-theme .history-data-table thead tr {
+  border-bottom: 2px solid var(--border-color);
+}
+
+body.light-theme .history-data-table thead th {
+  color: #3b82f6;
+  border-right: 1px solid var(--border-color);
+}
+
+body.light-theme .history-data-table tbody tr {
+  border-bottom: 1px solid var(--border-color);
+}
+
+body.light-theme .history-row:hover {
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.08) 0%, rgba(37, 99, 235, 0.04) 100%);
+  border-bottom-color: var(--border-color);
+}
+
+body.light-theme .history-row:hover td {
+  color: var(--text-primary);
+}
+
+body.light-theme .history-data-table tbody td {
+  color: var(--text-secondary);
+  border-right: 1px solid var(--border-color);
+}
+
+/* Location History - Light Theme */
+body.light-theme .history-client-badge {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+}
+
+body.light-theme .date-label {
+  color: var(--text-muted);
+}
+
+body.light-theme .date-value {
+  color: var(--text-primary);
+}
+
+body.light-theme .history-duration-badge,
+body.light-theme .maintenance-duration-badge {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.08) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #3b82f6;
+}
+
+body.light-theme .ca-amount {
+  color: #10b981;
+}
+
+body.light-theme .ca-detail {
+  color: #059669;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+body.light-theme .history-offre {
+  color: #3b82f6;
+}
+
+body.light-theme .history-note-text,
+body.light-theme .maintenance-note-text {
+  color: #dc2626;
+  border-left: 3px solid #dc2626;
+}
+
+body.light-theme .history-na {
+  color: var(--text-muted);
+}
+
+/* Maintenance History - Light Theme */
+body.light-theme .maintenance-motif {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.08) 0%, rgba(185, 28, 28, 0.05) 100%);
+  border-left: 3px solid #dc2626;
+  color: #dc2626;
+}
+
+body.light-theme .maintenance-travaux {
+  color: #7c3aed;
+}
+
+/* Modal Footer - Light Theme */
+body.light-theme .history-modal-footer {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.02) 0%, rgba(0, 0, 0, 0.01) 100%);
+  border-top: 1px solid var(--border-color);
+}
+
+body.light-theme .history-btn-close {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+body.light-theme .history-btn-close:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+}
+
+/* ═════════════════════════════════════════════════════════════════════════ */
 /* RESPONSIVE DESIGN */
 /* ═════════════════════════════════════════════════════════════════════════ */
 
