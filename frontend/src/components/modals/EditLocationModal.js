@@ -3,8 +3,8 @@ import { equipmentService } from '../../services/equipmentService';
 import { useUI } from '../../hooks/useUI';
 
 const EditLocationModal = ({ equipment, onClose, onSuccess }) => {
-  const { showToast } = useUI();
-  const [form, setForm] = useState({
+  const { showToast, editTechInfoFormData, setEditTechInfoFormData } = useUI();
+  const defaultForm = {
     client: '',
     debutLocation: '',
     finLocationTheorique: '',
@@ -12,11 +12,16 @@ const EditLocationModal = ({ equipment, onClose, onSuccess }) => {
     numeroOffre: '',
     notesLocation: '',
     estLongDuree: false
-  });
+  };
+  const [form, setForm] = useState(defaultForm);
 
-  // Initialiser le formulaire avec les données existantes
+  // Initialize form with existing data or preserved data
   useEffect(() => {
-    if (equipment) {
+    if (editTechInfoFormData) {
+      // Restore from context if available
+      setForm(editTechInfoFormData);
+    } else if (equipment) {
+      // Load from equipment if no preserved data
       setForm({
         client: equipment.client || '',
         debutLocation: equipment.debutLocation || '',
@@ -28,6 +33,12 @@ const EditLocationModal = ({ equipment, onClose, onSuccess }) => {
       });
     }
   }, [equipment]);
+
+  // Persist form data to context on every change
+  const updateForm = (newForm) => {
+    setForm(newForm);
+    setEditTechInfoFormData(newForm);
+  };
 
   const validateDateRange = () => {
     if (form.debutLocation && form.finLocationTheorique) {
@@ -65,6 +76,7 @@ const EditLocationModal = ({ equipment, onClose, onSuccess }) => {
 
       console.log('✅ Informations de location modifiées');
       showToast('Informations de location modifiées avec succès !', 'success');
+      setEditTechInfoFormData(null); // Clear preserved data on success
       onClose();
       if (onSuccess) onSuccess('stay-on-detail'); // Rester sur la fiche détail
     } catch (error) {
@@ -94,7 +106,7 @@ const EditLocationModal = ({ equipment, onClose, onSuccess }) => {
               id="client-input"
               type="text"
               value={form.client}
-              onChange={(e) => setForm({...form, client: e.target.value})}
+              onChange={(e) => updateForm({...form, client: e.target.value})}
               placeholder="Nom du client"
               className="form-input"
             />
@@ -106,7 +118,7 @@ const EditLocationModal = ({ equipment, onClose, onSuccess }) => {
               id="debut-location-input"
               type="date"
               value={form.debutLocation}
-              onChange={(e) => setForm({...form, debutLocation: e.target.value})}
+              onChange={(e) => updateForm({...form, debutLocation: e.target.value})}
               className="form-input"
             />
           </div>
@@ -117,7 +129,7 @@ const EditLocationModal = ({ equipment, onClose, onSuccess }) => {
               id="fin-location-input"
               type="date"
               value={form.finLocationTheorique}
-              onChange={(e) => setForm({...form, finLocationTheorique: e.target.value})}
+              onChange={(e) => updateForm({...form, finLocationTheorique: e.target.value})}
               className="form-input"
             />
           </div>
@@ -128,7 +140,7 @@ const EditLocationModal = ({ equipment, onClose, onSuccess }) => {
               id="depart-enlevement-input"
               type="date"
               value={form.departEnlevement}
-              onChange={(e) => setForm({...form, departEnlevement: e.target.value})}
+              onChange={(e) => updateForm({...form, departEnlevement: e.target.value})}
               className="form-input"
             />
             <small style={{color: '#9ca3af', marginTop: '4px', display: 'block'}}>
@@ -142,7 +154,7 @@ const EditLocationModal = ({ equipment, onClose, onSuccess }) => {
               id="numero-offre-input"
               type="text"
               value={form.numeroOffre}
-              onChange={(e) => setForm({...form, numeroOffre: e.target.value})}
+              onChange={(e) => updateForm({...form, numeroOffre: e.target.value})}
               placeholder="Ex: OFF-2025-001"
               className="form-input"
             />
@@ -153,7 +165,7 @@ const EditLocationModal = ({ equipment, onClose, onSuccess }) => {
             <textarea
               id="notes-input"
               value={form.notesLocation}
-              onChange={(e) => setForm({...form, notesLocation: e.target.value})}
+              onChange={(e) => updateForm({...form, notesLocation: e.target.value})}
               placeholder="Notes complémentaires..."
               className="form-input"
               rows="4"
@@ -166,7 +178,7 @@ const EditLocationModal = ({ equipment, onClose, onSuccess }) => {
                 type="checkbox"
                 id="long-duration-input"
                 checked={form.estLongDuree}
-                onChange={(e) => setForm({...form, estLongDuree: e.target.checked})}
+                onChange={(e) => updateForm({...form, estLongDuree: e.target.checked})}
                 style={{cursor: 'pointer', width: '18px', height: '18px'}}
               />
               <span>📊 Location Longue Durée (-20% remise)</span>

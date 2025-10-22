@@ -42,6 +42,11 @@ export const UIProvider = ({ children }) => {
     noteRetour: ''
   });
 
+  // Form state preservation for critical modals
+  const [reservationFormData, setReservationFormData] = useState(null);
+  const [addEquipmentFormData, setAddEquipmentFormData] = useState(null);
+  const [editTechInfoFormData, setEditTechInfoFormData] = useState(null);
+
   // Release Notes
   const [showReleaseNotes, setShowReleaseNotes] = useState(() => {
     const lastSeenVersion = localStorage.getItem(VERSION_KEY);
@@ -147,7 +152,13 @@ export const UIProvider = ({ children }) => {
       equipmentFilter,
       setEquipmentFilter,
       maintenanceData,
-      setMaintenanceData
+      setMaintenanceData,
+      reservationFormData,
+      setReservationFormData,
+      addEquipmentFormData,
+      setAddEquipmentFormData,
+      editTechInfoFormData,
+      setEditTechInfoFormData
     }}>
       {children}
     </UIContext.Provider>
