@@ -8,6 +8,7 @@ const ReservationModal = ({ equipment, onClose, onSuccess }) => {
     client: '',
     debutLocation: '',
     finLocationTheorique: '',
+    departEnlevement: '',
     numeroOffre: '',
     notesLocation: '',
     estLongDuree: false
@@ -27,6 +28,7 @@ const ReservationModal = ({ equipment, onClose, onSuccess }) => {
         client: form.client.trim(),
         debutLocation: form.debutLocation || null,
         finLocationTheorique: form.finLocationTheorique || null,
+        departEnlevement: form.departEnlevement || null,
         numeroOffre: form.numeroOffre.trim() || null,
         notesLocation: form.notesLocation.trim() || null,
         estLongDuree: form.estLongDuree
@@ -38,6 +40,7 @@ const ReservationModal = ({ equipment, onClose, onSuccess }) => {
         client: '',
         debutLocation: '',
         finLocationTheorique: '',
+        departEnlevement: '',
         numeroOffre: '',
         notesLocation: '',
         estLongDuree: false
@@ -95,6 +98,20 @@ const ReservationModal = ({ equipment, onClose, onSuccess }) => {
               onChange={(e) => setForm({...form, finLocationTheorique: e.target.value})}
               className="form-input"
             />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="depart-enlevement-input">📤 Départ/Enlèvement :</label>
+            <input
+              id="depart-enlevement-input"
+              type="date"
+              value={form.departEnlevement}
+              onChange={(e) => setForm({...form, departEnlevement: e.target.value})}
+              className="form-input"
+            />
+            <small style={{color: '#9ca3af', marginTop: '4px', display: 'block'}}>
+              Date à titre indicatif (expédition ou enlèvement client)
+            </small>
           </div>
 
           <div className="form-group">
