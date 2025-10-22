@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS equipments (
     client VARCHAR(200),
     debut_location VARCHAR(50),
     fin_location_theorique VARCHAR(50),
+    depart_enlevement VARCHAR(50),
     rentre_le VARCHAR(50),
     numero_offre VARCHAR(100),
     notes_location TEXT,
