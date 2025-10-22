@@ -214,8 +214,11 @@ const MainApp = ({ shouldStartTour }) => {
       });
       showToast('Réservation annulée ! Le matériel est de retour sur parc.', 'success');
       await loadEquipments();
-      // Ne pas réinitialiser selectedEquipment si on est dans la fiche
-      // Pas de changement de page - on reste sur l'onglet actuel
+      // Rafraîchir selectedEquipment avec les données à jour
+      const updatedEquipment = equipmentData.find(eq => eq.id === equipmentToCancel.id);
+      if (updatedEquipment) {
+        setSelectedEquipment(updatedEquipment);
+      }
     } catch (error) {
       console.error('❌ Erreur annulation:', error);
       showToast(`Erreur lors de l'annulation: ${error.message}`, 'error');
@@ -234,6 +237,11 @@ const MainApp = ({ shouldStartTour }) => {
       });
       showToast('Location démarrée avec succès !', 'success');
       await loadEquipments();
+      // Rafraîchir selectedEquipment avec les données à jour
+      const updatedEquipment = equipmentData.find(eq => eq.id === equipment.id);
+      if (updatedEquipment) {
+        setSelectedEquipment(updatedEquipment);
+      }
     } catch (error) {
       console.error('❌ Erreur démarrage location:', error);
       showToast(`Erreur lors du démarrage de la location: ${error.message}`, 'error');
@@ -265,6 +273,11 @@ const MainApp = ({ shouldStartTour }) => {
 
       showToast('Retour effectué avec succès ! Le matériel est en maintenance.', 'success');
       await loadEquipments();
+      // Rafraîchir selectedEquipment avec les données à jour
+      const updatedEquipment = equipmentData.find(eq => eq.id === equipment.id);
+      if (updatedEquipment) {
+        setSelectedEquipment(updatedEquipment);
+      }
     } catch (error) {
       console.error('❌ Erreur retour location:', error);
       showToast(`Erreur lors du retour: ${error.message}`, 'error');
