@@ -1636,9 +1636,13 @@ body.modal-open {
 }
 
 .btn-confirm:hover {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+}
+
+.btn-confirm:active {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
 }
 
 /* Pages de liste */
