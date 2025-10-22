@@ -7,6 +7,13 @@ import pool from "./database/db.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from 'url';
+import { generateToken, verifyToken, logRequest } from './middleware/auth.js';
+import {
+  handleValidationErrors,
+  equipmentValidation,
+  clientValidation,
+  paginationValidation
+} from './middleware/validation.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -189,6 +196,66 @@ app.get("/", (req, res) => {
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "OK", timestamp: new Date().toISOString() });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// AUTHENTIFICATION JWT
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * POST /api/auth/login
+ * Authentifie l'utilisateur et retourne un JWT token
+ *
+ * Body: { password: string }
+ * Response: { token: string, expiresIn: string }
+ */
+app.post("/api/auth/login", (req, res) => {
+  try {
+    const { password } = req.body;
+    const AUTH_PASSWORD = process.env.AUTH_PASSWORD || 'MAGILOC25';
+
+    if (!password) {
+      return res.status(400).json({
+        error: 'Bad request',
+        message: 'Password is required'
+      });
+    }
+
+    if (password !== AUTH_PASSWORD) {
+      return res.status(401).json({
+        error: 'Unauthorized',
+        message: 'Invalid password'
+      });
+    }
+
+    const token = generateToken();
+    res.json({
+      token,
+      expiresIn: '7d',
+      type: 'Bearer',
+      message: 'Login successful'
+    });
+  } catch (err) {
+    console.error('❌ Login error:', err);
+    res.status(500).json({
+      error: 'Internal server error',
+      message: err.message
+    });
+  }
+});
+
+/**
+ * POST /api/auth/verify
+ * Vérifie qu'un token est valide
+ *
+ * Headers: Authorization: Bearer <token>
+ * Response: { authenticated: boolean }
+ */
+app.post("/api/auth/verify", verifyToken, (req, res) => {
+  res.json({
+    authenticated: true,
+    user: req.user
+  });
 });
 
 // Route pour récupérer tous les équipements

@@ -23,7 +23,12 @@
       "Bash(npm run build:*)",
       "Bash(cmd /c taskkill:*)",
       "Bash(lsof:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(git reset:*)",
+      "Bash(git log -1 --format='%an %ae')",
+      "Bash(npm install:*)",
+      "Bash(xargs kill:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJpYXQiOjE3NjExMTUwMzIsImV4cCI6MTc2MTcxOTgzMn0.SF0XM3K_3qEx_e8Vq6TY2aoPplEw5XJtV7cBFng00eo\")"
     ],
     "deny": [],
     "ask": []
