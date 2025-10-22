@@ -6,31 +6,32 @@ const ExchangeModal = ({ show, equipment, equipmentData, onConfirm, onCancel }) 
   const [selectedReplacement, setSelectedReplacement] = useState(null);
   const [exchangeReason, setExchangeReason] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterEtat, setFilterEtat] = useState(''); // Filtre par état
-  const [filterMarque, setFilterMarque] = useState(''); // Filtre par marque
+  const [filterDesignation, setFilterDesignation] = useState('');
+  const [filterCMU, setFilterCMU] = useState('');
+  const [filterLongueur, setFilterLongueur] = useState('');
 
-  // Récupérer les valeurs uniques pour les filtres
-  const uniqueEtats = useMemo(() => {
-    const etats = new Set();
-    equipmentData.forEach(eq => {
-      if (eq.statut === 'Sur Parc' && eq.designation === equipment?.designation && eq.cmu === equipment?.cmu) {
-        if (eq.etat) etats.add(eq.etat);
-      }
+  // Récupérer les options de filtres disponibles (matériels Sur Parc)
+  const filterOptions = useMemo(() => {
+    const surParcEquipment = equipmentData.filter(eq => eq.statut === 'Sur Parc');
+
+    const designations = new Set();
+    const cmus = new Set();
+    const longueurs = new Set();
+
+    surParcEquipment.forEach(eq => {
+      if (eq.designation) designations.add(eq.designation);
+      if (eq.cmu) cmus.add(eq.cmu);
+      if (eq.longueur) longueurs.add(eq.longueur);
     });
-    return Array.from(etats).sort();
-  }, [equipment, equipmentData]);
 
-  const uniqueMarques = useMemo(() => {
-    const marques = new Set();
-    equipmentData.forEach(eq => {
-      if (eq.statut === 'Sur Parc' && eq.designation === equipment?.designation && eq.cmu === equipment?.cmu) {
-        if (eq.marque) marques.add(eq.marque);
-      }
-    });
-    return Array.from(marques).sort();
-  }, [equipment, equipmentData]);
+    return {
+      designations: Array.from(designations).sort(),
+      cmus: Array.from(cmus).sort(),
+      longueurs: Array.from(longueurs).sort()
+    };
+  }, [equipmentData]);
 
-  // Filtrer les matériels disponibles (Sur Parc) avec même désignation et CMU
+  // Filtrer les matériels disponibles (Sur Parc) avec filtres intelligents
   const availableEquipment = useMemo(() => {
     if (!equipment) return [];
 
@@ -39,25 +40,25 @@ const ExchangeModal = ({ show, equipment, equipmentData, onConfirm, onCancel }) 
       if (eq.statut !== 'Sur Parc') return false;
       // Ne pas inclure l'équipement actuel
       if (eq.id === equipment.id) return false;
-      // Même désignation
-      if (eq.designation !== equipment.designation) return false;
-      // Même CMU
-      if (eq.cmu !== equipment.cmu) return false;
-      // Filtre par état
-      if (filterEtat && eq.etat !== filterEtat) return false;
-      // Filtre par marque
-      if (filterMarque && eq.marque !== filterMarque) return false;
-      // Filtre recherche par N° Série ou modèle
+
+      // Appliquer les filtres
+      if (filterDesignation && eq.designation !== filterDesignation) return false;
+      if (filterCMU && eq.cmu !== filterCMU) return false;
+      if (filterLongueur && eq.longueur !== filterLongueur) return false;
+
+      // Filtre recherche par N° Série, modèle, désignation ou client
       if (searchTerm) {
         const searchLower = searchTerm.toLowerCase();
         if (!eq.numeroSerie.toLowerCase().includes(searchLower) &&
-            !eq.modele.toLowerCase().includes(searchLower)) {
+            !eq.modele.toLowerCase().includes(searchLower) &&
+            !eq.designation.toLowerCase().includes(searchLower) &&
+            !(eq.client && eq.client.toLowerCase().includes(searchLower))) {
           return false;
         }
       }
       return true;
     });
-  }, [equipment, equipmentData, searchTerm, filterEtat, filterMarque]);
+  }, [equipment, equipmentData, searchTerm, filterDesignation, filterCMU, filterLongueur]);
 
   const handleConfirm = () => {
     if (!selectedReplacement) {
@@ -77,8 +78,9 @@ const ExchangeModal = ({ show, equipment, equipmentData, onConfirm, onCancel }) 
     setSelectedReplacement(null);
     setSearchTerm('');
     setExchangeReason('');
-    setFilterEtat('');
-    setFilterMarque('');
+    setFilterDesignation('');
+    setFilterCMU('');
+    setFilterLongueur('');
     onCancel();
   };
 
@@ -110,62 +112,130 @@ const ExchangeModal = ({ show, equipment, equipmentData, onConfirm, onCancel }) 
             </p>
           </div>
 
-          {/* Recherche intelligente par filtres */}
-          <div style={{marginBottom: '20px', padding: '15px', backgroundColor: 'rgba(100, 150, 255, 0.08)', borderRadius: '8px', border: '1px solid rgba(100, 150, 255, 0.2)'}}>
-            <p style={{margin: '0 0 12px 0', fontSize: '13px', color: '#64c8ff', fontWeight: '600', textTransform: 'uppercase'}}>
-              🔍 Filtres de recherche
-            </p>
+          {/* Filtres intelligents - Même système que SUR PARC */}
+          <div style={{
+            display: 'flex',
+            gap: '10px',
+            marginBottom: '20px',
+            flexWrap: 'wrap',
+            alignItems: 'center'
+          }}>
+            <select
+              value={filterDesignation}
+              onChange={(e) => setFilterDesignation(e.target.value)}
+              style={{
+                padding: '10px 14px',
+                borderRadius: '8px',
+                border: '2px solid #1f2937',
+                backgroundColor: '#111827',
+                color: 'white',
+                fontSize: '14px',
+                minWidth: '200px',
+                cursor: 'pointer',
+                fontWeight: '500'
+              }}
+            >
+              <option value="">Toutes les désignations</option>
+              {filterOptions.designations?.map(designation => (
+                <option key={designation} value={designation}>{designation}</option>
+              ))}
+            </select>
 
-            {/* Filtre par État */}
-            <div style={{marginBottom: '12px'}}>
-              <label style={{display: 'block', fontSize: '13px', color: '#d1d5db', marginBottom: '6px', fontWeight: '600'}}>
-                État
-              </label>
-              <select
-                value={filterEtat}
-                onChange={(e) => setFilterEtat(e.target.value)}
-                className="form-input"
-                style={{width: '100%', cursor: 'pointer'}}
+            <select
+              value={filterCMU}
+              onChange={(e) => setFilterCMU(e.target.value)}
+              style={{
+                padding: '10px 14px',
+                borderRadius: '8px',
+                border: '2px solid #1f2937',
+                backgroundColor: '#111827',
+                color: 'white',
+                fontSize: '14px',
+                minWidth: '150px',
+                cursor: 'pointer',
+                fontWeight: '500'
+              }}
+            >
+              <option value="">Toutes les CMU</option>
+              {filterOptions.cmus?.map(cmu => (
+                <option key={cmu} value={cmu}>{cmu}</option>
+              ))}
+            </select>
+
+            <select
+              value={filterLongueur}
+              onChange={(e) => setFilterLongueur(e.target.value)}
+              style={{
+                padding: '10px 14px',
+                borderRadius: '8px',
+                border: '2px solid #1f2937',
+                backgroundColor: '#111827',
+                color: 'white',
+                fontSize: '14px',
+                minWidth: '150px',
+                cursor: 'pointer',
+                fontWeight: '500'
+              }}
+            >
+              <option value="">Toutes les longueurs</option>
+              {filterOptions.longueurs?.map(longueur => (
+                <option key={longueur} value={longueur}>{longueur}</option>
+              ))}
+            </select>
+
+            {(filterDesignation || filterCMU || filterLongueur) && (
+              <button
+                onClick={() => {
+                  setFilterDesignation('');
+                  setFilterCMU('');
+                  setFilterLongueur('');
+                }}
+                style={{
+                  padding: '10px 18px',
+                  borderRadius: '8px',
+                  border: '2px solid #dc2626',
+                  backgroundColor: '#dc2626',
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseOver={(e) => e.target.style.backgroundColor = '#b91c1c'}
+                onMouseOut={(e) => e.target.style.backgroundColor = '#dc2626'}
               >
-                <option value="">Tous les états</option>
-                {uniqueEtats.map(etat => (
-                  <option key={etat} value={etat}>{etat}</option>
-                ))}
-              </select>
-            </div>
+                ✕ Effacer filtres
+              </button>
+            )}
+          </div>
 
-            {/* Filtre par Marque */}
-            <div style={{marginBottom: '12px'}}>
-              <label style={{display: 'block', fontSize: '13px', color: '#d1d5db', marginBottom: '6px', fontWeight: '600'}}>
-                Marque
-              </label>
-              <select
-                value={filterMarque}
-                onChange={(e) => setFilterMarque(e.target.value)}
-                className="form-input"
-                style={{width: '100%', cursor: 'pointer'}}
-              >
-                <option value="">Toutes les marques</option>
-                {uniqueMarques.map(marque => (
-                  <option key={marque} value={marque}>{marque}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Recherche par N° Série ou Modèle */}
-            <div>
-              <label style={{display: 'block', fontSize: '13px', color: '#d1d5db', marginBottom: '6px', fontWeight: '600'}}>
-                Recherche
-              </label>
-              <input
-                type="text"
-                placeholder="Chercher par N° Série ou Modèle..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="form-input"
-                style={{width: '100%'}}
-              />
-            </div>
+          {/* Barre de recherche */}
+          <div style={{marginBottom: '20px'}}>
+            <input
+              type="text"
+              placeholder="Rechercher par désignation, modèle, n° série ou client..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                fontSize: '14px',
+                color: '#fff',
+                background: 'rgba(31, 41, 55, 0.8)',
+                border: '2px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '8px',
+                outline: 'none',
+                transition: 'all 0.3s ease'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#64c8ff';
+                e.target.style.boxShadow = '0 0 0 3px rgba(100, 200, 255, 0.1)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                e.target.style.boxShadow = 'none';
+              }}
+            />
           </div>
 
           {/* Motif d'échange */}
