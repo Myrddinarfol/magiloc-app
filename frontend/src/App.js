@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useParams } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
+import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { EquipmentProvider } from './context/EquipmentContext';
 import { UIProvider } from './context/UIContext';
@@ -502,17 +503,19 @@ const MainApp = ({ shouldStartTour }) => {
 // Point d'entrée de l'application avec les Providers
 function App() {
   return (
-    <AuthProvider>
-      <EquipmentProvider>
-        <UIProvider>
-          <ClientProvider>
-            <SparePartsProvider>
-              <AppContent />
-            </SparePartsProvider>
-          </ClientProvider>
-        </UIProvider>
-      </EquipmentProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <EquipmentProvider>
+          <UIProvider>
+            <ClientProvider>
+              <SparePartsProvider>
+                <AppContent />
+              </SparePartsProvider>
+            </ClientProvider>
+          </UIProvider>
+        </EquipmentProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

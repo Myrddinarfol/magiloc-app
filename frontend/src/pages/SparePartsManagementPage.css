@@ -30,11 +30,21 @@
   font-family: inherit;
 }
 
+body.light-theme .filter-group select {
+  border-color: rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+  color: #1f2937;
+}
+
 .spare-parts-table-container {
   background: var(--bg-secondary);
   border-radius: 8px;
   overflow: auto;
   margin-top: 20px;
+}
+
+body.light-theme .spare-parts-table-container {
+  background: #ffffff;
 }
 
 .spare-parts-table {
@@ -60,8 +70,16 @@
   transition: background-color 0.2s;
 }
 
+body.light-theme .spare-parts-table tbody tr {
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
 .spare-parts-table tbody tr:hover {
   background-color: rgba(255, 255, 255, 0.05);
+}
+
+body.light-theme .spare-parts-table tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.04);
 }
 
 .spare-parts-table td {
@@ -149,6 +167,11 @@
   margin-bottom: 16px;
 }
 
+body.light-theme .equipment-results {
+  background: rgba(248, 250, 252, 0.8);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
 .equipment-result-item {
   padding: 10px;
   background: rgba(100, 200, 255, 0.05);
@@ -159,15 +182,30 @@
   transition: all 0.2s ease;
 }
 
+body.light-theme .equipment-result-item {
+  background: rgba(100, 200, 255, 0.04);
+  border-color: rgba(100, 200, 255, 0.15);
+}
+
 .equipment-result-item:hover {
   background: rgba(100, 200, 255, 0.15);
   border-color: rgba(100, 200, 255, 0.3);
+}
+
+body.light-theme .equipment-result-item:hover {
+  background: rgba(100, 200, 255, 0.1);
+  border-color: rgba(100, 200, 255, 0.4);
 }
 
 .equipment-result-item.selected {
   background: rgba(100, 200, 255, 0.25);
   border-color: #64c8ff;
   font-weight: 600;
+}
+
+body.light-theme .equipment-result-item.selected {
+  background: rgba(100, 200, 255, 0.15);
+  border-color: #0891b2;
 }
 
 .equipment-result-item-main {
@@ -188,6 +226,11 @@
   padding: 16px;
 }
 
+body.light-theme .equipment-selected-info {
+  background: rgba(76, 175, 80, 0.05);
+  border-color: rgba(76, 175, 80, 0.2);
+}
+
 .equipment-selected-info h4 {
   color: #4caf50;
   margin: 0 0 12px 0;
@@ -196,6 +239,10 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+body.light-theme .equipment-selected-info h4 {
+  color: #059669;
 }
 
 .equipment-info-grid {
@@ -208,6 +255,10 @@
   padding: 8px;
   background: rgba(31, 41, 55, 0.6);
   border-radius: 4px;
+}
+
+body.light-theme .equipment-info-item {
+  background: rgba(0, 0, 0, 0.04);
 }
 
 .equipment-info-label {
@@ -224,8 +275,16 @@
   font-size: 14px;
 }
 
+body.light-theme .equipment-info-value {
+  color: #1f2937;
+}
+
 .equipment-info-value.highlight {
   color: #64c8ff;
+}
+
+body.light-theme .equipment-info-value.highlight {
+  color: #0891b2;
 }
 
 .form-row {
@@ -288,6 +347,11 @@
   margin: 20px 0;
 }
 
+body.light-theme .equipment-filter-section {
+  background: linear-gradient(135deg, rgba(100, 200, 255, 0.05), rgba(100, 200, 255, 0.03));
+  border-color: rgba(100, 200, 255, 0.2);
+}
+
 .equipment-filter-section h3 {
   color: #64c8ff;
   font-size: 16px;
@@ -298,6 +362,10 @@
   gap: 8px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+body.light-theme .equipment-filter-section h3 {
+  color: #0891b2;
 }
 
 .filter-criteria-grid {
@@ -340,9 +408,20 @@
   padding-right: 36px;
 }
 
+body.light-theme .filter-criterion select {
+  border-color: rgba(100, 200, 255, 0.2);
+  background: #ffffff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%230891b2' d='M6 9L1 4h10z'/%3E%3C/svg%3E") no-repeat right 12px center;
+  color: #1f2937;
+}
+
 .filter-criterion select:hover {
   border-color: rgba(100, 200, 255, 0.4);
   background-color: rgba(31, 41, 55, 0.95);
+}
+
+body.light-theme .filter-criterion select:hover {
+  border-color: rgba(100, 200, 255, 0.3);
+  background-color: #f8fafc;
 }
 
 .filter-criterion select:focus {
@@ -350,6 +429,12 @@
   border-color: #64c8ff;
   box-shadow: 0 0 0 3px rgba(100, 200, 255, 0.15);
   background-color: rgba(31, 41, 55, 0.95);
+}
+
+body.light-theme .filter-criterion select:focus {
+  border-color: #0891b2;
+  box-shadow: 0 0 0 3px rgba(100, 200, 255, 0.1);
+  background-color: #ffffff;
 }
 
 .filter-criterion select option {

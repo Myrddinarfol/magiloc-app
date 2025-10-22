@@ -1,29 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useEquipment } from '../../hooks/useEquipment';
 import { useUI } from '../../hooks/useUI';
+import { useTheme } from '../../context/ThemeContext';
 import GuidedTour from '../common/GuidedTour';
 
 const Sidebar = () => {
   const { logout } = useAuth();
   const { stats } = useEquipment();
   const { currentPage, handleNavigate, setShowNotesHistory, expandedMenus, toggleMenu } = useUI();
+  const { theme, toggleTheme, setThemeMode, isLightTheme } = useTheme();
+
   const [showSettings, setShowSettings] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showTour, setShowTour] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('theme') || 'dark';
-  });
-
-  useEffect(() => {
-    if (theme === 'light') {
-      document.body.classList.add('light-theme');
-    } else {
-      document.body.classList.remove('light-theme');
-    }
-    localStorage.setItem('theme', theme);
-  }, [theme]);
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -38,7 +29,7 @@ const Sidebar = () => {
   };
 
   const handleThemeChange = (newTheme) => {
-    setTheme(newTheme);
+    setThemeMode(newTheme);
     setShowSettings(false);
   };
 
