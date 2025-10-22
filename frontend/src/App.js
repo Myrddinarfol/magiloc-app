@@ -300,6 +300,81 @@ const MainApp = ({ shouldStartTour }) => {
     }
   };
 
+  // Gestionnaire d'échange de matériel
+  const handleExchange = async (currentEquipment, replacementEquipment) => {
+    if (!currentEquipment || !replacementEquipment) return;
+
+    try {
+      const { equipmentService } = await import('./services/equipmentService');
+
+      // Déterminer les actions selon le statut actuel
+      const isReservation = currentEquipment.statut === 'En Réservation';
+      const isLocation = currentEquipment.statut === 'En Location';
+
+      if (isReservation) {
+        // ✅ CAS RÉSERVATION: Mettre le matériel actuel en Sur Parc
+        //    et copier client/dates au matériel de remplacement
+        await equipmentService.update(currentEquipment.id, {
+          statut: 'Sur Parc',
+          client: null,
+          debutLocation: null,
+          finLocationTheorique: null,
+          departEnlevement: null,
+          numeroOffre: null,
+          notesLocation: null
+        });
+
+        // Mettre le matériel de remplacement en réservation avec les mêmes données
+        await equipmentService.update(replacementEquipment.id, {
+          statut: 'En Réservation',
+          client: currentEquipment.client,
+          debutLocation: currentEquipment.debutLocation,
+          finLocationTheorique: currentEquipment.finLocationTheorique,
+          departEnlevement: currentEquipment.departEnlevement,
+          numeroOffre: currentEquipment.numeroOffre,
+          notesLocation: currentEquipment.notesLocation
+        });
+
+        showToast(`✅ Échange effectué ! ${currentEquipment.designation} → Sur Parc | ${replacementEquipment.designation} → En Réservation`, 'success');
+      } else if (isLocation) {
+        // ✅ CAS LOCATION: Mettre le matériel actuel en Maintenance
+        //    et copier client/dates au matériel de remplacement
+        await equipmentService.update(currentEquipment.id, {
+          statut: 'En Maintenance',
+          motif: 'Échange location',
+          noteRetour: `Matériel échangé - Remplacement: ${replacementEquipment.numeroSerie}`
+        });
+
+        // Mettre le matériel de remplacement en location avec les mêmes données
+        await equipmentService.update(replacementEquipment.id, {
+          statut: 'En Location',
+          client: currentEquipment.client,
+          debutLocation: currentEquipment.debutLocation,
+          finLocationTheorique: currentEquipment.finLocationTheorique
+        });
+
+        showToast(`✅ Échange effectué ! ${currentEquipment.designation} → En Maintenance | ${replacementEquipment.designation} → En Location`, 'success');
+      }
+
+      // Recharger les équipements après l'échange
+      await loadEquipments();
+    } catch (error) {
+      console.error('❌ Erreur échange:', error);
+      showToast(`Erreur lors de l'échange: ${error.message}`, 'error');
+    }
+  };
+
+  // Listener pour l'événement d'échange (depuis EquipmentListView)
+  React.useEffect(() => {
+    const handleExchangeEvent = (e) => {
+      const { currentEquipment, replacementEquipment } = e.detail;
+      handleExchange(currentEquipment, replacementEquipment);
+    };
+
+    window.addEventListener('equipment-exchange', handleExchangeEvent);
+    return () => window.removeEventListener('equipment-exchange', handleExchangeEvent);
+  }, []);
+
   const handleDataImported = async (newData) => {
     setEquipmentData(newData);
     setShowImporter(false);

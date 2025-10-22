@@ -7,6 +7,7 @@ import CancelReservationModal from './modals/CancelReservationModal';
 import StartLocationModal from './modals/StartLocationModal';
 import ReturnModal from './modals/ReturnModal';
 import CreateReservationModal from './modals/CreateReservationModal';
+import ExchangeModal from './modals/ExchangeModal';
 
 function EquipmentListView({
   equipmentData,
@@ -33,6 +34,8 @@ function EquipmentListView({
   const [equipmentToReturn, setEquipmentToReturn] = useState(null);
   const [showCreateReservationModal, setShowCreateReservationModal] = useState(false);
   const [equipmentToReserve, setEquipmentToReserve] = useState(null);
+  const [showExchangeModal, setShowExchangeModal] = useState(false);
+  const [equipmentToExchange, setEquipmentToExchange] = useState(null);
   const { equipmentFilter, setEquipmentFilter } = useUI();
   const navigate = useNavigate();
 
@@ -608,6 +611,19 @@ function EquipmentListView({
                                 🚀
                               </button>
                             )}
+                            {currentPage === 'en-offre' && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEquipmentToExchange(equipment);
+                                  setShowExchangeModal(true);
+                                }}
+                                className="btn-icon btn-exchange"
+                                data-tooltip="Échanger ce matériel"
+                              >
+                                🔄
+                              </button>
+                            )}
                             {currentPage === 'en-offre' && onCancelReservation && (
                               <button
                                 onClick={(e) => {
@@ -619,6 +635,19 @@ function EquipmentListView({
                                 data-tooltip="Annuler la réservation"
                               >
                                 ❌
+                              </button>
+                            )}
+                            {currentPage === 'location-list' && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEquipmentToExchange(equipment);
+                                  setShowExchangeModal(true);
+                                }}
+                                className="btn-icon btn-exchange"
+                                data-tooltip="Échanger ce matériel"
+                              >
+                                🔄
                               </button>
                             )}
                             {currentPage === 'location-list' && onReturnLocation && (
@@ -718,6 +747,29 @@ function EquipmentListView({
         onCancel={() => {
           setShowCreateReservationModal(false);
           setEquipmentToReserve(null);
+        }}
+      />
+
+      {/* Modal d'échange de matériel */}
+      <ExchangeModal
+        show={showExchangeModal}
+        equipment={equipmentToExchange}
+        equipmentData={equipmentData}
+        onConfirm={(replacementEquipment) => {
+          if (equipmentToExchange) {
+            window.dispatchEvent(new CustomEvent('equipment-exchange', {
+              detail: {
+                currentEquipment: equipmentToExchange,
+                replacementEquipment: replacementEquipment
+              }
+            }));
+          }
+          setShowExchangeModal(false);
+          setEquipmentToExchange(null);
+        }}
+        onCancel={() => {
+          setShowExchangeModal(false);
+          setEquipmentToExchange(null);
         }}
       />
     </div>
