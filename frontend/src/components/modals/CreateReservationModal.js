@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import ClientAutocomplete from '../common/ClientAutocomplete';
+import { useUI } from '../../hooks/useUI';
 
 const CreateReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
+  const { showToast } = useUI();
   const today = new Date().toISOString().split('T')[0];
   const [formData, setFormData] = useState({
     client: '',
@@ -16,9 +18,24 @@ const CreateReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
 
   if (!show) return null;
 
+  const validateDateRange = () => {
+    if (formData.debutLocation && formData.finLocationTheorique) {
+      const debut = new Date(formData.debutLocation);
+      const fin = new Date(formData.finLocationTheorique);
+      if (debut > fin) {
+        showToast('La date de fin théorique doit être après la date de début', 'error');
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleConfirm = () => {
     if (!formData.client) {
-      alert('Le champ CLIENT est obligatoire');
+      showToast('Le champ CLIENT est obligatoire', 'warning');
+      return;
+    }
+    if (!validateDateRange()) {
       return;
     }
     onConfirm(formData);

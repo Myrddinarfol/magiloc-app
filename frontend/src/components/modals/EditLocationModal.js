@@ -29,9 +29,24 @@ const EditLocationModal = ({ equipment, onClose, onSuccess }) => {
     }
   }, [equipment]);
 
+  const validateDateRange = () => {
+    if (form.debutLocation && form.finLocationTheorique) {
+      const debut = new Date(form.debutLocation);
+      const fin = new Date(form.finLocationTheorique);
+      if (debut > fin) {
+        showToast('La date de fin théorique doit être après la date de début', 'error');
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleSubmit = async () => {
     if (!form.client.trim()) {
       showToast('Veuillez saisir le nom du client', 'warning');
+      return;
+    }
+    if (!validateDateRange()) {
       return;
     }
 
