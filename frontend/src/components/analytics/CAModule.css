@@ -306,16 +306,16 @@ body.light-theme .warning-banner {
   transform: scale(1.1);
 }
 
-/* Tooltip au hover */
+/* Tooltip au hover - À DROITE */
 .help-icon::after {
   content: attr(title);
   position: absolute;
-  bottom: calc(100% + 10px);
-  left: 50%;
-  transform: translateX(-50%);
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
   background: #1a1a1a;
   color: #d1d5db;
-  padding: 10px 14px;
+  padding: 8px 12px;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 400;
@@ -325,12 +325,30 @@ body.light-theme .warning-banner {
   transition: opacity 0.2s ease;
   z-index: 9999;
   border: 1px solid rgba(220, 38, 38, 0.3);
-  max-width: 280px;
-  width: 280px;
-  line-height: 1.4;
+  width: 200px;
+  line-height: 1.5;
 }
 
-.help-icon:hover::after {
+/* Petite flèche pointant vers le ? */
+.help-icon::before {
+  content: '';
+  position: absolute;
+  left: calc(100% + 6px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-right: 5px solid #1a1a1a;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.help-icon:hover::after,
+.help-icon:hover::before {
   opacity: 1;
 }
 
@@ -338,6 +356,10 @@ body.light-theme .help-icon::after {
   background: #f8fafc;
   color: #374151;
   border-color: rgba(220, 38, 38, 0.2);
+}
+
+body.light-theme .help-icon::before {
+  border-right-color: #f8fafc;
 }
 
 body.light-theme .help-icon {
