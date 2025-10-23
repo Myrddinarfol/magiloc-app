@@ -91,10 +91,10 @@ export function calculateBusinessDays(startDateStr, endDateStr) {
   let businessDays = 0;
   const currentDate = new Date(startDate);
 
-  // IMPORTANT: La date de fin est EXCLUE (convention location: du jour start inclus au jour end exclus)
-  // Exemple: 25 sept au 9 oct = du 25 sept inclus jusqu'au 9 oct exclu (compte jusqu'au 8 oct)
-  while (currentDate < endDate) {
-    const dayOfWeek = currentDate.getDay();
+  // IMPORTANT: Les deux dates sont INCLUSES (convention location: du jour start inclus au jour end inclus)
+  // Exemple: 25 sept au 9 oct = du 25 sept inclus jusqu'au 9 oct inclus
+  while (currentDate <= endDate) {
+    const dayOfWeek = currentDate.getUTCDay();
     const dateStr = currentDate.toISOString().split('T')[0];
 
     // Compter seulement si c'est un jour de semaine (1-5) et pas un jour férié
@@ -102,7 +102,7 @@ export function calculateBusinessDays(startDateStr, endDateStr) {
       businessDays++;
     }
 
-    currentDate.setDate(currentDate.getDate() + 1);
+    currentDate.setUTCDate(currentDate.getUTCDate() + 1);
   }
 
   return businessDays;

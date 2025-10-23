@@ -56,9 +56,9 @@ export const calculateBusinessDays = (startDateStr, endDateStr) => {
   let businessDays = 0;
   const currentDate = new Date(startDate);
 
-  // Boucle jusqu'à endDate EXCLUSIF (donc < endDate, pas <=)
-  while (currentDate < endDate) {
-    const dayOfWeek = currentDate.getDay();
+  // Boucle jusqu'à endDate INCLUS (donc <= endDate, les deux dates sont incluses)
+  while (currentDate <= endDate) {
+    const dayOfWeek = currentDate.getUTCDay();
     const dateStr = currentDate.toISOString().split('T')[0];
 
     // Compter seulement si c'est un jour de semaine (1-5) et pas un jour férié
@@ -66,7 +66,7 @@ export const calculateBusinessDays = (startDateStr, endDateStr) => {
       businessDays++;
     }
 
-    currentDate.setDate(currentDate.getDate() + 1);
+    currentDate.setUTCDate(currentDate.getUTCDate() + 1);
   }
 
   console.log(`🗓️ calculateBusinessDays: ${startISO} à ${endISO} = ${businessDays} jours ouvrés`);
