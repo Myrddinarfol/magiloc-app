@@ -35,6 +35,8 @@
   margin: 0 0 8px 0;
   letter-spacing: -0.5px;
   color: var(--text-primary);
+  position: relative;
+  display: inline-block;
 }
 
 .ca-header-content p.ca-subtitle {
@@ -161,7 +163,7 @@ body.light-theme .warning-banner {
   border: 1px solid var(--border-color);
   transition: all 0.3s ease;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .kpi-card::before {
@@ -224,6 +226,9 @@ body.light-theme .warning-banner {
   text-transform: uppercase;
   color: var(--text-secondary);
   letter-spacing: 0.3px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
 }
 
 .kpi-value {
@@ -291,6 +296,8 @@ body.light-theme .warning-banner {
   transition: all 0.2s ease;
   position: relative;
   flex-shrink: 0;
+  z-index: 1;
+  isolation: isolate;
 }
 
 .help-icon:hover {
@@ -303,27 +310,24 @@ body.light-theme .warning-banner {
 .help-icon::after {
   content: attr(title);
   position: absolute;
-  bottom: 100%;
+  bottom: calc(100% + 10px);
   left: 50%;
   transform: translateX(-50%);
   background: #1a1a1a;
   color: #d1d5db;
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 400;
-  white-space: nowrap;
+  white-space: normal;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.2s ease;
-  z-index: 1000;
-  margin-bottom: 8px;
+  z-index: 9999;
   border: 1px solid rgba(220, 38, 38, 0.3);
-  max-width: 250px;
-  white-space: normal;
-  width: 250px;
-  left: 50%;
-  transform: translateX(-50%);
+  max-width: 280px;
+  width: 280px;
+  line-height: 1.4;
 }
 
 .help-icon:hover::after {
