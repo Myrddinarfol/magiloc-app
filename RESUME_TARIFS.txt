@@ -1,0 +1,165 @@
+MAGILOC - RESUME COMPLET DU SYSTEME DE TARIFS ET CA
+
+================================================================================
+1. OÙ SONT STOCKES LES TARIFS
+================================================================================
+
+TABLE: equipments
+- prix_ht_jour: Tarif journalier (DECIMAL 10,2) ex: 150.50
+- minimum_facturation: Minimum (DECIMAL 10,2) ex: 450.00
+- minimum_facturation_apply: Minimum activé (BOOLEAN)
+
+TABLE: location_history
+- ARCHIVE des tarifs lors du retour
+- prix_ht_jour: Snapshot du tarif appliqué
+- duree_jours_ouvres: Jours facturés
+- remise_ld: Remise 20% appliquée (BOOLEAN)
+- ca_total_ht: CA final facturé
+- minimum_facturation_apply: Minimum appliqué
+- minimum_facturation: Montant minimum
+
+================================================================================
+2. ENDPOINTS API ET STRUCTURES
+================================================================================
+
+GET /api/equipment?limit=50&page=1
+
+Retourne:
+{
+  data: [
+    {
+      id: 1,
+      designation: "Nacelle GENIE S-45",
+      prixHT: 150.50,
+      minimumFacturation: 450.00,
+      minimumFacturationApply: true,
+      statut: "En Location",
+      client: "ACME CONSTRUCTION",
+      debutLocation: "01/10/2025",
+      finLocationTheorique: "20/10/2025"
+    }
+  ],
+  pagination: { page: 1, limit: 50, total: 127, totalPages: 3 }
+}
+
+GET /api/equipment/:id/location-history
+
+Retourne array d'objets avec:
+- prix_ht_jour: Tarif appliqué
+- duree_jours_ouvres: Jours
+- remise_ld: true/false
+- ca_total_ht: CA final
+
+================================================================================
+3. EXEMPLE COMPLET: LOCATION 01/10 -> 18/10/2025
+================================================================================
+
+ETAPE 1: Créer location
+PATCH /api/equipment/1
+{
+  statut: "En Location",
+  client: "ACME CONSTRUCTION",
+  debutLocation: "01/10/2025",
+  finLocationTheorique: "20/10/2025"
+}
+
+Equipment conserve: prixHT=150.50, minimum=450, apply=true
+
+ETAPE 2: Retourner
+POST /api/equipment/1/return
+{
+  rentreeLe: "18/10/2025",
+  noteRetour: "Bon état",
+  minimumFacturationApply: false
+}
+
+CALCUL BACKEND:
+- Jours ouvrés: 14 (01/10->18/10, moins weekends)
+- isLongDuration: 14>=21? NON
+- CA = 14 × 150.50 = 2107.00€
+- Minimum apply: false
+- CA FINAL: 2107.00€
+
+Archive dans location_history:
+- precio_ht_jour: 150.50
+- duree_jours_ouvres: 14
+- remise_ld: false
+- ca_total_ht: 2107.00
+- minimum_facturation_apply: false
+
+================================================================================
+4. LOGIQUE CALCUL CA
+================================================================================
+
+JOURS OUVRES:
+= calculateBusinessDays(debut, retour)
+- Exclu: samedi, dimanche
+- Exclu: jours fériés français
+
+REMISE LONGUE DUREE:
+SI duree >= 21 jours: remise 20%
+SINON: pas de remise
+
+CA CALCUL:
+SI remise:
+  ca = duree × prix × 0.8
+SINON:
+  ca = duree × prix
+
+MINIMUM FACTURATION:
+SI minimum_apply ET ca < minimum:
+  ca_final = minimum
+SINON:
+  ca_final = ca
+
+================================================================================
+5. ANALYTIQUES - CALCUL CA PAR MOIS
+================================================================================
+
+Estimé (mois courant):
+- Inclut locations "En Location"
+- Calcule jours jusqu'à fin du mois
+- Applique remise LD + minimum
+
+Confirmé (jours écoulés):
+- Inclut locations "En Location"  
+- Calcule jours jusqu'à aujourd'hui seulement
+- Applique remise LD + minimum
+
+Historique (mois passés):
+- Utilise location_history.ca_total_ht directement
+- Ne recalcule pas
+
+================================================================================
+6. FICHIERS CLÉS
+================================================================================
+
+Backend:
+- server.js (l.625-712): Calcul CA + archivage
+- server.js (l.749-765): GET location-history
+- server.js (l.133-225): GET equipment
+- utils/dateHelpers.js: calculateBusinessDays
+- database/schema.sql: Structure BD
+
+Frontend:
+- services/analyticsService.js: Calcul CA estimé/confirmé
+- components/modals/LocationHistoryModal.js: Affichage
+- utils/dateHelpers.js: Conversions dates
+
+================================================================================
+7. MAPPING BD -> API
+================================================================================
+
+equipments.precio_ht_jour -> prixHT
+equipments.minimum_facturation -> minimumFacturation
+equipments.minimum_facturation_apply -> minimumFacturationApply
+
+location_history: même noms (pas de mapping)
+
+================================================================================
+FORMULE SIMPLE
+================================================================================
+
+CA = jours_ouvres × prix_ht_jour × (remise?)
+   = MAX(ca, minimum?) si minimum appliqué
+

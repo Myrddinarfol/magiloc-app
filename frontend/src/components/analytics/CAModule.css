@@ -105,6 +105,46 @@
   color: var(--color-primary);
 }
 
+/* ===== Bannière d'avertissement ===== */
+.warning-banner {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(220, 38, 38, 0.08));
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.warning-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.warning-content {
+  flex: 1;
+}
+
+.warning-content strong {
+  display: block;
+  color: var(--text-primary);
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.warning-content p {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin: 0;
+  line-height: 1.4;
+}
+
+body.light-theme .warning-banner {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.08), rgba(220, 38, 38, 0.04));
+  border-color: rgba(220, 38, 38, 0.2);
+}
+
 /* ===== KPI Grid ===== */
 .kpi-grid {
   display: grid;

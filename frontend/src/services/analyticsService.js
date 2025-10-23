@@ -3,137 +3,152 @@ import { calculateBusinessDays, convertFrenchToISO } from '../utils/dateHelpers'
 
 /**
  * Service pour tous les calculs analytiques du CA
+ *
+ * Récupère les données de deux sources :
+ * 1. L'équipement du contexte (locations EN COURS avec tarifs actuels)
+ * 2. L'API location-history (locations CLÔTURÉES avec tarifs archivés)
  */
 
-// Récupérer TOUS les équipements (avec locations actuelles)
 export const analyticsService = {
-  async getAllEquipmentWithLocations() {
-    const response = await fetch(`${API_URL}/api/equipment?limit=10000`);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return response.json();
-  },
-
-  // Récupérer tous les historiques de locations d'un équipement
+  /**
+   * Récupère l'historique de locations d'un équipement
+   */
   async getEquipmentLocationHistory(equipmentId) {
-    const response = await fetch(`${API_URL}/api/equipment/${equipmentId}/location-history`);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return response.json();
+    try {
+      const response = await fetch(`${API_URL}/api/equipment/${equipmentId}/location-history`);
+      if (!response.ok) return [];
+      return response.json();
+    } catch (error) {
+      console.warn(`Erreur historique équipement ${equipmentId}:`, error);
+      return [];
+    }
   },
 
   /**
-   * Calcule le CA estimatif du mois
-   * Inclut: locations clôturées + locations en cours (jusqu'à fin du mois)
+   * Calcule le CA estimatif d'une location EN COURS
+   * Prend en compte : jours jusqu'à fin du mois, tarif actuel, minimum facturation
    */
-  calculateMonthlyEstimatedCA(equipmentList, month, year) {
-    let totalCA = 0;
+  calculateCurrentLocationEstimatedCA(equipment, month, year) {
+    if (equipment.statut !== 'En Location' || !equipment.debutLocation || !equipment.finLocationTheorique) {
+      return 0;
+    }
+
     const monthStart = new Date(year, month, 1);
-    const monthEnd = new Date(year, month + 1, 0); // Dernier jour du mois
+    const monthEnd = new Date(year, month + 1, 0);
 
-    equipmentList.forEach(equipment => {
-      // Location en cours
-      if (equipment.statut === 'En Location' && equipment.debutLocation && equipment.finLocationTheorique) {
-        const locationStart = new Date(convertFrenchToISO(equipment.debutLocation));
-        const locationEnd = new Date(convertFrenchToISO(equipment.finLocationTheorique));
+    const locationStart = new Date(convertFrenchToISO(equipment.debutLocation));
+    const locationEnd = new Date(convertFrenchToISO(equipment.finLocationTheorique));
 
-        // Intersect avec le mois
-        const rangeStart = new Date(Math.max(locationStart, monthStart));
-        const rangeEnd = new Date(Math.min(locationEnd, monthEnd));
+    // Intersect avec le mois
+    const rangeStart = new Date(Math.max(locationStart, monthStart));
+    const rangeEnd = new Date(Math.min(locationEnd, monthEnd));
 
-        if (rangeStart <= rangeEnd) {
-          const businessDays = calculateBusinessDays(
-            rangeStart.toISOString().split('T')[0],
-            rangeEnd.toISOString().split('T')[0]
-          );
+    if (rangeStart > rangeEnd) return 0;
 
-          const prixHT = equipment.prixHT || 0;
-          const isLongDuration = businessDays >= 21;
-          let ca = businessDays * prixHT;
+    const businessDays = calculateBusinessDays(
+      rangeStart.toISOString().split('T')[0],
+      rangeEnd.toISOString().split('T')[0]
+    );
 
-          if (isLongDuration) {
-            ca = ca * 0.8; // Remise 20%
-          }
+    if (businessDays === null || businessDays === 0) return 0;
 
-          // Appliquer minimum facturation si nécessaire
-          if (equipment.minimumFacturationApply && ca < equipment.minimumFacturation) {
-            ca = equipment.minimumFacturation;
-          }
+    // Récupérer le tarif (peut être null)
+    let prixHT = equipment.prixHT || 0;
+    if (!prixHT) return 0; // Sans tarif, pas de CA
 
-          totalCA += ca;
-        }
-      }
-    });
+    // Appliquer remise longue durée si applicable
+    const isLongDuration = businessDays >= 21;
+    let ca = businessDays * prixHT;
 
-    return parseFloat(totalCA.toFixed(2));
+    if (isLongDuration) {
+      ca = ca * 0.8; // Remise 20%
+    }
+
+    // Appliquer minimum facturation
+    if (equipment.minimumFacturationApply && equipment.minimumFacturation) {
+      ca = Math.max(ca, equipment.minimumFacturation);
+    }
+
+    return parseFloat(ca.toFixed(2));
   },
 
   /**
-   * Calcule le CA confirmé du mois
-   * Inclut: locations clôturées + locations en cours (uniquement jours écoulés)
+   * Calcule le CA confirmé d'une location EN COURS
+   * Prend en compte : jours DÉJÀ ÉCOULÉS uniquement
    */
-  calculateMonthlyConfirmedCA(equipmentList, month, year) {
-    let totalCA = 0;
+  calculateCurrentLocationConfirmedCA(equipment, month, year) {
+    if (equipment.statut !== 'En Location' || !equipment.debutLocation) {
+      return 0;
+    }
+
     const today = new Date();
     const monthStart = new Date(year, month, 1);
     const monthEnd = new Date(year, month + 1, 0);
 
-    equipmentList.forEach(equipment => {
-      // Location en cours - jours déjà écoulés
-      if (equipment.statut === 'En Location' && equipment.debutLocation) {
-        const locationStart = new Date(convertFrenchToISO(equipment.debutLocation));
+    const locationStart = new Date(convertFrenchToISO(equipment.debutLocation));
 
-        // On prend jusqu'à aujourd'hui (ou fin théorique si avant aujourd'hui)
-        const locationEnd = equipment.finLocationTheorique
-          ? new Date(convertFrenchToISO(equipment.finLocationTheorique))
-          : today;
+    // Prendre le minimum entre : fin théorique, aujourd'hui, fin du mois
+    const locationEnd = equipment.finLocationTheorique
+      ? new Date(convertFrenchToISO(equipment.finLocationTheorique))
+      : today;
 
-        const realEnd = new Date(Math.min(today, locationEnd));
+    const realEnd = new Date(Math.min(today.getTime(), locationEnd.getTime()));
 
-        // Intersect avec le mois
-        const rangeStart = new Date(Math.max(locationStart, monthStart));
-        const rangeEnd = new Date(Math.min(realEnd, monthEnd));
+    // Intersect avec le mois
+    const rangeStart = new Date(Math.max(locationStart, monthStart));
+    const rangeEnd = new Date(Math.min(realEnd, monthEnd));
 
-        if (rangeStart <= rangeEnd) {
-          const businessDays = calculateBusinessDays(
-            rangeStart.toISOString().split('T')[0],
-            rangeEnd.toISOString().split('T')[0]
-          );
+    if (rangeStart > rangeEnd) return 0;
 
-          const prixHT = equipment.prixHT || 0;
-          const isLongDuration = businessDays >= 21;
-          let ca = businessDays * prixHT;
+    const businessDays = calculateBusinessDays(
+      rangeStart.toISOString().split('T')[0],
+      rangeEnd.toISOString().split('T')[0]
+    );
 
-          if (isLongDuration) {
-            ca = ca * 0.8; // Remise 20%
-          }
+    if (businessDays === null || businessDays === 0) return 0;
 
-          // Appliquer minimum facturation si nécessaire
-          if (equipment.minimumFacturationApply && ca < equipment.minimumFacturation) {
-            ca = equipment.minimumFacturation;
-          }
+    // Récupérer le tarif (peut être null)
+    let prixHT = equipment.prixHT || 0;
+    if (!prixHT) return 0; // Sans tarif, pas de CA
 
-          totalCA += ca;
-        }
-      }
-    });
+    // Appliquer remise longue durée
+    const isLongDuration = businessDays >= 21;
+    let ca = businessDays * prixHT;
 
-    return parseFloat(totalCA.toFixed(2));
+    if (isLongDuration) {
+      ca = ca * 0.8; // Remise 20%
+    }
+
+    // Appliquer minimum facturation
+    if (equipment.minimumFacturationApply && equipment.minimumFacturation) {
+      ca = Math.max(ca, equipment.minimumFacturation);
+    }
+
+    return parseFloat(ca.toFixed(2));
   },
 
   /**
-   * Calcule le CA pour un mois/année basé sur l'historique
-   * (pour les mois passés)
+   * Calcule le CA du mois depuis l'historique ARCHIVÉ
+   * (locations clôturées dans le mois donné)
    */
   calculateHistoricalMonthlyCA(locationHistory, month, year) {
-    let totalCA = 0;
+    if (!locationHistory || locationHistory.length === 0) return 0;
+
     const monthStart = new Date(year, month, 1);
     const monthEnd = new Date(year, month + 1, 0);
 
-    locationHistory.forEach(location => {
-      if (location.ca_total_ht) {
-        const returnDate = new Date(location.date_retour_reel || location.rentre_le);
+    let totalCA = 0;
 
-        // La location a été clôturée ce mois-ci
-        if (returnDate >= monthStart && returnDate <= monthEnd) {
+    locationHistory.forEach(location => {
+      // Utiliser la date de retour réelle ou rentrée
+      const returnDateStr = location.date_retour_reel || location.rentre_le;
+      if (!returnDateStr) return;
+
+      const returnDate = new Date(returnDateStr);
+
+      // La location a été clôturée ce mois-ci
+      if (returnDate >= monthStart && returnDate <= monthEnd) {
+        if (location.ca_total_ht) {
           totalCA += parseFloat(location.ca_total_ht);
         }
       }
@@ -143,31 +158,37 @@ export const analyticsService = {
   },
 
   /**
-   * Récupère les données de CA pour tous les mois (historique)
-   * Limite à l'année en cours et précédente
+   * Récupère et agrège les données CA pour tous les mois
+   * Combine historique (mois passés) + locations en cours (mois actuel)
    */
   async getAllMonthsCAData(equipmentList) {
+    if (!equipmentList || equipmentList.length === 0) {
+      return {};
+    }
+
     const today = new Date();
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth();
 
     const caData = {};
 
-    // Récupère l'historique pour tous les équipements
+    // Récupère l'historique pour TOUS les équipements
+    console.log(`📊 Récupération historique pour ${equipmentList.length} équipements...`);
     const allHistory = [];
+
     for (const equipment of equipmentList) {
-      try {
-        const history = await this.getEquipmentLocationHistory(equipment.id);
+      const history = await this.getEquipmentLocationHistory(equipment.id);
+      if (history && history.length > 0) {
         allHistory.push(...history);
-      } catch (error) {
-        console.warn(`Erreur historique équipement ${equipment.id}:`, error);
       }
     }
+
+    console.log(`✅ ${allHistory.length} locations historiques trouvées`);
 
     // Parcourt tous les mois depuis le début de l'année précédente
     for (let year = currentYear - 1; year <= currentYear; year++) {
       for (let month = 0; month < 12; month++) {
-        const monthDate = new Date(year, month);
+        const monthDate = new Date(year, month, 1);
 
         // Ne pas aller dans le futur
         if (monthDate > today) break;
@@ -175,20 +196,40 @@ export const analyticsService = {
         const key = `${year}-${String(month + 1).padStart(2, '0')}`;
 
         if (month === currentMonth && year === currentYear) {
-          // Mois actuel: combiner historique + locations en cours
+          // 🔴 MOIS ACTUEL : Combiner historique + locations en cours
           const historicalCA = this.calculateHistoricalMonthlyCA(allHistory, month, year);
-          const estimatedCA = this.calculateMonthlyEstimatedCA(equipmentList, month, year);
-          const confirmedCA = this.calculateMonthlyConfirmedCA(equipmentList, month, year);
 
+          let estimatedCA = 0;
+          let confirmedCA = 0;
+          let activeLocations = 0;
+
+          // Ajouter les locations en cours du mois
+          equipmentList.forEach(equipment => {
+            if (equipment.statut === 'En Location') {
+              const locEstimated = this.calculateCurrentLocationEstimatedCA(equipment, month, year);
+              const locConfirmed = this.calculateCurrentLocationConfirmedCA(equipment, month, year);
+
+              if (locEstimated > 0 || locConfirmed > 0) {
+                estimatedCA += locEstimated;
+                confirmedCA += locConfirmed;
+                activeLocations++;
+              }
+            }
+          });
+
+          // Total = historique du mois + locations en cours du mois
           caData[key] = {
-            estimatedCA: estimatedCA,
-            confirmedCA: confirmedCA,
+            estimatedCA: parseFloat((historicalCA + estimatedCA).toFixed(2)),
+            confirmedCA: parseFloat((historicalCA + confirmedCA).toFixed(2)),
             isCurrent: true,
             month: month,
-            year: year
+            year: year,
+            activeLocations: activeLocations
           };
+
+          console.log(`Mois actuel ${key}: Historique=${historicalCA}€, Estimé=${estimatedCA}€, Confirmé=${confirmedCA}€`);
         } else {
-          // Mois passés: uniquement historique
+          // ⚪ MOIS PASSÉS : Uniquement historique
           const historicalCA = this.calculateHistoricalMonthlyCA(allHistory, month, year);
 
           caData[key] = {
@@ -197,6 +238,10 @@ export const analyticsService = {
             month: month,
             year: year
           };
+
+          if (historicalCA > 0) {
+            console.log(`Mois passé ${key}: ${historicalCA}€`);
+          }
         }
       }
     }
@@ -205,36 +250,44 @@ export const analyticsService = {
   },
 
   /**
-   * Retourne les stats enrichies pour les KPIs
+   * Calcule les stats enrichies pour les KPIs du mois sélectionné
    */
   calculateMonthStats(equipmentList, month, year) {
-    const estimatedCA = this.calculateMonthlyEstimatedCA(equipmentList, month, year);
-    const confirmedCA = this.calculateMonthlyConfirmedCA(equipmentList, month, year);
-
-    // Compteurs de locations
-    const monthStart = new Date(year, month, 1);
-    const monthEnd = new Date(year, month + 1, 0);
-
+    let estimatedCA = 0;
+    let confirmedCA = 0;
     let activeLocations = 0;
     let totalDays = 0;
 
+    const monthStart = new Date(year, month, 1);
+    const monthEnd = new Date(year, month + 1, 0);
+
+    // Parcourir les locations en cours
     equipmentList.forEach(equipment => {
       if (equipment.statut === 'En Location' && equipment.debutLocation && equipment.finLocationTheorique) {
         const locationStart = new Date(convertFrenchToISO(equipment.debutLocation));
         const locationEnd = new Date(convertFrenchToISO(equipment.finLocationTheorique));
 
+        // Vérifier si la location chevauche le mois
         if (locationStart <= monthEnd && locationEnd >= monthStart) {
-          activeLocations++;
+          const locEstimated = this.calculateCurrentLocationEstimatedCA(equipment, month, year);
+          const locConfirmed = this.calculateCurrentLocationConfirmedCA(equipment, month, year);
 
-          const rangeStart = new Date(Math.max(locationStart, monthStart));
-          const rangeEnd = new Date(Math.min(locationEnd, monthEnd));
+          if (locEstimated > 0 || locConfirmed > 0) {
+            estimatedCA += locEstimated;
+            confirmedCA += locConfirmed;
+            activeLocations++;
 
-          const businessDays = calculateBusinessDays(
-            rangeStart.toISOString().split('T')[0],
-            rangeEnd.toISOString().split('T')[0]
-          );
+            // Calcul de la durée
+            const rangeStart = new Date(Math.max(locationStart, monthStart));
+            const rangeEnd = new Date(Math.min(locationEnd, monthEnd));
 
-          totalDays += businessDays;
+            const businessDays = calculateBusinessDays(
+              rangeStart.toISOString().split('T')[0],
+              rangeEnd.toISOString().split('T')[0]
+            );
+
+            if (businessDays) totalDays += businessDays;
+          }
         }
       }
     });
@@ -242,8 +295,8 @@ export const analyticsService = {
     const avgDaysPerLocation = activeLocations > 0 ? Math.round(totalDays / activeLocations) : 0;
 
     return {
-      estimatedCA,
-      confirmedCA,
+      estimatedCA: parseFloat(estimatedCA.toFixed(2)),
+      confirmedCA: parseFloat(confirmedCA.toFixed(2)),
       activeLocations,
       avgDaysPerLocation
     };

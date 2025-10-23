@@ -25,6 +25,7 @@ const CAModule = () => {
   const [stats, setStats] = useState(null);
   const [chartData, setChartData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [missingPrices, setMissingPrices] = useState([]);
 
   // Détection du thème
   const isDarkTheme = !document.body.classList.contains('light-theme');
@@ -40,6 +41,12 @@ const CAModule = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
+
+        // Vérifier les équipements en location sans tarif
+        const locationsMissingPrice = equipment.filter(
+          eq => eq.statut === 'En Location' && (!eq.prixHT || eq.prixHT === 0)
+        );
+        setMissingPrices(locationsMissingPrice);
 
         // Calcul des stats pour le mois sélectionné
         const monthStats = analyticsService.calculateMonthStats(equipment, selectedMonth, selectedYear);
@@ -175,6 +182,17 @@ const CAModule = () => {
           <div className="filter-period">{monthName}</div>
         </div>
       </div>
+
+      {/* Avertissement tarifs manquants */}
+      {missingPrices.length > 0 && (
+        <div className="warning-banner">
+          <span className="warning-icon">⚠️</span>
+          <div className="warning-content">
+            <strong>{missingPrices.length} équipement(s) en location sans tarif</strong>
+            <p>Les tarifs manquants ne sont pas inclus dans le CA. Complétez les tarifs horaires pour une analyse complète.</p>
+          </div>
+        </div>
+      )}
 
       {/* KPIs Dashboard */}
       {stats && (

@@ -1,0 +1,283 @@
+================================================================================
+MAGILOC - EXEMPLES D'APPELS API DETAILLES
+================================================================================
+
+1. GET /api/equipment?limit=50&page=1
+================================================================================
+
+Response 200 OK:
+{
+  "data": [
+    {
+      "id": 1,
+      "designation": "Nacelle GENIE S-45",
+      "prixHT": 150.50,
+      "minimumFacturation": 450.00,
+      "minimumFacturationApply": true,
+      "statut": "En Location",
+      "client": "ACME CONSTRUCTION",
+      "debutLocation": "01/10/2025",
+      "finLocationTheorique": "20/10/2025"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 50,
+    "total": 127,
+    "totalPages": 3,
+    "hasNextPage": true
+  }
+}
+
+2. GET /api/equipment/1/location-history
+================================================================================
+
+Response 200 OK:
+[
+  {
+    "id": 45,
+    "equipment_id": 1,
+    "client": "ACME CONSTRUCTION",
+    "date_debut": "2025-09-01",
+    "date_retour_reel": "2025-09-24",
+    "prix_ht_jour": 150.50,
+    "duree_jours_ouvres": 20,
+    "remise_ld": true,
+    "ca_total_ht": 2410.00,
+    "minimum_facturation_apply": false,
+    "numero_offre": "OFF-2025-050"
+  },
+  {
+    "id": 44,
+    "equipment_id": 1,
+    "client": "BETA WORKS",
+    "date_debut": "2025-08-10",
+    "date_retour_reel": "2025-08-20",
+    "prix_ht_jour": 150.50,
+    "duree_jours_ouvres": 9,
+    "remise_ld": false,
+    "ca_total_ht": 1354.50,
+    "minimum_facturation_apply": false
+  }
+]
+
+INTERPRETATION LOCATION 1:
+- 20 jours ouvrés >= 21? NON (20 < 21)
+- CA = 20 × 150.50 = 3010€ (pas de remise 20%)
+
+INTERPRETATION LOCATION 2:
+- 9 jours ouvrés
+- CA = 9 × 150.50 = 1354.50€
+
+3. PATCH /api/equipment/1 - CREER LOCATION
+================================================================================
+
+Request:
+{
+  "statut": "En Location",
+  "client": "ACME CONSTRUCTION",
+  "debutLocation": "01/10/2025",
+  "finLocationTheorique": "20/10/2025",
+  "numeroOffre": "OFF-2025-100"
+}
+
+Equipement conserve ses tarifs:
+- prix_ht_jour = 150.50€/jour
+- minimum_facturation = 450€
+- minimum_facturation_apply = true
+
+4. POST /api/equipment/1/return - CLOTURER ET CALCULER CA
+================================================================================
+
+Request:
+{
+  "rentreeLe": "18/10/2025",
+  "noteRetour": "Bon etat",
+  "minimumFacturationApply": false
+}
+
+CALCUL BACKEND:
+1. Dates ISO:
+   - debut = 2025-10-01
+   - retour = 2025-10-18
+
+2. Jours ouvres:
+   - calculateBusinessDays(2025-10-01, 2025-10-18)
+   - Exclut: weekends et jours feries FR
+   - Resultat: 14 jours ouvres
+
+3. Parametres tarification:
+   - prix_ht_jour = 150.50€
+   - duree = 14 jours
+   - isLongDuration = (14 >= 21)? NON
+   - remise_ld = false
+
+4. Calcul CA:
+   - businessDays < 21 donc pas de remise
+   - ca_calcule = 14 × 150.50 = 2107.00€
+   - minimum_apply = false
+   - ca_final = 2107.00€
+
+5. Insert location_history:
+   INSERT INTO location_history (
+     equipment_id, client, date_debut, date_retour_reel,
+     prix_ht_jour, duree_jours_ouvres, remise_ld, ca_total_ht,
+     minimum_facturation_apply, minimum_facturation
+   ) VALUES (
+     1, 'ACME', '2025-10-01', '2025-10-18',
+     150.50, 14, false, 2107.00, false, 0.00
+   )
+
+6. Update equipments:
+   UPDATE equipments
+   SET statut = 'En Maintenance',
+       motif_maintenance = 'Retour Location, a verifier'
+   WHERE id = 1
+
+Response:
+{
+  "message": "Equipment retourne et archive",
+  "ca_total_ht": 2107.00,
+  "duree_jours_ouvres": 14,
+  "remise_ld": false
+}
+
+5. CAS: LONGUE DUREE (>= 21 jours avec remise 20%)
+================================================================================
+
+Supposons:
+- Debut: 01/10/2025
+- Retour: 31/10/2025
+- Tarif: 85.00€/jour
+- Minimum: desactive
+
+CALCUL:
+- Jours ouvres: 22 (environ 1-31 oct excl weekends)
+- isLongDuration = (22 >= 21)? OUI
+- ca = 22 × 85.00 × 0.8 = 1496.00€
+- ca_final = 1496.00€
+
+location_history:
+{
+  "prix_ht_jour": 85.00,
+  "duree_jours_ouvres": 22,
+  "remise_ld": true,
+  "ca_total_ht": 1496.00
+}
+
+6. CAS: MINIMUM FACTURATION < CA
+================================================================================
+
+Supposons:
+- Debut: 01/10/2025
+- Retour: 05/10/2025
+- Tarif: 200.00€/jour
+- Minimum: 600.00€ (ACTIVE)
+
+CALCUL:
+- Jours ouvres: 3
+- ca_calcule = 3 × 200 = 600€
+- minimumFacturationApply = true
+- 600€ < 600€? NON
+- ca_final = 600€
+
+location_history:
+{
+  "precio_ht_jour": 200.00,
+  "duree_jours_ouvres": 3,
+  "remise_ld": false,
+  "ca_total_ht": 600.00,
+  "minimum_facturation_apply": true,
+  "minimum_facturation": 600.00
+}
+
+7. CAS: MINIMUM FACTURATION > CA
+================================================================================
+
+Supposons:
+- Debut: 01/10/2025
+- Retour: 02/10/2025
+- Tarif: 100.00€/jour
+- Minimum: 200.00€ (ACTIVE)
+
+CALCUL:
+- Jours ouvres: 1
+- ca_calcule = 1 × 100 = 100€
+- minimumFacturationApply = true
+- 100€ < 200€? OUI -> FORCER MINIMUM
+- ca_final = 200.00€
+
+location_history:
+{
+  "precio_ht_jour": 100.00,
+  "duree_jours_ouvres": 1,
+  "remise_ld": false,
+  "ca_total_ht": 200.00,
+  "minimum_facturation_apply": true,
+  "minimum_facturation": 200.00
+}
+
+NOTE: Le tarif facture est superieur au prix journalier du fait du minimum.
+
+8. AFFICHAGE DANS LocationHistoryModal
+================================================================================
+
+Pour chaque location dans location_history, affiche:
+
+Client: ACME CONSTRUCTION
+Dates: 01/10/2025 - 18/10/2025
+Duree: 14j
+CA: 2107.00€
+Detail: "14j × 150.50€/j" (pas de remise LD car 14 < 21, pas minimum)
+
+Code:
+const caDetail = `${loc.duree_jours_ouvres}j × ${loc.prix_ht_jour}€/j`
+              + (loc.remise_ld ? ' -20%' : '')
+              + (loc.minimum_facturation_apply ? ` (Min: ${loc.minimum_facturation}€)` : '');
+
+9. CHAMPS BASE DE DONNEES - MAPPING
+================================================================================
+
+GET /api/equipment:
+- prixHT               <- prix_ht_jour (DECIMAL 10,2)
+- minimumFacturation   <- minimum_facturation (DECIMAL 10,2)
+- minimumFacturationApply <- minimum_facturation_apply (BOOLEAN)
+
+GET /api/equipment/:id/location-history:
+- prix_ht_jour               <- Tarif applique
+- duree_jours_ouvres         <- Jours facturesss
+- remise_ld                  <- Remise 20% appliquee
+- ca_total_ht                <- CA final TTC
+- minimum_facturation_apply  <- Si minimum applique
+- minimum_facturation        <- Montant minimum
+
+10. FLUX COMPLET CREATION -> ARCHIVE
+================================================================================
+
+1. CREATION LOCATION:
+   PATCH /api/equipment/1
+   -> statut = "En Location"
+   -> client, debutLocation, finLocationTheorique
+   -> conserve prix_ht_jour + minimum_facturation
+
+2. AFFICHAGE ACTIVE:
+   GET /api/equipment
+   -> retourne equipments avec tarifs actuels
+
+3. ANALYTIQUES:
+   calculateMonthlyEstimatedCA()
+   -> utilise prixHT + minimumFacturation de equipments
+   -> calcule CA previsionnel pour mois courant
+
+4. RETOUR & CALCUL CA:
+   POST /api/equipment/1/return
+   -> calcule businessDays exact
+   -> applique tarif + remise LD + minimum
+   -> INSERT location_history (SNAPSHOT tarifs + CA)
+   -> UPDATE equipments (statut = "En Maintenance")
+
+5. HISTORIQUE:
+   GET /api/equipment/1/location-history
+   -> affiche location_history archivees
+   -> montre CA reel + tarifs appliques
+
