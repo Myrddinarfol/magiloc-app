@@ -26,6 +26,9 @@ const CAModule = () => {
   const [chartData, setChartData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [missingPrices, setMissingPrices] = useState([]);
+  const [error, setError] = useState(null);
+
+  console.log('🔍 CAModule rendu - Equipment:', equipment?.length, 'Loading:', loading, 'Stats:', stats);
 
   // Détection du thème
   const isDarkTheme = !document.body.classList.contains('light-theme');
@@ -41,19 +44,36 @@ const CAModule = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
+        setError(null);
+
+        console.log('📍 Début fetchData - Equipment count:', equipment?.length);
+
+        // Vérifier s'il y a des équipements
+        if (!equipment || equipment.length === 0) {
+          console.warn('⚠️ Aucun équipement disponible');
+          setStats({ estimatedCA: 0, confirmedCA: 0, activeLocations: 0, avgDaysPerLocation: 0 });
+          setChartData({ labels: [], datasets: [] });
+          setLoading(false);
+          return;
+        }
 
         // Vérifier les équipements en location sans tarif
         const locationsMissingPrice = equipment.filter(
           eq => eq.statut === 'En Location' && (!eq.prixHT || eq.prixHT === 0)
         );
+        console.log('🏷️ Équipements sans tarif:', locationsMissingPrice.length);
         setMissingPrices(locationsMissingPrice);
 
         // Calcul des stats pour le mois sélectionné
+        console.log('📊 Calcul stats pour', selectedMonth, '/', selectedYear);
         const monthStats = analyticsService.calculateMonthStats(equipment, selectedMonth, selectedYear);
+        console.log('✅ Stats calculées:', monthStats);
         setStats(monthStats);
 
         // Récupération de l'historique pour le graphique
+        console.log('📈 Récupération historique CA...');
         const caHistory = await analyticsService.getAllMonthsCAData(equipment);
+        console.log('✅ Historique récupéré:', Object.keys(caHistory).length, 'mois');
 
         // Prépare les données du graphique
         const labels = [];
@@ -120,13 +140,16 @@ const CAModule = () => {
           ]
         });
       } catch (error) {
-        console.error('Erreur calcul CA:', error);
+        console.error('❌ Erreur calcul CA:', error);
+        setError(error.message);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    if (equipment && equipment.length > 0) {
+      fetchData();
+    }
   }, [equipment, selectedMonth, selectedYear]);
 
   const handleMonthChange = (e) => {
@@ -144,6 +167,20 @@ const CAModule = () => {
 
   if (loading) {
     return <div className="ca-module-loading">Chargement des données analytiques...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="ca-module">
+        <div className="error-banner">
+          <span className="error-icon">❌</span>
+          <div className="error-content">
+            <strong>Erreur lors du chargement des données</strong>
+            <p>{error}</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
