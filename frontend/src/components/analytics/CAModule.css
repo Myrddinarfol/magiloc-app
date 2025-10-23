@@ -315,7 +315,7 @@ body.light-theme .warning-banner {
   transform: translateY(-50%);
   background: #1a1a1a;
   color: #d1d5db;
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 400;
@@ -325,7 +325,8 @@ body.light-theme .warning-banner {
   transition: opacity 0.2s ease;
   z-index: 9999;
   border: 1px solid rgba(220, 38, 38, 0.3);
-  width: 200px;
+  width: auto;
+  max-width: 350px;
   line-height: 1.5;
 }
 
