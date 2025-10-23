@@ -29,7 +29,9 @@
       "Bash(npm install:*)",
       "Bash(xargs kill:*)",
       "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJpYXQiOjE3NjExMTUwMzIsImV4cCI6MTc2MTcxOTgzMn0.SF0XM3K_3qEx_e8Vq6TY2aoPplEw5XJtV7cBFng00eo\")",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Bash(timeout 10 npm start)",
+      "Bash(timeout 30 npm start)"
     ],
     "deny": [],
     "ask": []
