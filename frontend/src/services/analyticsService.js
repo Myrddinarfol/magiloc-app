@@ -205,14 +205,22 @@ export const analyticsService = {
 
           // Ajouter les locations en cours du mois
           equipmentList.forEach(equipment => {
-            if (equipment.statut === 'En Location') {
-              const locEstimated = this.calculateCurrentLocationEstimatedCA(equipment, month, year);
-              const locConfirmed = this.calculateCurrentLocationConfirmedCA(equipment, month, year);
+            if (equipment.statut === 'En Location' && equipment.debutLocation && equipment.finLocationTheorique) {
+              const locationStart = new Date(convertFrenchToISO(equipment.debutLocation));
+              const locationEnd = new Date(convertFrenchToISO(equipment.finLocationTheorique));
 
-              if (locEstimated > 0 || locConfirmed > 0) {
+              const monthStart = new Date(year, month, 1);
+              const monthEnd = new Date(year, month + 1, 0);
+
+              // Vérifier si la location chevauche le mois
+              if (locationStart <= monthEnd && locationEnd >= monthStart) {
+                const locEstimated = this.calculateCurrentLocationEstimatedCA(equipment, month, year);
+                const locConfirmed = this.calculateCurrentLocationConfirmedCA(equipment, month, year);
+
+                // COMPTER TOUTES LES LOCATIONS ACTIVES, même sans tarif
+                activeLocations++;
                 estimatedCA += locEstimated;
                 confirmedCA += locConfirmed;
-                activeLocations++;
               }
             }
           });
@@ -269,24 +277,26 @@ export const analyticsService = {
 
         // Vérifier si la location chevauche le mois
         if (locationStart <= monthEnd && locationEnd >= monthStart) {
-          const locEstimated = this.calculateCurrentLocationEstimatedCA(equipment, month, year);
-          const locConfirmed = this.calculateCurrentLocationConfirmedCA(equipment, month, year);
+          // Calcul de la durée (pour toutes les locations, avec ou sans tarif)
+          const rangeStart = new Date(Math.max(locationStart, monthStart));
+          const rangeEnd = new Date(Math.min(locationEnd, monthEnd));
 
-          if (locEstimated > 0 || locConfirmed > 0) {
+          const businessDays = calculateBusinessDays(
+            rangeStart.toISOString().split('T')[0],
+            rangeEnd.toISOString().split('T')[0]
+          );
+
+          // COMPTER TOUTES LES LOCATIONS ACTIVES, même sans tarif
+          if (businessDays && businessDays > 0) {
+            activeLocations++;
+            totalDays += businessDays;
+
+            // Calcul CA (seulement si la location a un tarif)
+            const locEstimated = this.calculateCurrentLocationEstimatedCA(equipment, month, year);
+            const locConfirmed = this.calculateCurrentLocationConfirmedCA(equipment, month, year);
+
             estimatedCA += locEstimated;
             confirmedCA += locConfirmed;
-            activeLocations++;
-
-            // Calcul de la durée
-            const rangeStart = new Date(Math.max(locationStart, monthStart));
-            const rangeEnd = new Date(Math.min(locationEnd, monthEnd));
-
-            const businessDays = calculateBusinessDays(
-              rangeStart.toISOString().split('T')[0],
-              rangeEnd.toISOString().split('T')[0]
-            );
-
-            if (businessDays) totalDays += businessDays;
           }
         }
       }
