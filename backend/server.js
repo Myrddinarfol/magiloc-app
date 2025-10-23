@@ -652,7 +652,12 @@ app.post("/api/equipment/:id/return", async (req, res) => {
     const rentreLeISO = convertFrenchDateToISO(rentreeLe);
 
     // 2. Calculer le CA de la location
-    const businessDays = calculateBusinessDays(debutLocationISO, rentreLeISO);
+    // IMPORTANT: Par défaut, le jour de retour n'est PAS facturé
+    // On calcule donc les jours ouvrés jusqu'à la veille du retour
+    // Minimum: 1 jour (si début = retour, on facture au moins 1 jour)
+    const rawBusinessDays = calculateBusinessDays(debutLocationISO, rentreLeISO);
+    const businessDays = Math.max(1, rawBusinessDays > 0 ? rawBusinessDays - 1 : rawBusinessDays);
+
     const prixHT = equipment.prix_ht_jour ? parseFloat(equipment.prix_ht_jour) : null;
     const minimumFacturation = equipment.minimum_facturation ? parseFloat(equipment.minimum_facturation) : 0;
     const isLongDuration = businessDays && businessDays >= 21;

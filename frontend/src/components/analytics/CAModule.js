@@ -24,9 +24,11 @@ const CAModule = () => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [stats, setStats] = useState(null);
   const [chartData, setChartData] = useState(null);
+  const [yearlyCA, setYearlyCA] = useState(0);
   const [loading, setLoading] = useState(true);
   const [missingPrices, setMissingPrices] = useState([]);
   const [error, setError] = useState(null);
+  const [showClosedLocationsModal, setShowClosedLocationsModal] = useState(false);
 
   console.log('🔍 CAModule rendu - Equipment:', equipmentData?.length, 'Loading:', loading, 'Stats:', stats);
 
@@ -57,23 +59,33 @@ const CAModule = () => {
           return;
         }
 
-        // Vérifier les équipements en location sans tarif
-        const locationsMissingPrice = equipmentData.filter(
+        // Vérifier les équipements en location sans tarif (en excluant les TEST)
+        const filteredEquipment = analyticsService.filterTestData(equipmentData);
+        const locationsMissingPrice = filteredEquipment.filter(
           eq => eq.statut === 'En Location' && (!eq.prixHT || eq.prixHT === 0)
         );
         console.log('🏷️ Équipements sans tarif:', locationsMissingPrice.length);
         setMissingPrices(locationsMissingPrice);
 
-        // Calcul des stats pour le mois sélectionné
+        // Calcul des stats et historique en parallèle
         console.log('📊 Calcul stats pour', selectedMonth, '/', selectedYear);
-        const monthStats = analyticsService.calculateMonthStats(equipmentData, selectedMonth, selectedYear);
+        console.log('📈 Récupération historique CA...');
+
+        const [monthStats, caHistory] = await Promise.all([
+          analyticsService.calculateMonthStats(equipmentData, selectedMonth, selectedYear),
+          analyticsService.getAllMonthsCAData(equipmentData)
+        ]);
+
         console.log('✅ Stats calculées:', monthStats);
+        console.log('✅ Historique récupéré:', Object.keys(caHistory).length, 'mois');
+        console.log('📋 Clés caHistory:', Object.keys(caHistory).sort());
         setStats(monthStats);
 
-        // Récupération de l'historique pour le graphique
-        console.log('📈 Récupération historique CA...');
-        const caHistory = await analyticsService.getAllMonthsCAData(equipmentData);
-        console.log('✅ Historique récupéré:', Object.keys(caHistory).length, 'mois');
+        // Calcul du CA annuel pour l'année en cours
+        const currentYear = new Date().getFullYear();
+        const yearlyCATotal = analyticsService.calculateYearlyConfirmedCA(caHistory, currentYear);
+        setYearlyCA(yearlyCATotal);
+        console.log('💰 CA annuel 2025:', yearlyCATotal);
 
         // Prépare les données du graphique
         const labels = [];
@@ -188,10 +200,7 @@ const CAModule = () => {
       {/* En-tête */}
       <div className="ca-header">
         <div className="ca-header-content">
-          <h2 className="ca-title">
-            💰 Chiffre d'Affaires
-            <span className="help-icon" title="CA = (jours ouvrés × prix/jour) × (remise -20% si ≥21j). Minimum facturation appliqué si coché. Jours fériés français exclus.">?</span>
-          </h2>
+          <h2 className="ca-title">💰 Chiffre d'Affaires</h2>
           <p className="ca-subtitle">Suivi détaillé du CA estimatif et confirmé</p>
         </div>
 
@@ -234,6 +243,19 @@ const CAModule = () => {
         </div>
       )}
 
+      {/* CA Annuel */}
+      {yearlyCA > 0 && (
+        <div className="yearly-ca-banner">
+          <div className="yearly-ca-content">
+            <span className="yearly-ca-icon">📈</span>
+            <div className="yearly-ca-text">
+              <div className="yearly-ca-label">Chiffre d'Affaires {new Date().getFullYear()}</div>
+              <div className="yearly-ca-value">{yearlyCA.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* KPIs Dashboard */}
       {stats && (
         <div className="kpi-grid">
@@ -241,10 +263,7 @@ const CAModule = () => {
           <div className="kpi-card ca-estimatif">
             <div className="kpi-header">
               <span className="kpi-icon">📊</span>
-              <span className="kpi-label">
-                CA Estimatif
-                <span className="help-icon" title="Locations clôturées du mois + locations en cours jusqu'à fin du mois (jours ouvrés hors fériés)">?</span>
-              </span>
+              <span className="kpi-label">CA Estimatif</span>
             </div>
             <div className="kpi-value">{stats.estimatedCA.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</div>
             <div className="kpi-detail">
@@ -258,10 +277,7 @@ const CAModule = () => {
           <div className="kpi-card ca-confirme">
             <div className="kpi-header">
               <span className="kpi-icon">✅</span>
-              <span className="kpi-label">
-                CA Confirmé
-                <span className="help-icon" title="Locations clôturées du mois + jours DÉJÀ ÉCOULÉS des locations en cours (mis à jour quotidiennement)">?</span>
-              </span>
+              <span className="kpi-label">CA Confirmé</span>
             </div>
             <div className="kpi-value">{stats.confirmedCA.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</div>
             <div className="kpi-detail">
@@ -296,6 +312,20 @@ const CAModule = () => {
               Ø {stats.avgDaysPerLocation} jours/location
             </div>
           </div>
+
+          {/* CA Historique (Locations clôturées) */}
+          {stats.historicalCA > 0 && (
+            <div className="kpi-card historical-ca" onClick={() => setShowClosedLocationsModal(true)} style={{ cursor: 'pointer' }}>
+              <div className="kpi-header">
+                <span className="kpi-icon">📋</span>
+                <span className="kpi-label">CA Clôturé</span>
+              </div>
+              <div className="kpi-value">{stats.historicalCA.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</div>
+              <div className="kpi-detail">
+                {stats.historicalLocationsCount} location{stats.historicalLocationsCount > 1 ? 's' : ''} clôturée{stats.historicalLocationsCount > 1 ? 's' : ''} • Cliquez pour détails
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -373,6 +403,75 @@ const CAModule = () => {
         </div>
       </div>
 
+      {/* Modal Locations Clôturées */}
+      {showClosedLocationsModal && stats?.historicalLocations && (
+        <div className="modal-overlay" onClick={() => setShowClosedLocationsModal(false)}>
+          <div className="modal-content closed-locations-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>📋 Locations Clôturées - {new Date(selectedYear, selectedMonth, 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}</h2>
+              <button className="modal-close" onClick={() => setShowClosedLocationsModal(false)}>✕</button>
+            </div>
+
+            <div className="modal-body">
+              {stats.historicalLocations.length === 0 ? (
+                <p className="no-data">Aucune location clôturée ce mois</p>
+              ) : (
+                <>
+                  <div className="closed-locations-summary">
+                    <div className="summary-stat">
+                      <span className="summary-label">Nombre de locations</span>
+                      <span className="summary-value">{stats.historicalLocations.length}</span>
+                    </div>
+                    <div className="summary-stat">
+                      <span className="summary-label">CA Total</span>
+                      <span className="summary-value">{stats.historicalCA.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</span>
+                    </div>
+                  </div>
+
+                  <div className="closed-locations-list">
+                    {stats.historicalLocations.map((location, idx) => (
+                      <div key={idx} className="closed-location-item">
+                        <div className="location-header">
+                          <span className="location-client"><strong>{location.client}</strong></span>
+                          <span className="location-ca">{parseFloat(location.ca_total_ht || 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</span>
+                        </div>
+                        <div className="location-details">
+                          <div className="detail-row">
+                            <span className="detail-label">📦 Matériel:</span>
+                            <span className="detail-value">ID #{location.equipment_id}</span>
+                          </div>
+                          <div className="detail-row">
+                            <span className="detail-label">📅 Période:</span>
+                            <span className="detail-value">
+                              {location.date_debut ? new Date(location.date_debut).toLocaleDateString('fr-FR') : 'N/A'} → {location.date_fin_theorique ? new Date(location.date_fin_theorique).toLocaleDateString('fr-FR') : 'N/A'}
+                            </span>
+                          </div>
+                          <div className="detail-row">
+                            <span className="detail-label">🔄 Retour:</span>
+                            <span className="detail-value">{location.date_retour_reel ? new Date(location.date_retour_reel).toLocaleDateString('fr-FR') : location.rentre_le || 'N/A'}</span>
+                          </div>
+                          {location.duree_jours_ouvres && (
+                            <div className="detail-row">
+                              <span className="detail-label">📊 Jours:</span>
+                              <span className="detail-value">{location.duree_jours_ouvres} jours ouvrés × {location.prix_ht_jour ? location.prix_ht_jour.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }) : 'N/A'}</span>
+                            </div>
+                          )}
+                          {location.notes_location && (
+                            <div className="detail-row">
+                              <span className="detail-label">📝 Notes:</span>
+                              <span className="detail-value">{location.notes_location}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

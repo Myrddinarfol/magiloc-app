@@ -91,7 +91,9 @@ export function calculateBusinessDays(startDateStr, endDateStr) {
   let businessDays = 0;
   const currentDate = new Date(startDate);
 
-  while (currentDate <= endDate) {
+  // IMPORTANT: La date de fin est EXCLUE (convention location: du jour start inclus au jour end exclus)
+  // Exemple: 25 sept au 9 oct = du 25 sept inclus jusqu'au 9 oct exclu (compte jusqu'au 8 oct)
+  while (currentDate < endDate) {
     const dayOfWeek = currentDate.getDay();
     const dateStr = currentDate.toISOString().split('T')[0];
 

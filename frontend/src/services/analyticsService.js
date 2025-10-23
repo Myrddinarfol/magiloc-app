@@ -11,6 +11,45 @@ import { calculateBusinessDays, convertFrenchToISO } from '../utils/dateHelpers'
 
 export const analyticsService = {
   /**
+   * Filtre les équipements TEST et locations CLIENT TEST
+   * Exclut tout ce qui contient "TEST" dans le nom ou le client
+   */
+  filterTestData(equipmentList) {
+    if (!equipmentList) return [];
+
+    return equipmentList.filter(equipment => {
+      // Exclure si le nom de l'équipement contient "TEST"
+      if (equipment.nom && equipment.nom.toUpperCase().includes('TEST')) {
+        return false;
+      }
+
+      // Exclure si le client est "CLIENT TEST"
+      if (equipment.client && equipment.client.toUpperCase().includes('CLIENT TEST')) {
+        return false;
+      }
+
+      return true;
+    });
+  },
+
+  /**
+   * Filtre les locations d'historique pour exclure les TEST
+   * Exclut les locations avec client "CLIENT TEST"
+   */
+  filterTestLocations(locationHistory) {
+    if (!locationHistory) return [];
+
+    return locationHistory.filter(location => {
+      // Exclure si le client est "CLIENT TEST"
+      if (location.client && location.client.toUpperCase().includes('CLIENT TEST')) {
+        return false;
+      }
+
+      return true;
+    });
+  },
+
+  /**
    * Récupère l'historique de locations d'un équipement
    */
   async getEquipmentLocationHistory(equipmentId) {
@@ -45,10 +84,12 @@ export const analyticsService = {
 
     if (rangeStart > rangeEnd) return 0;
 
-    const businessDays = calculateBusinessDays(
-      rangeStart.toISOString().split('T')[0],
-      rangeEnd.toISOString().split('T')[0]
-    );
+    const startStr = rangeStart.toISOString().split('T')[0];
+    const endStr = rangeEnd.toISOString().split('T')[0];
+
+    const businessDays = calculateBusinessDays(startStr, endStr);
+
+    console.log(`📊 ${equipment.nom} | ${startStr} à ${endStr} | ${businessDays} jours ouvrés`);
 
     if (businessDays === null || businessDays === 0) return 0;
 
@@ -100,10 +141,12 @@ export const analyticsService = {
 
     if (rangeStart > rangeEnd) return 0;
 
-    const businessDays = calculateBusinessDays(
-      rangeStart.toISOString().split('T')[0],
-      rangeEnd.toISOString().split('T')[0]
-    );
+    const startStr = rangeStart.toISOString().split('T')[0];
+    const endStr = rangeEnd.toISOString().split('T')[0];
+
+    const businessDays = calculateBusinessDays(startStr, endStr);
+
+    console.log(`✅ ${equipment.nom} (Confirmé) | ${startStr} à ${endStr} | ${businessDays} jours ouvrés`);
 
     if (businessDays === null || businessDays === 0) return 0;
 
@@ -128,18 +171,26 @@ export const analyticsService = {
   },
 
   /**
-   * Calcule le CA du mois depuis l'historique ARCHIVÉ
+   * Calcule le CA du mois depuis l'historique ARCHIVÉ avec détails COMPLETS
    * (locations clôturées dans le mois donné)
+   * Retourne: { totalCA, count, locations }
+   * Exclut automatiquement les locations avec CLIENT TEST
    */
-  calculateHistoricalMonthlyCA(locationHistory, month, year) {
-    if (!locationHistory || locationHistory.length === 0) return 0;
+  calculateHistoricalMonthlyCAWithDetails(locationHistory, month, year) {
+    // Filtrer les TEST locations
+    const filteredHistory = this.filterTestLocations(locationHistory);
+
+    if (!filteredHistory || filteredHistory.length === 0) {
+      return { totalCA: 0, count: 0, locations: [] };
+    }
 
     const monthStart = new Date(year, month, 1);
     const monthEnd = new Date(year, month + 1, 0);
 
     let totalCA = 0;
+    const locations = [];
 
-    locationHistory.forEach(location => {
+    filteredHistory.forEach(location => {
       // Utiliser la date de retour réelle ou rentrée
       const returnDateStr = location.date_retour_reel || location.rentre_le;
       if (!returnDateStr) return;
@@ -150,9 +201,52 @@ export const analyticsService = {
       if (returnDate >= monthStart && returnDate <= monthEnd) {
         if (location.ca_total_ht) {
           totalCA += parseFloat(location.ca_total_ht);
+          locations.push(location);
         }
       }
     });
+
+    return {
+      totalCA: parseFloat(totalCA.toFixed(2)),
+      count: locations.length,
+      locations
+    };
+  },
+
+  /**
+   * Calcule le CA du mois depuis l'historique ARCHIVÉ
+   * (locations clôturées dans le mois donné)
+   * Exclut automatiquement les locations avec CLIENT TEST
+   */
+  calculateHistoricalMonthlyCA(locationHistory, month, year) {
+    const result = this.calculateHistoricalMonthlyCAWithDetails(locationHistory, month, year);
+    return result.totalCA;
+  },
+
+  /**
+   * Calcule le CA total confirmé de l'année en cours
+   */
+  calculateYearlyConfirmedCA(caData, year) {
+    let totalCA = 0;
+    const monthsForYear = [];
+
+    for (const [key, data] of Object.entries(caData)) {
+      const [monthYear] = key.split('-');
+      const dataYear = parseInt(monthYear);
+
+      if (dataYear === year) {
+        monthsForYear.push(key);
+        // Pour le mois courant: utiliser CA confirmé
+        if (data.isCurrent) {
+          totalCA += data.confirmedCA || 0;
+        } else {
+          // Pour les mois passés: utiliser l'historique
+          totalCA += data.historicalCA || 0;
+        }
+      }
+    }
+
+    console.log(`💰 CA annuel ${year}: ${monthsForYear.length} mois trouvés (${monthsForYear.join(', ')}) = ${totalCA}€`);
 
     return parseFloat(totalCA.toFixed(2));
   },
@@ -160,9 +254,13 @@ export const analyticsService = {
   /**
    * Récupère et agrège les données CA pour tous les mois
    * Combine historique (mois passés) + locations en cours (mois actuel)
+   * Exclut automatiquement TEST equipment et CLIENT TEST
    */
   async getAllMonthsCAData(equipmentList) {
-    if (!equipmentList || equipmentList.length === 0) {
+    // Filtrer les données TEST
+    const filteredEquipmentList = this.filterTestData(equipmentList);
+
+    if (!filteredEquipmentList || filteredEquipmentList.length === 0) {
       return {};
     }
 
@@ -173,10 +271,10 @@ export const analyticsService = {
     const caData = {};
 
     // Récupère l'historique pour TOUS les équipements
-    console.log(`📊 Récupération historique pour ${equipmentList.length} équipements...`);
+    console.log(`📊 Récupération historique pour ${filteredEquipmentList.length} équipements...`);
     const allHistory = [];
 
-    for (const equipment of equipmentList) {
+    for (const equipment of filteredEquipmentList) {
       const history = await this.getEquipmentLocationHistory(equipment.id);
       if (history && history.length > 0) {
         allHistory.push(...history);
@@ -204,7 +302,7 @@ export const analyticsService = {
           let activeLocations = 0;
 
           // Ajouter les locations en cours du mois
-          equipmentList.forEach(equipment => {
+          filteredEquipmentList.forEach(equipment => {
             if (equipment.statut === 'En Location' && equipment.debutLocation && equipment.finLocationTheorique) {
               const locationStart = new Date(convertFrenchToISO(equipment.debutLocation));
               const locationEnd = new Date(convertFrenchToISO(equipment.finLocationTheorique));
@@ -259,8 +357,13 @@ export const analyticsService = {
 
   /**
    * Calcule les stats enrichies pour les KPIs du mois sélectionné
+   * Combine l'historique archivé + les locations en cours (pour cohérence avec le graphique)
+   * Exclut automatiquement TEST equipment et CLIENT TEST
    */
-  calculateMonthStats(equipmentList, month, year) {
+  async calculateMonthStats(equipmentList, month, year) {
+    // Filtrer les données TEST
+    const filteredEquipmentList = this.filterTestData(equipmentList);
+
     let estimatedCA = 0;
     let confirmedCA = 0;
     let activeLocations = 0;
@@ -269,8 +372,24 @@ export const analyticsService = {
     const monthStart = new Date(year, month, 1);
     const monthEnd = new Date(year, month + 1, 0);
 
+    // Récupérer l'historique (locations clôturées)
+    const allHistory = [];
+    for (const equipment of filteredEquipmentList) {
+      const history = await this.getEquipmentLocationHistory(equipment.id);
+      if (history && history.length > 0) {
+        allHistory.push(...history);
+      }
+    }
+
+    // Ajouter le CA de l'historique (locations clôturées ce mois)
+    const historicalData = this.calculateHistoricalMonthlyCAWithDetails(allHistory, month, year);
+    const historicalCA = historicalData.totalCA;
+    const historicalLocationsCount = historicalData.count;
+    estimatedCA += historicalCA;
+    confirmedCA += historicalCA;
+
     // Parcourir les locations en cours
-    equipmentList.forEach(equipment => {
+    filteredEquipmentList.forEach(equipment => {
       if (equipment.statut === 'En Location' && equipment.debutLocation && equipment.finLocationTheorique) {
         const locationStart = new Date(convertFrenchToISO(equipment.debutLocation));
         const locationEnd = new Date(convertFrenchToISO(equipment.finLocationTheorique));
@@ -295,6 +414,8 @@ export const analyticsService = {
             const locEstimated = this.calculateCurrentLocationEstimatedCA(equipment, month, year);
             const locConfirmed = this.calculateCurrentLocationConfirmedCA(equipment, month, year);
 
+            console.log(`📍 ${equipment.nom} | Tarif: ${equipment.prixHT}€/j | Estimé: ${locEstimated}€ | Confirmé: ${locConfirmed}€`);
+
             estimatedCA += locEstimated;
             confirmedCA += locConfirmed;
           }
@@ -304,11 +425,16 @@ export const analyticsService = {
 
     const avgDaysPerLocation = activeLocations > 0 ? Math.round(totalDays / activeLocations) : 0;
 
+    console.log(`\n✅ TOTAL MOIS: Historique=${historicalCA}€ (${historicalLocationsCount} locations) | Estimé Total=${estimatedCA}€ | Confirmé Total=${confirmedCA}€\n`);
+
     return {
       estimatedCA: parseFloat(estimatedCA.toFixed(2)),
       confirmedCA: parseFloat(confirmedCA.toFixed(2)),
       activeLocations,
-      avgDaysPerLocation
+      avgDaysPerLocation,
+      historicalCA: parseFloat(historicalCA.toFixed(2)),
+      historicalLocationsCount,
+      historicalLocations: historicalData.locations
     };
   }
 };

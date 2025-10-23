@@ -39,6 +39,8 @@ export const convertFrenchToISO = (dateStr) => {
 };
 
 // Fonction pour calculer les jours ouvrés (lundi-vendredi, hors jours fériés français)
+// IMPORTANT: La date de fin est EXCLUE (convention location: du jour start inclus au jour end exclus)
+// Exemple: 25 sept au 9 oct = du 25 sept inclus jusqu'au 9 oct exclu (compte jusqu'au 8 oct)
 export const calculateBusinessDays = (startDateStr, endDateStr) => {
   if (!startDateStr || !endDateStr) return null;
 
@@ -54,7 +56,8 @@ export const calculateBusinessDays = (startDateStr, endDateStr) => {
   let businessDays = 0;
   const currentDate = new Date(startDate);
 
-  while (currentDate <= endDate) {
+  // Boucle jusqu'à endDate EXCLUSIF (donc < endDate, pas <=)
+  while (currentDate < endDate) {
     const dayOfWeek = currentDate.getDay();
     const dateStr = currentDate.toISOString().split('T')[0];
 
@@ -65,6 +68,8 @@ export const calculateBusinessDays = (startDateStr, endDateStr) => {
 
     currentDate.setDate(currentDate.getDate() + 1);
   }
+
+  console.log(`🗓️ calculateBusinessDays: ${startISO} à ${endISO} = ${businessDays} jours ouvrés`);
 
   return businessDays;
 };
