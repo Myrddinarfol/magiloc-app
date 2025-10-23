@@ -1,0 +1,129 @@
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* PAGE ANALYTICS - STYLES */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.analytics-page {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.analytics-container {
+  margin-top: 30px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* CONSTRUCTION CAPSULE */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.construction-capsule-wrapper {
+  display: flex;
+  justify-content: center;
+  margin: 40px 0;
+}
+
+.construction-capsule {
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.construction-capsule:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* ANALYTICS MODULE STRUCTURE */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.analytics-module {
+  background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+  border: 1px solid #4b5563;
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.module-header {
+  margin-bottom: 20px;
+}
+
+.module-header h2 {
+  color: #ffffff;
+  font-size: 20px;
+  margin: 0 0 8px 0;
+}
+
+.module-header p {
+  color: #9ca3af;
+  font-size: 14px;
+  margin: 0;
+}
+
+.module-content {
+  color: #e5e7eb;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* MODE CLAIR - LIGHT THEME SUPPORT */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+body.light-theme .analytics-page {
+  background-color: transparent;
+}
+
+body.light-theme .construction-capsule {
+  background: linear-gradient(135deg, #ffffff, #f8fafc) !important;
+  border: 2px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+body.light-theme .construction-capsule:hover {
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.2) !important;
+}
+
+body.light-theme .construction-capsule .alert-capsule-number {
+  color: var(--text-primary);
+}
+
+body.light-theme .construction-capsule .alert-capsule-label {
+  color: var(--text-secondary);
+}
+
+body.light-theme .analytics-module {
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .module-header h2 {
+  color: var(--text-primary);
+}
+
+body.light-theme .module-header p {
+  color: var(--text-secondary);
+}
+
+body.light-theme .module-content {
+  color: var(--text-primary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* RESPONSIVE */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .analytics-page {
+    padding: 15px;
+  }
+
+  .construction-capsule-wrapper {
+    margin: 30px 0;
+  }
+
+  .construction-capsule {
+    max-width: 100%;
+  }
+}
