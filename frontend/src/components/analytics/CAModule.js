@@ -188,7 +188,10 @@ const CAModule = () => {
       {/* En-tête */}
       <div className="ca-header">
         <div className="ca-header-content">
-          <h2 className="ca-title">💰 Chiffre d'Affaires</h2>
+          <h2 className="ca-title">
+            💰 Chiffre d'Affaires
+            <span className="help-icon" title="CA = (jours ouvrés × prix/jour) × (remise -20% si ≥21j). Minimum facturation appliqué si coché. Jours fériés français exclus.">?</span>
+          </h2>
           <p className="ca-subtitle">Suivi détaillé du CA estimatif et confirmé</p>
         </div>
 
@@ -238,7 +241,10 @@ const CAModule = () => {
           <div className="kpi-card ca-estimatif">
             <div className="kpi-header">
               <span className="kpi-icon">📊</span>
-              <span className="kpi-label">CA Estimatif</span>
+              <span className="kpi-label">
+                CA Estimatif
+                <span className="help-icon" title="Locations clôturées du mois + locations en cours jusqu'à fin du mois (jours ouvrés hors fériés)">?</span>
+              </span>
             </div>
             <div className="kpi-value">{stats.estimatedCA.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</div>
             <div className="kpi-detail">
@@ -252,7 +258,10 @@ const CAModule = () => {
           <div className="kpi-card ca-confirme">
             <div className="kpi-header">
               <span className="kpi-icon">✅</span>
-              <span className="kpi-label">CA Confirmé</span>
+              <span className="kpi-label">
+                CA Confirmé
+                <span className="help-icon" title="Locations clôturées du mois + jours DÉJÀ ÉCOULÉS des locations en cours (mis à jour quotidiennement)">?</span>
+              </span>
             </div>
             <div className="kpi-value">{stats.confirmedCA.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</div>
             <div className="kpi-detail">
@@ -364,23 +373,6 @@ const CAModule = () => {
         </div>
       </div>
 
-      {/* Explications */}
-      <div className="ca-explanations">
-        <div className="explanation-card">
-          <h4>💡 CA Estimatif</h4>
-          <p>Inclut les locations clôturées + les locations en cours jusqu'à leur date de fin théorique (jours ouvrés uniquement)</p>
-        </div>
-
-        <div className="explanation-card">
-          <h4>✅ CA Confirmé</h4>
-          <p>Locations clôturées + jours déjà effectués des locations en cours. Mis à jour quotidiennement.</p>
-        </div>
-
-        <div className="explanation-card">
-          <h4>⏱️ Calcul</h4>
-          <p>Tous les CA sont basés sur les jours ouvrés (lundi-vendredi) hors jours fériés français. Remise -20% si durée ≥ 21j.</p>
-        </div>
-      </div>
     </div>
   );
 };
