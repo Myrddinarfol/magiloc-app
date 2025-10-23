@@ -19,7 +19,7 @@ import './CAModule.css';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
 const CAModule = () => {
-  const { equipment } = useEquipment();
+  const { equipmentData } = useEquipment();
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [stats, setStats] = useState(null);
@@ -28,7 +28,7 @@ const CAModule = () => {
   const [missingPrices, setMissingPrices] = useState([]);
   const [error, setError] = useState(null);
 
-  console.log('🔍 CAModule rendu - Equipment:', equipment?.length, 'Loading:', loading, 'Stats:', stats);
+  console.log('🔍 CAModule rendu - Equipment:', equipmentData?.length, 'Loading:', loading, 'Stats:', stats);
 
   // Détection du thème
   const isDarkTheme = !document.body.classList.contains('light-theme');
@@ -46,10 +46,10 @@ const CAModule = () => {
         setLoading(true);
         setError(null);
 
-        console.log('📍 Début fetchData - Equipment count:', equipment?.length);
+        console.log('📍 Début fetchData - Equipment count:', equipmentData?.length);
 
         // Vérifier s'il y a des équipements
-        if (!equipment || equipment.length === 0) {
+        if (!equipmentData || equipmentData.length === 0) {
           console.warn('⚠️ Aucun équipement disponible');
           setStats({ estimatedCA: 0, confirmedCA: 0, activeLocations: 0, avgDaysPerLocation: 0 });
           setChartData({ labels: [], datasets: [] });
@@ -58,7 +58,7 @@ const CAModule = () => {
         }
 
         // Vérifier les équipements en location sans tarif
-        const locationsMissingPrice = equipment.filter(
+        const locationsMissingPrice = equipmentData.filter(
           eq => eq.statut === 'En Location' && (!eq.prixHT || eq.prixHT === 0)
         );
         console.log('🏷️ Équipements sans tarif:', locationsMissingPrice.length);
@@ -66,13 +66,13 @@ const CAModule = () => {
 
         // Calcul des stats pour le mois sélectionné
         console.log('📊 Calcul stats pour', selectedMonth, '/', selectedYear);
-        const monthStats = analyticsService.calculateMonthStats(equipment, selectedMonth, selectedYear);
+        const monthStats = analyticsService.calculateMonthStats(equipmentData, selectedMonth, selectedYear);
         console.log('✅ Stats calculées:', monthStats);
         setStats(monthStats);
 
         // Récupération de l'historique pour le graphique
         console.log('📈 Récupération historique CA...');
-        const caHistory = await analyticsService.getAllMonthsCAData(equipment);
+        const caHistory = await analyticsService.getAllMonthsCAData(equipmentData);
         console.log('✅ Historique récupéré:', Object.keys(caHistory).length, 'mois');
 
         // Prépare les données du graphique
@@ -147,10 +147,10 @@ const CAModule = () => {
       }
     };
 
-    if (equipment && equipment.length > 0) {
+    if (equipmentData && equipmentData.length > 0) {
       fetchData();
     }
-  }, [equipment, selectedMonth, selectedYear]);
+  }, [equipmentData, selectedMonth, selectedYear]);
 
   const handleMonthChange = (e) => {
     setSelectedMonth(parseInt(e.target.value));
