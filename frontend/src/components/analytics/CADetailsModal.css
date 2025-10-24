@@ -321,6 +321,69 @@
   color: #22c55e;
 }
 
+/* Calculation Details */
+.ca-details-calculation {
+  padding: 16px 20px;
+  background: rgba(100, 200, 255, 0.08);
+  border-left: 3px solid rgba(100, 200, 255, 0.3);
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.ca-details-calculation h4 {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(100, 200, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ca-details-calculation p {
+  margin: 6px 0;
+  font-size: 12px;
+  color: rgba(209, 213, 219, 0.8);
+  line-height: 1.5;
+}
+
+.ca-details-calculation p strong {
+  color: rgba(209, 213, 219, 0.95);
+  font-weight: 600;
+}
+
+.estimation-note {
+  color: rgba(100, 200, 255, 0.8) !important;
+  font-style: italic;
+  margin-top: 8px !important;
+  padding-top: 8px;
+  border-top: 1px solid rgba(100, 200, 255, 0.2);
+}
+
+/* Status Badge */
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.col-status {
+  min-width: 80px;
+  text-align: center;
+}
+
+/* Days breakdown for estimated */
+.days-breakdown {
+  display: block;
+  font-size: 9px;
+  color: rgba(209, 213, 219, 0.6);
+  margin-top: 2px;
+  font-weight: normal;
+}
+
 /* Footer */
 .ca-details-footer {
   display: flex;

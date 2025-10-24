@@ -7,20 +7,51 @@ const CADetailsModal = ({
   caType, // 'estimated' ou 'confirmed'
   month,
   year,
-  historicalLocations = [],
-  activeLocations = [],
-  stats = {}
+  closedLocations = [],
+  ongoingLocations = [],
+  summary = {}
 }) => {
   if (!isOpen) return null;
 
-  // Récupérer les locations appropriées selon le type
-  const locations = caType === 'confirmed'
-    ? historicalLocations
-    : [...historicalLocations, ...activeLocations];
+  // Déterminer les locations à afficher selon le type
+  const getLocationsToDisplay = () => {
+    if (caType === 'confirmed') {
+      // Pour CA Confirmé : locations fermées + jours confirmés des locations en cours
+      const closedWithCA = closedLocations.map(loc => ({
+        ...loc,
+        caDisplay: loc.caThisMonth,
+        statusBadge: 'Fermée'
+      }));
 
-  const totalCA = caType === 'confirmed'
-    ? (stats.historicalCA || 0)
-    : (stats.estimatedCA || 0);
+      const ongoingConfirmed = ongoingLocations.map(loc => ({
+        ...loc,
+        caDisplay: loc.caConfirmedThisMonth,
+        statusBadge: 'En cours',
+        daysDisplay: `${loc.businessDaysConfirmedThisMonth} j confirmés`
+      }));
+
+      return [...closedWithCA, ...ongoingConfirmed];
+    } else {
+      // Pour CA Estimatif : locations fermées + jours totaux des locations en cours
+      const closedWithCA = closedLocations.map(loc => ({
+        ...loc,
+        caDisplay: loc.caThisMonth,
+        statusBadge: 'Fermée'
+      }));
+
+      const ongoingEstimated = ongoingLocations.map(loc => ({
+        ...loc,
+        caDisplay: loc.caEstimatedThisMonth,
+        statusBadge: 'En cours',
+        daysDisplay: `${loc.businessDaysThisMonth} j prévus (${loc.businessDaysConfirmedThisMonth} confirmés + ${loc.businessDaysEstimatedRemaining} estimés)`
+      }));
+
+      return [...closedWithCA, ...ongoingEstimated];
+    }
+  };
+
+  const locations = getLocationsToDisplay();
+  const totalCA = caType === 'confirmed' ? summary.totalCAConfirmed : summary.totalCAEstimated;
 
   const getMonthYearDisplay = () => {
     const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
@@ -34,6 +65,12 @@ const CADetailsModal = ({
 
   const getCATypeColor = () => {
     return caType === 'confirmed' ? '#16a34a' : '#3b82f6';
+  };
+
+  const getStatusColor = (status) => {
+    if (status === 'Fermée') return '#6b7280'; // Gris
+    if (status === 'En cours') return '#10b981'; // Vert
+    return '#9ca3af';
   };
 
   return (
@@ -75,6 +112,14 @@ const CADetailsModal = ({
                   <span className="summary-label">Locations</span>
                   <span className="summary-value">{locations.length}</span>
                 </div>
+                <div className="summary-card">
+                  <span className="summary-label">Locations Fermées</span>
+                  <span className="summary-value">{summary.closedCount || 0}</span>
+                </div>
+                <div className="summary-card">
+                  <span className="summary-label">Locations En Cours</span>
+                  <span className="summary-value">{summary.ongoingCount || 0}</span>
+                </div>
               </div>
 
               {/* Table */}
@@ -82,30 +127,43 @@ const CADetailsModal = ({
                 <table className="ca-details-table">
                   <thead>
                     <tr>
+                      <th className="col-status">Statut</th>
                       <th className="col-client">Client</th>
                       <th className="col-equipment">Équipement</th>
-                      <th className="col-dates">Dates</th>
-                      <th className="col-days">Jours</th>
+                      <th className="col-dates">Période Location</th>
+                      <th className="col-days">Jours {caType === 'confirmed' ? 'Confirmés' : 'Totaux'}</th>
                       <th className="col-rate">Tarif/j</th>
                       <th className="col-discount">Réduction</th>
-                      <th className="col-ca">CA HT</th>
+                      <th className="col-ca">CA {caType === 'confirmed' ? 'Confirmé' : 'Estimatif'}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {locations.map((loc, index) => {
-                      const hasCA = loc.ca_total_ht && loc.duree_jours_ouvres && loc.prix_ht_jour;
-                      const startDate = new Date(loc.date_debut).toLocaleDateString('fr-FR');
-                      const endDate = new Date(loc.date_retour_reel || loc.date_fin_theorique).toLocaleDateString('fr-FR');
-                      const discountLabel = loc.remise_ld ? '-20%' : 'Aucune';
-                      const isActive = !loc.date_retour_reel;
+                      const startDateObj = new Date(loc.startDate);
+                      const endDateObj = new Date(loc.endDate || loc.endDateTheoretical);
+                      const startDate = startDateObj.toLocaleDateString('fr-FR');
+                      const endDate = endDateObj.toLocaleDateString('fr-FR');
+
+                      // Déterminer le nombre de jours à afficher selon le type
+                      const daysToDisplay = loc.statusBadge === 'Fermée'
+                        ? loc.businessDaysThisMonth
+                        : (caType === 'confirmed' ? loc.businessDaysConfirmedThisMonth : loc.businessDaysThisMonth);
 
                       return (
-                        <tr key={index} className={`ca-details-row ${isActive ? 'active-location' : ''}`}>
+                        <tr key={index} className={`ca-details-row status-${loc.statusBadge.toLowerCase()}`}>
+                          <td className="col-status">
+                            <span
+                              className="status-badge"
+                              style={{ backgroundColor: getStatusColor(loc.statusBadge) + '20', color: getStatusColor(loc.statusBadge) }}
+                            >
+                              {loc.statusBadge}
+                            </span>
+                          </td>
                           <td className="col-client">
                             <span title={loc.client}>{loc.client || 'N/A'}</span>
                           </td>
                           <td className="col-equipment">
-                            <span title={loc.equipment_designation}>{loc.equipment_designation || 'N/A'}</span>
+                            <span title={loc.designation}>{loc.designation || 'N/A'}</span>
                           </td>
                           <td className="col-dates">
                             <div className="dates-range">
@@ -116,34 +174,54 @@ const CADetailsModal = ({
                             </div>
                           </td>
                           <td className="col-days">
-                            <span className="days-badge">{loc.duree_jours_ouvres || 0} j</span>
+                            <span className="days-badge">
+                              {daysToDisplay} j
+                              {loc.statusBadge === 'En cours' && caType === 'estimated' && (
+                                <span className="days-breakdown">
+                                  ({loc.businessDaysConfirmedThisMonth}c + {loc.businessDaysEstimatedRemaining}e)
+                                </span>
+                              )}
+                            </span>
                           </td>
                           <td className="col-rate">
-                            {loc.prix_ht_jour ? (
-                              <span>{parseFloat(loc.prix_ht_jour).toFixed(2)}€</span>
+                            {loc.dailyRate ? (
+                              <span>{parseFloat(loc.dailyRate).toFixed(2)}€</span>
                             ) : (
                               <span className="missing-price">-</span>
                             )}
                           </td>
                           <td className="col-discount">
-                            <span className={`discount-badge ${loc.remise_ld ? 'applied' : ''}`}>
-                              {discountLabel}
+                            <span className={`discount-badge ${loc.discount20Applied ? 'applied' : ''}`}>
+                              {loc.discount20Applied ? '-20%' : 'Aucune'}
                             </span>
                           </td>
                           <td className="col-ca">
-                            {hasCA ? (
-                              <span className="ca-amount">
-                                {parseFloat(loc.ca_total_ht).toFixed(2)}€
-                              </span>
-                            ) : (
-                              <span className="missing-ca">-</span>
-                            )}
+                            <span className="ca-amount">
+                              {parseFloat(loc.caDisplay).toFixed(2)}€
+                            </span>
                           </td>
                         </tr>
                       );
                     })}
                   </tbody>
                 </table>
+              </div>
+
+              {/* Détail calcul */}
+              <div className="ca-details-calculation">
+                <h4>Méthode de calcul</h4>
+                <p>
+                  Pour chaque location : <strong>Jours ouvrés du mois × Tarif/jour</strong>
+                  {(ongoingLocations.some(l => l.discount20Applied) || closedLocations.some(l => l.discount20Applied)) && (
+                    <span> − Réduction 20% (si location ≥ 21 jours)</span>
+                  )}
+                </p>
+                {caType === 'estimated' && ongoingLocations.length > 0 && (
+                  <p className="estimation-note">
+                    ⓘ Pour les locations en cours, les jours restants du mois sont estimés jusqu'à la date prévue de fin.
+                    Le CA estimatif comprend les jours confirmés + les jours estimés.
+                  </p>
+                )}
               </div>
 
               {/* Footer with total */}

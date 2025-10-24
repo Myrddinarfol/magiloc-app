@@ -555,6 +555,159 @@ export const analyticsService = {
       historicalLocationsCount,
       historicalLocations: historicalData.locations
     };
+  },
+
+  // Récupère le détail complet des locations pour un mois (fermées + en cours)
+  async getMonthLocationBreakdown(equipmentData, month, year) {
+    const { calculateBusinessDays, calculateBusinessDaysByMonth } = await import('../utils/dateHelpers');
+
+    const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
+    const today = new Date();
+    const isCurrentMonth = month === today.getMonth() && year === today.getFullYear();
+
+    const closedLocations = [];
+    const ongoingLocations = [];
+
+    // 1. Récupérer les locations en cours (equipments)
+    const filteredEquipment = this.filterTestData(equipmentData);
+
+    for (const equipment of filteredEquipment) {
+      // Vérifier si l'équipement est en location le mois demandé
+      if (equipment.statut !== 'En Location' || !equipment.debutLocation) continue;
+
+      const startDate = typeof equipment.debutLocation === 'string'
+        ? equipment.debutLocation
+        : equipment.debutLocation.split('T')[0];
+
+      const endDate = typeof equipment.finLocationTheorique === 'string'
+        ? equipment.finLocationTheorique
+        : equipment.finLocationTheorique.split('T')[0];
+
+      // Vérifier si cette location chevauche le mois demandé
+      const startMonth = startDate.substring(0, 7);
+      const endMonth = endDate.substring(0, 7);
+
+      if (monthKey < startMonth || monthKey > endMonth) continue; // Ne chevauche pas ce mois
+
+      // Calculer les jours ouvrés par mois pour cette location
+      const totalBusinessDays = calculateBusinessDays(startDate, endDate);
+      const businessDaysByMonth = calculateBusinessDaysByMonth(startDate, endDate);
+      const businessDaysThisMonth = businessDaysByMonth[monthKey] || 0;
+
+      if (businessDaysThisMonth === 0) continue;
+
+      // Calculer le nombre de jours confirmes (jusqu'à aujourd'hui)
+      const realEndForConfirmed = isCurrentMonth
+        ? new Date().toISOString().split('T')[0]
+        : endDate;
+
+      const businessDaysByMonthConfirmed = calculateBusinessDaysByMonth(startDate, realEndForConfirmed);
+      const businessDaysConfirmedThisMonth = businessDaysByMonthConfirmed[monthKey] || 0;
+
+      // Jours estimés restants = jours totaux - jours confirmés
+      const businessDaysEstimatedRemaining = businessDaysThisMonth - businessDaysConfirmedThisMonth;
+
+      // Appliquer les calculs de CA
+      const dailyRate = parseFloat(equipment.prixHT) || 0;
+      const hasLongDurationDiscount = totalBusinessDays >= 21;
+      const hasMinimumBilling = equipment.minimumFacturationApply && equipment.minimumFacturation;
+
+      // CA Confirmé pour ce mois
+      let caConfirmedThisMonth = businessDaysConfirmedThisMonth * dailyRate;
+      if (hasLongDurationDiscount) caConfirmedThisMonth *= 0.8;
+      if (hasMinimumBilling) {
+        const minPerDay = equipment.minimumFacturation / totalBusinessDays;
+        caConfirmedThisMonth = Math.max(caConfirmedThisMonth, businessDaysConfirmedThisMonth * minPerDay);
+      }
+
+      // CA Estimé pour ce mois (confirmé + estimé futur)
+      let caEstimatedThisMonth = businessDaysThisMonth * dailyRate;
+      if (hasLongDurationDiscount) caEstimatedThisMonth *= 0.8;
+      if (hasMinimumBilling) {
+        const minPerDay = equipment.minimumFacturation / totalBusinessDays;
+        caEstimatedThisMonth = Math.max(caEstimatedThisMonth, businessDaysThisMonth * minPerDay);
+      }
+
+      ongoingLocations.push({
+        id: equipment.id,
+        client: equipment.client || 'N/A',
+        designation: equipment.nom || 'N/A',
+        startDate,
+        endDateTheoretical: endDate,
+        businessDaysConfirmedThisMonth,
+        businessDaysEstimatedRemaining,
+        businessDaysThisMonth,
+        totalBusinessDaysPlanned: totalBusinessDays,
+        dailyRate,
+        discount20Applied: hasLongDurationDiscount,
+        minBillingApplied: hasMinimumBilling,
+        caConfirmedThisMonth: parseFloat(caConfirmedThisMonth.toFixed(2)),
+        caEstimatedThisMonth: parseFloat(caEstimatedThisMonth.toFixed(2)),
+        status: 'ongoing'
+      });
+    }
+
+    // 2. Récupérer les locations fermées ce mois (location_history)
+    const allLocations = await this.getAllMonthsCAData(equipmentData);
+    const monthData = allLocations[monthKey];
+
+    if (monthData && monthData.historicalLocations) {
+      for (const location of monthData.historicalLocations) {
+        const startDate = typeof location.date_debut === 'string'
+          ? location.date_debut
+          : location.date_debut.split('T')[0];
+
+        const endDate = (location.date_retour_reel || location.date_fin_theorique);
+        const endDateStr = typeof endDate === 'string'
+          ? endDate
+          : endDate.split('T')[0];
+
+        const totalBusinessDays = calculateBusinessDays(startDate, endDateStr);
+        const businessDaysByMonth = calculateBusinessDaysByMonth(startDate, endDateStr);
+        const businessDaysThisMonth = businessDaysByMonth[monthKey] || 0;
+
+        if (businessDaysThisMonth === 0) continue;
+
+        const dailyRate = parseFloat(location.prix_ht_jour) || 0;
+        const hasLongDurationDiscount = location.remise_ld === true;
+
+        // Pour une location fermée, CA confirmé = CA total pour ce mois
+        let caThisMonth = businessDaysThisMonth * dailyRate;
+        if (hasLongDurationDiscount) caThisMonth *= 0.8;
+
+        closedLocations.push({
+          id: location.id,
+          client: location.client || 'N/A',
+          designation: location.equipment_designation || 'N/A',
+          startDate,
+          endDate: endDateStr,
+          businessDaysThisMonth,
+          totalBusinessDays,
+          dailyRate,
+          discount20Applied: hasLongDurationDiscount,
+          caThisMonth: parseFloat(caThisMonth.toFixed(2)),
+          status: 'closed'
+        });
+      }
+    }
+
+    // 3. Retourner les données structurées
+    const totalCAConfirmed = ongoingLocations.reduce((sum, loc) => sum + loc.caConfirmedThisMonth, 0) +
+                             closedLocations.reduce((sum, loc) => sum + loc.caThisMonth, 0);
+
+    const totalCAEstimated = ongoingLocations.reduce((sum, loc) => sum + loc.caEstimatedThisMonth, 0) +
+                             closedLocations.reduce((sum, loc) => sum + loc.caThisMonth, 0);
+
+    return {
+      closedLocations,
+      ongoingLocations,
+      summary: {
+        totalCAConfirmed: parseFloat(totalCAConfirmed.toFixed(2)),
+        totalCAEstimated: parseFloat(totalCAEstimated.toFixed(2)),
+        closedCount: closedLocations.length,
+        ongoingCount: ongoingLocations.length
+      }
+    };
   }
 };
 

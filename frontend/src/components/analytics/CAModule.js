@@ -32,6 +32,7 @@ const CAModule = () => {
   const [error, setError] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [detailsModalType, setDetailsModalType] = useState('estimated'); // 'estimated' ou 'confirmed'
+  const [monthLocationBreakdown, setMonthLocationBreakdown] = useState(null);
 
   console.log('🔍 CAModule rendu - Equipment:', equipmentData?.length, 'Loading:', loading, 'Stats:', stats);
 
@@ -74,15 +75,18 @@ const CAModule = () => {
         console.log('📊 Calcul stats pour', selectedMonth, '/', selectedYear);
         console.log('📈 Récupération historique CA...');
 
-        const [monthStats, caHistory] = await Promise.all([
+        const [monthStats, caHistory, breakdown] = await Promise.all([
           analyticsService.calculateMonthStats(equipmentData, selectedMonth, selectedYear),
-          analyticsService.getAllMonthsCAData(equipmentData)
+          analyticsService.getAllMonthsCAData(equipmentData),
+          analyticsService.getMonthLocationBreakdown(equipmentData, selectedMonth, selectedYear)
         ]);
 
         console.log('✅ Stats calculées:', monthStats);
         console.log('✅ Historique récupéré:', Object.keys(caHistory).length, 'mois');
         console.log('📋 Clés caHistory:', Object.keys(caHistory).sort());
+        console.log('📊 Breakdown locations:', breakdown);
         setStats(monthStats);
+        setMonthLocationBreakdown(breakdown);
 
         // Calcul du CA annuel pour l'année en cours
         const currentYear = new Date().getFullYear();
@@ -399,9 +403,9 @@ const CAModule = () => {
         caType={detailsModalType}
         month={selectedMonth}
         year={selectedYear}
-        historicalLocations={stats?.historicalLocations || []}
-        activeLocations={[]} // À récupérer des données si nécessaire
-        stats={stats || {}}
+        closedLocations={monthLocationBreakdown?.closedLocations || []}
+        ongoingLocations={monthLocationBreakdown?.ongoingLocations || []}
+        summary={monthLocationBreakdown?.summary || {}}
       />
     </div>
   );
