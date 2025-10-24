@@ -32,8 +32,8 @@
 /* Modal Container */
 .ca-details-modal {
   width: 90%;
-  max-width: 1200px;
-  height: 85vh;
+  max-width: 1400px;
+  height: 90vh;
   display: flex;
   flex-direction: column;
   background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
@@ -182,9 +182,11 @@
 
 /* Table Wrapper */
 .ca-details-table-wrapper {
+  overflow-y: auto;
   overflow-x: auto;
   border-radius: 8px;
   border: 1px solid rgba(100, 200, 255, 0.15);
+  max-height: 500px;
 }
 
 .ca-details-table {
@@ -195,10 +197,12 @@
 }
 
 .ca-details-table thead {
-  background: linear-gradient(90deg, rgba(100, 200, 255, 0.1), rgba(100, 200, 255, 0.05));
+  background: #0a0a0a;
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 20;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+  border-bottom: 2px solid rgba(100, 200, 255, 0.3);
 }
 
 .ca-details-table thead th {
@@ -206,11 +210,11 @@
   text-align: left;
   font-weight: 600;
   color: rgba(100, 200, 255, 0.9);
-  border-bottom: 2px solid rgba(100, 200, 255, 0.2);
   text-transform: uppercase;
   font-size: 11px;
   letter-spacing: 0.5px;
   white-space: nowrap;
+  background: inherit;
 }
 
 .ca-details-table tbody tr {
@@ -373,6 +377,34 @@
 .col-status {
   min-width: 80px;
   text-align: center;
+}
+
+/* Equipment info detail */
+.equipment-info-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.equipment-name {
+  font-weight: 600;
+  color: rgba(209, 213, 219, 0.95);
+}
+
+.equipment-specs {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.spec-item {
+  font-size: 10px;
+  color: rgba(100, 200, 255, 0.7);
+  display: block;
+  padding: 2px 4px;
+  background: rgba(100, 200, 255, 0.08);
+  border-radius: 2px;
+  width: fit-content;
 }
 
 /* Days breakdown for estimated */

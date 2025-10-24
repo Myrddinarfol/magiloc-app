@@ -140,9 +140,15 @@ const CADetailsModal = ({
                   <tbody>
                     {locations.map((loc, index) => {
                       const startDateObj = new Date(loc.startDate);
-                      const endDateObj = new Date(loc.endDate || loc.endDateTheoretical);
+                      // Si location EN COURS avec dépassement, afficher date effective au lieu de théorique
+                      const endDateToUse = loc.endDateEffective || loc.endDate || loc.endDateTheoretical;
+                      const endDateObj = new Date(endDateToUse);
                       const startDate = startDateObj.toLocaleDateString('fr-FR');
                       const endDate = endDateObj.toLocaleDateString('fr-FR');
+
+                      // Vérifier s'il y a dépassement ou pas de date fin
+                      const hasOverdue = loc.endDateTheoretical && loc.endDateEffective && loc.endDateEffective > loc.endDateTheoretical;
+                      const hasNoEndDate = loc.hasNoEndDate;
 
                       // Déterminer le nombre de jours à afficher selon le type
                       const daysToDisplay = loc.statusBadge === 'Fermée'
@@ -163,14 +169,35 @@ const CADetailsModal = ({
                             <span title={loc.client}>{loc.client || 'N/A'}</span>
                           </td>
                           <td className="col-equipment">
-                            <span title={loc.designation}>{loc.designation || 'N/A'}</span>
+                            <div className="equipment-info-detail">
+                              <div className="equipment-name" title={loc.designation}>{loc.designation || 'N/A'}</div>
+                              {(loc.cmu || loc.modele || loc.marque) && (
+                                <div className="equipment-specs">
+                                  {loc.cmu && <span className="spec-item">CMU: {loc.cmu}</span>}
+                                  {loc.modele && <span className="spec-item">Modèle: {loc.modele}</span>}
+                                  {loc.marque && <span className="spec-item">Marque: {loc.marque}</span>}
+                                </div>
+                              )}
+                            </div>
                           </td>
                           <td className="col-dates">
                             <div className="dates-range">
                               <span className="date-label">Du:</span>
                               <span>{startDate}</span>
                               <span className="date-label">Au:</span>
-                              <span>{endDate}</span>
+                              <span>
+                                {hasNoEndDate ? <em>Indéfinie</em> : endDate}
+                                {hasOverdue && (
+                                  <span style={{ marginLeft: '4px', color: '#ef4444', fontWeight: 'bold' }} title="Dépassement: location non retournée">
+                                    ⚠️ +
+                                  </span>
+                                )}
+                                {hasNoEndDate && (
+                                  <span style={{ marginLeft: '4px', color: '#f59e0b', fontWeight: 'bold' }} title="Pas de date fin théorique">
+                                    ∞
+                                  </span>
+                                )}
+                              </span>
                             </div>
                           </td>
                           <td className="col-days">

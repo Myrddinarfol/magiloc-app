@@ -395,11 +395,13 @@ export const analyticsService = {
     for (const equipment of filteredEquipmentList) {
       const history = await this.getEquipmentLocationHistory(equipment.id);
       if (history && history.length > 0) {
-        allHistory.push(...history);
+        // Filtrer les locations CLIENT TEST (sécurité supplémentaire)
+        const filteredHistory = this.filterTestLocations(history);
+        allHistory.push(...filteredHistory);
       }
     }
 
-    console.log(`✅ ${allHistory.length} locations historiques trouvées`);
+    console.log(`✅ ${allHistory.length} locations historiques trouvées (TEST exclus)`);
 
     // Parcourt tous les mois depuis le début de l'année précédente
     for (let year = currentYear - 1; year <= currentYear; year++) {
@@ -496,7 +498,9 @@ export const analyticsService = {
     for (const equipment of filteredEquipmentList) {
       const history = await this.getEquipmentLocationHistory(equipment.id);
       if (history && history.length > 0) {
-        allHistory.push(...history);
+        // Filtrer les locations CLIENT TEST (sécurité supplémentaire)
+        const filteredHistory = this.filterTestLocations(history);
+        allHistory.push(...filteredHistory);
       }
     }
 
@@ -559,6 +563,7 @@ export const analyticsService = {
 
   // Récupère le détail complet des locations pour un mois (fermées + en cours)
   async getMonthLocationBreakdown(equipmentData, month, year) {
+    console.log(`🔍 getMonthLocationBreakdown appelé pour ${year}-${String(month + 1).padStart(2, '0')}`);
     const { calculateBusinessDays, calculateBusinessDaysByMonth } = await import('../utils/dateHelpers');
 
     const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
@@ -570,36 +575,83 @@ export const analyticsService = {
 
     // 1. Récupérer les locations en cours (equipments)
     const filteredEquipment = this.filterTestData(equipmentData);
+    const equipmentInLocation = filteredEquipment.filter(e => e.statut === 'En Location');
+    console.log(`   📦 Total équipements en location: ${equipmentInLocation.length}`);
 
     for (const equipment of filteredEquipment) {
       // Vérifier si l'équipement est en location le mois demandé
-      if (equipment.statut !== 'En Location' || !equipment.debutLocation) continue;
+      if (equipment.statut !== 'En Location') continue;
 
-      const startDate = typeof equipment.debutLocation === 'string'
-        ? equipment.debutLocation
-        : equipment.debutLocation.split('T')[0];
+      if (!equipment.debutLocation) {
+        console.log(`   ⚠️  ${equipment.nom}: date de début manquante`);
+        continue;
+      }
 
-      const endDate = typeof equipment.finLocationTheorique === 'string'
-        ? equipment.finLocationTheorique
-        : equipment.finLocationTheorique.split('T')[0];
+      // Si pas de date fin théorique mais EN LOCATION, c'est une location non terminée/indéfinie
+      // On va la compter jusqu'à fin du mois demandé
+
+      // Parser les dates correctement (peuvent être en format français DD/MM/YYYY ou ISO YYYY-MM-DD)
+      let startDate = equipment.debutLocation;
+      let endDate = equipment.finLocationTheorique;
+
+      // Convertir format français DD/MM/YYYY en ISO YYYY-MM-DD si nécessaire
+      if (startDate && startDate.includes('/')) {
+        const [day, month, year] = startDate.split('/');
+        startDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      } else if (startDate && startDate.includes('T')) {
+        startDate = startDate.split('T')[0];
+      }
+
+      if (endDate && endDate.includes('/')) {
+        const [day, month, year] = endDate.split('/');
+        endDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      } else if (endDate && endDate.includes('T')) {
+        endDate = endDate.split('T')[0];
+      }
 
       // Vérifier si cette location chevauche le mois demandé
       const startMonth = startDate.substring(0, 7);
-      const endMonth = endDate.substring(0, 7);
 
-      if (monthKey < startMonth || monthKey > endMonth) continue; // Ne chevauche pas ce mois
+      // Si pas de date fin, considérer que la location est indéfinie/en cours → utiliser fin du mois
+      let effectiveEndDate = endDate;
+      if (!endDate) {
+        const monthEnd = new Date(year, month + 1, 0);
+        effectiveEndDate = monthEnd.toISOString().split('T')[0];
+        console.log(`   ⚠️  ${equipment.nom}: pas de date fin théorique! Utilisation fin du mois: ${effectiveEndDate}`);
+      }
+
+      const endMonth = effectiveEndDate.substring(0, 7);
+
+      if (monthKey < startMonth || monthKey > endMonth) {
+        console.log(`   ❌ ${equipment.nom}: ne chevauche pas ${monthKey} (${startMonth} à ${endMonth})`);
+        continue;
+      }
+
+      console.log(`   ✅ Location en cours trouvée pour ${monthKey}: ${equipment.nom} (${equipment.client})`);
+
+      // IMPORTANT: Si la location a dépassé sa date théorique, utiliser la date réelle (fin du mois)
+      const today = new Date();
+      if (endDate) { // Seulement si on a une date théorique à comparer
+        const theoreticalEndDate = new Date(endDate);
+        if (theoreticalEndDate < today) {
+          // La location a dépassé sa date théorique → utiliser fin du mois
+          const monthEnd = new Date(year, month + 1, 0);
+          effectiveEndDate = monthEnd.toISOString().split('T')[0];
+          console.log(`   ⚠️  ${equipment.nom}: dépassement! Fin théorique: ${endDate}, fin réelle: ${effectiveEndDate}`);
+        }
+      }
 
       // Calculer les jours ouvrés par mois pour cette location
-      const totalBusinessDays = calculateBusinessDays(startDate, endDate);
-      const businessDaysByMonth = calculateBusinessDaysByMonth(startDate, endDate);
+      const totalBusinessDays = calculateBusinessDays(startDate, effectiveEndDate);
+      const businessDaysByMonth = calculateBusinessDaysByMonth(startDate, effectiveEndDate);
       const businessDaysThisMonth = businessDaysByMonth[monthKey] || 0;
 
       if (businessDaysThisMonth === 0) continue;
 
-      // Calculer le nombre de jours confirmes (jusqu'à aujourd'hui)
+      // Calculer le nombre de jours confirmes (jusqu'à aujourd'hui ou fin du mois si dépassement)
       const realEndForConfirmed = isCurrentMonth
         ? new Date().toISOString().split('T')[0]
-        : endDate;
+        : effectiveEndDate;
 
       const businessDaysByMonthConfirmed = calculateBusinessDaysByMonth(startDate, realEndForConfirmed);
       const businessDaysConfirmedThisMonth = businessDaysByMonthConfirmed[monthKey] || 0;
@@ -628,12 +680,19 @@ export const analyticsService = {
         caEstimatedThisMonth = Math.max(caEstimatedThisMonth, businessDaysThisMonth * minPerDay);
       }
 
+      console.log(`   📦 Equipment: ${equipment.id} - nom: ${equipment.nom}, designation: ${equipment.designation}`);
+
       ongoingLocations.push({
         id: equipment.id,
         client: equipment.client || 'N/A',
-        designation: equipment.nom || 'N/A',
+        designation: equipment.designation || equipment.nom || 'N/A',
+        cmu: equipment.cmu || '',
+        modele: equipment.modele || '',
+        marque: equipment.marque || '',
         startDate,
         endDateTheoretical: endDate,
+        endDateEffective: effectiveEndDate,
+        hasNoEndDate: !endDate,
         businessDaysConfirmedThisMonth,
         businessDaysEstimatedRemaining,
         businessDaysThisMonth,
@@ -648,47 +707,87 @@ export const analyticsService = {
     }
 
     // 2. Récupérer les locations fermées ce mois (location_history)
-    const allLocations = await this.getAllMonthsCAData(equipmentData);
-    const monthData = allLocations[monthKey];
-
-    if (monthData && monthData.historicalLocations) {
-      for (const location of monthData.historicalLocations) {
-        const startDate = typeof location.date_debut === 'string'
-          ? location.date_debut
-          : location.date_debut.split('T')[0];
-
-        const endDate = (location.date_retour_reel || location.date_fin_theorique);
-        const endDateStr = typeof endDate === 'string'
-          ? endDate
-          : endDate.split('T')[0];
-
-        const totalBusinessDays = calculateBusinessDays(startDate, endDateStr);
-        const businessDaysByMonth = calculateBusinessDaysByMonth(startDate, endDateStr);
-        const businessDaysThisMonth = businessDaysByMonth[monthKey] || 0;
-
-        if (businessDaysThisMonth === 0) continue;
-
-        const dailyRate = parseFloat(location.prix_ht_jour) || 0;
-        const hasLongDurationDiscount = location.remise_ld === true;
-
-        // Pour une location fermée, CA confirmé = CA total pour ce mois
-        let caThisMonth = businessDaysThisMonth * dailyRate;
-        if (hasLongDurationDiscount) caThisMonth *= 0.8;
-
-        closedLocations.push({
-          id: location.id,
-          client: location.client || 'N/A',
-          designation: location.equipment_designation || 'N/A',
-          startDate,
-          endDate: endDateStr,
-          businessDaysThisMonth,
-          totalBusinessDays,
-          dailyRate,
-          discount20Applied: hasLongDurationDiscount,
-          caThisMonth: parseFloat(caThisMonth.toFixed(2)),
-          status: 'closed'
-        });
+    // Fetch location history from all equipment
+    const allHistoricalLocations = [];
+    for (const equipment of filteredEquipment) {
+      const history = await this.getEquipmentLocationHistory(equipment.id);
+      if (history && history.length > 0) {
+        // Filtrer les locations CLIENT TEST (sécurité supplémentaire)
+        const filteredHistory = this.filterTestLocations(history);
+        // Ajouter l'ID de l'équipement et ses détails à chaque location
+        for (const loc of filteredHistory) {
+          allHistoricalLocations.push({
+            ...loc,
+            equipment_designation: equipment.designation || equipment.nom || 'N/A',
+            cmu: equipment.cmu || '',
+            modele: equipment.modele || '',
+            marque: equipment.marque || ''
+          });
+        }
       }
+    }
+
+    console.log(`   📋 Total locations fermées trouvées (TEST exclus): ${allHistoricalLocations.length}`);
+
+    for (const location of allHistoricalLocations) {
+      // Parser les dates correctement (peuvent être en format français DD/MM/YYYY ou ISO YYYY-MM-DD)
+      let startDate = location.date_debut;
+      let endDate = (location.date_retour_reel || location.date_fin_theorique);
+
+      // Convertir format français DD/MM/YYYY en ISO YYYY-MM-DD si nécessaire
+      if (startDate && startDate.includes('/')) {
+        const [day, month, year] = startDate.split('/');
+        startDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      } else if (startDate && startDate.includes('T')) {
+        startDate = startDate.split('T')[0];
+      }
+
+      if (endDate && endDate.includes('/')) {
+        const [day, month, year] = endDate.split('/');
+        endDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      } else if (endDate && endDate.includes('T')) {
+        endDate = endDate.split('T')[0];
+      }
+
+      const endDateStr = endDate;
+
+      // Vérifier si cette location chevauche le mois demandé
+      const startMonth = startDate.substring(0, 7);
+      const endMonth = endDateStr.substring(0, 7);
+
+      if (monthKey < startMonth || monthKey > endMonth) {
+        continue;
+      }
+
+      const totalBusinessDays = calculateBusinessDays(startDate, endDateStr);
+      const businessDaysByMonth = calculateBusinessDaysByMonth(startDate, endDateStr);
+      const businessDaysThisMonth = businessDaysByMonth[monthKey] || 0;
+
+      if (businessDaysThisMonth === 0) continue;
+
+      const dailyRate = parseFloat(location.prix_ht_jour) || 0;
+      const hasLongDurationDiscount = location.remise_ld === true;
+
+      // Pour une location fermée, CA confirmé = CA total pour ce mois
+      let caThisMonth = businessDaysThisMonth * dailyRate;
+      if (hasLongDurationDiscount) caThisMonth *= 0.8;
+
+      closedLocations.push({
+        id: location.id,
+        client: location.client || 'N/A',
+        designation: location.equipment_designation || 'N/A',
+        cmu: location.cmu || '',
+        modele: location.modele || '',
+        marque: location.marque || '',
+        startDate,
+        endDate: endDateStr,
+        businessDaysThisMonth,
+        totalBusinessDays,
+        dailyRate,
+        discount20Applied: hasLongDurationDiscount,
+        caThisMonth: parseFloat(caThisMonth.toFixed(2)),
+        status: 'closed'
+      });
     }
 
     // 3. Retourner les données structurées
@@ -697,6 +796,8 @@ export const analyticsService = {
 
     const totalCAEstimated = ongoingLocations.reduce((sum, loc) => sum + loc.caEstimatedThisMonth, 0) +
                              closedLocations.reduce((sum, loc) => sum + loc.caThisMonth, 0);
+
+    console.log(`📊 Breakdown ${monthKey}: ${ongoingLocations.length} en cours + ${closedLocations.length} fermées = ${ongoingLocations.length + closedLocations.length} total`);
 
     return {
       closedLocations,
