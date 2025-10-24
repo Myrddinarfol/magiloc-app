@@ -14,7 +14,9 @@ import {
 } from 'chart.js';
 import analyticsService from '../../services/analyticsService';
 import { useEquipment } from '../../hooks/useEquipment';
+import CADetailsModal from './CADetailsModal';
 import './CAModule.css';
+import './CADetailsModal.css';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
@@ -28,6 +30,8 @@ const CAModule = () => {
   const [loading, setLoading] = useState(true);
   const [missingPrices, setMissingPrices] = useState([]);
   const [error, setError] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [detailsModalType, setDetailsModalType] = useState('estimated'); // 'estimated' ou 'confirmed'
 
   console.log('🔍 CAModule rendu - Equipment:', equipmentData?.length, 'Loading:', loading, 'Stats:', stats);
 
@@ -171,6 +175,15 @@ const CAModule = () => {
     setSelectedYear(parseInt(e.target.value));
   };
 
+  const handleOpenDetailsModal = (type) => {
+    setDetailsModalType(type);
+    setShowDetailsModal(true);
+  };
+
+  const handleCloseDetailsModal = () => {
+    setShowDetailsModal(false);
+  };
+
   const monthName = new Date(selectedYear, selectedMonth, 1).toLocaleDateString('fr-FR', {
     month: 'long',
     year: 'numeric'
@@ -258,8 +271,8 @@ const CAModule = () => {
       {/* KPIs Dashboard */}
       {stats && (
         <div className="kpi-grid">
-          {/* CA Estimatif */}
-          <div className="kpi-card ca-estimatif">
+          {/* CA Estimatif - CLIQUABLE */}
+          <div className="kpi-card ca-estimatif clickable" onClick={() => handleOpenDetailsModal('estimated')}>
             <div className="kpi-header">
               <span className="kpi-icon">📊</span>
               <span className="kpi-label">CA Estimatif</span>
@@ -270,10 +283,11 @@ const CAModule = () => {
                 ? 'Locations en cours incluses'
                 : 'Mois clôturé'}
             </div>
+            <div className="kpi-footer">Cliquez pour voir les détails →</div>
           </div>
 
-          {/* CA Confirmé */}
-          <div className="kpi-card ca-confirme">
+          {/* CA Confirmé - CLIQUABLE */}
+          <div className="kpi-card ca-confirme clickable" onClick={() => handleOpenDetailsModal('confirmed')}>
             <div className="kpi-header">
               <span className="kpi-icon">✅</span>
               <span className="kpi-label">CA Confirmé</span>
@@ -284,6 +298,7 @@ const CAModule = () => {
                 ? 'Jours effectifs uniquement'
                 : 'Mois clôturé'}
             </div>
+            <div className="kpi-footer">Cliquez pour voir les détails →</div>
           </div>
 
           {/* Écart CA */}
@@ -297,18 +312,6 @@ const CAModule = () => {
             </div>
             <div className="kpi-detail">
               Jours à facturer sur le mois
-            </div>
-          </div>
-
-          {/* Locations Actives */}
-          <div className="kpi-card active-locations">
-            <div className="kpi-header">
-              <span className="kpi-icon">📦</span>
-              <span className="kpi-label">Locations Actives</span>
-            </div>
-            <div className="kpi-value">{stats.activeLocations}</div>
-            <div className="kpi-detail">
-              Ø {stats.avgDaysPerLocation} jours/location
             </div>
           </div>
 
@@ -389,6 +392,17 @@ const CAModule = () => {
         </div>
       </div>
 
+      {/* Modal Détails CA */}
+      <CADetailsModal
+        isOpen={showDetailsModal}
+        onClose={handleCloseDetailsModal}
+        caType={detailsModalType}
+        month={selectedMonth}
+        year={selectedYear}
+        historicalLocations={stats?.historicalLocations || []}
+        activeLocations={[]} // À récupérer des données si nécessaire
+        stats={stats || {}}
+      />
     </div>
   );
 };

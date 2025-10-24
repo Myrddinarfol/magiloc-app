@@ -808,3 +808,106 @@ body.light-theme .history-btn-close:hover {
     font-size: 11px;
   }
 }
+
+/* ═════════════════════════════════════════════════════════════════════════ */
+/* EQUIPMENT DETAILS STYLING */
+/* ═════════════════════════════════════════════════════════════════════════ */
+
+.equipment-details-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.equipment-extra-details {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(100, 200, 255, 0.2);
+}
+
+.detail-item {
+  font-size: 11px;
+  color: rgba(200, 200, 200, 0.9);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+}
+
+.detail-item strong {
+  color: rgba(100, 200, 255, 0.8);
+  font-weight: 600;
+  min-width: 70px;
+}
+
+/* Hover effect for equipment row with details */
+.history-row:hover .equipment-extra-details {
+  background: rgba(100, 200, 255, 0.05);
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+/* Adjust col-equipment for better detail display */
+.col-equipment {
+  width: 25% !important;
+  min-width: 180px !important;
+}
+
+/* Responsive adjustments for equipment details */
+@media (max-width: 1024px) {
+  .col-equipment {
+    width: 30% !important;
+    min-width: 150px !important;
+  }
+
+  .detail-item {
+    font-size: 10px;
+  }
+
+  .detail-item strong {
+    min-width: 60px;
+  }
+}
+
+@media (max-width: 768px) {
+  .col-equipment {
+    width: 35% !important;
+    min-width: 140px !important;
+  }
+
+  .equipment-extra-details {
+    gap: 2px;
+    padding-top: 3px;
+  }
+
+  .detail-item {
+    font-size: 9px;
+  }
+
+  .detail-item strong {
+    min-width: 50px;
+  }
+}
+
+@media (max-width: 480px) {
+  .col-equipment {
+    width: 40% !important;
+    min-width: 100px !important;
+  }
+
+  .equipment-extra-details {
+    gap: 1px;
+    padding-top: 2px;
+  }
+
+  .detail-item {
+    font-size: 8px;
+  }
+
+  .detail-item strong {
+    min-width: 40px;
+    font-size: 7px;
+  }
+}

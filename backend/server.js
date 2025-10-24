@@ -792,20 +792,47 @@ app.delete("/api/equipment/:id", async (req, res) => {
 
     console.log(`🗑️ Suppression équipement ${id}`);
 
-    const result = await pool.query(
+    // Vérifier d'abord que l'équipement existe
+    const checkResult = await pool.query(
+      `SELECT id, designation FROM equipments WHERE id = $1`,
+      [id]
+    );
+
+    if (checkResult.rows.length === 0) {
+      return res.status(404).json({ error: "Équipement non trouvé" });
+    }
+
+    const equipment = checkResult.rows[0];
+
+    // Supprimer d'abord les dépendances (location_history, maintenance_history, etc.)
+    await pool.query(
+      `DELETE FROM location_history WHERE equipment_id = $1`,
+      [id]
+    );
+
+    await pool.query(
+      `DELETE FROM maintenance_history WHERE equipment_id = $1`,
+      [id]
+    );
+
+    // Puis supprimer l'équipement lui-même
+    const deleteResult = await pool.query(
       `DELETE FROM equipments WHERE id = $1 RETURNING *`,
       [id]
     );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: "Équipement non trouvé" });
-    }
-
-    console.log(`✅ Équipement ${id} supprimé`);
-    res.json({ message: "✅ Équipement supprimé", equipment: result.rows[0] });
+    console.log(`✅ Équipement ${id} (${equipment.designation}) supprimé avec succès`);
+    res.json({
+      message: "✅ Équipement supprimé avec succès",
+      equipment: deleteResult.rows[0]
+    });
   } catch (err) {
     console.error("❌ Erreur suppression:", err.message);
-    res.status(500).json({ error: "Erreur lors de la suppression" });
+    console.error("Stack:", err.stack);
+    res.status(500).json({
+      error: "Erreur lors de la suppression",
+      details: err.message
+    });
   }
 });
 
@@ -843,7 +870,13 @@ app.get("/api/clients/:id/location-history", async (req, res) => {
 
     // Puis, récupérer l'historique des locations de ce client
     const result = await pool.query(
-      `SELECT lh.*, e.designation as equipment_designation
+      `SELECT lh.*,
+              e.designation as equipment_designation,
+              e.cmu,
+              e.numero_serie,
+              e.longueur,
+              e.modele,
+              e.marque
        FROM location_history lh
        LEFT JOIN equipments e ON lh.equipment_id = e.id
        WHERE lh.client = $1

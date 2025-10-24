@@ -293,6 +293,41 @@ body.light-theme .yearly-ca-banner {
   font-weight: 500;
 }
 
+.kpi-footer {
+  font-size: 11px;
+  color: var(--color-blue);
+  font-weight: 600;
+  margin-top: 12px;
+  opacity: 0;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Styles pour les KPI cliquables */
+.kpi-card.clickable {
+  cursor: pointer;
+  position: relative;
+}
+
+.kpi-card.clickable:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(220, 38, 38, 0.3);
+}
+
+.kpi-card.clickable:hover .kpi-footer {
+  opacity: 1;
+}
+
+.kpi-card.ca-estimatif.clickable:hover .kpi-footer {
+  color: var(--color-blue);
+}
+
+.kpi-card.ca-confirme.clickable:hover .kpi-footer {
+  color: var(--color-green);
+}
+
 /* ===== Graphique ===== */
 .ca-chart-container {
   background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));

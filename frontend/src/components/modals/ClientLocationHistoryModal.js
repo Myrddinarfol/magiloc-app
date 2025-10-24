@@ -46,9 +46,18 @@ const ClientLocationHistoryModal = ({ clientName, history, onClose }) => {
                       <tr key={index} className="history-row">
                         <td className="col-equipment">
                           <div className="equipment-info">
-                            <span className="equipment-name" title={loc.equipment_designation}>
-                              {loc.equipment_designation || 'N/A'}
-                            </span>
+                            <div className="equipment-details-wrapper">
+                              <span className="equipment-name" title={loc.equipment_designation}>
+                                {loc.equipment_designation || 'N/A'}
+                              </span>
+                              {loc.cmu || loc.numero_serie || loc.longueur ? (
+                                <div className="equipment-extra-details">
+                                  {loc.cmu && <span className="detail-item"><strong>CMU:</strong> {loc.cmu}</span>}
+                                  {loc.longueur && <span className="detail-item"><strong>Longueur:</strong> {loc.longueur}</span>}
+                                  {loc.numero_serie && <span className="detail-item"><strong>N° Série:</strong> {loc.numero_serie}</span>}
+                                </div>
+                              ) : null}
+                            </div>
                           </div>
                         </td>
                         <td className="col-dates">
