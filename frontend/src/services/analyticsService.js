@@ -1,5 +1,5 @@
 import { API_URL } from '../config/constants';
-import { calculateBusinessDays, convertFrenchToISO } from '../utils/dateHelpers';
+import { calculateBusinessDays, calculateBusinessDaysByMonth, convertFrenchToISO } from '../utils/dateHelpers';
 
 /**
  * Service pour tous les calculs analytiques du CA
@@ -64,7 +64,64 @@ export const analyticsService = {
   },
 
   /**
-   * Calcule le CA estimatif d'une location EN COURS
+   * Calcule le CA estimatif d'une location EN COURS POUR UN MOIS SPÉCIFIQUE
+   *
+   * IMPORTANT: Répartit correctement les jours quand une location chevauche plusieurs mois
+   * Exemple: Location 25/09 au 09/10
+   *   - Pour septembre: 4 jours (25, 26, 29, 30)
+   *   - Pour octobre: 7 jours (1, 2, 3, 6, 7, 8, 9)
+   *
+   * @param {Object} equipment - L'équipement avec location
+   * @param {number} month - Index du mois (0-11)
+   * @param {number} year - L'année
+   * @returns {number} CA estimatif pour ce mois uniquement
+   */
+  calculateCurrentLocationEstimatedCAByMonth(equipment, month, year) {
+    if (equipment.statut !== 'En Location' || !equipment.debutLocation || !equipment.finLocationTheorique) {
+      return 0;
+    }
+
+    const locationStart = new Date(convertFrenchToISO(equipment.debutLocation));
+    const locationEnd = new Date(convertFrenchToISO(equipment.finLocationTheorique));
+
+    // Obtenir la répartition des jours par mois
+    const startStr = locationStart.toISOString().split('T')[0];
+    const endStr = locationEnd.toISOString().split('T')[0];
+    const monthlyDays = calculateBusinessDaysByMonth(startStr, endStr);
+
+    // Clé pour le mois cible
+    const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
+    const businessDaysThisMonth = monthlyDays[monthKey] || 0;
+
+    console.log(`📊 ${equipment.nom} | Mois ${monthKey} | ${businessDaysThisMonth} jours ouvrés`);
+
+    if (businessDaysThisMonth === 0) return 0;
+
+    // Récupérer le tarif
+    let prixHT = equipment.prixHT || 0;
+    if (!prixHT) return 0; // Sans tarif, pas de CA
+
+    // Calcul du CA pour ce mois
+    let ca = businessDaysThisMonth * prixHT;
+
+    // IMPORTANT: La remise longue durée s'applique sur la durée TOTALE de la location, pas par mois
+    const totalDays = calculateBusinessDays(startStr, endStr);
+    if (totalDays >= 21) {
+      ca = ca * 0.8; // Remise 20%
+    }
+
+    // IMPORTANT: Le minimum de facturation s'applique aussi sur la durée TOTALE
+    if (equipment.minimumFacturationApply && equipment.minimumFacturation) {
+      // Répartir le minimum proportionnellement aux jours du mois
+      const minPerDay = equipment.minimumFacturation / totalDays;
+      ca = Math.max(ca, businessDaysThisMonth * minPerDay);
+    }
+
+    return parseFloat(ca.toFixed(2));
+  },
+
+  /**
+   * Calcule le CA estimatif d'une location EN COURS (version LEGACY - tout le mois)
    * Prend en compte : jours jusqu'à fin du mois, tarif actuel, minimum facturation
    */
   calculateCurrentLocationEstimatedCA(equipment, month, year) {
@@ -114,7 +171,68 @@ export const analyticsService = {
   },
 
   /**
-   * Calcule le CA confirmé d'une location EN COURS
+   * Calcule le CA confirmé d'une location EN COURS POUR UN MOIS SPÉCIFIQUE
+   *
+   * IMPORTANT: Répartit correctement les jours quand une location chevauche plusieurs mois
+   * Ne compte que les jours DÉJÀ ÉCOULÉS (jours passés, pas futurs)
+   *
+   * @param {Object} equipment - L'équipement avec location
+   * @param {number} month - Index du mois (0-11)
+   * @param {number} year - L'année
+   * @returns {number} CA confirmé pour ce mois uniquement
+   */
+  calculateCurrentLocationConfirmedCAByMonth(equipment, month, year) {
+    if (equipment.statut !== 'En Location' || !equipment.debutLocation) {
+      return 0;
+    }
+
+    const today = new Date();
+    const locationStart = new Date(convertFrenchToISO(equipment.debutLocation));
+    const locationEnd = equipment.finLocationTheorique
+      ? new Date(convertFrenchToISO(equipment.finLocationTheorique))
+      : today;
+
+    // La fin réelle est le minimum entre fin théorique et aujourd'hui
+    const realEnd = new Date(Math.min(today.getTime(), locationEnd.getTime()));
+
+    // Obtenir la répartition des jours par mois (jusqu'à realEnd)
+    const startStr = locationStart.toISOString().split('T')[0];
+    const endStr = realEnd.toISOString().split('T')[0];
+    const monthlyDays = calculateBusinessDaysByMonth(startStr, endStr);
+
+    // Clé pour le mois cible
+    const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
+    const businessDaysThisMonth = monthlyDays[monthKey] || 0;
+
+    console.log(`✅ ${equipment.nom} (Confirmé) | Mois ${monthKey} | ${businessDaysThisMonth} jours ouvrés`);
+
+    if (businessDaysThisMonth === 0) return 0;
+
+    // Récupérer le tarif
+    let prixHT = equipment.prixHT || 0;
+    if (!prixHT) return 0; // Sans tarif, pas de CA
+
+    // Calcul du CA pour ce mois
+    let ca = businessDaysThisMonth * prixHT;
+
+    // IMPORTANT: La remise longue durée s'applique sur la durée TOTALE de la location jusqu'à aujourd'hui
+    const totalDays = calculateBusinessDays(startStr, endStr);
+    if (totalDays >= 21) {
+      ca = ca * 0.8; // Remise 20%
+    }
+
+    // IMPORTANT: Le minimum de facturation s'applique aussi sur la durée TOTALE
+    if (equipment.minimumFacturationApply && equipment.minimumFacturation) {
+      // Répartir le minimum proportionnellement aux jours du mois
+      const minPerDay = equipment.minimumFacturation / totalDays;
+      ca = Math.max(ca, businessDaysThisMonth * minPerDay);
+    }
+
+    return parseFloat(ca.toFixed(2));
+  },
+
+  /**
+   * Calcule le CA confirmé d'une location EN COURS (version LEGACY - tout le mois)
    * Prend en compte : jours DÉJÀ ÉCOULÉS uniquement
    */
   calculateCurrentLocationConfirmedCA(equipment, month, year) {
@@ -301,7 +419,7 @@ export const analyticsService = {
           let confirmedCA = 0;
           let activeLocations = 0;
 
-          // Ajouter les locations en cours du mois
+          // Ajouter les locations en cours du mois (avec répartition correcte des jours multi-mois)
           filteredEquipmentList.forEach(equipment => {
             if (equipment.statut === 'En Location' && equipment.debutLocation && equipment.finLocationTheorique) {
               const locationStart = new Date(convertFrenchToISO(equipment.debutLocation));
@@ -312,8 +430,9 @@ export const analyticsService = {
 
               // Vérifier si la location chevauche le mois
               if (locationStart <= monthEnd && locationEnd >= monthStart) {
-                const locEstimated = this.calculateCurrentLocationEstimatedCA(equipment, month, year);
-                const locConfirmed = this.calculateCurrentLocationConfirmedCA(equipment, month, year);
+                // UTILISER LES NOUVELLES FONCTIONS AVEC RÉPARTITION PAR MOIS
+                const locEstimated = this.calculateCurrentLocationEstimatedCAByMonth(equipment, month, year);
+                const locConfirmed = this.calculateCurrentLocationConfirmedCAByMonth(equipment, month, year);
 
                 // COMPTER TOUTES LES LOCATIONS ACTIVES, même sans tarif
                 activeLocations++;
@@ -388,7 +507,7 @@ export const analyticsService = {
     estimatedCA += historicalCA;
     confirmedCA += historicalCA;
 
-    // Parcourir les locations en cours
+    // Parcourir les locations en cours (avec répartition correcte des jours multi-mois)
     filteredEquipmentList.forEach(equipment => {
       if (equipment.statut === 'En Location' && equipment.debutLocation && equipment.finLocationTheorique) {
         const locationStart = new Date(convertFrenchToISO(equipment.debutLocation));
@@ -410,9 +529,9 @@ export const analyticsService = {
             activeLocations++;
             totalDays += businessDays;
 
-            // Calcul CA (seulement si la location a un tarif)
-            const locEstimated = this.calculateCurrentLocationEstimatedCA(equipment, month, year);
-            const locConfirmed = this.calculateCurrentLocationConfirmedCA(equipment, month, year);
+            // Calcul CA avec RÉPARTITION PAR MOIS (seulement si la location a un tarif)
+            const locEstimated = this.calculateCurrentLocationEstimatedCAByMonth(equipment, month, year);
+            const locConfirmed = this.calculateCurrentLocationConfirmedCAByMonth(equipment, month, year);
 
             console.log(`📍 ${equipment.nom} | Tarif: ${equipment.prixHT}€/j | Estimé: ${locEstimated}€ | Confirmé: ${locConfirmed}€`);
 

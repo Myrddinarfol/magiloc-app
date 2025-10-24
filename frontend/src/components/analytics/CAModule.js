@@ -28,7 +28,6 @@ const CAModule = () => {
   const [loading, setLoading] = useState(true);
   const [missingPrices, setMissingPrices] = useState([]);
   const [error, setError] = useState(null);
-  const [showClosedLocationsModal, setShowClosedLocationsModal] = useState(false);
 
   console.log('🔍 CAModule rendu - Equipment:', equipmentData?.length, 'Loading:', loading, 'Stats:', stats);
 
@@ -313,19 +312,6 @@ const CAModule = () => {
             </div>
           </div>
 
-          {/* CA Historique (Locations clôturées) */}
-          {stats.historicalCA > 0 && (
-            <div className="kpi-card historical-ca" onClick={() => setShowClosedLocationsModal(true)} style={{ cursor: 'pointer' }}>
-              <div className="kpi-header">
-                <span className="kpi-icon">📋</span>
-                <span className="kpi-label">CA Clôturé</span>
-              </div>
-              <div className="kpi-value">{stats.historicalCA.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</div>
-              <div className="kpi-detail">
-                {stats.historicalLocationsCount} location{stats.historicalLocationsCount > 1 ? 's' : ''} clôturée{stats.historicalLocationsCount > 1 ? 's' : ''} • Cliquez pour détails
-              </div>
-            </div>
-          )}
         </div>
       )}
 
@@ -403,75 +389,6 @@ const CAModule = () => {
         </div>
       </div>
 
-      {/* Modal Locations Clôturées */}
-      {showClosedLocationsModal && stats?.historicalLocations && (
-        <div className="modal-overlay" onClick={() => setShowClosedLocationsModal(false)}>
-          <div className="modal-content closed-locations-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>📋 Locations Clôturées - {new Date(selectedYear, selectedMonth, 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}</h2>
-              <button className="modal-close" onClick={() => setShowClosedLocationsModal(false)}>✕</button>
-            </div>
-
-            <div className="modal-body">
-              {stats.historicalLocations.length === 0 ? (
-                <p className="no-data">Aucune location clôturée ce mois</p>
-              ) : (
-                <>
-                  <div className="closed-locations-summary">
-                    <div className="summary-stat">
-                      <span className="summary-label">Nombre de locations</span>
-                      <span className="summary-value">{stats.historicalLocations.length}</span>
-                    </div>
-                    <div className="summary-stat">
-                      <span className="summary-label">CA Total</span>
-                      <span className="summary-value">{stats.historicalCA.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</span>
-                    </div>
-                  </div>
-
-                  <div className="closed-locations-list">
-                    {stats.historicalLocations.map((location, idx) => (
-                      <div key={idx} className="closed-location-item">
-                        <div className="location-header">
-                          <span className="location-client"><strong>{location.client}</strong></span>
-                          <span className="location-ca">{parseFloat(location.ca_total_ht || 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</span>
-                        </div>
-                        <div className="location-details">
-                          <div className="detail-row">
-                            <span className="detail-label">📦 Matériel:</span>
-                            <span className="detail-value">ID #{location.equipment_id}</span>
-                          </div>
-                          <div className="detail-row">
-                            <span className="detail-label">📅 Période:</span>
-                            <span className="detail-value">
-                              {location.date_debut ? new Date(location.date_debut).toLocaleDateString('fr-FR') : 'N/A'} → {location.date_fin_theorique ? new Date(location.date_fin_theorique).toLocaleDateString('fr-FR') : 'N/A'}
-                            </span>
-                          </div>
-                          <div className="detail-row">
-                            <span className="detail-label">🔄 Retour:</span>
-                            <span className="detail-value">{location.date_retour_reel ? new Date(location.date_retour_reel).toLocaleDateString('fr-FR') : location.rentre_le || 'N/A'}</span>
-                          </div>
-                          {location.duree_jours_ouvres && (
-                            <div className="detail-row">
-                              <span className="detail-label">📊 Jours:</span>
-                              <span className="detail-value">{location.duree_jours_ouvres} jours ouvrés × {location.prix_ht_jour ? location.prix_ht_jour.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }) : 'N/A'}</span>
-                            </div>
-                          )}
-                          {location.notes_location && (
-                            <div className="detail-row">
-                              <span className="detail-label">📝 Notes:</span>
-                              <span className="detail-value">{location.notes_location}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
