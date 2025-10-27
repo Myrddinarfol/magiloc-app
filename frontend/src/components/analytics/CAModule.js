@@ -77,13 +77,28 @@ const CAModule = () => {
         console.log('📊 Calcul stats pour', selectedMonth, '/', selectedYear);
         console.log('📈 Récupération historique CA...');
 
-        const [monthStats, caHistory, breakdown] = await Promise.all([
-          analyticsService.calculateMonthStats(equipmentData, selectedMonth, selectedYear),
+        const [caHistory, breakdown] = await Promise.all([
           analyticsService.getAllMonthsCAData(equipmentData),
           analyticsService.getMonthLocationBreakdown(equipmentData, selectedMonth, selectedYear)
         ]);
 
-        console.log('✅ Stats calculées:', monthStats);
+        // IMPORTANT: Utiliser le summary de getMonthLocationBreakdown pour cohérence
+        // Car getMonthLocationBreakdown répartit correctement le CA par mois pour tous les chevauches
+        const monthStats = {
+          estimatedCA: breakdown.summary.totalCAEstimated,
+          confirmedCA: breakdown.summary.totalCAConfirmed,
+          activeLocations: breakdown.summary.ongoingCount + breakdown.summary.closedCount,
+          avgDaysPerLocation: Math.round(
+            (breakdown.ongoingLocations.reduce((sum, loc) => sum + loc.businessDaysThisMonth, 0) +
+             breakdown.closedLocations.reduce((sum, loc) => sum + loc.businessDaysThisMonth, 0)) /
+            (breakdown.summary.ongoingCount + breakdown.summary.closedCount || 1)
+          ),
+          historicalCA: breakdown.closedLocations.reduce((sum, loc) => sum + loc.caThisMonth, 0),
+          historicalLocationsCount: breakdown.summary.closedCount,
+          historicalLocations: breakdown.closedLocations
+        };
+
+        console.log('✅ Stats calculées (depuis breakdown):', monthStats);
         console.log('✅ Historique récupéré:', Object.keys(caHistory).length, 'mois');
         console.log('📋 Clés caHistory:', Object.keys(caHistory).sort());
         console.log('📊 Breakdown locations:', breakdown);

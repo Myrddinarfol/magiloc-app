@@ -77,7 +77,8 @@ export const analyticsService = {
    * @returns {number} CA estimatif pour ce mois uniquement
    */
   calculateCurrentLocationEstimatedCAByMonth(equipment, month, year) {
-    if (equipment.statut !== 'En Location' || !equipment.debutLocation) {
+    // IMPORTANT: Ne pas facturer les matériels en prêt
+    if (equipment.statut !== 'En Location' || !equipment.debutLocation || equipment.estPret) {
       return 0;
     }
 
@@ -191,7 +192,8 @@ export const analyticsService = {
    * @returns {number} CA confirmé pour ce mois uniquement
    */
   calculateCurrentLocationConfirmedCAByMonth(equipment, month, year) {
-    if (equipment.statut !== 'En Location' || !equipment.debutLocation) {
+    // IMPORTANT: Ne pas facturer les matériels en prêt
+    if (equipment.statut !== 'En Location' || !equipment.debutLocation || equipment.estPret) {
       return 0;
     }
 
@@ -326,6 +328,9 @@ export const analyticsService = {
     const locations = [];
 
     filteredHistory.forEach(location => {
+      // IMPORTANT: Exclure les locations marquées comme prêt
+      if (location.est_pret) return;
+
       // Utiliser la date de retour réelle ou rentrée
       const returnDateStr = location.date_retour_reel || location.rentre_le;
       if (!returnDateStr) return;
@@ -441,7 +446,8 @@ export const analyticsService = {
           // Ajouter les locations en cours du mois (avec répartition correcte des jours multi-mois)
           filteredEquipmentList.forEach(equipment => {
             // Accepter les locations AVEC ou SANS finLocationTheorique (gestion cohérente)
-            if (equipment.statut === 'En Location' && equipment.debutLocation) {
+            // IMPORTANT: Exclure les matériels en prêt
+            if (equipment.statut === 'En Location' && equipment.debutLocation && !equipment.estPret) {
               const locationStart = new Date(convertFrenchToISO(equipment.debutLocation));
 
               // Si pas de date fin théorique, utiliser fin du mois demandé
@@ -536,7 +542,8 @@ export const analyticsService = {
     // Parcourir les locations en cours (avec répartition correcte des jours multi-mois)
     filteredEquipmentList.forEach(equipment => {
       // Accepter les locations AVEC ou SANS finLocationTheorique (gestion cohérente avec getMonthLocationBreakdown)
-      if (equipment.statut === 'En Location' && equipment.debutLocation) {
+      // IMPORTANT: Exclure les matériels en prêt
+      if (equipment.statut === 'En Location' && equipment.debutLocation && !equipment.estPret) {
         const locationStart = new Date(convertFrenchToISO(equipment.debutLocation));
 
         // Si pas de date fin théorique, utiliser fin du mois demandé (cohérent avec getMonthLocationBreakdown)
@@ -614,6 +621,12 @@ export const analyticsService = {
       // Vérifier si l'équipement est en location le mois demandé
       if (equipment.statut !== 'En Location') continue;
 
+      // IMPORTANT: Exclure les matériels en prêt du CA
+      if (equipment.estPret) {
+        console.log(`   🎁 ${equipment.nom}: matériel en prêt, exclus du CA`);
+        continue;
+      }
+
       if (!equipment.debutLocation) {
         console.log(`   ⚠️  ${equipment.nom}: date de début manquante`);
         continue;
@@ -674,7 +687,8 @@ export const analyticsService = {
       }
 
       // Calculer les jours ouvrés par mois pour cette location
-      const totalBusinessDays = calculateBusinessDays(startDate, effectiveEndDate);
+      // IMPORTANT: Utiliser la vraie date de fin théorique pour calculer la remise 20%, pas effectiveEndDate!
+      const totalBusinessDays = calculateBusinessDays(startDate, endDate || effectiveEndDate);
       const businessDaysByMonth = calculateBusinessDaysByMonth(startDate, effectiveEndDate);
       const businessDaysThisMonth = businessDaysByMonth[monthKey] || 0;
 
@@ -693,6 +707,7 @@ export const analyticsService = {
 
       // Appliquer les calculs de CA
       const dailyRate = parseFloat(equipment.prixHT) || 0;
+      // IMPORTANT: Vérifier la remise basée sur la durée THÉORIQUE, pas effectiveEndDate
       const hasLongDurationDiscount = totalBusinessDays >= 21;
       const hasMinimumBilling = equipment.minimumFacturationApply && equipment.minimumFacturation;
 
@@ -762,6 +777,12 @@ export const analyticsService = {
     console.log(`   📋 Total locations fermées trouvées (TEST exclus): ${allHistoricalLocations.length}`);
 
     for (const location of allHistoricalLocations) {
+      // IMPORTANT: Exclure les locations marquées comme prêt
+      if (location.est_pret) {
+        console.log(`   🎁 Location ${location.id}: prêt, exclus du CA`);
+        continue;
+      }
+
       // Parser les dates correctement (peuvent être en format français DD/MM/YYYY ou ISO YYYY-MM-DD)
       let startDate = location.date_debut;
       let endDate = (location.date_retour_reel || location.date_fin_theorique);

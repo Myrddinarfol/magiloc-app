@@ -11,7 +11,8 @@ const ReservationModal = ({ equipment, onClose, onSuccess }) => {
     departEnlevement: '',
     numeroOffre: '',
     notesLocation: '',
-    estLongDuree: false
+    estLongDuree: false,
+    estPret: false
   };
   const [form, setForm] = useState(reservationFormData || defaultForm);
 
@@ -45,7 +46,8 @@ const ReservationModal = ({ equipment, onClose, onSuccess }) => {
         departEnlevement: form.departEnlevement || null,
         numeroOffre: form.numeroOffre.trim() || null,
         notesLocation: form.notesLocation.trim() || null,
-        estLongDuree: form.estLongDuree
+        estLongDuree: form.estLongDuree,
+        estPret: form.estPret
       });
 
       console.log('✅ Réservation créée');
@@ -156,6 +158,22 @@ const ReservationModal = ({ equipment, onClose, onSuccess }) => {
               />
               <span>📊 Location Longue Durée (-20% remise)</span>
             </label>
+          </div>
+
+          <div className="form-group" style={{marginTop: '12px'}}>
+            <label style={{display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '15px'}}>
+              <input
+                type="checkbox"
+                id="pret-input"
+                checked={form.estPret}
+                onChange={(e) => updateForm({...form, estPret: e.target.checked})}
+                style={{cursor: 'pointer', width: '18px', height: '18px'}}
+              />
+              <span>🎁 Matériel en Prêt (Non facturé)</span>
+            </label>
+            <small style={{color: '#9ca3af', marginTop: '4px', display: 'block', marginLeft: '28px'}}>
+              Cochez si le matériel est en prêt (SAV, délai de commande, etc.) - ne sera pas inclus dans le CA
+            </small>
           </div>
 
           <p className="modal-info">

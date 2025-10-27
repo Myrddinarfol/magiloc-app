@@ -429,7 +429,7 @@ app.patch("/api/equipment/:id", async (req, res) => {
     const { id } = req.params;
     const {
       certificat, statut, client: clientName, debutLocation, finLocationTheorique, numeroOffre, notesLocation,
-      modele, marque, longueur, numeroSerie, prixHT, etat, motifMaintenance, debutMaintenance, minimumFacturation, minimumFacturationApply, idArticle
+      modele, marque, longueur, numeroSerie, prixHT, etat, motifMaintenance, debutMaintenance, minimumFacturation, minimumFacturationApply, idArticle, estPret
     } = req.body;
 
     console.log(`📝 Body reçu:`, { statut, clientName, motifMaintenance, debutMaintenance, minimumFacturation, minimumFacturationApply });
@@ -533,6 +533,10 @@ app.patch("/api/equipment/:id", async (req, res) => {
     if (etat !== undefined) {
       updateFields.push(`etat = $${paramIndex++}`);
       values.push(etat);
+    }
+    if (estPret !== undefined) {
+      updateFields.push(`est_pret = $${paramIndex++}`);
+      values.push(estPret);
     }
 
     if (updateFields.length === 0) {
@@ -692,8 +696,8 @@ app.post("/api/equipment/:id/return", async (req, res) => {
         equipment_id, client, date_debut, date_fin_theorique, date_retour_reel,
         numero_offre, notes_location, note_retour, rentre_le,
         duree_jours_ouvres, prix_ht_jour, remise_ld, ca_total_ht,
-        minimum_facturation_apply, minimum_facturation
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
+        minimum_facturation_apply, minimum_facturation, est_pret
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`,
       [
         id,
         equipment.client,
@@ -709,7 +713,8 @@ app.post("/api/equipment/:id/return", async (req, res) => {
         isLongDuration,
         caTotal,
         minimumFacturationApply || false,
-        finalMinimumFacturation
+        finalMinimumFacturation,
+        equipment.est_pret || false
       ]
     );
 
