@@ -1440,6 +1440,150 @@ app.post("/api/maintenance-pieces/import", async (req, res) => {
   }
 });
 
+// ═══════════════════════════════════════════════════════════════════════════
+// GESTION DES TARIFS MANQUANTS DANS L'HISTORIQUE
+// ═══════════════════════════════════════════════════════════════════════════
+
+// GET: Récupérer tous les historiques de location sans tarif (prix_ht_jour = NULL ou 0)
+app.get("/api/location-history/missing-prices", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT
+        lh.id,
+        lh.equipment_id,
+        e.designation as equipment_designation,
+        e.cmu,
+        e.marque,
+        e.modele,
+        lh.client,
+        lh.date_debut,
+        lh.date_fin_theorique,
+        lh.date_retour_reel,
+        lh.duree_jours_ouvres,
+        lh.prix_ht_jour,
+        e.prix_ht_jour as current_price,
+        lh.ca_total_ht
+       FROM location_history lh
+       LEFT JOIN equipments e ON lh.equipment_id = e.id
+       WHERE lh.prix_ht_jour IS NULL OR lh.prix_ht_jour = 0
+       ORDER BY lh.date_debut DESC`
+    );
+
+    const missingCount = result.rows.length;
+    const withCurrentPrice = result.rows.map(row => ({
+      ...row,
+      can_auto_fill: row.current_price && row.current_price > 0
+    }));
+
+    res.json({
+      count: missingCount,
+      locations: withCurrentPrice
+    });
+
+  } catch (err) {
+    console.error("❌ Erreur récupération tarifs manquants:", err.message);
+    res.status(500).json({ error: "Erreur lors de la récupération" });
+  }
+});
+
+// PATCH: Mettre à jour le tarif d'un historique de location
+app.patch("/api/location-history/:id/update-price", async (req, res) => {
+  const dbClient = await pool.connect();
+
+  try {
+    const { id } = req.params;
+    const { prix_ht_jour } = req.body;
+
+    if (!prix_ht_jour || prix_ht_jour <= 0) {
+      return res.status(400).json({ error: "Prix invalide" });
+    }
+
+    const prixNumber = parseFloat(prix_ht_jour);
+
+    // Mettre à jour le tarif dans location_history
+    const result = await dbClient.query(
+      `UPDATE location_history
+       SET prix_ht_jour = $1
+       WHERE id = $2
+       RETURNING *`,
+      [prixNumber, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Historique de location non trouvé" });
+    }
+
+    console.log(`✅ Tarif mis à jour pour location_history ${id}: ${prixNumber}€/j`);
+
+    res.json({
+      message: "✅ Tarif mis à jour avec succès",
+      location: result.rows[0]
+    });
+
+  } catch (err) {
+    console.error("❌ Erreur mise à jour tarif:", err.message);
+    res.status(500).json({ error: "Erreur lors de la mise à jour", details: err.message });
+  } finally {
+    dbClient.release();
+  }
+});
+
+// PATCH: Remplir automatiquement les tarifs manquants avec le tarif actuel de l'équipement
+app.patch("/api/location-history/auto-fill-prices", async (req, res) => {
+  const dbClient = await pool.connect();
+
+  try {
+    await dbClient.query('BEGIN');
+
+    // Récupérer tous les historiques sans tarif et associés à un équipement avec un tarif
+    const missingPricesResult = await dbClient.query(
+      `SELECT
+        lh.id,
+        lh.equipment_id,
+        e.prix_ht_jour
+       FROM location_history lh
+       LEFT JOIN equipments e ON lh.equipment_id = e.id
+       WHERE (lh.prix_ht_jour IS NULL OR lh.prix_ht_jour = 0)
+       AND e.prix_ht_jour IS NOT NULL
+       AND e.prix_ht_jour > 0`
+    );
+
+    let updatedCount = 0;
+    const updates = [];
+
+    for (const row of missingPricesResult.rows) {
+      const updateResult = await dbClient.query(
+        `UPDATE location_history
+         SET prix_ht_jour = $1
+         WHERE id = $2
+         RETURNING id, equipment_id, prix_ht_jour`,
+        [row.prix_ht_jour, row.id]
+      );
+
+      if (updateResult.rows.length > 0) {
+        updatedCount++;
+        updates.push(updateResult.rows[0]);
+        console.log(`✅ Tarif auto-rempli pour location ${row.id}: ${row.prix_ht_jour}€/j`);
+      }
+    }
+
+    await dbClient.query('COMMIT');
+
+    res.json({
+      message: `✅ ${updatedCount} tarifs mis à jour automatiquement`,
+      updatedCount,
+      updates
+    });
+
+  } catch (err) {
+    await dbClient.query('ROLLBACK');
+    console.error("❌ Erreur remplissage automatique tarifs:", err.message);
+    res.status(500).json({ error: "Erreur lors du remplissage automatique", details: err.message });
+  } finally {
+    dbClient.release();
+  }
+});
+
 // Démarrage du serveur
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);

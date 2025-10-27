@@ -77,12 +77,21 @@ export const analyticsService = {
    * @returns {number} CA estimatif pour ce mois uniquement
    */
   calculateCurrentLocationEstimatedCAByMonth(equipment, month, year) {
-    if (equipment.statut !== 'En Location' || !equipment.debutLocation || !equipment.finLocationTheorique) {
+    if (equipment.statut !== 'En Location' || !equipment.debutLocation) {
       return 0;
     }
 
     const locationStart = new Date(convertFrenchToISO(equipment.debutLocation));
-    const locationEnd = new Date(convertFrenchToISO(equipment.finLocationTheorique));
+
+    // Si pas de date fin théorique, utiliser fin du mois demandé
+    let locationEnd = locationStart;
+    if (equipment.finLocationTheorique) {
+      locationEnd = new Date(convertFrenchToISO(equipment.finLocationTheorique));
+    } else {
+      // Pas de date fin théorique → utiliser fin du mois
+      locationEnd = new Date(year, month + 1, 0);
+      console.log(`⚠️  ${equipment.nom}: calculateCurrentLocationEstimatedCAByMonth - pas de finLocationTheorique, utilisation fin du mois`);
+    }
 
     // Obtenir la répartition des jours par mois
     const startStr = locationStart.toISOString().split('T')[0];
@@ -188,9 +197,17 @@ export const analyticsService = {
 
     const today = new Date();
     const locationStart = new Date(convertFrenchToISO(equipment.debutLocation));
-    const locationEnd = equipment.finLocationTheorique
-      ? new Date(convertFrenchToISO(equipment.finLocationTheorique))
-      : today;
+
+    // Si pas de date fin théorique, utiliser fin du mois demandé (cohérent avec estimé)
+    let locationEnd = today; // Par défaut, jusqu'à aujourd'hui
+    if (equipment.finLocationTheorique) {
+      locationEnd = new Date(convertFrenchToISO(equipment.finLocationTheorique));
+    } else {
+      // Pas de date fin théorique → jusqu'à fin du mois demandé si avant aujourd'hui
+      const monthEnd = new Date(year, month + 1, 0);
+      locationEnd = monthEnd < today ? monthEnd : today;
+      console.log(`⚠️  ${equipment.nom}: calculateCurrentLocationConfirmedCAByMonth - pas de finLocationTheorique, utilisation fin du mois ou aujourd'hui`);
+    }
 
     // La fin réelle est le minimum entre fin théorique et aujourd'hui
     const realEnd = new Date(Math.min(today.getTime(), locationEnd.getTime()));
@@ -423,9 +440,14 @@ export const analyticsService = {
 
           // Ajouter les locations en cours du mois (avec répartition correcte des jours multi-mois)
           filteredEquipmentList.forEach(equipment => {
-            if (equipment.statut === 'En Location' && equipment.debutLocation && equipment.finLocationTheorique) {
+            // Accepter les locations AVEC ou SANS finLocationTheorique (gestion cohérente)
+            if (equipment.statut === 'En Location' && equipment.debutLocation) {
               const locationStart = new Date(convertFrenchToISO(equipment.debutLocation));
-              const locationEnd = new Date(convertFrenchToISO(equipment.finLocationTheorique));
+
+              // Si pas de date fin théorique, utiliser fin du mois demandé
+              let locationEnd = equipment.finLocationTheorique
+                ? new Date(convertFrenchToISO(equipment.finLocationTheorique))
+                : new Date(year, month + 1, 0);
 
               const monthStart = new Date(year, month, 1);
               const monthEnd = new Date(year, month + 1, 0);
@@ -513,9 +535,19 @@ export const analyticsService = {
 
     // Parcourir les locations en cours (avec répartition correcte des jours multi-mois)
     filteredEquipmentList.forEach(equipment => {
-      if (equipment.statut === 'En Location' && equipment.debutLocation && equipment.finLocationTheorique) {
+      // Accepter les locations AVEC ou SANS finLocationTheorique (gestion cohérente avec getMonthLocationBreakdown)
+      if (equipment.statut === 'En Location' && equipment.debutLocation) {
         const locationStart = new Date(convertFrenchToISO(equipment.debutLocation));
-        const locationEnd = new Date(convertFrenchToISO(equipment.finLocationTheorique));
+
+        // Si pas de date fin théorique, utiliser fin du mois demandé (cohérent avec getMonthLocationBreakdown)
+        let locationEnd = locationStart;
+        if (equipment.finLocationTheorique) {
+          locationEnd = new Date(convertFrenchToISO(equipment.finLocationTheorique));
+        } else {
+          // Pas de date fin → utiliser fin du mois demandé
+          locationEnd = monthEnd;
+          console.log(`⚠️  ${equipment.nom}: pas de finLocationTheorique, utilisation fin du mois`);
+        }
 
         // Vérifier si la location chevauche le mois
         if (locationStart <= monthEnd && locationEnd >= monthStart) {

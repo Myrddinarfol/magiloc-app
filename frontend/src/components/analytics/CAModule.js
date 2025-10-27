@@ -15,6 +15,7 @@ import {
 import analyticsService from '../../services/analyticsService';
 import { useEquipment } from '../../hooks/useEquipment';
 import CADetailsModal from './CADetailsModal';
+import MissingPricesModal from './MissingPricesModal';
 import './CAModule.css';
 import './CADetailsModal.css';
 
@@ -33,6 +34,7 @@ const CAModule = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [detailsModalType, setDetailsModalType] = useState('estimated'); // 'estimated' ou 'confirmed'
   const [monthLocationBreakdown, setMonthLocationBreakdown] = useState(null);
+  const [showMissingPricesModal, setShowMissingPricesModal] = useState(false);
 
   console.log('🔍 CAModule rendu - Equipment:', equipmentData?.length, 'Loading:', loading, 'Stats:', stats);
 
@@ -188,6 +190,16 @@ const CAModule = () => {
     setShowDetailsModal(false);
   };
 
+  const handleCloseMissingPricesModal = () => {
+    setShowMissingPricesModal(false);
+  };
+
+  const handlePricesUpdated = () => {
+    // Recharger les données analytiques après mise à jour des tarifs
+    console.log('🔄 Recharge des données analytiques après mise à jour des tarifs');
+    // Les données se rechargeront automatiquement via le useEffect
+  };
+
   const monthName = new Date(selectedYear, selectedMonth, 1).toLocaleDateString('fr-FR', {
     month: 'long',
     year: 'numeric'
@@ -256,6 +268,13 @@ const CAModule = () => {
             <strong>{missingPrices.length} équipement(s) en location sans tarif</strong>
             <p>Les tarifs manquants ne sont pas inclus dans le CA. Complétez les tarifs horaires pour une analyse complète.</p>
           </div>
+          <button
+            className="warning-action-btn"
+            onClick={() => setShowMissingPricesModal(true)}
+            title="Voir et corriger les tarifs manquants dans l'historique"
+          >
+            💾 Corriger tarifs historique
+          </button>
         </div>
       )}
 
@@ -406,6 +425,13 @@ const CAModule = () => {
         closedLocations={monthLocationBreakdown?.closedLocations || []}
         ongoingLocations={monthLocationBreakdown?.ongoingLocations || []}
         summary={monthLocationBreakdown?.summary || {}}
+      />
+
+      {/* Modal Tarifs Manquants */}
+      <MissingPricesModal
+        isOpen={showMissingPricesModal}
+        onClose={handleCloseMissingPricesModal}
+        onPricesUpdated={handlePricesUpdated}
       />
     </div>
   );
