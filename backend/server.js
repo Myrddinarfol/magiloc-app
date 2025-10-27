@@ -177,7 +177,9 @@ app.get("/api/equipment", async (req, res) => {
         numero_offre as "numeroOffre",
         notes_location as "notesLocation",
         motif_maintenance as "motifMaintenance",
-        note_retour as "noteRetour"
+        note_retour as "noteRetour",
+        est_pret as "estPret",
+        est_long_duree as "estLongDuree"
       FROM equipments
       ${whereClause}
       ORDER BY id
