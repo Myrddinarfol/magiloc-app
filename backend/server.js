@@ -428,7 +428,7 @@ app.patch("/api/equipment/:id", async (req, res) => {
 
     const { id } = req.params;
     const {
-      certificat, statut, client: clientName, debutLocation, finLocationTheorique, numeroOffre, notesLocation,
+      certificat, statut, client: clientName, debutLocation, finLocationTheorique, departEnlevement, numeroOffre, notesLocation,
       modele, marque, longueur, numeroSerie, prixHT, etat, motifMaintenance, debutMaintenance, minimumFacturation, minimumFacturationApply, idArticle, estPret
     } = req.body;
 
@@ -480,6 +480,10 @@ app.patch("/api/equipment/:id", async (req, res) => {
     if (finLocationTheorique !== undefined) {
       updateFields.push(`fin_location_theorique = $${paramIndex++}`);
       values.push(finLocationTheorique);
+    }
+    if (departEnlevement !== undefined) {
+      updateFields.push(`depart_enlevement = $${paramIndex++}`);
+      values.push(departEnlevement);
     }
     if (numeroOffre !== undefined) {
       updateFields.push(`numero_offre = $${paramIndex++}`);

@@ -297,6 +297,7 @@ const MainApp = ({ shouldStartTour }) => {
         numeroOffre: formData.numeroOffre || null,
         notesLocation: formData.notesLocation || null,
         estLongDuree: formData.estLongDuree || false,
+        estPret: formData.estPret || false,
         minimumFacturationApply: formData.minimumFacturationApply || false
       };
 

@@ -11,7 +11,9 @@ const EditLocationModal = ({ equipment, onClose, onSuccess }) => {
     departEnlevement: '',
     numeroOffre: '',
     notesLocation: '',
-    estLongDuree: false
+    estLongDuree: false,
+    estPret: false,
+    minimumFacturationApply: false
   };
   const [form, setForm] = useState(defaultForm);
 
@@ -29,7 +31,9 @@ const EditLocationModal = ({ equipment, onClose, onSuccess }) => {
         departEnlevement: equipment.departEnlevement || '',
         numeroOffre: equipment.numeroOffre || '',
         notesLocation: equipment.notesLocation || '',
-        estLongDuree: equipment.estLongDuree === true || equipment.estLongDuree === 1
+        estLongDuree: equipment.estLongDuree === true || equipment.estLongDuree === 1,
+        estPret: equipment.estPret === true || equipment.estPret === 1,
+        minimumFacturationApply: equipment.minimumFacturationApply === true || equipment.minimumFacturationApply === 1
       });
     }
   }, [equipment]);
@@ -71,7 +75,9 @@ const EditLocationModal = ({ equipment, onClose, onSuccess }) => {
         departEnlevement: form.departEnlevement || null,
         numeroOffre: form.numeroOffre.trim() || null,
         notesLocation: form.notesLocation.trim() || null,
-        estLongDuree: form.estLongDuree
+        estLongDuree: form.estLongDuree,
+        estPret: form.estPret,
+        minimumFacturationApply: form.minimumFacturationApply
       });
 
       console.log('✅ Informations de location modifiées');
@@ -99,6 +105,29 @@ const EditLocationModal = ({ equipment, onClose, onSuccess }) => {
           <p className="modal-description">
             Modifier les informations de location pour <strong>{equipment.designation} {equipment.cmu}</strong>
           </p>
+
+          {/* Initial values reference */}
+          <div style={{
+            background: 'rgba(59, 130, 246, 0.1)',
+            border: '1px solid rgba(59, 130, 246, 0.3)',
+            borderRadius: '8px',
+            padding: '12px',
+            marginBottom: '20px',
+            fontSize: '13px',
+            color: '#6b7280'
+          }}>
+            <p style={{fontWeight: '600', marginBottom: '8px', color: '#374151'}}>📋 Valeurs actuelles (repère):</p>
+            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px'}}>
+              <div><strong>Client:</strong> {equipment.client || 'N/A'}</div>
+              <div><strong>Début:</strong> {equipment.debutLocation || 'N/A'}</div>
+              <div><strong>Fin théorique:</strong> {equipment.finLocationTheorique || 'N/A'}</div>
+              <div><strong>Enlèvement:</strong> {equipment.departEnlevement || 'N/A'}</div>
+              <div><strong>N° Offre:</strong> {equipment.numeroOffre || 'N/A'}</div>
+              <div><strong>Long. Durée:</strong> {equipment.estLongDuree ? '✓ Oui' : 'Non'}</div>
+              <div><strong>Prêt:</strong> {equipment.estPret ? '✓ Oui' : 'Non'}</div>
+              <div><strong>Min. Fact.:</strong> {equipment.minimumFacturationApply ? '✓ Oui' : 'Non'}</div>
+            </div>
+          </div>
 
           <div className="form-group">
             <label htmlFor="client-input">Client * :</label>
@@ -182,6 +211,35 @@ const EditLocationModal = ({ equipment, onClose, onSuccess }) => {
                 style={{cursor: 'pointer', width: '18px', height: '18px'}}
               />
               <span>📊 Location Longue Durée (-20% remise)</span>
+            </label>
+          </div>
+
+          <div className="form-group" style={{marginTop: '20px'}}>
+            <label style={{display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '15px'}}>
+              <input
+                type="checkbox"
+                id="loan-equipment-input"
+                checked={form.estPret}
+                onChange={(e) => updateForm({...form, estPret: e.target.checked})}
+                style={{cursor: 'pointer', width: '18px', height: '18px'}}
+              />
+              <span>🎁 Matériel en Prêt (Non facturé)</span>
+            </label>
+            <small style={{color: '#9ca3af', marginTop: '4px', display: 'block', marginLeft: '28px'}}>
+              Cochez si le matériel est en prêt (SAV, délai de commande, etc.) - ne sera pas inclus dans le CA
+            </small>
+          </div>
+
+          <div className="form-group" style={{marginTop: '20px'}}>
+            <label style={{display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '15px'}}>
+              <input
+                type="checkbox"
+                id="minimum-facturation-input"
+                checked={form.minimumFacturationApply}
+                onChange={(e) => updateForm({...form, minimumFacturationApply: e.target.checked})}
+                style={{cursor: 'pointer', width: '18px', height: '18px'}}
+              />
+              <span>💰 Minimum de facturation appliqué ({equipment?.minimumFacturation ? `${equipment.minimumFacturation}€` : 'N/A'})</span>
             </label>
           </div>
 
