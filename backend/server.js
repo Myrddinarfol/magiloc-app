@@ -172,6 +172,7 @@ app.get("/api/equipment", async (req, res) => {
         client,
         debut_location as "debutLocation",
         fin_location_theorique as "finLocationTheorique",
+        depart_enlevement as "departEnlevement",
         rentre_le as "rentreeLe",
         numero_offre as "numeroOffre",
         notes_location as "notesLocation",
@@ -190,6 +191,7 @@ app.get("/api/equipment", async (req, res) => {
       prochainVGP: formatDateToFrench(eq.prochainVGP),
       debutLocation: formatDateToFrench(eq.debutLocation),
       finLocationTheorique: formatDateToFrench(eq.finLocationTheorique),
+      departEnlevement: formatDateToFrench(eq.departEnlevement),
       rentreeLe: formatDateToFrench(eq.rentreeLe)
     }));
 
