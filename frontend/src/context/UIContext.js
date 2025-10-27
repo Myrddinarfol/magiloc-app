@@ -19,7 +19,6 @@ export const UIProvider = ({ children }) => {
   // Modals
   const [showImporter, setShowImporter] = useState(false);
   const [showCertificatModal, setShowCertificatModal] = useState(false);
-  const [showReservationModal, setShowReservationModal] = useState(false);
   const [showStartLocationModal, setShowStartLocationModal] = useState(false);
   const [showReturnModal, setShowReturnModal] = useState(false);
   const [showLocationHistory, setShowLocationHistory] = useState(false);
@@ -119,8 +118,6 @@ export const UIProvider = ({ children }) => {
       setShowImporter,
       showCertificatModal,
       setShowCertificatModal,
-      showReservationModal,
-      setShowReservationModal,
       showStartLocationModal,
       setShowStartLocationModal,
       showReturnModal,

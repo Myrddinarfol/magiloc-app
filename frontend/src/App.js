@@ -42,7 +42,6 @@ import ReleaseNotesHistory from './components/ReleaseNotesHistory';
 
 // Modals
 import CertificatModal from './components/modals/CertificatModal';
-import ReservationModal from './components/modals/ReservationModal';
 import StartLocationModal from './components/modals/StartLocationModal';
 import EditTechInfoModal from './components/modals/EditTechInfoModal';
 import AddEquipmentModal from './components/modals/AddEquipmentModal';
@@ -83,8 +82,6 @@ const MainApp = ({ shouldStartTour }) => {
     setShowImporter,
     showCertificatModal,
     setShowCertificatModal,
-    showReservationModal,
-    setShowReservationModal,
     showStartLocationModal,
     setShowStartLocationModal,
     showLocationHistory,
@@ -153,7 +150,6 @@ const MainApp = ({ shouldStartTour }) => {
 
     // Fermer tous les modals
     setShowCertificatModal(false);
-    setShowReservationModal(false);
     setShowStartLocationModal(false);
     setShowEditTechInfoModal(false);
     setShowAddEquipmentModal(false);
@@ -568,14 +564,6 @@ const MainApp = ({ shouldStartTour }) => {
           equipment={selectedEquipment}
           onClose={() => setShowCertificatModal(false)}
           onSave={handleModalSuccess}
-        />
-      )}
-
-      {showReservationModal && selectedEquipment && (
-        <ReservationModal
-          equipment={selectedEquipment}
-          onClose={() => setShowReservationModal(false)}
-          onSuccess={handleModalSuccess}
         />
       )}
 

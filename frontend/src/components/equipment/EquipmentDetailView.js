@@ -28,7 +28,7 @@ const EquipmentDetailView = ({
   onCreateReservation,
   onEditLocationInfo
 }) => {
-  const { setShowReservationModal, setShowStartLocationModal, setShowReturnModal, setShowMaintenanceModal, setShowCompleteMaintenance, previousPage } = useUI();
+  const { setShowStartLocationModal, setShowReturnModal, setShowMaintenanceModal, setShowCompleteMaintenance, previousPage } = useUI();
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [showCreateReservationModal, setShowCreateReservationModal] = useState(false);
   const [showEditLocationModal, setShowEditLocationModal] = useState(false);
