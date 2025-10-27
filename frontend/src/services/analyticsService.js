@@ -105,6 +105,12 @@ export const analyticsService = {
 
     console.log(`📊 ${equipment.nom} | Mois ${monthKey} | ${businessDaysThisMonth} jours ouvrés`);
 
+    // Si minimum de facturation coché, CA = minimum (pas de calcul sur jours)
+    if (equipment.minimumFacturationApply && equipment.minimumFacturation) {
+      console.log(`💰 Minimum facturation appliqué: ${equipment.minimumFacturation}€`);
+      return parseFloat(equipment.minimumFacturation.toFixed(2));
+    }
+
     if (businessDaysThisMonth === 0) return 0;
 
     // Récupérer le tarif
@@ -118,13 +124,6 @@ export const analyticsService = {
     const totalDays = calculateBusinessDays(startStr, endStr);
     if (totalDays >= 21) {
       ca = ca * 0.8; // Remise 20%
-    }
-
-    // IMPORTANT: Le minimum de facturation s'applique aussi sur la durée TOTALE
-    if (equipment.minimumFacturationApply && equipment.minimumFacturation) {
-      // Répartir le minimum proportionnellement aux jours du mois
-      const minPerDay = equipment.minimumFacturation / totalDays;
-      ca = Math.max(ca, businessDaysThisMonth * minPerDay);
     }
 
     return parseFloat(ca.toFixed(2));
@@ -172,9 +171,9 @@ export const analyticsService = {
       ca = ca * 0.8; // Remise 20%
     }
 
-    // Appliquer minimum facturation
+    // Si minimum de facturation coché, CA = minimum (strictement)
     if (equipment.minimumFacturationApply && equipment.minimumFacturation) {
-      ca = Math.max(ca, equipment.minimumFacturation);
+      ca = equipment.minimumFacturation;
     }
 
     return parseFloat(ca.toFixed(2));
@@ -240,11 +239,9 @@ export const analyticsService = {
       ca = ca * 0.8; // Remise 20%
     }
 
-    // IMPORTANT: Le minimum de facturation s'applique aussi sur la durée TOTALE
+    // Si minimum de facturation coché, CA = minimum (strictement)
     if (equipment.minimumFacturationApply && equipment.minimumFacturation) {
-      // Répartir le minimum proportionnellement aux jours du mois
-      const minPerDay = equipment.minimumFacturation / totalDays;
-      ca = Math.max(ca, businessDaysThisMonth * minPerDay);
+      ca = equipment.minimumFacturation;
     }
 
     return parseFloat(ca.toFixed(2));
@@ -299,9 +296,9 @@ export const analyticsService = {
       ca = ca * 0.8; // Remise 20%
     }
 
-    // Appliquer minimum facturation
+    // Si minimum de facturation coché, CA = minimum (strictement)
     if (equipment.minimumFacturationApply && equipment.minimumFacturation) {
-      ca = Math.max(ca, equipment.minimumFacturation);
+      ca = equipment.minimumFacturation;
     }
 
     return parseFloat(ca.toFixed(2));
@@ -756,16 +753,14 @@ export const analyticsService = {
       let caConfirmedThisMonth = businessDaysConfirmedThisMonth * dailyRate;
       if (hasLongDurationDiscount) caConfirmedThisMonth *= 0.8;
       if (hasMinimumBilling) {
-        const minPerDay = equipment.minimumFacturation / totalBusinessDays;
-        caConfirmedThisMonth = Math.max(caConfirmedThisMonth, businessDaysConfirmedThisMonth * minPerDay);
+        caConfirmedThisMonth = equipment.minimumFacturation;
       }
 
       // CA Estimé pour ce mois (confirmé + estimé futur)
       let caEstimatedThisMonth = businessDaysThisMonth * dailyRate;
       if (hasLongDurationDiscount) caEstimatedThisMonth *= 0.8;
       if (hasMinimumBilling) {
-        const minPerDay = equipment.minimumFacturation / totalBusinessDays;
-        caEstimatedThisMonth = Math.max(caEstimatedThisMonth, businessDaysThisMonth * minPerDay);
+        caEstimatedThisMonth = equipment.minimumFacturation;
       }
 
       console.log(`   📦 Equipment: ${equipment.id} - nom: ${equipment.nom}, designation: ${equipment.designation}`);
