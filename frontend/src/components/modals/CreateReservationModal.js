@@ -368,6 +368,26 @@ const CreateReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
           </label>
         </div>
 
+        {/* MINIMUM FACTURATION checkbox */}
+        <div style={{ marginBottom: '24px' }}>
+          <label style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            cursor: 'pointer',
+            fontSize: '15px',
+            color: '#d1d5db'
+          }}>
+            <input
+              type="checkbox"
+              checked={formData.minimumFacturationApply}
+              onChange={(e) => setFormData({...formData, minimumFacturationApply: e.target.checked})}
+              style={{cursor: 'pointer', width: '18px', height: '18px'}}
+            />
+            <span>💰 Minimum de facturation appliqué ({equipment?.minimumFacturation ? `${equipment.minimumFacturation}€` : 'N/A'})</span>
+          </label>
+        </div>
+
         {/* LOAN EQUIPMENT checkbox */}
         <div style={{ marginBottom: '24px' }}>
           <label style={{
@@ -389,26 +409,6 @@ const CreateReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
           <small style={{color: '#9ca3af', marginTop: '4px', display: 'block', marginLeft: '28px'}}>
             Cochez si le matériel est en prêt (SAV, délai de commande, etc.) - ne sera pas inclus dans le CA
           </small>
-        </div>
-
-        {/* MINIMUM FACTURATION checkbox */}
-        <div style={{ marginBottom: '24px' }}>
-          <label style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            cursor: 'pointer',
-            fontSize: '15px',
-            color: '#d1d5db'
-          }}>
-            <input
-              type="checkbox"
-              checked={formData.minimumFacturationApply}
-              onChange={(e) => setFormData({...formData, minimumFacturationApply: e.target.checked})}
-              style={{cursor: 'pointer', width: '18px', height: '18px'}}
-            />
-            <span>💰 Minimum de facturation appliqué ({equipment?.minimumFacturation ? `${equipment.minimumFacturation}€` : 'N/A'})</span>
-          </label>
         </div>
 
         {/* Info message */}

@@ -218,6 +218,19 @@ const EditLocationModal = ({ equipment, onClose, onSuccess }) => {
             <label style={{display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '15px'}}>
               <input
                 type="checkbox"
+                id="minimum-facturation-input"
+                checked={form.minimumFacturationApply}
+                onChange={(e) => updateForm({...form, minimumFacturationApply: e.target.checked})}
+                style={{cursor: 'pointer', width: '18px', height: '18px'}}
+              />
+              <span>💰 Minimum de facturation appliqué ({equipment?.minimumFacturation ? `${equipment.minimumFacturation}€` : 'N/A'})</span>
+            </label>
+          </div>
+
+          <div className="form-group" style={{marginTop: '20px'}}>
+            <label style={{display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '15px'}}>
+              <input
+                type="checkbox"
                 id="loan-equipment-input"
                 checked={form.estPret}
                 onChange={(e) => updateForm({...form, estPret: e.target.checked})}
@@ -228,19 +241,6 @@ const EditLocationModal = ({ equipment, onClose, onSuccess }) => {
             <small style={{color: '#9ca3af', marginTop: '4px', display: 'block', marginLeft: '28px'}}>
               Cochez si le matériel est en prêt (SAV, délai de commande, etc.) - ne sera pas inclus dans le CA
             </small>
-          </div>
-
-          <div className="form-group" style={{marginTop: '20px'}}>
-            <label style={{display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '15px'}}>
-              <input
-                type="checkbox"
-                id="minimum-facturation-input"
-                checked={form.minimumFacturationApply}
-                onChange={(e) => updateForm({...form, minimumFacturationApply: e.target.checked})}
-                style={{cursor: 'pointer', width: '18px', height: '18px'}}
-              />
-              <span>💰 Minimum de facturation appliqué ({equipment?.minimumFacturation ? `${equipment.minimumFacturation}€` : 'N/A'})</span>
-            </label>
           </div>
 
           <p className="modal-info">
