@@ -558,8 +558,18 @@ app.patch("/api/equipment/:id", async (req, res) => {
     console.log(`🔄 Exécution UPDATE...`);
     console.log(`📋 Champs à mettre à jour:`, updateFields);
     console.log(`📝 Valeurs:`, values.slice(0, -1));
-    const result = await dbClient.query(query, values);
-    console.log(`✅ UPDATE réussi`);
+    console.log(`🔍 Requête SQL:`, query);
+
+    let result;
+    try {
+      result = await dbClient.query(query, values);
+      console.log(`✅ UPDATE réussi`);
+    } catch (sqlError) {
+      console.error(`❌ Erreur SQL:`, sqlError.message);
+      console.error(`🔍 Détail erreur:`, sqlError);
+      await dbClient.query('ROLLBACK');
+      throw sqlError;
+    }
 
     // Si on valide la maintenance, enregistrer dans l'historique
     if (isCompletingMaintenance) {
