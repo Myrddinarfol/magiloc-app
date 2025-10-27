@@ -9,6 +9,7 @@ const CADetailsModal = ({
   year,
   closedLocations = [],
   ongoingLocations = [],
+  loanLocations = [],
   summary = {}
 }) => {
   if (!isOpen) return null;
@@ -233,6 +234,69 @@ const CADetailsModal = ({
                   </tbody>
                 </table>
               </div>
+
+              {/* Section Matériels en Prêt */}
+              {loanLocations && loanLocations.length > 0 && (
+                <div className="ca-details-loans-section">
+                  <h4 className="loans-title">🎁 Matériels en Prêt (Non Facturés)</h4>
+                  <div className="ca-details-table-wrapper">
+                    <table className="ca-details-table loans-table">
+                      <thead>
+                        <tr>
+                          <th className="col-equipment">Équipement</th>
+                          <th className="col-client">Client</th>
+                          <th className="col-dates">Période Location</th>
+                          <th className="col-days">Jours</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {loanLocations.map((loan, index) => {
+                          const startDateObj = new Date(loan.startDate);
+                          const endDateObj = loan.endDate ? new Date(loan.endDate) : new Date();
+                          const startDate = startDateObj.toLocaleDateString('fr-FR');
+                          const endDate = loan.endDate ? endDateObj.toLocaleDateString('fr-FR') : '∞';
+
+                          return (
+                            <tr key={index} className="ca-details-row status-loan">
+                              <td className="col-equipment">
+                                <div className="equipment-info-detail">
+                                  <div className="equipment-name" title={loan.designation}>{loan.designation || 'N/A'}</div>
+                                  {(loan.cmu || loan.modele || loan.marque) && (
+                                    <div className="equipment-specs">
+                                      {loan.cmu && <span className="spec-item">CMU: {loan.cmu}</span>}
+                                      {loan.modele && <span className="spec-item">Modèle: {loan.modele}</span>}
+                                      {loan.marque && <span className="spec-item">Marque: {loan.marque}</span>}
+                                    </div>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="col-client">
+                                <span title={loan.client}>{loan.client || 'N/A'}</span>
+                              </td>
+                              <td className="col-dates">
+                                <div className="dates-range">
+                                  <span className="date-label">Du:</span>
+                                  <span>{startDate}</span>
+                                  <span className="date-label">Au:</span>
+                                  <span>{endDate}</span>
+                                </div>
+                              </td>
+                              <td className="col-days">
+                                <span className="days-badge" style={{backgroundColor: 'rgba(139, 92, 246, 0.15)', color: '#8b5cf6'}}>
+                                  {loan.businessDaysThisMonth || 0} j
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                  <p className="loans-info">
+                    ℹ️ Ces matériels sont en prêt et ne sont pas factured au client. Ils sont listés ici à titre informatif pour traçabilité.
+                  </p>
+                </div>
+              )}
 
               {/* Détail calcul */}
               <div className="ca-details-calculation">

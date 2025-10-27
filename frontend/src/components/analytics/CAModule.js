@@ -439,6 +439,7 @@ const CAModule = () => {
         year={selectedYear}
         closedLocations={monthLocationBreakdown?.closedLocations || []}
         ongoingLocations={monthLocationBreakdown?.ongoingLocations || []}
+        loanLocations={monthLocationBreakdown?.loanLocations || []}
         summary={monthLocationBreakdown?.summary || {}}
       />
 

@@ -611,6 +611,7 @@ export const analyticsService = {
 
     const closedLocations = [];
     const ongoingLocations = [];
+    const loanLocations = []; // Locations en prêt (pour trace informationnelle)
 
     // 1. Récupérer les locations en cours (equipments)
     const filteredEquipment = this.filterTestData(equipmentData);
@@ -621,10 +622,50 @@ export const analyticsService = {
       // Vérifier si l'équipement est en location le mois demandé
       if (equipment.statut !== 'En Location') continue;
 
-      // IMPORTANT: Exclure les matériels en prêt du CA
+      // IMPORTANT: Tracker les matériels en prêt séparément (avant de les exclure du CA)
       if (equipment.estPret) {
-        console.log(`   🎁 ${equipment.nom}: matériel en prêt, exclus du CA`);
-        continue;
+        console.log(`   🎁 ${equipment.nom}: matériel en prêt, tracked séparément`);
+
+        // Parser les dates
+        let startDate = equipment.debutLocation;
+        let endDate = equipment.finLocationTheorique;
+        if (startDate && startDate.includes('/')) {
+          const [day, month, year] = startDate.split('/');
+          startDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        } else if (startDate && startDate.includes('T')) {
+          startDate = startDate.split('T')[0];
+        }
+        if (endDate && endDate.includes('/')) {
+          const [day, month, year] = endDate.split('/');
+          endDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        } else if (endDate && endDate.includes('T')) {
+          endDate = endDate.split('T')[0];
+        }
+
+        const monthStart = new Date(year, month, 1);
+        const monthEnd = new Date(year, month + 1, 0);
+        const locationStart = new Date(startDate);
+        const locationEnd = endDate ? new Date(endDate) : monthEnd;
+
+        // Vérifier si ça chevauche le mois
+        if (locationStart <= monthEnd && locationEnd >= monthStart) {
+          const businessDaysThisMonth = calculateBusinessDaysByMonth(startDate, endDate || monthEnd.toISOString().split('T')[0])[monthKey] || 0;
+
+          loanLocations.push({
+            id: equipment.id,
+            client: equipment.client || 'N/A',
+            designation: equipment.designation || equipment.nom || 'N/A',
+            cmu: equipment.cmu || '',
+            modele: equipment.modele || '',
+            marque: equipment.marque || '',
+            startDate,
+            endDate,
+            businessDaysThisMonth,
+            status: 'loan'
+          });
+        }
+
+        continue; // Exclure du CA normal
       }
 
       if (!equipment.debutLocation) {
@@ -777,12 +818,6 @@ export const analyticsService = {
     console.log(`   📋 Total locations fermées trouvées (TEST exclus): ${allHistoricalLocations.length}`);
 
     for (const location of allHistoricalLocations) {
-      // IMPORTANT: Exclure les locations marquées comme prêt
-      if (location.est_pret) {
-        console.log(`   🎁 Location ${location.id}: prêt, exclus du CA`);
-        continue;
-      }
-
       // Parser les dates correctement (peuvent être en format français DD/MM/YYYY ou ISO YYYY-MM-DD)
       let startDate = location.date_debut;
       let endDate = (location.date_retour_reel || location.date_fin_theorique);
@@ -821,6 +856,24 @@ export const analyticsService = {
       const dailyRate = parseFloat(location.prix_ht_jour) || 0;
       const hasLongDurationDiscount = location.remise_ld === true;
 
+      // IMPORTANT: Si c'est un prêt, l'ajouter à loanLocations au lieu de closedLocations
+      if (location.est_pret) {
+        console.log(`   🎁 Location fermée ${location.id}: prêt, tracked séparément`);
+        loanLocations.push({
+          id: location.id,
+          client: location.client || 'N/A',
+          designation: location.equipment_designation || 'N/A',
+          cmu: location.cmu || '',
+          modele: location.modele || '',
+          marque: location.marque || '',
+          startDate,
+          endDate: endDateStr,
+          businessDaysThisMonth,
+          status: 'loan'
+        });
+        continue;
+      }
+
       // Pour une location fermée, CA confirmé = CA total pour ce mois
       let caThisMonth = businessDaysThisMonth * dailyRate;
       if (hasLongDurationDiscount) caThisMonth *= 0.8;
@@ -850,16 +903,18 @@ export const analyticsService = {
     const totalCAEstimated = ongoingLocations.reduce((sum, loc) => sum + loc.caEstimatedThisMonth, 0) +
                              closedLocations.reduce((sum, loc) => sum + loc.caThisMonth, 0);
 
-    console.log(`📊 Breakdown ${monthKey}: ${ongoingLocations.length} en cours + ${closedLocations.length} fermées = ${ongoingLocations.length + closedLocations.length} total`);
+    console.log(`📊 Breakdown ${monthKey}: ${ongoingLocations.length} en cours + ${closedLocations.length} fermées + ${loanLocations.length} prêts = ${ongoingLocations.length + closedLocations.length + loanLocations.length} total`);
 
     return {
       closedLocations,
       ongoingLocations,
+      loanLocations,
       summary: {
         totalCAConfirmed: parseFloat(totalCAConfirmed.toFixed(2)),
         totalCAEstimated: parseFloat(totalCAEstimated.toFixed(2)),
         closedCount: closedLocations.length,
-        ongoingCount: ongoingLocations.length
+        ongoingCount: ongoingLocations.length,
+        loanCount: loanLocations.length
       }
     };
   }

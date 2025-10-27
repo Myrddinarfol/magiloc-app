@@ -363,6 +363,47 @@
   border-top: 1px solid rgba(100, 200, 255, 0.2);
 }
 
+/* Section Matériels en Prêt */
+.ca-details-loans-section {
+  margin-top: 32px;
+  padding: 24px;
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 8px;
+}
+
+.loans-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #a78bfa;
+  margin: 0 0 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.loans-table {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.loans-table thead {
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.loans-info {
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(139, 92, 246, 0.05);
+  border-left: 3px solid #a78bfa;
+  color: rgba(167, 139, 250, 0.9);
+  font-size: 13px;
+  border-radius: 4px;
+}
+
+.status-loan {
+  background: rgba(139, 92, 246, 0.05) !important;
+}
+
 /* Status Badge */
 .status-badge {
   display: inline-block;
@@ -635,5 +676,17 @@ body.light-theme .ca-details-table tbody td {
 
   .footer-total {
     font-size: 16px;
+  }
+
+  .ca-details-loans-section {
+    margin-top: 32px;
+  }
+
+  .loans-title {
+    font-size: 14px;
+  }
+
+  .loans-info {
+    font-size: 12px;
   }
 }
