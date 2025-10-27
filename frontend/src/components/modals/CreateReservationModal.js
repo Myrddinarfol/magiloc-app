@@ -13,6 +13,7 @@ const CreateReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
     numeroOffre: '',
     notesLocation: '',
     estLongDuree: false,
+    estPret: false,
     minimumFacturationApply: false
   });
 
@@ -48,6 +49,7 @@ const CreateReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
       numeroOffre: '',
       notesLocation: '',
       estLongDuree: false,
+      estPret: false,
       minimumFacturationApply: false
     });
   };
@@ -61,6 +63,7 @@ const CreateReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
       numeroOffre: '',
       notesLocation: '',
       estLongDuree: false,
+      estPret: false,
       minimumFacturationApply: false
     });
     onCancel();
@@ -363,6 +366,29 @@ const CreateReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
             />
             <span>📊 Location Longue Durée (-20% remise)</span>
           </label>
+        </div>
+
+        {/* LOAN EQUIPMENT checkbox */}
+        <div style={{ marginBottom: '24px' }}>
+          <label style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            cursor: 'pointer',
+            fontSize: '15px',
+            color: '#d1d5db'
+          }}>
+            <input
+              type="checkbox"
+              checked={formData.estPret}
+              onChange={(e) => setFormData({...formData, estPret: e.target.checked})}
+              style={{cursor: 'pointer', width: '18px', height: '18px'}}
+            />
+            <span>🎁 Matériel en Prêt (Non facturé)</span>
+          </label>
+          <small style={{color: '#9ca3af', marginTop: '4px', display: 'block', marginLeft: '28px'}}>
+            Cochez si le matériel est en prêt (SAV, délai de commande, etc.) - ne sera pas inclus dans le CA
+          </small>
         </div>
 
         {/* MINIMUM FACTURATION checkbox */}
