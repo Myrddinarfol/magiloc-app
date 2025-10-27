@@ -429,7 +429,7 @@ app.patch("/api/equipment/:id", async (req, res) => {
     const { id } = req.params;
     const {
       certificat, statut, client: clientName, debutLocation, finLocationTheorique, departEnlevement, numeroOffre, notesLocation,
-      modele, marque, longueur, numeroSerie, prixHT, etat, motifMaintenance, debutMaintenance, minimumFacturation, minimumFacturationApply, idArticle, estPret
+      modele, marque, longueur, numeroSerie, prixHT, etat, motifMaintenance, debutMaintenance, minimumFacturation, minimumFacturationApply, idArticle, estPret, estLongDuree
     } = req.body;
 
     console.log(`📝 Body reçu:`, { statut, clientName, motifMaintenance, debutMaintenance, minimumFacturation, minimumFacturationApply });
@@ -541,6 +541,10 @@ app.patch("/api/equipment/:id", async (req, res) => {
     if (estPret !== undefined) {
       updateFields.push(`est_pret = $${paramIndex++}`);
       values.push(estPret);
+    }
+    if (estLongDuree !== undefined) {
+      updateFields.push(`est_long_duree = $${paramIndex++}`);
+      values.push(estLongDuree);
     }
 
     if (updateFields.length === 0) {
