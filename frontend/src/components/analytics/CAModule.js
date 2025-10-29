@@ -18,6 +18,7 @@ import analyticsService from '../../services/analyticsService';
 import { useEquipment } from '../../hooks/useEquipment';
 import CADetailsModal from './CADetailsModal';
 import MissingPricesModal from './MissingPricesModal';
+import CALoadingModal from './CALoadingModal';
 import ChartLegend from './ChartLegend';
 import './CAModule.css';
 import './CADetailsModal.css';
@@ -45,6 +46,7 @@ const CAModule = () => {
   const [pieChartMode, setPieChartMode] = useState('month'); // 'month' ou 'year'
   const [pieChartMonth, setPieChartMonth] = useState(new Date().getMonth());
   const [pieChartYear, setPieChartYear] = useState(new Date().getFullYear());
+  const [isLoadingCA, setIsLoadingCA] = useState(false); // Modal de chargement CA
 
   console.log('🔍 CAModule rendu - Equipment:', equipmentData?.length, 'Loading:', loading, 'Stats:', stats);
   console.log('🎨 Pie Charts Filter - Mode:', pieChartMode, 'Month:', pieChartMonth, 'Year:', pieChartYear);
@@ -392,6 +394,9 @@ const CAModule = () => {
           // IMPORTANT: Utilise exactement les mêmes données que le CA annuel pour cohérence!
           console.log('📈 Mode ANNÉE - Utilisation yearlyCAData (source de vérité)');
 
+          // Afficher le modal de chargement en mode année
+          setIsLoadingCA(true);
+
           // Récupérer yearlyCAData pour l'année sélectionnée
           const yearlyCAData = await analyticsService.getYearlyCAData(equipmentData, pieChartYear);
 
@@ -511,6 +516,9 @@ const CAModule = () => {
         console.error('❌ Erreur calcul pie charts:', error);
         setClientChartData(null);
         setEquipmentChartData(null);
+      } finally {
+        // Fermer le modal de chargement si en mode année
+        setIsLoadingCA(false);
       }
     };
 
@@ -1070,6 +1078,13 @@ const CAModule = () => {
         isOpen={showMissingPricesModal}
         onClose={handleCloseMissingPricesModal}
         onPricesUpdated={handlePricesUpdated}
+      />
+
+      {/* Modal de Chargement CA */}
+      <CALoadingModal
+        isOpen={isLoadingCA}
+        message="Calcul du CA annuel en cours..."
+        submessage="Analyse de tous les mois, veuillez patienter..."
       />
     </div>
   );
