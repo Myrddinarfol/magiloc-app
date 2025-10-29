@@ -797,11 +797,42 @@ body.light-theme .ca-module-loading {
   height: 400px;
 }
 
+/* ===== PIE CHARTS AVEC LÉGENDE À DROITE ===== */
+.ca-chart-container.pie-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.pie-chart-wrapper {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  min-height: 420px;
+}
+
+.pie-chart-wrapper .chart-wrapper {
+  flex: 1;
+  min-width: 0;
+}
+
+.pie-chart-wrapper .chart-legend {
+  flex-shrink: 0;
+}
+
 /* Responsive - Une colonne sur mobile */
 @media (max-width: 1400px) {
   .ca-charts-grid {
     grid-template-columns: 1fr;
     gap: 24px;
+  }
+
+  .pie-chart-wrapper {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .pie-chart-wrapper .chart-wrapper {
+    height: 350px !important;
   }
 }
 

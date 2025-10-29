@@ -18,6 +18,7 @@ import analyticsService from '../../services/analyticsService';
 import { useEquipment } from '../../hooks/useEquipment';
 import CADetailsModal from './CADetailsModal';
 import MissingPricesModal from './MissingPricesModal';
+import ChartLegend from './ChartLegend';
 import './CAModule.css';
 import './CADetailsModal.css';
 
@@ -639,158 +640,140 @@ const CAModule = () => {
       {/* Graphiques de Répartition - Pie Charts */}
       <div className="ca-charts-grid">
         {/* Pie Chart Répartition par Client */}
-        <div className="ca-chart-container">
+        <div className="ca-chart-container pie-container">
           <div className="chart-header">
             <h3 className="chart-title">👥 Répartition par Client</h3>
             <p className="chart-subtitle">Contribution de chaque client au CA</p>
           </div>
 
-          <div className="chart-wrapper pie-wrapper">
-            {clientChartData && (
-              <Pie
-                data={clientChartData}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: true,
-                  animation: {
-                    animateRotate: true,
-                    animateScale: false,
-                    duration: 750,
-                    easing: 'easeInOutQuart'
-                  },
-                  plugins: {
-                    legend: {
-                      position: 'bottom',
-                      align: 'center',
-                      labels: {
-                        font: { size: 12, weight: '600', family: "'Segoe UI', 'Roboto', sans-serif" },
-                        color: textColor,
-                        padding: 15,
-                        usePointStyle: true,
-                        pointStyle: 'circle',
-                        pointPadding: 8,
-                        generateLabels: (chart) => {
-                          const data = chart.data;
-                          return data.labels.map((label, i) => ({
-                            text: label,
-                            fillStyle: data.datasets[0].backgroundColor[i],
-                            hidden: false,
-                            index: i,
-                            pointStyle: 'circle'
-                          }));
-                        }
-                      }
+          <div className="pie-chart-wrapper">
+            <div className="chart-wrapper pie-wrapper">
+              {clientChartData && (
+                <Pie
+                  data={clientChartData}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    animation: {
+                      animateRotate: true,
+                      animateScale: false,
+                      duration: 750,
+                      easing: 'easeInOutQuart'
                     },
-                    tooltip: {
-                      enabled: true,
-                      backgroundColor: isDarkTheme ? 'rgba(31, 41, 55, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-                      padding: 14,
-                      titleFont: { size: 13, weight: 'bold', family: "'Segoe UI', 'Roboto', sans-serif" },
-                      bodyFont: { size: 12, family: "'Segoe UI', 'Roboto', sans-serif" },
-                      titleColor: isDarkTheme ? '#fbbf24' : '#dc2626',
-                      bodyColor: isDarkTheme ? '#d1d5db' : '#374151',
-                      borderColor: isDarkTheme ? 'rgba(220, 38, 38, 0.5)' : 'rgba(220, 38, 38, 0.2)',
-                      borderWidth: 2,
-                      borderRadius: 6,
-                      displayColors: true,
-                      boxPadding: 6,
-                      callbacks: {
-                        title: (context) => context[0].label || 'Client',
-                        label: (context) => {
-                          const value = context.parsed;
-                          const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                          const percentage = ((value / total) * 100).toFixed(1);
-                          return `CA: ${value.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}`;
-                        },
-                        afterLabel: (context) => {
-                          const value = context.parsed;
-                          const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                          const percentage = ((value / total) * 100).toFixed(1);
-                          return `Pourcentage: ${percentage}%`;
+                    plugins: {
+                      legend: {
+                        display: false
+                      },
+                      tooltip: {
+                        enabled: true,
+                        backgroundColor: isDarkTheme ? 'rgba(31, 41, 55, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                        padding: 14,
+                        titleFont: { size: 13, weight: 'bold', family: "'Segoe UI', 'Roboto', sans-serif" },
+                        bodyFont: { size: 12, family: "'Segoe UI', 'Roboto', sans-serif" },
+                        titleColor: isDarkTheme ? '#fbbf24' : '#dc2626',
+                        bodyColor: isDarkTheme ? '#d1d5db' : '#374151',
+                        borderColor: isDarkTheme ? 'rgba(220, 38, 38, 0.5)' : 'rgba(220, 38, 38, 0.2)',
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        displayColors: true,
+                        boxPadding: 6,
+                        callbacks: {
+                          title: (context) => context[0].label || 'Client',
+                          label: (context) => {
+                            const value = context.parsed;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `CA: ${value.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}`;
+                          },
+                          afterLabel: (context) => {
+                            const value = context.parsed;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `Pourcentage: ${percentage}%`;
+                          }
                         }
                       }
                     }
-                  }
-                }}
+                  }}
+                />
+              )}
+            </div>
+            {clientChartData && (
+              <ChartLegend
+                labels={clientChartData.labels}
+                values={clientChartData.datasets[0].data}
+                colors={clientChartData.datasets[0].backgroundColor}
+                isDarkTheme={isDarkTheme}
               />
             )}
           </div>
         </div>
 
         {/* Pie Chart Répartition par Type de Matériel */}
-        <div className="ca-chart-container">
+        <div className="ca-chart-container pie-container">
           <div className="chart-header">
             <h3 className="chart-title">🔧 Répartition par Matériel</h3>
             <p className="chart-subtitle">Contribution de chaque type de matériel au CA</p>
           </div>
 
-          <div className="chart-wrapper pie-wrapper">
-            {equipmentChartData && (
-              <Pie
-                data={equipmentChartData}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: true,
-                  animation: {
-                    animateRotate: true,
-                    animateScale: false,
-                    duration: 750,
-                    easing: 'easeInOutQuart'
-                  },
-                  plugins: {
-                    legend: {
-                      position: 'bottom',
-                      align: 'center',
-                      labels: {
-                        font: { size: 12, weight: '600', family: "'Segoe UI', 'Roboto', sans-serif" },
-                        color: textColor,
-                        padding: 15,
-                        usePointStyle: true,
-                        pointStyle: 'circle',
-                        pointPadding: 8,
-                        generateLabels: (chart) => {
-                          const data = chart.data;
-                          return data.labels.map((label, i) => ({
-                            text: label,
-                            fillStyle: data.datasets[0].backgroundColor[i],
-                            hidden: false,
-                            index: i,
-                            pointStyle: 'circle'
-                          }));
-                        }
-                      }
+          <div className="pie-chart-wrapper">
+            <div className="chart-wrapper pie-wrapper">
+              {equipmentChartData && (
+                <Pie
+                  data={equipmentChartData}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    animation: {
+                      animateRotate: true,
+                      animateScale: false,
+                      duration: 750,
+                      easing: 'easeInOutQuart'
                     },
-                    tooltip: {
-                      enabled: true,
-                      backgroundColor: isDarkTheme ? 'rgba(31, 41, 55, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-                      padding: 14,
-                      titleFont: { size: 13, weight: 'bold', family: "'Segoe UI', 'Roboto', sans-serif" },
-                      bodyFont: { size: 12, family: "'Segoe UI', 'Roboto', sans-serif" },
-                      titleColor: isDarkTheme ? '#fbbf24' : '#dc2626',
-                      bodyColor: isDarkTheme ? '#d1d5db' : '#374151',
-                      borderColor: isDarkTheme ? 'rgba(220, 38, 38, 0.5)' : 'rgba(220, 38, 38, 0.2)',
-                      borderWidth: 2,
-                      borderRadius: 6,
-                      displayColors: true,
-                      boxPadding: 6,
-                      callbacks: {
-                        title: (context) => context[0].label || 'Matériel',
-                        label: (context) => {
-                          const value = context.parsed;
-                          const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                          const percentage = ((value / total) * 100).toFixed(1);
-                          return `CA: ${value.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}`;
-                        },
-                        afterLabel: (context) => {
-                          const value = context.parsed;
-                          const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                          const percentage = ((value / total) * 100).toFixed(1);
-                          return `Pourcentage: ${percentage}%`;
+                    plugins: {
+                      legend: {
+                        display: false
+                      },
+                      tooltip: {
+                        enabled: true,
+                        backgroundColor: isDarkTheme ? 'rgba(31, 41, 55, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                        padding: 14,
+                        titleFont: { size: 13, weight: 'bold', family: "'Segoe UI', 'Roboto', sans-serif" },
+                        bodyFont: { size: 12, family: "'Segoe UI', 'Roboto', sans-serif" },
+                        titleColor: isDarkTheme ? '#fbbf24' : '#dc2626',
+                        bodyColor: isDarkTheme ? '#d1d5db' : '#374151',
+                        borderColor: isDarkTheme ? 'rgba(220, 38, 38, 0.5)' : 'rgba(220, 38, 38, 0.2)',
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        displayColors: true,
+                        boxPadding: 6,
+                        callbacks: {
+                          title: (context) => context[0].label || 'Matériel',
+                          label: (context) => {
+                            const value = context.parsed;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `CA: ${value.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}`;
+                          },
+                          afterLabel: (context) => {
+                            const value = context.parsed;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `Pourcentage: ${percentage}%`;
+                          }
                         }
                       }
                     }
-                  }
-                }}
+                  }}
+                />
+              )}
+            </div>
+            {equipmentChartData && (
+              <ChartLegend
+                labels={equipmentChartData.labels}
+                values={equipmentChartData.datasets[0].data}
+                colors={equipmentChartData.datasets[0].backgroundColor}
+                isDarkTheme={isDarkTheme}
               />
             )}
           </div>
