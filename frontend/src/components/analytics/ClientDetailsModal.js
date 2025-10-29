@@ -40,6 +40,15 @@ const ClientDetailsModal = ({ isOpen, onClose, clientName, pieChartMode, month, 
     ? new Date(year, month, 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
     : year;
 
+  // Déterminer si une location est fermée ou en cours
+  const isLocationClosed = (location) => {
+    const endDate = new Date(location.endDate || location.date_retour_reel || location.date_fin_theorique);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    endDate.setHours(0, 0, 0, 0);
+    return endDate < today;
+  };
+
   return (
     <div className="client-details-overlay" onClick={onClose}>
       <div className="client-details-modal" onClick={e => e.stopPropagation()}>
@@ -77,23 +86,32 @@ const ClientDetailsModal = ({ isOpen, onClose, clientName, pieChartMode, month, 
                   <tr>
                     <th>Matériel</th>
                     <th>Début</th>
-                    <th>Fin</th>
+                    <th>Fin/En cours</th>
                     <th>Jours</th>
                     <th>Tarif/jour</th>
                     <th>CA</th>
+                    <th>Statut</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredLocations.map((loc, idx) => (
-                    <tr key={idx}>
-                      <td>{loc.designation || loc.equipment_designation || 'N/A'}</td>
-                      <td>{new Date(loc.startDate || loc.date_debut).toLocaleDateString('fr-FR')}</td>
-                      <td>{new Date(loc.endDate || loc.date_retour_reel || loc.date_fin_theorique || new Date()).toLocaleDateString('fr-FR')}</td>
-                      <td>{loc.businessDaysThisMonth || '-'}</td>
-                      <td>{(loc.dailyRate || loc.prix_ht_jour || 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</td>
-                      <td className="ca-cell">{(loc.ca || loc.caThisMonth || loc.caConfirmedThisMonth || 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</td>
-                    </tr>
-                  ))}
+                  {filteredLocations.map((loc, idx) => {
+                    const closed = isLocationClosed(loc);
+                    return (
+                      <tr key={idx}>
+                        <td>{loc.designation || loc.equipment_designation || 'N/A'}</td>
+                        <td>{new Date(loc.startDate || loc.date_debut).toLocaleDateString('fr-FR')}</td>
+                        <td>{new Date(loc.endDate || loc.date_retour_reel || loc.date_fin_theorique || new Date()).toLocaleDateString('fr-FR')}</td>
+                        <td>{loc.businessDaysThisMonth || '-'}</td>
+                        <td>{(loc.dailyRate || loc.prix_ht_jour || 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</td>
+                        <td className="ca-cell">{(loc.ca || loc.caThisMonth || loc.caConfirmedThisMonth || 0).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</td>
+                        <td>
+                          <span className={`status-badge ${closed ? 'status-closed' : 'status-ongoing'}`}>
+                            {closed ? '🔒 Fermée' : '🟢 En Cours'}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
