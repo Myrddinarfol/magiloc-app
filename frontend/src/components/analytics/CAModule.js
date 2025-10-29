@@ -381,22 +381,31 @@ const CAModule = () => {
           // Mode mois: récupérer les données pour un mois spécifique
           console.log('📅 Mode MOIS - Récupération pour:', pieChartMonth, '/', pieChartYear);
           const breakdown = await analyticsService.getMonthLocationBreakdown(pieChartMonth, pieChartYear, equipmentData);
-          allLocations = [...(breakdown.ongoingLocations || []), ...(breakdown.closedLocations || [])];
+          console.log('📦 Breakdown reçu:', breakdown);
+          if (breakdown && typeof breakdown === 'object') {
+            allLocations = [...(breakdown.ongoingLocations || []), ...(breakdown.closedLocations || [])];
+          }
           console.log('✅ Locations trouvées (mois):', allLocations.length);
         } else {
           // Mode année: récupérer les données pour tous les mois de l'année
           console.log('📈 Mode ANNÉE - Récupération pour:', pieChartYear);
           const promises = [];
           for (let month = 0; month < 12; month++) {
+            console.log(`  📅 Ajout promesse pour mois ${month} année ${pieChartYear}`);
             promises.push(analyticsService.getMonthLocationBreakdown(month, pieChartYear, equipmentData));
           }
+          console.log('⏳ Attente de', promises.length, 'promesses...');
           const breakdowns = await Promise.all(promises);
-          breakdowns.forEach(breakdown => {
-            allLocations = [
-              ...allLocations,
-              ...(breakdown.ongoingLocations || []),
-              ...(breakdown.closedLocations || [])
-            ];
+          console.log('✅', breakdowns.length, 'breakdowns reçus');
+          breakdowns.forEach((breakdown, index) => {
+            console.log(`  📦 Breakdown ${index}:`, breakdown);
+            if (breakdown && typeof breakdown === 'object') {
+              allLocations = [
+                ...allLocations,
+                ...(breakdown.ongoingLocations || []),
+                ...(breakdown.closedLocations || [])
+              ];
+            }
           });
           console.log('✅ Locations trouvées (année):', allLocations.length);
         }
