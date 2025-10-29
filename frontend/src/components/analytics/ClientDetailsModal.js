@@ -5,10 +5,15 @@ const ClientDetailsModal = ({ isOpen, onClose, clientName, pieChartMode, month, 
   const [filteredLocations, setFilteredLocations] = useState([]);
 
   useEffect(() => {
-    if (!locationData) return;
+    if (!locationData || !clientName) return;
 
     // Filtrer les locations du client selon le mode
     const locations = locationData.filter(loc => {
+      // Vérifier que c'est le bon client
+      const clientMatch = (loc.client || 'N/A') === clientName;
+
+      if (!clientMatch) return false;
+
       if (pieChartMode === 'month') {
         // Vérifier si la location chevauche le mois
         const locStart = new Date(loc.startDate || loc.date_debut);
@@ -26,7 +31,7 @@ const ClientDetailsModal = ({ isOpen, onClose, clientName, pieChartMode, month, 
     });
 
     setFilteredLocations(locations);
-  }, [locationData, pieChartMode, month, year]);
+  }, [locationData, pieChartMode, month, year, clientName]);
 
   if (!isOpen) return null;
 
