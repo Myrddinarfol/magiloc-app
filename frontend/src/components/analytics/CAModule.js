@@ -47,6 +47,9 @@ const CAModule = () => {
   const [pieChartMonth, setPieChartMonth] = useState(new Date().getMonth());
   const [pieChartYear, setPieChartYear] = useState(new Date().getFullYear());
   const [isLoadingCA, setIsLoadingCA] = useState(false); // Modal de chargement CA
+  // Interactivité hover entre pie charts et légendes
+  const [hoveredClientIndex, setHoveredClientIndex] = useState(null);
+  const [hoveredEquipmentIndex, setHoveredEquipmentIndex] = useState(null);
 
   console.log('🔍 CAModule rendu - Equipment:', equipmentData?.length, 'Loading:', loading, 'Stats:', stats);
   console.log('🎨 Pie Charts Filter - Mode:', pieChartMode, 'Month:', pieChartMonth, 'Year:', pieChartYear);
@@ -940,6 +943,16 @@ const CAModule = () => {
                       duration: 750,
                       easing: 'easeInOutQuart'
                     },
+                    interaction: {
+                      intersect: false
+                    },
+                    onHover: (event, activeElements) => {
+                      if (activeElements && activeElements.length > 0) {
+                        setHoveredClientIndex(activeElements[0].index);
+                      } else {
+                        setHoveredClientIndex(null);
+                      }
+                    },
                     plugins: {
                       legend: {
                         display: false
@@ -984,6 +997,9 @@ const CAModule = () => {
                 values={clientChartData.datasets[0].data}
                 colors={clientChartData.datasets[0].backgroundColor}
                 isDarkTheme={isDarkTheme}
+                hoveredIndex={hoveredClientIndex}
+                onLegendHover={setHoveredClientIndex}
+                onLegendLeave={() => setHoveredClientIndex(null)}
               />
             )}
           </div>
@@ -1009,6 +1025,16 @@ const CAModule = () => {
                       animateScale: false,
                       duration: 750,
                       easing: 'easeInOutQuart'
+                    },
+                    interaction: {
+                      intersect: false
+                    },
+                    onHover: (event, activeElements) => {
+                      if (activeElements && activeElements.length > 0) {
+                        setHoveredEquipmentIndex(activeElements[0].index);
+                      } else {
+                        setHoveredEquipmentIndex(null);
+                      }
                     },
                     plugins: {
                       legend: {
@@ -1054,6 +1080,9 @@ const CAModule = () => {
                 values={equipmentChartData.datasets[0].data}
                 colors={equipmentChartData.datasets[0].backgroundColor}
                 isDarkTheme={isDarkTheme}
+                hoveredIndex={hoveredEquipmentIndex}
+                onLegendHover={setHoveredEquipmentIndex}
+                onLegendLeave={() => setHoveredEquipmentIndex(null)}
               />
             )}
           </div>
