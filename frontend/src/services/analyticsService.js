@@ -472,26 +472,38 @@ export const analyticsService = {
    * Utilise getMonthLocationBreakdown pour chaque mois (source de vérité unique)
    * OPTIMISÉ: Parallelise tous les appels pour gagner du temps
    */
-  async getYearlyCAData(equipmentList) {
+  async getYearlyCAData(equipmentList, requestedYear = null) {
     const today = new Date();
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth();
+
+    // Utiliser l'année demandée, ou l'année actuelle par défaut
+    const targetYear = requestedYear || currentYear;
+    console.log(`📊 getYearlyCAData pour l'année ${targetYear} (actuelle: ${currentYear})`);
 
     const caData = {};
 
     // Créer un array de promises pour paralleliser
     const monthPromises = [];
-    for (let month = 0; month <= currentMonth; month++) {
-      const key = `${currentYear}-${String(month + 1).padStart(2, '0')}`;
+
+    // Déterminer le mois final de la boucle
+    // Si c'est l'année actuelle, boucler jusqu'au mois actuel
+    // Sinon, boucler jusqu'à décembre (11)
+    const maxMonth = targetYear === currentYear ? currentMonth : 11;
+
+    for (let month = 0; month <= maxMonth; month++) {
+      const key = `${targetYear}-${String(month + 1).padStart(2, '0')}`;
 
       monthPromises.push(
-        this.getMonthLocationBreakdown(equipmentList, month, currentYear)
+        this.getMonthLocationBreakdown(equipmentList, month, targetYear)
           .then(breakdown => ({
             key,
             month,
             confirmedCA: breakdown.summary.totalCAConfirmed,
             estimatedCA: breakdown.summary.totalCAEstimated,
-            activeLocations: breakdown.summary.ongoingCount + breakdown.summary.closedCount
+            activeLocations: breakdown.summary.ongoingCount + breakdown.summary.closedCount,
+            ongoingLocations: breakdown.ongoingLocations,
+            closedLocations: breakdown.closedLocations
           }))
           .catch(error => {
             console.error(`❌ Erreur calcul CA pour ${key}:`, error);
@@ -500,7 +512,9 @@ export const analyticsService = {
               month,
               confirmedCA: 0,
               estimatedCA: 0,
-              activeLocations: 0
+              activeLocations: 0,
+              ongoingLocations: [],
+              closedLocations: []
             };
           })
       );
@@ -514,10 +528,12 @@ export const analyticsService = {
       caData[result.key] = {
         confirmedCA: result.confirmedCA,
         estimatedCA: result.estimatedCA,
-        isCurrent: result.month === currentMonth,
+        isCurrent: result.month === currentMonth && targetYear === currentYear,
         month: result.month,
-        year: currentYear,
-        activeLocations: result.activeLocations
+        year: targetYear,
+        activeLocations: result.activeLocations,
+        ongoingLocations: result.ongoingLocations,
+        closedLocations: result.closedLocations
       };
 
       console.log(`📅 ${result.key}: Confirmé=${result.confirmedCA}€, Estimé=${result.estimatedCA}€`);

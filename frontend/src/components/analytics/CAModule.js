@@ -393,7 +393,7 @@ const CAModule = () => {
           console.log('📈 Mode ANNÉE - Utilisation yearlyCAData (source de vérité)');
 
           // Récupérer yearlyCAData pour l'année sélectionnée
-          const yearlyCAData = await analyticsService.getYearlyCAData(equipmentData);
+          const yearlyCAData = await analyticsService.getYearlyCAData(equipmentData, pieChartYear);
 
           console.log('⏱️ yearlyCAData récupérée en', Math.round(performance.now() - startTime), 'ms');
 
