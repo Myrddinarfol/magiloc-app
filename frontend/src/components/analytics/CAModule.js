@@ -114,22 +114,22 @@ const CAModule = () => {
         setYearlyCA(yearlyCATotal);
         console.log('💰 CA annuel 2025 (depuis yearlyCAData):', yearlyCATotal);
 
-        // Prépare les données du graphique
+        // Prépare les données du graphique DEPUIS LA SOURCE DE VÉRITÉ (yearlyCAData)
         const labels = [];
         const estimatedValues = [];
         const confirmedValues = [];
 
-        // Trie par date et affiche les 12 derniers mois
-        const sortedMonths = Object.entries(caHistory).sort((a, b) => {
-          const [yearA, monthA] = a[0].split('-').map(Number);
-          const [yearB, monthB] = b[0].split('-').map(Number);
-          return yearA - yearB || monthA - monthB;
+        // Trie tous les mois par date (chronologiquement)
+        const sortedMonths = Object.entries(yearlyCAData).sort((a, b) => {
+          const [, dataA] = a;
+          const [, dataB] = b;
+          return dataA.month - dataB.month;
         });
 
-        // Prend les 12 derniers mois
-        const lastMonths = sortedMonths.slice(-12);
+        console.log(`📊 Graphique tendance: ${sortedMonths.length} mois trouvés (depuis ${sortedMonths[0]?.[0]} jusqu'à ${sortedMonths[sortedMonths.length-1]?.[0]})`);
 
-        lastMonths.forEach(([key, data]) => {
+        // Afficher TOUS les mois disponibles (pas juste les 12 derniers)
+        sortedMonths.forEach(([key, data]) => {
           const monthName = new Date(data.year, data.month, 1).toLocaleDateString('fr-FR', {
             month: 'short',
             year: '2-digit'
@@ -137,11 +137,14 @@ const CAModule = () => {
 
           labels.push(monthName);
 
+          // Pour le graphique, afficher:
+          // - Mois courant: estimé vs confirmé (locations en cours)
+          // - Mois passés: confirmé = confirmé (source unique de vérité)
           if (data.isCurrent) {
             estimatedValues.push(data.estimatedCA || 0);
             confirmedValues.push(data.confirmedCA || 0);
           } else {
-            // Mois passés: affiche le CA confirmé réparti (tous les mois ont maintenant confirmedCA)
+            // Mois passés: affiche le CA confirmé réparti correctement
             estimatedValues.push(data.confirmedCA || 0);
             confirmedValues.push(data.confirmedCA || 0);
           }
