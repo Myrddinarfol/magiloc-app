@@ -2,10 +2,34 @@ import React from 'react';
 import './HistoryModals.css';
 
 const ClientLocationHistoryModal = ({ clientName, history, onClose }) => {
+  // Fonction pour calculer le CA d'une location
+  const calculateLocationCA = (loc) => {
+    // Si ca_total_ht existe déjà, l'utiliser
+    if (loc.ca_total_ht) {
+      return parseFloat(loc.ca_total_ht);
+    }
+
+    // Sinon, calculer à partir de duree et tarif
+    if (loc.duree_jours_ouvres && loc.prix_ht_jour) {
+      const duree = parseFloat(loc.duree_jours_ouvres);
+      const tarif = parseFloat(loc.prix_ht_jour);
+      let ca = duree * tarif;
+
+      // Appliquer la remise long durée si applicable
+      if (loc.remise_ld) {
+        ca = ca * 0.8; // -20%
+      }
+
+      return ca;
+    }
+
+    return null;
+  };
+
   // Calculer le CA total pour ce client
   const totalCA = history.reduce((sum, loc) => {
-    const ca = loc.ca_total_ht || 0;
-    return sum + (typeof ca === 'string' ? parseFloat(ca) : ca);
+    const ca = calculateLocationCA(loc);
+    return sum + (ca || 0);
   }, 0);
 
   return (
@@ -44,9 +68,11 @@ const ClientLocationHistoryModal = ({ clientName, history, onClose }) => {
                 </thead>
                 <tbody>
                   {history.map((loc, index) => {
-                    const hasCA = loc.ca_total_ht && loc.duree_jours_ouvres && loc.prix_ht_jour;
+                    // Utiliser la fonction helper pour calculer le CA
+                    const calculatedCA = calculateLocationCA(loc);
+                    const hasCA = calculatedCA !== null && calculatedCA !== undefined;
                     const caDetail = hasCA
-                      ? `${loc.duree_jours_ouvres}j × ${loc.prix_ht_jour}€/j${loc.remise_ld ? ' -20%' : ''}`
+                      ? `${loc.duree_jours_ouvres}j × ${parseFloat(loc.prix_ht_jour).toFixed(2)}€/j${loc.remise_ld ? ' -20%' : ''}`
                       : '';
 
                     return (
@@ -88,7 +114,7 @@ const ClientLocationHistoryModal = ({ clientName, history, onClose }) => {
                         <td className="col-ca">
                           {hasCA ? (
                             <div className="history-ca-info">
-                              <span className="ca-amount">{parseFloat(loc.ca_total_ht).toFixed(2)}€</span>
+                              <span className="ca-amount">{calculatedCA.toFixed(2)}€</span>
                               <span className="ca-detail">{caDetail}</span>
                             </div>
                           ) : <span className="history-na">N/A</span>}
