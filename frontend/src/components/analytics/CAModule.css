@@ -801,18 +801,25 @@ body.light-theme .ca-module-loading {
 .ca-chart-container.pie-container {
   display: flex;
   flex-direction: column;
+  justify-content: center;
 }
 
 .pie-chart-wrapper {
   display: flex;
-  gap: 20px;
+  gap: 24px;
   align-items: center;
+  justify-content: center;
   min-height: 420px;
+  width: 100%;
 }
 
 .pie-chart-wrapper .chart-wrapper {
-  flex: 1;
-  min-width: 0;
+  flex: 0 1 auto;
+  width: 280px;
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .pie-chart-wrapper .chart-legend {
@@ -828,11 +835,13 @@ body.light-theme .ca-module-loading {
 
   .pie-chart-wrapper {
     flex-direction: column;
-    gap: 20px;
+    gap: 24px;
+    justify-content: center;
   }
 
   .pie-chart-wrapper .chart-wrapper {
-    height: 350px !important;
+    width: 300px;
+    height: 300px;
   }
 }
 
@@ -848,6 +857,15 @@ body.light-theme .ca-module-loading {
 
   .ca-charts-grid .chart-wrapper {
     height: 280px;
+  }
+
+  .pie-chart-wrapper {
+    gap: 16px;
+  }
+
+  .pie-chart-wrapper .chart-wrapper {
+    width: 250px;
+    height: 250px;
   }
 }
 
