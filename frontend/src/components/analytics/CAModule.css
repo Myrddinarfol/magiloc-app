@@ -801,7 +801,6 @@ body.light-theme .ca-module-loading {
 .ca-chart-container.pie-container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
 }
 
 .pie-chart-wrapper {
