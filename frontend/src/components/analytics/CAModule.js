@@ -79,6 +79,39 @@ const CAModule = () => {
     '#60a5fa'  // Light blue
   ], []);
 
+  // Fonction pour mettre en surbrillance une portion du diagramme
+  const getHighlightedChartData = (chartData, hoveredIndex) => {
+    if (!chartData || hoveredIndex === null) {
+      return chartData;
+    }
+
+    return {
+      ...chartData,
+      datasets: chartData.datasets.map(dataset => ({
+        ...dataset,
+        backgroundColor: dataset.backgroundColor.map((color, index) => {
+          // Si c'est l'index survolé, garder la couleur normale
+          if (index === hoveredIndex) {
+            return color;
+          }
+          // Sinon, réduire l'opacity pour le fade-out effect
+          return color + '40'; // Ajoute '40' pour 25% opacity en hex
+        })
+      }))
+    };
+  };
+
+  // Données des charts avec highlighting appliqué
+  const highlightedClientChartData = React.useMemo(
+    () => getHighlightedChartData(clientChartData, hoveredClientIndex),
+    [clientChartData, hoveredClientIndex]
+  );
+
+  const highlightedEquipmentChartData = React.useMemo(
+    () => getHighlightedChartData(equipmentChartData, hoveredEquipmentIndex),
+    [equipmentChartData, hoveredEquipmentIndex]
+  );
+
   // Liste des mois disponibles
   const today = new Date();
   const availableYears = [today.getFullYear() - 1, today.getFullYear()];
@@ -933,7 +966,7 @@ const CAModule = () => {
             <div className="chart-wrapper pie-wrapper">
               {clientChartData && (
                 <Pie
-                  data={clientChartData}
+                  data={highlightedClientChartData}
                   options={{
                     responsive: true,
                     maintainAspectRatio: true,
@@ -1016,7 +1049,7 @@ const CAModule = () => {
             <div className="chart-wrapper pie-wrapper">
               {equipmentChartData && (
                 <Pie
-                  data={equipmentChartData}
+                  data={highlightedEquipmentChartData}
                   options={{
                     responsive: true,
                     maintainAspectRatio: true,
