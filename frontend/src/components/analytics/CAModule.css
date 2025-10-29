@@ -742,3 +742,92 @@ body.light-theme .ca-module-loading {
   background: linear-gradient(135deg, #ffffff, #f8fafc);
   border: 1px solid rgba(220, 38, 38, 0.1);
 }
+
+/* ===== GRAPHIQUES CÔTE À CÔTE ===== */
+.ca-charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-bottom: 40px;
+}
+
+.ca-charts-grid .ca-chart-container {
+  background: var(--bg-card);
+  border: 1px solid rgba(220, 38, 38, 0.15);
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ca-charts-grid .ca-chart-container:hover {
+  border-color: rgba(220, 38, 38, 0.3);
+  box-shadow: 0 8px 32px rgba(220, 38, 38, 0.12);
+  transform: translateY(-4px);
+}
+
+.ca-charts-grid .chart-header {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid rgba(220, 38, 38, 0.2);
+}
+
+.ca-charts-grid .chart-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
+  letter-spacing: -0.3px;
+}
+
+.ca-charts-grid .chart-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+  opacity: 0.85;
+  margin: 0;
+  font-weight: 500;
+}
+
+.ca-charts-grid .chart-wrapper {
+  position: relative;
+  height: 350px;
+}
+
+/* Responsive - Une colonne sur mobile */
+@media (max-width: 1400px) {
+  .ca-charts-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .ca-charts-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .ca-charts-grid .ca-chart-container {
+    padding: 20px;
+  }
+
+  .ca-charts-grid .chart-wrapper {
+    height: 280px;
+  }
+}
+
+/* Thème clair */
+body.light-theme .ca-charts-grid .ca-chart-container {
+  background: linear-gradient(135deg, #ffffff, #f9fafb);
+  border-color: rgba(220, 38, 38, 0.08);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+body.light-theme .ca-charts-grid .ca-chart-container:hover {
+  border-color: rgba(220, 38, 38, 0.2);
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.08);
+}
+
+body.light-theme .ca-charts-grid .chart-header {
+  border-bottom-color: rgba(220, 38, 38, 0.1);
+}

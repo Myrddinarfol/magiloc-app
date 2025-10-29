@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Line } from 'react-chartjs-2';
+import { Line, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
@@ -19,7 +20,7 @@ import MissingPricesModal from './MissingPricesModal';
 import './CAModule.css';
 import './CADetailsModal.css';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, Filler);
 
 const CAModule = () => {
   const { equipmentData } = useEquipment();
@@ -27,6 +28,7 @@ const CAModule = () => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [stats, setStats] = useState(null);
   const [chartData, setChartData] = useState(null);
+  const [barChartData, setBarChartData] = useState(null);
   const [yearlyCA, setYearlyCA] = useState(0);
   const [loading, setLoading] = useState(true);
   const [missingPrices, setMissingPrices] = useState([]);
@@ -173,6 +175,52 @@ const CAModule = () => {
               pointBorderWidth: 2,
               pointRadius: 5,
               pointHoverRadius: 7
+            }
+          ]
+        });
+
+        // Créer le bar chart avec les CA confirmés de l'année
+        const barLabels = [];
+        const barConfirmedValues = [];
+
+        // Trier et créer les données pour le bar chart
+        const sortedYearlyMonths = Object.entries(yearlyCAData).sort((a, b) => {
+          const [, dataA] = a;
+          const [, dataB] = b;
+          return dataA.month - dataB.month;
+        });
+
+        sortedYearlyMonths.forEach(([key, data]) => {
+          const monthName = new Date(data.year, data.month, 1).toLocaleDateString('fr-FR', {
+            month: 'long'
+          });
+          barLabels.push(monthName);
+          barConfirmedValues.push(data.confirmedCA || 0);
+        });
+
+        setBarChartData({
+          labels: barLabels,
+          datasets: [
+            {
+              label: 'CA Confirmé par Mois',
+              data: barConfirmedValues,
+              backgroundColor: [
+                '#10b981', // Vert éclatant
+                '#06b6d4', // Cyan
+                '#f59e0b', // Amber
+                '#ef4444', // Red
+                '#8b5cf6', // Purple
+                '#ec4899', // Pink
+                '#14b8a6', // Teal
+                '#f97316', // Orange
+                '#6366f1', // Indigo
+                '#84cc16'  // Lime
+              ],
+              borderColor: '#ffffff',
+              borderWidth: 2,
+              borderRadius: 8,
+              hoverBackgroundColor: '#ffffff',
+              hoverBorderColor: '#1f2937'
             }
           ]
         });
@@ -357,77 +405,155 @@ const CAModule = () => {
         </div>
       )}
 
-      {/* Graphique de Tendance */}
-      <div className="ca-chart-container">
-        <div className="chart-header">
-          <h3 className="chart-title">Évolution du Chiffre d'Affaires</h3>
-          <p className="chart-subtitle">Tendance sur les 12 derniers mois</p>
+      {/* Graphiques - Côte à côte */}
+      <div className="ca-charts-grid">
+        {/* Graphique de Tendance - Courbe */}
+        <div className="ca-chart-container">
+          <div className="chart-header">
+            <h3 className="chart-title">📈 Évolution Annuelle</h3>
+            <p className="chart-subtitle">Tendance sur les 12 derniers mois</p>
+          </div>
+
+          <div className="chart-wrapper">
+            {chartData && (
+              <Line
+                data={chartData}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: true,
+                  plugins: {
+                    legend: {
+                      position: 'top',
+                      labels: {
+                        font: { size: 12, weight: 'bold' },
+                        color: textColor,
+                        padding: 15,
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                      }
+                    },
+                    tooltip: {
+                      backgroundColor: isDarkTheme ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.95)',
+                      padding: 12,
+                      titleFont: { size: 13, weight: 'bold' },
+                      bodyFont: { size: 12 },
+                      titleColor: isDarkTheme ? '#ffffff' : '#1f2937',
+                      bodyColor: isDarkTheme ? '#d1d5db' : '#4b5563',
+                      borderColor: 'rgba(220, 38, 38, 0.3)',
+                      borderWidth: 1,
+                      callbacks: {
+                        label: (context) => {
+                          const value = context.parsed.y;
+                          return `${context.dataset.label}: ${value.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}`;
+                        }
+                      }
+                    }
+                  },
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      grid: {
+                        color: gridColor,
+                        drawBorder: false
+                      },
+                      ticks: {
+                        color: textColor,
+                        font: { size: 11 },
+                        callback: (value) => {
+                          return value.toLocaleString('fr-FR', { notation: 'compact' });
+                        }
+                      }
+                    },
+                    x: {
+                      grid: {
+                        display: false,
+                        drawBorder: false
+                      },
+                      ticks: {
+                        color: textColor,
+                        font: { size: 11 }
+                      }
+                    }
+                  }
+                }}
+              />
+            )}
+          </div>
         </div>
 
-        <div className="chart-wrapper">
-          {chartData && (
-            <Line
-              data={chartData}
-              options={{
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                  legend: {
-                    position: 'top',
-                    labels: {
-                      font: { size: 12, weight: 'bold' },
-                      color: textColor,
-                      padding: 15,
-                      usePointStyle: true,
-                      pointStyle: 'circle'
-                    }
-                  },
-                  tooltip: {
-                    backgroundColor: isDarkTheme ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.95)',
-                    padding: 12,
-                    titleFont: { size: 13, weight: 'bold' },
-                    bodyFont: { size: 12 },
-                    titleColor: isDarkTheme ? '#ffffff' : '#1f2937',
-                    bodyColor: isDarkTheme ? '#d1d5db' : '#4b5563',
-                    borderColor: 'rgba(220, 38, 38, 0.3)',
-                    borderWidth: 1,
-                    callbacks: {
-                      label: (context) => {
-                        const value = context.parsed.y;
-                        return `${context.dataset.label}: ${value.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}`;
+        {/* Graphique des Performances par Mois - Barres */}
+        <div className="ca-chart-container">
+          <div className="chart-header">
+            <h3 className="chart-title">💰 Performances par Mois</h3>
+            <p className="chart-subtitle">CA Confirmé mensuel 2025</p>
+          </div>
+
+          <div className="chart-wrapper">
+            {barChartData && (
+              <Bar
+                data={barChartData}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: true,
+                  indexAxis: 'x',
+                  plugins: {
+                    legend: {
+                      position: 'top',
+                      labels: {
+                        font: { size: 12, weight: 'bold' },
+                        color: textColor,
+                        padding: 15,
+                        usePointStyle: true,
+                        pointStyle: 'circle'
                       }
-                    }
-                  }
-                },
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    grid: {
-                      color: gridColor,
-                      drawBorder: false
                     },
-                    ticks: {
-                      color: textColor,
-                      font: { size: 11 },
-                      callback: (value) => {
-                        return value.toLocaleString('fr-FR', { notation: 'compact' });
+                    tooltip: {
+                      backgroundColor: isDarkTheme ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.95)',
+                      padding: 12,
+                      titleFont: { size: 13, weight: 'bold' },
+                      bodyFont: { size: 12 },
+                      titleColor: isDarkTheme ? '#ffffff' : '#1f2937',
+                      bodyColor: isDarkTheme ? '#d1d5db' : '#4b5563',
+                      borderColor: 'rgba(220, 38, 38, 0.3)',
+                      borderWidth: 1,
+                      callbacks: {
+                        label: (context) => {
+                          const value = context.parsed.y;
+                          return `${value.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}`;
+                        }
                       }
                     }
                   },
-                  x: {
-                    grid: {
-                      display: false,
-                      drawBorder: false
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      grid: {
+                        color: gridColor,
+                        drawBorder: false
+                      },
+                      ticks: {
+                        color: textColor,
+                        font: { size: 11 },
+                        callback: (value) => {
+                          return value.toLocaleString('fr-FR', { notation: 'compact' });
+                        }
+                      }
                     },
-                    ticks: {
-                      color: textColor,
-                      font: { size: 11 }
+                    x: {
+                      grid: {
+                        display: false,
+                        drawBorder: false
+                      },
+                      ticks: {
+                        color: textColor,
+                        font: { size: 11 }
+                      }
                     }
                   }
-                }
-              }}
-            />
-          )}
+                }}
+              />
+            )}
+          </div>
         </div>
       </div>
 
