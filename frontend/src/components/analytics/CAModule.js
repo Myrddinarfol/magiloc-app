@@ -19,6 +19,8 @@ import { useEquipment } from '../../hooks/useEquipment';
 import CADetailsModal from './CADetailsModal';
 import MissingPricesModal from './MissingPricesModal';
 import CALoadingModal from './CALoadingModal';
+import ClientDetailsModal from './ClientDetailsModal';
+import EquipmentTypeDetailsModal from './EquipmentTypeDetailsModal';
 import ChartLegend from './ChartLegend';
 import './CAModule.css';
 import './CADetailsModal.css';
@@ -50,6 +52,12 @@ const CAModule = () => {
   // Interactivité hover entre pie charts et légendes
   const [hoveredClientIndex, setHoveredClientIndex] = useState(null);
   const [hoveredEquipmentIndex, setHoveredEquipmentIndex] = useState(null);
+  // Détails modals
+  const [showClientDetails, setShowClientDetails] = useState(false);
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [showEquipmentDetails, setShowEquipmentDetails] = useState(false);
+  const [selectedEquipmentType, setSelectedEquipmentType] = useState(null);
+  const [pieChartLocations, setPieChartLocations] = useState([]); // Locations pour les modals détails
 
   console.log('🔍 CAModule rendu - Equipment:', equipmentData?.length, 'Loading:', loading, 'Stats:', stats);
   console.log('🎨 Pie Charts Filter - Mode:', pieChartMode, 'Month:', pieChartMonth, 'Year:', pieChartYear);
@@ -400,6 +408,29 @@ const CAModule = () => {
     // Les données se rechargeront automatiquement via le useEffect
   };
 
+  // Handlers pour les clics sur les pie charts et légendes
+  const handleClientClick = (clientName) => {
+    console.log('👥 Click sur client:', clientName);
+    setSelectedClient(clientName);
+    setShowClientDetails(true);
+  };
+
+  const handleEquipmentTypeClick = (equipmentType) => {
+    console.log('🔧 Click sur équipement:', equipmentType);
+    setSelectedEquipmentType(equipmentType);
+    setShowEquipmentDetails(true);
+  };
+
+  const handleCloseClientDetails = () => {
+    setShowClientDetails(false);
+    setSelectedClient(null);
+  };
+
+  const handleCloseEquipmentDetails = () => {
+    setShowEquipmentDetails(false);
+    setSelectedEquipmentType(null);
+  };
+
   // useEffect séparé pour les graphiques pie charts avec leurs propres filtres
   useEffect(() => {
     const calculatePieChartData = async () => {
@@ -428,6 +459,8 @@ const CAModule = () => {
             allLocations = [...(breakdown.ongoingLocations || []), ...(breakdown.closedLocations || [])];
           }
           console.log('✅ Locations trouvées (mois):', allLocations.length);
+          // Stocker les locations pour les modals détails
+          setPieChartLocations(allLocations);
         } else {
           // Mode année: utiliser yearlyCAData (source de vérité)
           // IMPORTANT: Utilise exactement les mêmes données que le CA annuel pour cohérence!
@@ -437,6 +470,14 @@ const CAModule = () => {
           const yearlyCAData = await analyticsService.getYearlyCAData(equipmentData, pieChartYear);
 
           console.log('⏱️ yearlyCAData récupérée en', Math.round(performance.now() - startTime), 'ms');
+
+          // Extraire toutes les locations de yearlyCAData pour les modals détails
+          const yearlyLocations = [];
+          Object.values(yearlyCAData).forEach(monthData => {
+            if (monthData.closedLocations) yearlyLocations.push(...monthData.closedLocations);
+            if (monthData.ongoingLocations) yearlyLocations.push(...monthData.ongoingLocations);
+          });
+          setPieChartLocations(yearlyLocations);
 
           // Agréger CORRECTEMENT en utilisant la même logique que le CA annuel
           const breakdown = analyticsService.getYearClientAndEquipmentBreakdown(yearlyCAData);
@@ -986,6 +1027,14 @@ const CAModule = () => {
                         setHoveredClientIndex(null);
                       }
                     },
+                    onClick: (event, activeElements) => {
+                      if (activeElements && activeElements.length > 0) {
+                        const index = activeElements[0].index;
+                        if (clientChartData && clientChartData.labels[index]) {
+                          handleClientClick(clientChartData.labels[index]);
+                        }
+                      }
+                    },
                     plugins: {
                       legend: {
                         display: false
@@ -1033,6 +1082,7 @@ const CAModule = () => {
                 hoveredIndex={hoveredClientIndex}
                 onLegendHover={setHoveredClientIndex}
                 onLegendLeave={() => setHoveredClientIndex(null)}
+                onItemClick={(label) => handleClientClick(label)}
               />
             )}
           </div>
@@ -1067,6 +1117,14 @@ const CAModule = () => {
                         setHoveredEquipmentIndex(activeElements[0].index);
                       } else {
                         setHoveredEquipmentIndex(null);
+                      }
+                    },
+                    onClick: (event, activeElements) => {
+                      if (activeElements && activeElements.length > 0) {
+                        const index = activeElements[0].index;
+                        if (equipmentChartData && equipmentChartData.labels[index]) {
+                          handleEquipmentTypeClick(equipmentChartData.labels[index]);
+                        }
                       }
                     },
                     plugins: {
@@ -1116,6 +1174,7 @@ const CAModule = () => {
                 hoveredIndex={hoveredEquipmentIndex}
                 onLegendHover={setHoveredEquipmentIndex}
                 onLegendLeave={() => setHoveredEquipmentIndex(null)}
+                onItemClick={(label) => handleEquipmentTypeClick(label)}
               />
             )}
           </div>
@@ -1146,6 +1205,29 @@ const CAModule = () => {
       <CALoadingModal
         isOpen={isLoadingCA}
         mode={pieChartMode}
+      />
+
+      {/* Modal Détails Client */}
+      <ClientDetailsModal
+        isOpen={showClientDetails}
+        onClose={handleCloseClientDetails}
+        clientName={selectedClient}
+        pieChartMode={pieChartMode}
+        month={pieChartMonth}
+        year={pieChartYear}
+        locationData={pieChartLocations}
+      />
+
+      {/* Modal Détails Équipement */}
+      <EquipmentTypeDetailsModal
+        isOpen={showEquipmentDetails}
+        onClose={handleCloseEquipmentDetails}
+        equipmentType={selectedEquipmentType}
+        pieChartMode={pieChartMode}
+        month={pieChartMonth}
+        year={pieChartYear}
+        locationData={pieChartLocations}
+        equipmentData={equipmentData}
       />
     </div>
   );

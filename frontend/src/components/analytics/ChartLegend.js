@@ -1,7 +1,7 @@
 import React from 'react';
 import './ChartLegend.css';
 
-const ChartLegend = ({ labels, values, colors, isDarkTheme, hoveredIndex, onLegendHover, onLegendLeave }) => {
+const ChartLegend = ({ labels, values, colors, isDarkTheme, hoveredIndex, onLegendHover, onLegendLeave, onItemClick }) => {
   // Créer un tableau avec labels, values, colors et index original
   const legendData = labels.map((label, index) => ({
     label,
@@ -41,6 +41,8 @@ const ChartLegend = ({ labels, values, colors, isDarkTheme, hoveredIndex, onLege
               className={`legend-item ${isHovered ? 'hovered' : ''}`}
               onMouseEnter={() => handleLegendHover(item.originalIndex)}
               onMouseLeave={handleLegendLeave}
+              onClick={() => onItemClick && onItemClick(item.label, item.originalIndex)}
+              style={{ cursor: 'pointer' }}
             >
               <div className="legend-rank">
                 <span className="rank-number">{displayIndex + 1}</span>
