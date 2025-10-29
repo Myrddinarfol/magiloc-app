@@ -376,6 +376,7 @@ const CAModule = () => {
         }
 
         let allLocations = [];
+        const startTime = performance.now();
 
         if (pieChartMode === 'month') {
           // Mode mois: récupérer les données pour un mois spécifique
@@ -387,18 +388,54 @@ const CAModule = () => {
           }
           console.log('✅ Locations trouvées (mois):', allLocations.length);
         } else {
-          // Mode année: récupérer les données pour tous les mois de l'année
-          console.log('📈 Mode ANNÉE - Récupération pour:', pieChartYear);
-          const promises = [];
-          for (let month = 0; month < 12; month++) {
-            console.log(`  📅 Ajout promesse pour mois ${month} année ${pieChartYear}`);
-            promises.push(analyticsService.getMonthLocationBreakdown(equipmentData, month, pieChartYear));
+          // Mode année: récupérer SEULEMENT les 3 mois clés (performance)
+          // Au lieu de 12 appels, seulement 3
+          console.log('📈 Mode ANNÉE OPTIMISÉ - Récupération pour:', pieChartYear);
+
+          const today = new Date();
+          const isCurrentYear = pieChartYear === today.getFullYear();
+          const currentMonth = today.getMonth();
+
+          // Déterminer les mois à récupérer selon l'année
+          let monthsToFetch = [];
+          if (isCurrentYear) {
+            // Pour l'année courante: récupérer mois précédent, courant, suivant
+            monthsToFetch = [
+              { month: Math.max(0, currentMonth - 1), year: pieChartYear },
+              { month: currentMonth, year: pieChartYear },
+              { month: Math.min(11, currentMonth + 1), year: pieChartYear }
+            ];
+          } else {
+            // Pour année passée/future: récupérer début, milieu, fin année
+            monthsToFetch = [
+              { month: 0, year: pieChartYear },    // Janvier
+              { month: 5, year: pieChartYear },    // Juin
+              { month: 11, year: pieChartYear }    // Décembre
+            ];
           }
-          console.log('⏳ Attente de', promises.length, 'promesses...');
+
+          // Déduplicat les mois en cas de problème
+          monthsToFetch = monthsToFetch.filter((item, idx, arr) =>
+            idx === arr.findIndex(t => t.month === item.month && t.year === item.year)
+          );
+
+          console.log('  📅 Récupération pour mois:', monthsToFetch.map(m => `${m.month}/${m.year}`).join(', '));
+
+          const promises = monthsToFetch.map(({ month, year }) =>
+            analyticsService.getMonthLocationBreakdown(equipmentData, month, year)
+          );
+
           const breakdowns = await Promise.all(promises);
-          console.log('✅', breakdowns.length, 'breakdowns reçus');
-          breakdowns.forEach((breakdown, index) => {
-            console.log(`  📦 Breakdown ${index}:`, breakdown);
+
+          console.log('⏱️ Données année récupérées en', Math.round(performance.now() - startTime), 'ms');
+
+          // Agrégation intelligente: inclure toutes les locations trouvées
+          breakdowns.forEach((breakdown, idx) => {
+            const { month, year } = monthsToFetch[idx];
+            const ongoing = breakdown?.ongoingLocations?.length || 0;
+            const closed = breakdown?.closedLocations?.length || 0;
+            console.log(`  📦 Mois ${month}/${year}: ${ongoing} en cours + ${closed} fermées`);
+
             if (breakdown && typeof breakdown === 'object') {
               allLocations = [
                 ...allLocations,
@@ -407,7 +444,8 @@ const CAModule = () => {
               ];
             }
           });
-          console.log('✅ Locations trouvées (année):', allLocations.length);
+
+          console.log('✅ Locations totales agrégées (année):', allLocations.length);
         }
 
         // Créer le pie chart par client
