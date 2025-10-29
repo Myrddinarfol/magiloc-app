@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Line, Bar } from 'react-chartjs-2';
+import { Line, Bar, Pie } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -7,6 +7,7 @@ import {
   PointElement,
   LineElement,
   BarElement,
+  ArcElement,
   Title,
   Tooltip,
   Legend,
@@ -20,7 +21,7 @@ import MissingPricesModal from './MissingPricesModal';
 import './CAModule.css';
 import './CADetailsModal.css';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, Filler);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler);
 
 const CAModule = () => {
   const { equipmentData } = useEquipment();
@@ -29,6 +30,8 @@ const CAModule = () => {
   const [stats, setStats] = useState(null);
   const [chartData, setChartData] = useState(null);
   const [barChartData, setBarChartData] = useState(null);
+  const [clientChartData, setClientChartData] = useState(null);
+  const [equipmentChartData, setEquipmentChartData] = useState(null);
   const [yearlyCA, setYearlyCA] = useState(0);
   const [loading, setLoading] = useState(true);
   const [missingPrices, setMissingPrices] = useState([]);
@@ -224,6 +227,61 @@ const CAModule = () => {
               borderRadius: 8,
               hoverBackgroundColor: '#ffffff',
               hoverBorderColor: '#1f2937'
+            }
+          ]
+        });
+
+        // Créer le pie chart par client
+        const clientCAMap = {};
+        [...(breakdown.ongoingLocations || []), ...(breakdown.closedLocations || [])].forEach(location => {
+          const client = location.client || 'N/A';
+          const ca = location.caConfirmedThisMonth || location.caThisMonth || 0;
+          clientCAMap[client] = (clientCAMap[client] || 0) + ca;
+        });
+
+        const clientLabels = Object.keys(clientCAMap);
+        const clientValues = Object.values(clientCAMap);
+        const clientColors = [
+          '#10b981', '#06b6d4', '#f59e0b', '#ef4444', '#8b5cf6',
+          '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16',
+          '#a78bfa', '#22d3ee', '#fbbf24', '#fb7185', '#60a5fa'
+        ];
+
+        setClientChartData({
+          labels: clientLabels,
+          datasets: [
+            {
+              label: 'CA par Client',
+              data: clientValues,
+              backgroundColor: clientColors.slice(0, clientLabels.length),
+              borderColor: '#ffffff',
+              borderWidth: 3,
+              hoverBorderWidth: 4
+            }
+          ]
+        });
+
+        // Créer le pie chart par type de matériel
+        const equipmentCAMap = {};
+        [...(breakdown.ongoingLocations || []), ...(breakdown.closedLocations || [])].forEach(location => {
+          const equipment = location.designation || 'N/A';
+          const ca = location.caConfirmedThisMonth || location.caThisMonth || 0;
+          equipmentCAMap[equipment] = (equipmentCAMap[equipment] || 0) + ca;
+        });
+
+        const equipmentLabels = Object.keys(equipmentCAMap);
+        const equipmentValues = Object.values(equipmentCAMap);
+
+        setEquipmentChartData({
+          labels: equipmentLabels,
+          datasets: [
+            {
+              label: 'CA par Matériel',
+              data: equipmentValues,
+              backgroundColor: clientColors.slice(0, equipmentLabels.length),
+              borderColor: '#ffffff',
+              borderWidth: 3,
+              hoverBorderWidth: 4
             }
           ]
         });
@@ -550,6 +608,109 @@ const CAModule = () => {
                       ticks: {
                         color: textColor,
                         font: { size: 11 }
+                      }
+                    }
+                  }
+                }}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Graphiques de Répartition - Pie Charts */}
+      <div className="ca-charts-grid">
+        {/* Pie Chart Répartition par Client */}
+        <div className="ca-chart-container">
+          <div className="chart-header">
+            <h3 className="chart-title">👥 Répartition par Client</h3>
+            <p className="chart-subtitle">Contribution de chaque client au CA</p>
+          </div>
+
+          <div className="chart-wrapper pie-wrapper">
+            {clientChartData && (
+              <Pie
+                data={clientChartData}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: true,
+                  plugins: {
+                    legend: {
+                      position: 'right',
+                      labels: {
+                        font: { size: 11, weight: 'bold' },
+                        color: textColor,
+                        padding: 12,
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                      }
+                    },
+                    tooltip: {
+                      backgroundColor: isDarkTheme ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.95)',
+                      padding: 12,
+                      titleFont: { size: 13, weight: 'bold' },
+                      bodyFont: { size: 12 },
+                      titleColor: isDarkTheme ? '#ffffff' : '#1f2937',
+                      bodyColor: isDarkTheme ? '#d1d5db' : '#4b5563',
+                      borderColor: 'rgba(220, 38, 38, 0.3)',
+                      borderWidth: 1,
+                      callbacks: {
+                        label: (context) => {
+                          const value = context.parsed;
+                          const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                          const percentage = ((value / total) * 100).toFixed(1);
+                          return `${context.label}: ${value.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })} (${percentage}%)`;
+                        }
+                      }
+                    }
+                  }
+                }}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Pie Chart Répartition par Type de Matériel */}
+        <div className="ca-chart-container">
+          <div className="chart-header">
+            <h3 className="chart-title">🔧 Répartition par Matériel</h3>
+            <p className="chart-subtitle">Contribution de chaque type de matériel au CA</p>
+          </div>
+
+          <div className="chart-wrapper pie-wrapper">
+            {equipmentChartData && (
+              <Pie
+                data={equipmentChartData}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: true,
+                  plugins: {
+                    legend: {
+                      position: 'right',
+                      labels: {
+                        font: { size: 11, weight: 'bold' },
+                        color: textColor,
+                        padding: 12,
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                      }
+                    },
+                    tooltip: {
+                      backgroundColor: isDarkTheme ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.95)',
+                      padding: 12,
+                      titleFont: { size: 13, weight: 'bold' },
+                      bodyFont: { size: 12 },
+                      titleColor: isDarkTheme ? '#ffffff' : '#1f2937',
+                      bodyColor: isDarkTheme ? '#d1d5db' : '#4b5563',
+                      borderColor: 'rgba(220, 38, 38, 0.3)',
+                      borderWidth: 1,
+                      callbacks: {
+                        label: (context) => {
+                          const value = context.parsed;
+                          const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                          const percentage = ((value / total) * 100).toFixed(1);
+                          return `${context.label}: ${value.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })} (${percentage}%)`;
+                        }
                       }
                     }
                   }

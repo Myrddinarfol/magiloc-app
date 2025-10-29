@@ -793,6 +793,10 @@ body.light-theme .ca-module-loading {
   height: 350px;
 }
 
+.ca-charts-grid .chart-wrapper.pie-wrapper {
+  height: 400px;
+}
+
 /* Responsive - Une colonne sur mobile */
 @media (max-width: 1400px) {
   .ca-charts-grid {
