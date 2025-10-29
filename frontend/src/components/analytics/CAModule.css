@@ -801,6 +801,7 @@ body.light-theme .ca-module-loading {
 .ca-chart-container.pie-container {
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .pie-chart-wrapper {
@@ -808,8 +809,9 @@ body.light-theme .ca-module-loading {
   gap: 24px;
   align-items: center;
   justify-content: center;
-  min-height: 420px;
+  flex: 1;
   width: 100%;
+  min-height: 420px;
 }
 
 .pie-chart-wrapper .chart-wrapper {
