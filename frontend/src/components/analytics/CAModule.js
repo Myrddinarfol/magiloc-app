@@ -47,6 +47,7 @@ const CAModule = () => {
   const [pieChartYear, setPieChartYear] = useState(new Date().getFullYear());
 
   console.log('🔍 CAModule rendu - Equipment:', equipmentData?.length, 'Loading:', loading, 'Stats:', stats);
+  console.log('🎨 Pie Charts Filter - Mode:', pieChartMode, 'Month:', pieChartMonth, 'Year:', pieChartYear);
 
   // Détection du thème
   const isDarkTheme = !document.body.classList.contains('light-theme');
@@ -54,8 +55,8 @@ const CAModule = () => {
   const gridColor = isDarkTheme ? 'rgba(75, 85, 99, 0.2)' : 'rgba(0, 0, 0, 0.05)';
   const pointBorderColor = isDarkTheme ? '#262626' : '#ffffff';
 
-  // Palette de couleurs premium cohérente avec l'app
-  const chartPalette = [
+  // Palette de couleurs premium cohérente avec l'app (memoized)
+  const chartPalette = React.useMemo(() => [
     '#dc2626', // Rouge primaire
     '#3b82f6', // Bleu
     '#10b981', // Vert
@@ -71,7 +72,7 @@ const CAModule = () => {
     '#fbbf24', // Light amber
     '#fb7185', // Rose
     '#60a5fa'  // Light blue
-  ];
+  ], []);
 
   // Liste des mois disponibles
   const today = new Date();
@@ -365,16 +366,24 @@ const CAModule = () => {
   useEffect(() => {
     const calculatePieChartData = async () => {
       try {
-        if (!equipmentData || equipmentData.length === 0) return;
+        console.log('📊 Calcul pie charts pour mode:', pieChartMode, 'mois:', pieChartMonth, 'année:', pieChartYear);
+
+        if (!equipmentData || equipmentData.length === 0) {
+          console.warn('⚠️ Pas de données équipement disponibles');
+          return;
+        }
 
         let allLocations = [];
 
         if (pieChartMode === 'month') {
           // Mode mois: récupérer les données pour un mois spécifique
+          console.log('📅 Récupération données pour mois:', pieChartMonth, 'année:', pieChartYear);
           const breakdown = await analyticsService.getMonthLocationBreakdown(pieChartMonth, pieChartYear, equipmentData);
           allLocations = [...(breakdown.ongoingLocations || []), ...(breakdown.closedLocations || [])];
+          console.log('✅ Locations récupérées (mode mois):', allLocations.length);
         } else {
           // Mode année: récupérer les données pour tous les mois de l'année
+          console.log('📈 Récupération données pour année:', pieChartYear);
           const promises = [];
           for (let month = 0; month < 12; month++) {
             promises.push(analyticsService.getMonthLocationBreakdown(month, pieChartYear, equipmentData));
@@ -387,6 +396,7 @@ const CAModule = () => {
               ...(breakdown.closedLocations || [])
             ];
           });
+          console.log('✅ Locations récupérées (mode année):', allLocations.length);
         }
 
         // Créer le pie chart par client
@@ -399,6 +409,7 @@ const CAModule = () => {
 
         const clientLabels = Object.keys(clientCAMap);
         const clientValues = Object.values(clientCAMap);
+        console.log('👥 Clients uniques:', clientLabels.length);
 
         setClientChartData({
           labels: clientLabels,
@@ -426,6 +437,7 @@ const CAModule = () => {
 
         const equipmentLabels = Object.keys(equipmentCAMap);
         const equipmentValues = Object.values(equipmentCAMap);
+        console.log('🔧 Matériels uniques:', equipmentLabels.length);
 
         setEquipmentChartData({
           labels: equipmentLabels,
@@ -450,7 +462,7 @@ const CAModule = () => {
     if (equipmentData && equipmentData.length > 0) {
       calculatePieChartData();
     }
-  }, [equipmentData, pieChartMode, pieChartMonth, pieChartYear, chartPalette, isDarkTheme]);
+  }, [equipmentData, pieChartMode, pieChartMonth, pieChartYear]);
 
   const monthName = new Date(selectedYear, selectedMonth, 1).toLocaleDateString('fr-FR', {
     month: 'long',
