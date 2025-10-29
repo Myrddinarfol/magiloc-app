@@ -49,6 +49,25 @@ const CAModule = () => {
   const gridColor = isDarkTheme ? 'rgba(75, 85, 99, 0.2)' : 'rgba(0, 0, 0, 0.05)';
   const pointBorderColor = isDarkTheme ? '#262626' : '#ffffff';
 
+  // Palette de couleurs premium cohérente avec l'app
+  const chartPalette = [
+    '#dc2626', // Rouge primaire
+    '#3b82f6', // Bleu
+    '#10b981', // Vert
+    '#f59e0b', // Amber
+    '#8b5cf6', // Purple
+    '#ec4899', // Pink
+    '#06b6d4', // Cyan
+    '#f97316', // Orange
+    '#6366f1', // Indigo
+    '#14b8a6', // Teal
+    '#a78bfa', // Violet
+    '#22d3ee', // Light cyan
+    '#fbbf24', // Light amber
+    '#fb7185', // Rose
+    '#60a5fa'  // Light blue
+  ];
+
   // Liste des mois disponibles
   const today = new Date();
   const availableYears = [today.getFullYear() - 1, today.getFullYear()];
@@ -241,11 +260,6 @@ const CAModule = () => {
 
         const clientLabels = Object.keys(clientCAMap);
         const clientValues = Object.values(clientCAMap);
-        const clientColors = [
-          '#10b981', '#06b6d4', '#f59e0b', '#ef4444', '#8b5cf6',
-          '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16',
-          '#a78bfa', '#22d3ee', '#fbbf24', '#fb7185', '#60a5fa'
-        ];
 
         setClientChartData({
           labels: clientLabels,
@@ -253,10 +267,12 @@ const CAModule = () => {
             {
               label: 'CA par Client',
               data: clientValues,
-              backgroundColor: clientColors.slice(0, clientLabels.length),
-              borderColor: '#ffffff',
-              borderWidth: 3,
-              hoverBorderWidth: 4
+              backgroundColor: chartPalette.slice(0, clientLabels.length),
+              borderColor: isDarkTheme ? '#1f2937' : '#ffffff',
+              borderWidth: 2,
+              hoverBorderWidth: 3,
+              hoverBorderColor: isDarkTheme ? '#ffffff' : '#000000',
+              hoverOffset: 8
             }
           ]
         });
@@ -278,10 +294,12 @@ const CAModule = () => {
             {
               label: 'CA par Matériel',
               data: equipmentValues,
-              backgroundColor: clientColors.slice(0, equipmentLabels.length),
-              borderColor: '#ffffff',
-              borderWidth: 3,
-              hoverBorderWidth: 4
+              backgroundColor: chartPalette.slice(0, equipmentLabels.length),
+              borderColor: isDarkTheme ? '#1f2937' : '#ffffff',
+              borderWidth: 2,
+              hoverBorderWidth: 3,
+              hoverBorderColor: isDarkTheme ? '#ffffff' : '#000000',
+              hoverOffset: 8
             }
           ]
         });
@@ -634,32 +652,61 @@ const CAModule = () => {
                 options={{
                   responsive: true,
                   maintainAspectRatio: true,
+                  animation: {
+                    animateRotate: true,
+                    animateScale: false,
+                    duration: 750,
+                    easing: 'easeInOutQuart'
+                  },
                   plugins: {
                     legend: {
-                      position: 'right',
+                      position: 'bottom',
+                      align: 'center',
                       labels: {
-                        font: { size: 11, weight: 'bold' },
+                        font: { size: 12, weight: '600', family: "'Segoe UI', 'Roboto', sans-serif" },
                         color: textColor,
-                        padding: 12,
+                        padding: 15,
                         usePointStyle: true,
-                        pointStyle: 'circle'
+                        pointStyle: 'circle',
+                        pointPadding: 8,
+                        generateLabels: (chart) => {
+                          const data = chart.data;
+                          return data.labels.map((label, i) => ({
+                            text: label,
+                            fillStyle: data.datasets[0].backgroundColor[i],
+                            hidden: false,
+                            index: i,
+                            pointStyle: 'circle'
+                          }));
+                        }
                       }
                     },
                     tooltip: {
-                      backgroundColor: isDarkTheme ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.95)',
-                      padding: 12,
-                      titleFont: { size: 13, weight: 'bold' },
-                      bodyFont: { size: 12 },
-                      titleColor: isDarkTheme ? '#ffffff' : '#1f2937',
-                      bodyColor: isDarkTheme ? '#d1d5db' : '#4b5563',
-                      borderColor: 'rgba(220, 38, 38, 0.3)',
-                      borderWidth: 1,
+                      enabled: true,
+                      backgroundColor: isDarkTheme ? 'rgba(31, 41, 55, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                      padding: 14,
+                      titleFont: { size: 13, weight: 'bold', family: "'Segoe UI', 'Roboto', sans-serif" },
+                      bodyFont: { size: 12, family: "'Segoe UI', 'Roboto', sans-serif" },
+                      titleColor: isDarkTheme ? '#fbbf24' : '#dc2626',
+                      bodyColor: isDarkTheme ? '#d1d5db' : '#374151',
+                      borderColor: isDarkTheme ? 'rgba(220, 38, 38, 0.5)' : 'rgba(220, 38, 38, 0.2)',
+                      borderWidth: 2,
+                      borderRadius: 6,
+                      displayColors: true,
+                      boxPadding: 6,
                       callbacks: {
+                        title: (context) => context[0].label || 'Client',
                         label: (context) => {
                           const value = context.parsed;
                           const total = context.dataset.data.reduce((a, b) => a + b, 0);
                           const percentage = ((value / total) * 100).toFixed(1);
-                          return `${context.label}: ${value.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })} (${percentage}%)`;
+                          return `CA: ${value.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}`;
+                        },
+                        afterLabel: (context) => {
+                          const value = context.parsed;
+                          const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                          const percentage = ((value / total) * 100).toFixed(1);
+                          return `Pourcentage: ${percentage}%`;
                         }
                       }
                     }
@@ -684,32 +731,61 @@ const CAModule = () => {
                 options={{
                   responsive: true,
                   maintainAspectRatio: true,
+                  animation: {
+                    animateRotate: true,
+                    animateScale: false,
+                    duration: 750,
+                    easing: 'easeInOutQuart'
+                  },
                   plugins: {
                     legend: {
-                      position: 'right',
+                      position: 'bottom',
+                      align: 'center',
                       labels: {
-                        font: { size: 11, weight: 'bold' },
+                        font: { size: 12, weight: '600', family: "'Segoe UI', 'Roboto', sans-serif" },
                         color: textColor,
-                        padding: 12,
+                        padding: 15,
                         usePointStyle: true,
-                        pointStyle: 'circle'
+                        pointStyle: 'circle',
+                        pointPadding: 8,
+                        generateLabels: (chart) => {
+                          const data = chart.data;
+                          return data.labels.map((label, i) => ({
+                            text: label,
+                            fillStyle: data.datasets[0].backgroundColor[i],
+                            hidden: false,
+                            index: i,
+                            pointStyle: 'circle'
+                          }));
+                        }
                       }
                     },
                     tooltip: {
-                      backgroundColor: isDarkTheme ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.95)',
-                      padding: 12,
-                      titleFont: { size: 13, weight: 'bold' },
-                      bodyFont: { size: 12 },
-                      titleColor: isDarkTheme ? '#ffffff' : '#1f2937',
-                      bodyColor: isDarkTheme ? '#d1d5db' : '#4b5563',
-                      borderColor: 'rgba(220, 38, 38, 0.3)',
-                      borderWidth: 1,
+                      enabled: true,
+                      backgroundColor: isDarkTheme ? 'rgba(31, 41, 55, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                      padding: 14,
+                      titleFont: { size: 13, weight: 'bold', family: "'Segoe UI', 'Roboto', sans-serif" },
+                      bodyFont: { size: 12, family: "'Segoe UI', 'Roboto', sans-serif" },
+                      titleColor: isDarkTheme ? '#fbbf24' : '#dc2626',
+                      bodyColor: isDarkTheme ? '#d1d5db' : '#374151',
+                      borderColor: isDarkTheme ? 'rgba(220, 38, 38, 0.5)' : 'rgba(220, 38, 38, 0.2)',
+                      borderWidth: 2,
+                      borderRadius: 6,
+                      displayColors: true,
+                      boxPadding: 6,
                       callbacks: {
+                        title: (context) => context[0].label || 'Matériel',
                         label: (context) => {
                           const value = context.parsed;
                           const total = context.dataset.data.reduce((a, b) => a + b, 0);
                           const percentage = ((value / total) * 100).toFixed(1);
-                          return `${context.label}: ${value.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })} (${percentage}%)`;
+                          return `CA: ${value.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}`;
+                        },
+                        afterLabel: (context) => {
+                          const value = context.parsed;
+                          const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                          const percentage = ((value / total) * 100).toFixed(1);
+                          return `Pourcentage: ${percentage}%`;
                         }
                       }
                     }
