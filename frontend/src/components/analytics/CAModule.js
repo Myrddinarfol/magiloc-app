@@ -190,8 +190,8 @@ const CAModule = () => {
 
         // Prépare les données du graphique DEPUIS LA SOURCE DE VÉRITÉ (yearlyCAData)
         const labels = [];
-        const estimatedValues = [];
         const confirmedValues = [];
+        const cumulativeValues = [];
 
         // Trie tous les mois par date (chronologiquement)
         const sortedMonths = Object.entries(yearlyCAData).sort((a, b) => {
@@ -203,6 +203,7 @@ const CAModule = () => {
         console.log(`📊 Graphique tendance: ${sortedMonths.length} mois trouvés (depuis ${sortedMonths[0]?.[0]} jusqu'à ${sortedMonths[sortedMonths.length-1]?.[0]})`);
 
         // Afficher TOUS les mois disponibles (pas juste les 12 derniers)
+        let cumsum = 0; // Accumulateur pour le CA cumulatif
         sortedMonths.forEach(([key, data]) => {
           const monthName = new Date(data.year, data.month, 1).toLocaleDateString('fr-FR', {
             month: 'short',
@@ -211,37 +212,33 @@ const CAModule = () => {
 
           labels.push(monthName);
 
-          // Pour le graphique, afficher:
-          // - Mois courant: estimé vs confirmé (locations en cours)
-          // - Mois passés: confirmé = confirmé (source unique de vérité)
-          if (data.isCurrent) {
-            estimatedValues.push(data.estimatedCA || 0);
-            confirmedValues.push(data.confirmedCA || 0);
-          } else {
-            // Mois passés: affiche le CA confirmé réparti correctement
-            estimatedValues.push(data.confirmedCA || 0);
-            confirmedValues.push(data.confirmedCA || 0);
-          }
+          // CA confirmé de ce mois
+          const monthConfirmedCA = data.confirmedCA || 0;
+          confirmedValues.push(monthConfirmedCA);
+
+          // CA cumulatif: accumuler progressivement
+          cumsum += monthConfirmedCA;
+          cumulativeValues.push(cumsum);
         });
 
         setChartData({
           labels,
           datasets: [
             {
-              label: 'CA Estimatif',
-              data: estimatedValues,
-              borderColor: '#3b82f6',
-              backgroundColor: 'rgba(59, 130, 246, 0.15)',
+              label: 'CA Cumulatif',
+              data: cumulativeValues,
+              borderColor: '#8b5cf6',
+              backgroundColor: 'rgba(139, 92, 246, 0.15)',
               fill: true,
               tension: 0.4,
-              pointBackgroundColor: '#3b82f6',
+              pointBackgroundColor: '#8b5cf6',
               pointBorderColor: pointBorderColor,
               pointBorderWidth: 2,
               pointRadius: 5,
               pointHoverRadius: 7
             },
             {
-              label: 'CA Confirmé',
+              label: 'CA par Mois',
               data: confirmedValues,
               borderColor: '#16a34a',
               backgroundColor: 'rgba(22, 163, 74, 0.15)',
