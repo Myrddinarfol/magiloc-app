@@ -366,10 +366,12 @@ const CAModule = () => {
   useEffect(() => {
     const calculatePieChartData = async () => {
       try {
-        console.log('📊 Calcul pie charts pour mode:', pieChartMode, 'mois:', pieChartMonth, 'année:', pieChartYear);
+        console.log('📊 USEEFFECT LANCÉ - Mode:', pieChartMode, 'Mois:', pieChartMonth, 'Année:', pieChartYear);
 
         if (!equipmentData || equipmentData.length === 0) {
           console.warn('⚠️ Pas de données équipement disponibles');
+          setClientChartData(null);
+          setEquipmentChartData(null);
           return;
         }
 
@@ -377,13 +379,13 @@ const CAModule = () => {
 
         if (pieChartMode === 'month') {
           // Mode mois: récupérer les données pour un mois spécifique
-          console.log('📅 Récupération données pour mois:', pieChartMonth, 'année:', pieChartYear);
+          console.log('📅 Mode MOIS - Récupération pour:', pieChartMonth, '/', pieChartYear);
           const breakdown = await analyticsService.getMonthLocationBreakdown(pieChartMonth, pieChartYear, equipmentData);
           allLocations = [...(breakdown.ongoingLocations || []), ...(breakdown.closedLocations || [])];
-          console.log('✅ Locations récupérées (mode mois):', allLocations.length);
+          console.log('✅ Locations trouvées (mois):', allLocations.length);
         } else {
           // Mode année: récupérer les données pour tous les mois de l'année
-          console.log('📈 Récupération données pour année:', pieChartYear);
+          console.log('📈 Mode ANNÉE - Récupération pour:', pieChartYear);
           const promises = [];
           for (let month = 0; month < 12; month++) {
             promises.push(analyticsService.getMonthLocationBreakdown(month, pieChartYear, equipmentData));
@@ -396,7 +398,7 @@ const CAModule = () => {
               ...(breakdown.closedLocations || [])
             ];
           });
-          console.log('✅ Locations récupérées (mode année):', allLocations.length);
+          console.log('✅ Locations trouvées (année):', allLocations.length);
         }
 
         // Créer le pie chart par client
@@ -407,11 +409,11 @@ const CAModule = () => {
           clientCAMap[client] = (clientCAMap[client] || 0) + ca;
         });
 
-        const clientLabels = Object.keys(clientCAMap);
-        const clientValues = Object.values(clientCAMap);
-        console.log('👥 Clients uniques:', clientLabels.length);
+        const clientLabels = Object.keys(clientCAMap).sort();
+        const clientValues = clientLabels.map(label => clientCAMap[label]);
+        console.log('👥 Clients:', clientLabels.length, clientLabels.slice(0, 3));
 
-        setClientChartData({
+        const newClientChartData = {
           labels: clientLabels,
           datasets: [
             {
@@ -425,7 +427,9 @@ const CAModule = () => {
               hoverOffset: 8
             }
           ]
-        });
+        };
+        console.log('📊 Client chart data créé:', newClientChartData.labels.length, 'clients');
+        setClientChartData(newClientChartData);
 
         // Créer le pie chart par type de matériel
         const equipmentCAMap = {};
@@ -435,11 +439,11 @@ const CAModule = () => {
           equipmentCAMap[equipment] = (equipmentCAMap[equipment] || 0) + ca;
         });
 
-        const equipmentLabels = Object.keys(equipmentCAMap);
-        const equipmentValues = Object.values(equipmentCAMap);
-        console.log('🔧 Matériels uniques:', equipmentLabels.length);
+        const equipmentLabels = Object.keys(equipmentCAMap).sort();
+        const equipmentValues = equipmentLabels.map(label => equipmentCAMap[label]);
+        console.log('🔧 Matériels:', equipmentLabels.length, equipmentLabels.slice(0, 3));
 
-        setEquipmentChartData({
+        const newEquipmentChartData = {
           labels: equipmentLabels,
           datasets: [
             {
@@ -453,16 +457,26 @@ const CAModule = () => {
               hoverOffset: 8
             }
           ]
-        });
+        };
+        console.log('📊 Equipment chart data créé:', newEquipmentChartData.labels.length, 'matériels');
+        setEquipmentChartData(newEquipmentChartData);
       } catch (error) {
         console.error('❌ Erreur calcul pie charts:', error);
+        setClientChartData(null);
+        setEquipmentChartData(null);
       }
     };
 
+    console.log('🔍 Vérification avant calcul - equipment:', equipmentData?.length, 'pieChartMode:', pieChartMode);
     if (equipmentData && equipmentData.length > 0) {
+      console.log('✅ Démarrage du calcul pie charts...');
       calculatePieChartData();
+    } else {
+      console.warn('⚠️ Pas de conditions remplies pour lancer le calcul');
+      setClientChartData(null);
+      setEquipmentChartData(null);
     }
-  }, [equipmentData, pieChartMode, pieChartMonth, pieChartYear]);
+  }, [equipmentData, pieChartMode, pieChartMonth, pieChartYear, chartPalette, isDarkTheme]);
 
   const monthName = new Date(selectedYear, selectedMonth, 1).toLocaleDateString('fr-FR', {
     month: 'long',
