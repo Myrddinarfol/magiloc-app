@@ -1144,6 +1144,75 @@ export const analyticsService = {
         loanCount: loanLocations.length
       }
     };
+  },
+
+  /**
+   * Agrège les clients et équipements pour l'année entière en utilisant yearlyCAData
+   * SOURCE DE VÉRITÉ: utilise les mêmes données que le CA annuel
+   * Garantit la cohérence entre le CA annuel (haut) et les pie charts (bas)
+   */
+  getYearClientAndEquipmentBreakdown(yearlyCAData) {
+    console.log('📊 Agrégation clients/équipements depuis yearlyCAData');
+
+    const clientCAMap = {};
+    const equipmentCAMap = {};
+    let totalLocationsCount = 0;
+
+    // Itérer sur tous les mois de l'année
+    Object.entries(yearlyCAData).forEach(([monthKey, monthData]) => {
+      console.log(`  📅 Traitement ${monthKey}: ${monthData.ongoingLocations?.length || 0} en cours + ${monthData.closedLocations?.length || 0} fermées`);
+
+      // Agrégation des locations en cours
+      if (monthData.ongoingLocations) {
+        monthData.ongoingLocations.forEach(location => {
+          const client = location.client || 'N/A';
+          const equipment = location.designation || 'N/A';
+          const ca = location.caConfirmedThisMonth || location.caThisMonth || 0;
+
+          clientCAMap[client] = (clientCAMap[client] || 0) + ca;
+          equipmentCAMap[equipment] = (equipmentCAMap[equipment] || 0) + ca;
+          totalLocationsCount++;
+        });
+      }
+
+      // Agrégation des locations fermées
+      if (monthData.closedLocations) {
+        monthData.closedLocations.forEach(location => {
+          const client = location.client || 'N/A';
+          const equipment = location.designation || 'N/A';
+          const ca = location.caConfirmedThisMonth || location.caThisMonth || 0;
+
+          clientCAMap[client] = (clientCAMap[client] || 0) + ca;
+          equipmentCAMap[equipment] = (equipmentCAMap[equipment] || 0) + ca;
+          totalLocationsCount++;
+        });
+      }
+    });
+
+    // Trier par CA décroissant
+    const sortedClients = Object.entries(clientCAMap)
+      .sort((a, b) => b[1] - a[1])
+      .map(([label, value]) => ({ label, value }));
+
+    const sortedEquipment = Object.entries(equipmentCAMap)
+      .sort((a, b) => b[1] - a[1])
+      .map(([label, value]) => ({ label, value }));
+
+    const totalCA = Object.values(clientCAMap).reduce((a, b) => a + b, 0);
+
+    console.log('✅ Agrégation terminée:');
+    console.log(`  👥 ${sortedClients.length} clients uniques, CA total: ${totalCA.toFixed(2)}€`);
+    console.log(`  🔧 ${sortedEquipment.length} équipements uniques`);
+    console.log(`  📦 ${totalLocationsCount} locations au total`);
+
+    return {
+      clientLabels: sortedClients.map(c => c.label),
+      clientValues: sortedClients.map(c => c.value),
+      equipmentLabels: sortedEquipment.map(e => e.label),
+      equipmentValues: sortedEquipment.map(e => e.value),
+      totalCA: parseFloat(totalCA.toFixed(2)),
+      totalLocations: totalLocationsCount
+    };
   }
 };
 

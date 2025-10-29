@@ -388,66 +388,66 @@ const CAModule = () => {
           }
           console.log('✅ Locations trouvées (mois):', allLocations.length);
         } else {
-          // Mode année: récupérer SEULEMENT les 3 mois clés (performance)
-          // Au lieu de 12 appels, seulement 3
-          console.log('📈 Mode ANNÉE OPTIMISÉ - Récupération pour:', pieChartYear);
+          // Mode année: utiliser yearlyCAData (source de vérité)
+          // IMPORTANT: Utilise exactement les mêmes données que le CA annuel pour cohérence!
+          console.log('📈 Mode ANNÉE - Utilisation yearlyCAData (source de vérité)');
 
-          const today = new Date();
-          const isCurrentYear = pieChartYear === today.getFullYear();
-          const currentMonth = today.getMonth();
+          // Récupérer yearlyCAData pour l'année sélectionnée
+          const yearlyCAData = await analyticsService.getYearlyCAData(equipmentData);
 
-          // Déterminer les mois à récupérer selon l'année
-          let monthsToFetch = [];
-          if (isCurrentYear) {
-            // Pour l'année courante: récupérer mois précédent, courant, suivant
-            monthsToFetch = [
-              { month: Math.max(0, currentMonth - 1), year: pieChartYear },
-              { month: currentMonth, year: pieChartYear },
-              { month: Math.min(11, currentMonth + 1), year: pieChartYear }
-            ];
-          } else {
-            // Pour année passée/future: récupérer début, milieu, fin année
-            monthsToFetch = [
-              { month: 0, year: pieChartYear },    // Janvier
-              { month: 5, year: pieChartYear },    // Juin
-              { month: 11, year: pieChartYear }    // Décembre
-            ];
-          }
+          console.log('⏱️ yearlyCAData récupérée en', Math.round(performance.now() - startTime), 'ms');
 
-          // Déduplicat les mois en cas de problème
-          monthsToFetch = monthsToFetch.filter((item, idx, arr) =>
-            idx === arr.findIndex(t => t.month === item.month && t.year === item.year)
-          );
+          // Agréger CORRECTEMENT en utilisant la même logique que le CA annuel
+          const breakdown = analyticsService.getYearClientAndEquipmentBreakdown(yearlyCAData);
 
-          console.log('  📅 Récupération pour mois:', monthsToFetch.map(m => `${m.month}/${m.year}`).join(', '));
+          console.log('📊 Breakdown agrégé depuis yearlyCAData:');
+          console.log(`  💰 CA total (cohérent avec haut): ${breakdown.totalCA}€`);
+          console.log(`  👥 Clients: ${breakdown.clientLabels.length}`);
+          console.log(`  🔧 Équipements: ${breakdown.equipmentLabels.length}`);
+          console.log(`  📦 Locations: ${breakdown.totalLocations}`);
 
-          const promises = monthsToFetch.map(({ month, year }) =>
-            analyticsService.getMonthLocationBreakdown(equipmentData, month, year)
-          );
+          // Utiliser directement les données du breakdown (déjà correctement agrégées)
+          const newClientChartData = {
+            labels: breakdown.clientLabels,
+            datasets: [
+              {
+                label: 'CA par Client',
+                data: breakdown.clientValues,
+                backgroundColor: chartPalette.slice(0, breakdown.clientLabels.length),
+                borderColor: isDarkTheme ? '#1f2937' : '#ffffff',
+                borderWidth: 2,
+                hoverBorderWidth: 3,
+                hoverBorderColor: isDarkTheme ? '#ffffff' : '#000000',
+                hoverOffset: 8
+              }
+            ]
+          };
+          console.log('📊 Client chart data créé:', newClientChartData.labels.length, 'clients');
+          setClientChartData(newClientChartData);
 
-          const breakdowns = await Promise.all(promises);
+          const newEquipmentChartData = {
+            labels: breakdown.equipmentLabels,
+            datasets: [
+              {
+                label: 'CA par Matériel',
+                data: breakdown.equipmentValues,
+                backgroundColor: chartPalette.slice(0, breakdown.equipmentLabels.length),
+                borderColor: isDarkTheme ? '#1f2937' : '#ffffff',
+                borderWidth: 2,
+                hoverBorderWidth: 3,
+                hoverBorderColor: isDarkTheme ? '#ffffff' : '#000000',
+                hoverOffset: 8
+              }
+            ]
+          };
+          console.log('📊 Equipment chart data créé:', newEquipmentChartData.labels.length, 'matériels');
+          setEquipmentChartData(newEquipmentChartData);
 
-          console.log('⏱️ Données année récupérées en', Math.round(performance.now() - startTime), 'ms');
-
-          // Agrégation intelligente: inclure toutes les locations trouvées
-          breakdowns.forEach((breakdown, idx) => {
-            const { month, year } = monthsToFetch[idx];
-            const ongoing = breakdown?.ongoingLocations?.length || 0;
-            const closed = breakdown?.closedLocations?.length || 0;
-            console.log(`  📦 Mois ${month}/${year}: ${ongoing} en cours + ${closed} fermées`);
-
-            if (breakdown && typeof breakdown === 'object') {
-              allLocations = [
-                ...allLocations,
-                ...(breakdown.ongoingLocations || []),
-                ...(breakdown.closedLocations || [])
-              ];
-            }
-          });
-
-          console.log('✅ Locations totales agrégées (année):', allLocations.length);
+          // Pas besoin de continuer le code ci-dessous pour le mode année
+          return;
         }
 
+        // Code pour MODE MOIS (continuer l'agrégation manuelle)
         // Créer le pie chart par client
         const clientCAMap = {};
         allLocations.forEach(location => {
