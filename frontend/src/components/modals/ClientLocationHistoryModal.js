@@ -2,6 +2,12 @@ import React from 'react';
 import './HistoryModals.css';
 
 const ClientLocationHistoryModal = ({ clientName, history, onClose }) => {
+  // Calculer le CA total pour ce client
+  const totalCA = history.reduce((sum, loc) => {
+    const ca = loc.ca_total_ht || 0;
+    return sum + (typeof ca === 'string' ? parseFloat(ca) : ca);
+  }, 0);
+
   return (
     <div className="history-overlay">
       <div className="history-modal">
@@ -30,6 +36,7 @@ const ClientLocationHistoryModal = ({ clientName, history, onClose }) => {
                     <th className="col-equipment">Équipement</th>
                     <th className="col-dates">Dates</th>
                     <th className="col-duration">Durée</th>
+                    <th className="col-tarif">Tarif/jour</th>
                     <th className="col-ca">CA HT</th>
                     <th className="col-offre">Offre</th>
                     <th className="col-notes">Notes</th>
@@ -73,6 +80,11 @@ const ClientLocationHistoryModal = ({ clientName, history, onClose }) => {
                             <span className="history-duration-badge">{loc.duree_jours_ouvres} j</span>
                           ) : <span className="history-na">N/A</span>}
                         </td>
+                        <td className="col-tarif">
+                          {loc.prix_ht_jour ? (
+                            <span className="history-tarif">{parseFloat(loc.prix_ht_jour).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</span>
+                          ) : <span className="history-na">N/A</span>}
+                        </td>
                         <td className="col-ca">
                           {hasCA ? (
                             <div className="history-ca-info">
@@ -102,6 +114,10 @@ const ClientLocationHistoryModal = ({ clientName, history, onClose }) => {
 
         {/* Footer */}
         <div className="history-modal-footer">
+          <div className="history-total-ca">
+            <span className="history-total-label">CA Total pour ce client:</span>
+            <span className="history-total-value">{totalCA.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</span>
+          </div>
           <button onClick={onClose} className="history-btn-close">
             Fermer
           </button>
