@@ -446,6 +446,9 @@ const CAModule = () => {
             </div>
             <div className="kpi-value">{stats.estimatedCA.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</div>
             <div className="kpi-detail">
+              {monthName}
+            </div>
+            <div className="kpi-subtext">
               {selectedMonth === new Date().getMonth() && selectedYear === new Date().getFullYear()
                 ? 'Locations en cours incluses'
                 : 'Mois clôturé'}
@@ -461,6 +464,9 @@ const CAModule = () => {
             </div>
             <div className="kpi-value">{stats.confirmedCA.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</div>
             <div className="kpi-detail">
+              {monthName}
+            </div>
+            <div className="kpi-subtext">
               {selectedMonth === new Date().getMonth() && selectedYear === new Date().getFullYear()
                 ? 'Jours effectifs uniquement'
                 : 'Mois clôturé'}
@@ -478,6 +484,9 @@ const CAModule = () => {
               {(stats.estimatedCA - stats.confirmedCA).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
             </div>
             <div className="kpi-detail">
+              {monthName}
+            </div>
+            <div className="kpi-subtext">
               Jours à facturer sur le mois
             </div>
           </div>
