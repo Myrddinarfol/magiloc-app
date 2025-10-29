@@ -41,6 +41,10 @@ const CAModule = () => {
   const [detailsModalType, setDetailsModalType] = useState('estimated'); // 'estimated' ou 'confirmed'
   const [monthLocationBreakdown, setMonthLocationBreakdown] = useState(null);
   const [showMissingPricesModal, setShowMissingPricesModal] = useState(false);
+  // Filtres pour les graphiques pie
+  const [pieChartMode, setPieChartMode] = useState('month'); // 'month' ou 'year'
+  const [pieChartMonth, setPieChartMonth] = useState(new Date().getMonth());
+  const [pieChartYear, setPieChartYear] = useState(new Date().getFullYear());
 
   console.log('🔍 CAModule rendu - Equipment:', equipmentData?.length, 'Loading:', loading, 'Stats:', stats);
 
@@ -325,6 +329,19 @@ const CAModule = () => {
     setSelectedYear(parseInt(e.target.value));
   };
 
+  // Handlers pour les filtres des graphiques pie charts
+  const handlePieChartModeChange = (mode) => {
+    setPieChartMode(mode);
+  };
+
+  const handlePieChartMonthChange = (e) => {
+    setPieChartMonth(parseInt(e.target.value));
+  };
+
+  const handlePieChartYearChange = (e) => {
+    setPieChartYear(parseInt(e.target.value));
+  };
+
   const handleOpenDetailsModal = (type) => {
     setDetailsModalType(type);
     setShowDetailsModal(true);
@@ -343,6 +360,97 @@ const CAModule = () => {
     console.log('🔄 Recharge des données analytiques après mise à jour des tarifs');
     // Les données se rechargeront automatiquement via le useEffect
   };
+
+  // useEffect séparé pour les graphiques pie charts avec leurs propres filtres
+  useEffect(() => {
+    const calculatePieChartData = async () => {
+      try {
+        if (!equipmentData || equipmentData.length === 0) return;
+
+        let allLocations = [];
+
+        if (pieChartMode === 'month') {
+          // Mode mois: récupérer les données pour un mois spécifique
+          const breakdown = await analyticsService.getMonthLocationBreakdown(pieChartMonth, pieChartYear, equipmentData);
+          allLocations = [...(breakdown.ongoingLocations || []), ...(breakdown.closedLocations || [])];
+        } else {
+          // Mode année: récupérer les données pour tous les mois de l'année
+          const promises = [];
+          for (let month = 0; month < 12; month++) {
+            promises.push(analyticsService.getMonthLocationBreakdown(month, pieChartYear, equipmentData));
+          }
+          const breakdowns = await Promise.all(promises);
+          breakdowns.forEach(breakdown => {
+            allLocations = [
+              ...allLocations,
+              ...(breakdown.ongoingLocations || []),
+              ...(breakdown.closedLocations || [])
+            ];
+          });
+        }
+
+        // Créer le pie chart par client
+        const clientCAMap = {};
+        allLocations.forEach(location => {
+          const client = location.client || 'N/A';
+          const ca = location.caConfirmedThisMonth || location.caThisMonth || 0;
+          clientCAMap[client] = (clientCAMap[client] || 0) + ca;
+        });
+
+        const clientLabels = Object.keys(clientCAMap);
+        const clientValues = Object.values(clientCAMap);
+
+        setClientChartData({
+          labels: clientLabels,
+          datasets: [
+            {
+              label: 'CA par Client',
+              data: clientValues,
+              backgroundColor: chartPalette.slice(0, clientLabels.length),
+              borderColor: isDarkTheme ? '#1f2937' : '#ffffff',
+              borderWidth: 2,
+              hoverBorderWidth: 3,
+              hoverBorderColor: isDarkTheme ? '#ffffff' : '#000000',
+              hoverOffset: 8
+            }
+          ]
+        });
+
+        // Créer le pie chart par type de matériel
+        const equipmentCAMap = {};
+        allLocations.forEach(location => {
+          const equipment = location.designation || 'N/A';
+          const ca = location.caConfirmedThisMonth || location.caThisMonth || 0;
+          equipmentCAMap[equipment] = (equipmentCAMap[equipment] || 0) + ca;
+        });
+
+        const equipmentLabels = Object.keys(equipmentCAMap);
+        const equipmentValues = Object.values(equipmentCAMap);
+
+        setEquipmentChartData({
+          labels: equipmentLabels,
+          datasets: [
+            {
+              label: 'CA par Matériel',
+              data: equipmentValues,
+              backgroundColor: chartPalette.slice(0, equipmentLabels.length),
+              borderColor: isDarkTheme ? '#1f2937' : '#ffffff',
+              borderWidth: 2,
+              hoverBorderWidth: 3,
+              hoverBorderColor: isDarkTheme ? '#ffffff' : '#000000',
+              hoverOffset: 8
+            }
+          ]
+        });
+      } catch (error) {
+        console.error('❌ Erreur calcul pie charts:', error);
+      }
+    };
+
+    if (equipmentData && equipmentData.length > 0) {
+      calculatePieChartData();
+    }
+  }, [equipmentData, pieChartMode, pieChartMonth, pieChartYear, chartPalette, isDarkTheme]);
 
   const monthName = new Date(selectedYear, selectedMonth, 1).toLocaleDateString('fr-FR', {
     month: 'long',
@@ -643,6 +751,88 @@ const CAModule = () => {
               />
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Filtres pour les Graphiques de Répartition - Pie Charts */}
+      <div className="pie-charts-filters">
+        <div className="filter-section">
+          <div className="filter-title">📊 Graphiques de Répartition</div>
+
+          {/* Boutons Mode */}
+          <div className="filter-group">
+            <label>Période</label>
+            <div className="filter-buttons">
+              <button
+                className={`filter-btn ${pieChartMode === 'month' ? 'active' : ''}`}
+                onClick={() => handlePieChartModeChange('month')}
+              >
+                📅 Mois
+              </button>
+              <button
+                className={`filter-btn ${pieChartMode === 'year' ? 'active' : ''}`}
+                onClick={() => handlePieChartModeChange('year')}
+              >
+                📈 Année
+              </button>
+            </div>
+          </div>
+
+          {/* Sélection Mois/Année */}
+          {pieChartMode === 'month' && (
+            <div className="filter-group">
+              <div className="filter-row">
+                <div className="filter-column">
+                  <label htmlFor="pie-month-select">Mois</label>
+                  <select
+                    id="pie-month-select"
+                    value={pieChartMonth}
+                    onChange={handlePieChartMonthChange}
+                    className="filter-select"
+                  >
+                    {[...Array(12)].map((_, i) => (
+                      <option key={i} value={i}>
+                        {new Date(2025, i, 1).toLocaleDateString('fr-FR', { month: 'long' })}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="filter-column">
+                  <label htmlFor="pie-year-select">Année</label>
+                  <select
+                    id="pie-year-select"
+                    value={pieChartYear}
+                    onChange={handlePieChartYearChange}
+                    className="filter-select"
+                  >
+                    {availableYears.map(year => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {pieChartMode === 'year' && (
+            <div className="filter-group">
+              <label htmlFor="pie-year-only-select">Année</label>
+              <select
+                id="pie-year-only-select"
+                value={pieChartYear}
+                onChange={handlePieChartYearChange}
+                className="filter-select"
+              >
+                {availableYears.map(year => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
       </div>
 
