@@ -77,8 +77,9 @@ const CAModule = () => {
         console.log('📊 Calcul stats pour', selectedMonth, '/', selectedYear);
         console.log('📈 Récupération historique CA...');
 
-        const [caHistory, breakdown] = await Promise.all([
+        const [caHistory, yearlyCAData, breakdown] = await Promise.all([
           analyticsService.getAllMonthsCAData(equipmentData),
+          analyticsService.getYearlyCAData(equipmentData),
           analyticsService.getMonthLocationBreakdown(equipmentData, selectedMonth, selectedYear)
         ]);
 
@@ -105,11 +106,11 @@ const CAModule = () => {
         setStats(monthStats);
         setMonthLocationBreakdown(breakdown);
 
-        // Calcul du CA annuel pour l'année en cours
+        // Calcul du CA annuel pour l'année en cours (utilise yearlyCAData qui est la source de vérité)
         const currentYear = new Date().getFullYear();
-        const yearlyCATotal = analyticsService.calculateYearlyConfirmedCA(caHistory, currentYear);
+        const yearlyCATotal = analyticsService.calculateYearlyConfirmedCA(yearlyCAData, currentYear);
         setYearlyCA(yearlyCATotal);
-        console.log('💰 CA annuel 2025:', yearlyCATotal);
+        console.log('💰 CA annuel 2025 (depuis yearlyCAData):', yearlyCATotal);
 
         // Prépare les données du graphique
         const labels = [];
@@ -135,12 +136,12 @@ const CAModule = () => {
           labels.push(monthName);
 
           if (data.isCurrent) {
-            estimatedValues.push(data.estimatedCA);
-            confirmedValues.push(data.confirmedCA);
+            estimatedValues.push(data.estimatedCA || 0);
+            confirmedValues.push(data.confirmedCA || 0);
           } else {
-            // Mois passés: affiche l'historique comme estimé
-            estimatedValues.push(data.historicalCA);
-            confirmedValues.push(data.historicalCA);
+            // Mois passés: affiche le CA confirmé réparti (tous les mois ont maintenant confirmedCA)
+            estimatedValues.push(data.confirmedCA || 0);
+            confirmedValues.push(data.confirmedCA || 0);
           }
         });
 

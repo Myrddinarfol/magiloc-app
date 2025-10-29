@@ -108,7 +108,7 @@ export const analyticsService = {
     // Si minimum de facturation coché, CA = minimum (pas de calcul sur jours)
     if (equipment.minimumFacturationApply && equipment.minimumFacturation) {
       console.log(`💰 Minimum facturation appliqué: ${equipment.minimumFacturation}€`);
-      return parseFloat(equipment.minimumFacturation.toFixed(2));
+      return parseFloat(parseFloat(equipment.minimumFacturation).toFixed(2));
     }
 
     if (businessDaysThisMonth === 0) return 0;
@@ -173,7 +173,7 @@ export const analyticsService = {
 
     // Si minimum de facturation coché, CA = minimum (strictement)
     if (equipment.minimumFacturationApply && equipment.minimumFacturation) {
-      ca = equipment.minimumFacturation;
+      ca = parseFloat(equipment.minimumFacturation) || 0;
     }
 
     return parseFloat(ca.toFixed(2));
@@ -241,7 +241,7 @@ export const analyticsService = {
 
     // Si minimum de facturation coché, CA = minimum (strictement)
     if (equipment.minimumFacturationApply && equipment.minimumFacturation) {
-      ca = equipment.minimumFacturation;
+      ca = parseFloat(equipment.minimumFacturation) || 0;
     }
 
     return parseFloat(ca.toFixed(2));
@@ -298,18 +298,92 @@ export const analyticsService = {
 
     // Si minimum de facturation coché, CA = minimum (strictement)
     if (equipment.minimumFacturationApply && equipment.minimumFacturation) {
-      ca = equipment.minimumFacturation;
+      ca = parseFloat(equipment.minimumFacturation) || 0;
     }
 
     return parseFloat(ca.toFixed(2));
   },
 
   /**
-   * Calcule le CA du mois depuis l'historique ARCHIVÉ avec détails COMPLETS
-   * (locations clôturées dans le mois donné)
+   * Calcule le CA réparti par mois pour les locations archivées
+   * IMPORTANT: Répartit le CA des locations multi-mois correctement
+   * Contrairement à calculateHistoricalMonthlyCAWithDetails qui compte
+   * les locations fermées CE MOIS, celle-ci répartit correctement les
+   * locations multi-mois par mois de déroulement
    * Retourne: { totalCA, count, locations }
-   * Exclut automatiquement les locations avec CLIENT TEST
    */
+  async calculateHistoricalMonthlyCAWithMonthlyRepartition(locationHistory, month, year) {
+    const { calculateBusinessDays, calculateBusinessDaysByMonth } = await import('../utils/dateHelpers');
+
+    // Filtrer les TEST locations
+    const filteredHistory = this.filterTestLocations(locationHistory);
+
+    if (!filteredHistory || filteredHistory.length === 0) {
+      return { totalCA: 0, count: 0, locations: [] };
+    }
+
+    const monthStart = new Date(year, month, 1);
+    const monthEnd = new Date(year, month + 1, 0);
+    const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
+
+    let totalCA = 0;
+    const locations = [];
+
+    filteredHistory.forEach(location => {
+      // IMPORTANT: Exclure les locations marquées comme prêt
+      if (location.est_pret) return;
+
+      // Récupérer les dates de début et fin
+      const startDateStr = location.date_debut || location.loue_le;
+      const endDateStr = location.date_retour_reel || location.rentre_le;
+
+      if (!startDateStr || !endDateStr) return;
+
+      const locationStart = new Date(startDateStr);
+      const locationEnd = new Date(endDateStr);
+
+      // Vérifier si la location chevauche ce mois
+      if (locationStart <= monthEnd && locationEnd >= monthStart) {
+        // Calculer la partie qui se chevauche ce mois
+        const overlapStart = new Date(Math.max(locationStart.getTime(), monthStart.getTime()));
+        const overlapEnd = new Date(Math.min(locationEnd.getTime(), monthEnd.getTime()));
+
+        const startStr = overlapStart.toISOString().split('T')[0];
+        const endStr = overlapEnd.toISOString().split('T')[0];
+
+        // Jours du mois pour cette location
+        const businessDaysThisMonth = calculateBusinessDays(startStr, endStr);
+
+        // Jours TOTAUX de la location
+        const totalLocationDays = calculateBusinessDays(
+          locationStart.toISOString().split('T')[0],
+          locationEnd.toISOString().split('T')[0]
+        );
+
+        // Répartir le CA en proportion des jours ce mois
+        if (businessDaysThisMonth > 0 && totalLocationDays > 0 && location.ca_total_ht) {
+          const totalCAValue = parseFloat(location.ca_total_ht) || 0;
+          const caThisMonth = (businessDaysThisMonth / totalLocationDays) * totalCAValue;
+
+          if (typeof caThisMonth === 'number' && !isNaN(caThisMonth)) {
+            totalCA += caThisMonth;
+            locations.push({
+              ...location,
+              businessDaysThisMonth,
+              caThisMonth
+            });
+          }
+        }
+      }
+    });
+
+    return {
+      totalCA: parseFloat(totalCA.toFixed(2)),
+      count: locations.length,
+      locations
+    };
+  },
+
   calculateHistoricalMonthlyCAWithDetails(locationHistory, month, year) {
     // Filtrer les TEST locations
     const filteredHistory = this.filterTestLocations(locationHistory);
@@ -337,8 +411,11 @@ export const analyticsService = {
       // La location a été clôturée ce mois-ci
       if (returnDate >= monthStart && returnDate <= monthEnd) {
         if (location.ca_total_ht) {
-          totalCA += parseFloat(location.ca_total_ht);
-          locations.push(location);
+          const caValue = parseFloat(location.ca_total_ht) || 0;
+          if (typeof caValue === 'number' && !isNaN(caValue)) {
+            totalCA += caValue;
+            locations.push(location);
+          }
         }
       }
     });
@@ -362,10 +439,12 @@ export const analyticsService = {
 
   /**
    * Calcule le CA total confirmé de l'année en cours
+   * IMPORTANT: Somme le CA confirmé de CHAQUE mois (cohérence garantie)
    */
   calculateYearlyConfirmedCA(caData, year) {
     let totalCA = 0;
     const monthsForYear = [];
+    const monthDetails = [];
 
     for (const [key, data] of Object.entries(caData)) {
       const [monthYear] = key.split('-');
@@ -373,19 +452,65 @@ export const analyticsService = {
 
       if (dataYear === year) {
         monthsForYear.push(key);
-        // Pour le mois courant: utiliser CA confirmé
-        if (data.isCurrent) {
-          totalCA += data.confirmedCA || 0;
-        } else {
-          // Pour les mois passés: utiliser l'historique
-          totalCA += data.historicalCA || 0;
-        }
+        // Pour TOUS les mois (courant ET passés): utiliser CA confirmé
+        // Chaque mois doit avoir un CA confirmé calculé correctement avec répartition
+        const monthConfirmedCA = data.confirmedCA || 0;
+        monthDetails.push({ key, value: monthConfirmedCA });
+        totalCA += monthConfirmedCA;
       }
     }
 
-    console.log(`💰 CA annuel ${year}: ${monthsForYear.length} mois trouvés (${monthsForYear.join(', ')}) = ${totalCA}€`);
+    console.log(`💰 CA annuel ${year}: ${monthsForYear.length} mois trouvés`);
+    console.log(`📅 Détails par mois:`, monthDetails);
+    console.log(`💵 Total CA ${year}: ${totalCA}€`);
 
-    return parseFloat(totalCA.toFixed(2));
+    return typeof totalCA === 'number' && !isNaN(totalCA) ? parseFloat(totalCA.toFixed(2)) : 0;
+  },
+
+  /**
+   * Calcule le CA annuel pour CHAQUE mois de l'année en cours
+   * Utilise getMonthLocationBreakdown pour chaque mois (source de vérité unique)
+   * Cela assure une répartition correcte des locations multi-mois
+   */
+  async getYearlyCAData(equipmentList) {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth();
+
+    const caData = {};
+
+    // Pour chaque mois de l'année
+    for (let month = 0; month <= currentMonth; month++) {
+      const monthDate = new Date(currentYear, month, 1);
+      const key = `${currentYear}-${String(month + 1).padStart(2, '0')}`;
+
+      try {
+        const breakdown = await this.getMonthLocationBreakdown(equipmentList, month, currentYear);
+
+        caData[key] = {
+          confirmedCA: breakdown.summary.totalCAConfirmed,
+          estimatedCA: breakdown.summary.totalCAEstimated,
+          isCurrent: month === currentMonth,
+          month: month,
+          year: currentYear,
+          activeLocations: breakdown.summary.ongoingCount + breakdown.summary.closedCount
+        };
+
+        console.log(`📅 ${key}: Confirmé=${breakdown.summary.totalCAConfirmed}€, Estimé=${breakdown.summary.totalCAEstimated}€`);
+      } catch (error) {
+        console.error(`❌ Erreur calcul CA pour ${key}:`, error);
+        caData[key] = {
+          confirmedCA: 0,
+          estimatedCA: 0,
+          isCurrent: month === currentMonth,
+          month: month,
+          year: currentYear,
+          activeLocations: 0
+        };
+      }
+    }
+
+    return caData;
   },
 
   /**
@@ -470,9 +595,16 @@ export const analyticsService = {
           });
 
           // Total = historique du mois + locations en cours du mois
+          const safeTotalEstimated = typeof (historicalCA + estimatedCA) === 'number' && !isNaN(historicalCA + estimatedCA)
+            ? parseFloat((historicalCA + estimatedCA).toFixed(2))
+            : 0;
+          const safeTotalConfirmed = typeof (historicalCA + confirmedCA) === 'number' && !isNaN(historicalCA + confirmedCA)
+            ? parseFloat((historicalCA + confirmedCA).toFixed(2))
+            : 0;
+
           caData[key] = {
-            estimatedCA: parseFloat((historicalCA + estimatedCA).toFixed(2)),
-            confirmedCA: parseFloat((historicalCA + confirmedCA).toFixed(2)),
+            estimatedCA: safeTotalEstimated,
+            confirmedCA: safeTotalConfirmed,
             isCurrent: true,
             month: month,
             year: year,
@@ -481,18 +613,92 @@ export const analyticsService = {
 
           console.log(`Mois actuel ${key}: Historique=${historicalCA}€, Estimé=${estimatedCA}€, Confirmé=${confirmedCA}€`);
         } else {
-          // ⚪ MOIS PASSÉS : Uniquement historique
-          const historicalCA = this.calculateHistoricalMonthlyCA(allHistory, month, year);
+          // ⚪ MOIS PASSÉS : Calculer le CA réparti correctement
+          // Pour les mois passés, on utilise l'historique COMPLET avec répartition par mois
+          const historicalCAData = await this.calculateHistoricalMonthlyCAWithMonthlyRepartition(allHistory, month, year);
+
+          // IMPORTANT: Pour les mois passés de l'année courante, ajouter aussi le CA des locations
+          // qui ÉTAIENT en cours ces mois-là (même si elles ne se sont fermées qu'après)
+          let confirmedCA = historicalCAData.totalCA;
+
+          if (year === currentYear) {
+            // Pour les mois passés de l'année courante, calculer aussi le CA des locations
+            // en cours qui déroulaient ce mois (avant d'être fermées)
+            let additionalCA = 0;
+            const additionalLocations = [];
+
+            for (const equipment of filteredEquipmentList) {
+              // Chercher les équipements qui n'étaient pas en location ce mois-ci
+              // (mais qui auraient pu l'être dans le passé)
+              const locationStart = equipment.debutLocation
+                ? new Date(convertFrenchToISO(equipment.debutLocation))
+                : null;
+
+              // Chercher dans l'historique si cet équipement avait une location ce mois
+              const equipmentHistory = allHistory.filter(h => h.equipment_id === equipment.id);
+
+              for (const location of equipmentHistory) {
+                const startDateStr = location.date_debut || location.loue_le;
+                const endDateStr = location.date_retour_reel || location.rentre_le;
+
+                if (!startDateStr || !endDateStr) continue;
+                if (location.est_pret) continue;
+
+                const locStart = new Date(startDateStr);
+                const locEnd = new Date(endDateStr);
+
+                const monthStart = new Date(year, month, 1);
+                const monthEnd = new Date(year, month + 1, 0);
+
+                // Vérifier si la location chevauche ce mois
+                if (locStart <= monthEnd && locEnd >= monthStart) {
+                  // Vérifier que cette location n'est pas déjà comptée
+                  const alreadyInHistory = historicalCAData.locations.some(h => h.id === location.id);
+                  if (!alreadyInHistory) {
+                    // Répartir le CA
+                    const overlapStart = new Date(Math.max(locStart.getTime(), monthStart.getTime()));
+                    const overlapEnd = new Date(Math.min(locEnd.getTime(), monthEnd.getTime()));
+
+                    const startStr = overlapStart.toISOString().split('T')[0];
+                    const endStr = overlapEnd.toISOString().split('T')[0];
+
+                    const { calculateBusinessDays } = await import('../utils/dateHelpers');
+                    const businessDaysThisMonth = calculateBusinessDays(startStr, endStr);
+                    const totalLocationDays = calculateBusinessDays(
+                      locStart.toISOString().split('T')[0],
+                      locEnd.toISOString().split('T')[0]
+                    );
+
+                    if (businessDaysThisMonth > 0 && totalLocationDays > 0 && location.ca_total_ht) {
+                      const totalCAValue = parseFloat(location.ca_total_ht) || 0;
+                      const caThisMonth = (businessDaysThisMonth / totalLocationDays) * totalCAValue;
+
+                      if (typeof caThisMonth === 'number' && !isNaN(caThisMonth)) {
+                        additionalCA += caThisMonth;
+                        additionalLocations.push(location);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+
+            confirmedCA += additionalCA;
+            if (additionalCA > 0) {
+              console.log(`Mois passé ${key}: +${additionalCA}€ CA additionnel (${additionalLocations.length} locations historiques)`);
+            }
+          }
 
           caData[key] = {
-            historicalCA: historicalCA,
+            confirmedCA: confirmedCA,
+            historicalCA: confirmedCA, // Pour compatibilité avec l'interface
             isCurrent: false,
             month: month,
             year: year
           };
 
-          if (historicalCA > 0) {
-            console.log(`Mois passé ${key}: ${historicalCA}€`);
+          if (confirmedCA > 0) {
+            console.log(`Mois passé ${key}: ${confirmedCA}€ total`);
           }
         }
       }
@@ -587,11 +793,11 @@ export const analyticsService = {
     console.log(`\n✅ TOTAL MOIS: Historique=${historicalCA}€ (${historicalLocationsCount} locations) | Estimé Total=${estimatedCA}€ | Confirmé Total=${confirmedCA}€\n`);
 
     return {
-      estimatedCA: parseFloat(estimatedCA.toFixed(2)),
-      confirmedCA: parseFloat(confirmedCA.toFixed(2)),
+      estimatedCA: typeof estimatedCA === 'number' && !isNaN(estimatedCA) ? parseFloat(estimatedCA.toFixed(2)) : 0,
+      confirmedCA: typeof confirmedCA === 'number' && !isNaN(confirmedCA) ? parseFloat(confirmedCA.toFixed(2)) : 0,
       activeLocations,
       avgDaysPerLocation,
-      historicalCA: parseFloat(historicalCA.toFixed(2)),
+      historicalCA: typeof historicalCA === 'number' && !isNaN(historicalCA) ? parseFloat(historicalCA.toFixed(2)) : 0,
       historicalLocationsCount,
       historicalLocations: historicalData.locations
     };
@@ -753,17 +959,25 @@ export const analyticsService = {
       let caConfirmedThisMonth = businessDaysConfirmedThisMonth * dailyRate;
       if (hasLongDurationDiscount) caConfirmedThisMonth *= 0.8;
       if (hasMinimumBilling) {
-        caConfirmedThisMonth = equipment.minimumFacturation;
+        caConfirmedThisMonth = parseFloat(equipment.minimumFacturation) || 0;
       }
 
       // CA Estimé pour ce mois (confirmé + estimé futur)
       let caEstimatedThisMonth = businessDaysThisMonth * dailyRate;
       if (hasLongDurationDiscount) caEstimatedThisMonth *= 0.8;
       if (hasMinimumBilling) {
-        caEstimatedThisMonth = equipment.minimumFacturation;
+        caEstimatedThisMonth = parseFloat(equipment.minimumFacturation) || 0;
       }
 
       console.log(`   📦 Equipment: ${equipment.id} - nom: ${equipment.nom}, designation: ${equipment.designation}`);
+
+      // Sécuriser les valeurs CA avant de les convertir
+      const safeConfirmedCA = typeof caConfirmedThisMonth === 'number' && !isNaN(caConfirmedThisMonth)
+        ? parseFloat(caConfirmedThisMonth.toFixed(2))
+        : 0;
+      const safeEstimatedCA = typeof caEstimatedThisMonth === 'number' && !isNaN(caEstimatedThisMonth)
+        ? parseFloat(caEstimatedThisMonth.toFixed(2))
+        : 0;
 
       ongoingLocations.push({
         id: equipment.id,
@@ -783,8 +997,8 @@ export const analyticsService = {
         dailyRate,
         discount20Applied: hasLongDurationDiscount,
         minBillingApplied: hasMinimumBilling,
-        caConfirmedThisMonth: parseFloat(caConfirmedThisMonth.toFixed(2)),
-        caEstimatedThisMonth: parseFloat(caEstimatedThisMonth.toFixed(2)),
+        caConfirmedThisMonth: safeConfirmedCA,
+        caEstimatedThisMonth: safeEstimatedCA,
         status: 'ongoing'
       });
     }
@@ -873,6 +1087,11 @@ export const analyticsService = {
       let caThisMonth = businessDaysThisMonth * dailyRate;
       if (hasLongDurationDiscount) caThisMonth *= 0.8;
 
+      // Sécuriser la valeur CA avant de la convertir
+      const safeCAThisMonth = typeof caThisMonth === 'number' && !isNaN(caThisMonth)
+        ? parseFloat(caThisMonth.toFixed(2))
+        : 0;
+
       closedLocations.push({
         id: location.id,
         client: location.client || 'N/A',
@@ -886,7 +1105,7 @@ export const analyticsService = {
         totalBusinessDays,
         dailyRate,
         discount20Applied: hasLongDurationDiscount,
-        caThisMonth: parseFloat(caThisMonth.toFixed(2)),
+        caThisMonth: safeCAThisMonth,
         status: 'closed'
       });
     }
