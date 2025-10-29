@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import './CALoadingModal.css';
 
-const CALoadingModal = ({ isOpen, message = 'Calcul du CA en cours...', submessage = 'Cela peut prendre quelques secondes' }) => {
+const CALoadingModal = ({ isOpen, mode = 'month', message, submessage }) => {
+  // Messages adaptatifs selon le mode
+  const defaultMessage = mode === 'month' ? 'Calcul du CA du mois en cours...' : 'Calcul du CA annuel en cours...';
+  const defaultSubmessage = mode === 'month' ? 'Analyse des locations du mois, veuillez patienter...' : 'Analyse de tous les mois, veuillez patienter...';
+
+  const displayMessage = message || defaultMessage;
+  const displaySubmessage = submessage || defaultSubmessage;
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -40,9 +46,9 @@ const CALoadingModal = ({ isOpen, message = 'Calcul du CA en cours...', submessa
         {/* Content */}
         <div className="ca-loading-content">
           <h2 className="ca-loading-title">
-            💰 {message}
+            💰 {displayMessage}
           </h2>
-          <p className="ca-loading-subtitle">{submessage}</p>
+          <p className="ca-loading-subtitle">{displaySubmessage}</p>
         </div>
 
         {/* Progress Bar */}

@@ -377,6 +377,9 @@ const CAModule = () => {
           return;
         }
 
+        // Afficher le modal de chargement pour les deux modes
+        setIsLoadingCA(true);
+
         let allLocations = [];
         const startTime = performance.now();
 
@@ -393,9 +396,6 @@ const CAModule = () => {
           // Mode année: utiliser yearlyCAData (source de vérité)
           // IMPORTANT: Utilise exactement les mêmes données que le CA annuel pour cohérence!
           console.log('📈 Mode ANNÉE - Utilisation yearlyCAData (source de vérité)');
-
-          // Afficher le modal de chargement en mode année
-          setIsLoadingCA(true);
 
           // Récupérer yearlyCAData pour l'année sélectionnée
           const yearlyCAData = await analyticsService.getYearlyCAData(equipmentData, pieChartYear);
@@ -1083,8 +1083,7 @@ const CAModule = () => {
       {/* Modal de Chargement CA */}
       <CALoadingModal
         isOpen={isLoadingCA}
-        message="Calcul du CA annuel en cours..."
-        submessage="Analyse de tous les mois, veuillez patienter..."
+        mode={pieChartMode}
       />
     </div>
   );
