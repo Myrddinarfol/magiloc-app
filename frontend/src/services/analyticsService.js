@@ -470,7 +470,7 @@ export const analyticsService = {
   /**
    * Calcule le CA annuel pour CHAQUE mois de l'année en cours
    * Utilise getMonthLocationBreakdown pour chaque mois (source de vérité unique)
-   * Cela assure une répartition correcte des locations multi-mois
+   * OPTIMISÉ: Parallelise tous les appels pour gagner du temps
    */
   async getYearlyCAData(equipmentList) {
     const today = new Date();
@@ -479,36 +479,49 @@ export const analyticsService = {
 
     const caData = {};
 
-    // Pour chaque mois de l'année
+    // Créer un array de promises pour paralleliser
+    const monthPromises = [];
     for (let month = 0; month <= currentMonth; month++) {
-      const monthDate = new Date(currentYear, month, 1);
       const key = `${currentYear}-${String(month + 1).padStart(2, '0')}`;
 
-      try {
-        const breakdown = await this.getMonthLocationBreakdown(equipmentList, month, currentYear);
-
-        caData[key] = {
-          confirmedCA: breakdown.summary.totalCAConfirmed,
-          estimatedCA: breakdown.summary.totalCAEstimated,
-          isCurrent: month === currentMonth,
-          month: month,
-          year: currentYear,
-          activeLocations: breakdown.summary.ongoingCount + breakdown.summary.closedCount
-        };
-
-        console.log(`📅 ${key}: Confirmé=${breakdown.summary.totalCAConfirmed}€, Estimé=${breakdown.summary.totalCAEstimated}€`);
-      } catch (error) {
-        console.error(`❌ Erreur calcul CA pour ${key}:`, error);
-        caData[key] = {
-          confirmedCA: 0,
-          estimatedCA: 0,
-          isCurrent: month === currentMonth,
-          month: month,
-          year: currentYear,
-          activeLocations: 0
-        };
-      }
+      monthPromises.push(
+        this.getMonthLocationBreakdown(equipmentList, month, currentYear)
+          .then(breakdown => ({
+            key,
+            month,
+            confirmedCA: breakdown.summary.totalCAConfirmed,
+            estimatedCA: breakdown.summary.totalCAEstimated,
+            activeLocations: breakdown.summary.ongoingCount + breakdown.summary.closedCount
+          }))
+          .catch(error => {
+            console.error(`❌ Erreur calcul CA pour ${key}:`, error);
+            return {
+              key,
+              month,
+              confirmedCA: 0,
+              estimatedCA: 0,
+              activeLocations: 0
+            };
+          })
+      );
     }
+
+    // Attendre tous les appels en parallèle
+    const results = await Promise.all(monthPromises);
+
+    // Remplir caData avec les résultats
+    results.forEach(result => {
+      caData[result.key] = {
+        confirmedCA: result.confirmedCA,
+        estimatedCA: result.estimatedCA,
+        isCurrent: result.month === currentMonth,
+        month: result.month,
+        year: currentYear,
+        activeLocations: result.activeLocations
+      };
+
+      console.log(`📅 ${result.key}: Confirmé=${result.confirmedCA}€, Estimé=${result.estimatedCA}€`);
+    });
 
     return caData;
   },
