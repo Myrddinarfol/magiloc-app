@@ -30,7 +30,7 @@
 
 .equipment-details-modal {
   width: 90%;
-  max-width: 1200px;
+  max-width: 1400px;
   max-height: 85vh;
   display: flex;
   flex-direction: column;
@@ -67,39 +67,11 @@
   flex: 1;
 }
 
-/* Breadcrumb Navigation */
-.breadcrumb-nav {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-  font-size: 14px;
-}
-
-.breadcrumb-link {
-  background: none;
-  border: none;
-  color: #3b82f6;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 4px;
-  transition: all 0.3s ease;
-  font-weight: 600;
-}
-
-.breadcrumb-link:hover {
-  background: rgba(59, 130, 246, 0.1);
-  color: #60a5fa;
-}
-
-.breadcrumb-separator {
-  color: #6b7280;
-  font-weight: 500;
-}
-
-.breadcrumb-active {
-  color: #fbbf24;
+.equipment-details-title {
+  margin: 0 0 8px 0;
+  font-size: 22px;
   font-weight: 700;
+  color: #f3f4f6;
 }
 
 .equipment-details-period {
@@ -132,110 +104,25 @@
   overflow-y: auto;
 }
 
-.section-title {
-  margin: 0 0 24px 0;
-  font-size: 16px;
-  font-weight: 700;
-  color: #f3f4f6;
-}
-
-/* Models Grid */
-.models-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
-}
-
-.model-card {
-  background: linear-gradient(135deg, rgba(220, 38, 38, 0.05) 0%, transparent 100%);
-  border: 2px solid rgba(220, 38, 38, 0.2);
-  border-radius: 12px;
-  padding: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.model-card:hover {
-  border-color: rgba(220, 38, 38, 0.6);
-  background: linear-gradient(135deg, rgba(220, 38, 38, 0.15) 0%, rgba(220, 38, 38, 0.05) 100%);
-  box-shadow: 0 8px 24px rgba(220, 38, 38, 0.2);
-  transform: translateY(-4px);
-}
-
-.model-name {
-  margin: 0 0 16px 0;
-  font-size: 16px;
-  font-weight: 700;
-  color: #f3f4f6;
-}
-
-.model-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.stat-mini {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 8px;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 6px;
-}
-
-.stat-mini .stat-label {
-  font-size: 11px;
-  color: #9ca3af;
-  text-transform: uppercase;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
-
-.stat-mini .stat-value {
-  font-size: 16px;
-  font-weight: 700;
-  color: #fbbf24;
-  margin-top: 4px;
-}
-
-.model-arrow {
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 24px;
-  color: rgba(220, 38, 38, 0.5);
-  transition: all 0.3s ease;
-}
-
-.model-card:hover .model-arrow {
-  right: 12px;
-  color: rgba(220, 38, 38, 0.9);
-}
-
-/* Units Table */
-.units-table-wrapper {
-  overflow-x: auto;
+/* Table */
+.table-wrapper {
   border-radius: 8px;
   border: 1px solid rgba(220, 38, 38, 0.2);
+  overflow-x: auto;
 }
 
-.units-table {
+.equipment-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
 }
 
-.units-table thead {
+.equipment-table thead {
   background: rgba(220, 38, 38, 0.1);
   border-bottom: 2px solid rgba(220, 38, 38, 0.3);
 }
 
-.units-table th {
+.equipment-table th {
   padding: 14px 12px;
   text-align: left;
   font-weight: 700;
@@ -245,29 +132,34 @@
   letter-spacing: 0.5px;
 }
 
-.units-table tbody tr {
+.equipment-table tbody tr {
   border-bottom: 1px solid rgba(220, 38, 38, 0.1);
   transition: background-color 0.3s ease;
 }
 
-.units-table tbody tr:hover {
+.equipment-table tbody tr:hover {
   background-color: rgba(220, 38, 38, 0.05);
 }
 
-.units-table td {
+.equipment-table td {
   padding: 12px;
   color: #d1d5db;
 }
 
-.units-table td.ref-cell {
+.equipment-table td.ref-cell {
   font-weight: 700;
   color: #60a5fa;
 }
 
-.units-table td.no-data-cell {
+.equipment-table td.number-cell {
   text-align: center;
-  color: #6b7280;
-  padding: 40px 12px;
+  font-weight: 600;
+  color: #60a5fa;
+}
+
+.equipment-table td.ca-cell {
+  font-weight: 700;
+  color: #fbbf24;
 }
 
 /* Badges */
@@ -310,6 +202,11 @@
 .status-en-maintenance {
   background: rgba(245, 158, 11, 0.2);
   color: #f59e0b;
+}
+
+.status-en-reservation {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
 }
 
 .status-disponible {
@@ -355,25 +252,20 @@
     max-height: 90vh;
   }
 
-  .breadcrumb-nav {
-    flex-wrap: wrap;
-    gap: 4px;
-  }
-
-  .models-grid {
-    grid-template-columns: 1fr;
-  }
-
   .equipment-details-content {
     padding: 20px;
   }
 
-  .units-table {
+  .equipment-table {
     font-size: 12px;
   }
 
-  .units-table th,
-  .units-table td {
+  .equipment-table th,
+  .equipment-table td {
     padding: 10px 8px;
+  }
+
+  .equipment-details-title {
+    font-size: 18px;
   }
 }

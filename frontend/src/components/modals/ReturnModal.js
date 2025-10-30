@@ -15,9 +15,13 @@ const ReturnModal = ({ show, equipment, onConfirm, onCancel }) => {
       return false;
     }
     // Validate that return date is not before the rental start date
-    if (equipment?.debutLocation && returnDate < equipment.debutLocation) {
-      showToast('La date de retour doit être après la date de début de location', 'error');
-      return false;
+    if (equipment?.debutLocation) {
+      const returnDateObj = new Date(returnDate);
+      const startDateObj = new Date(equipment.debutLocation);
+      if (returnDateObj < startDateObj) {
+        showToast('La date de retour doit être après la date de début de location', 'error');
+        return false;
+      }
     }
     return true;
   };

@@ -1,65 +1,79 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import './EquipmentTypeDetailsModal.css';
 
 const EquipmentTypeDetailsModal = ({ isOpen, onClose, equipmentType, pieChartMode, month, year, locationData, equipmentData }) => {
-  const [level, setLevel] = useState('type'); // 'type', 'model', 'unit'
-  const [models, setModels] = useState([]);
-  const [selectedModel, setSelectedModel] = useState(null);
-  const [selectedUnits, setSelectedUnits] = useState([]);
+  console.log('🎯 MODAL RENDER - isOpen:', isOpen, 'type:', equipmentType);
 
-  // Grouper les équipements par modèle
-  useEffect(() => {
-    if (!equipmentData || !locationData) return;
+  // Calculer les données du tableau
+  const tableData = useMemo(() => {
+    if (!equipmentData || !locationData) {
+      console.log('❌ Modal: Pas de données - equipmentData:', !!equipmentData, 'locationData:', !!locationData);
+      return [];
+    }
 
-    // Filtrer les équipements du type sélectionné
-    const typeEquipment = equipmentData.filter(e => (e.designation || e.nom || '').includes(equipmentType));
+    console.log('📊 Modal - equipmentType:', equipmentType);
+    console.log('📊 Modal - locationData length:', locationData.length);
+    console.log('📊 Modal - Premier location:', locationData[0]);
 
-    // Grouper par modèle
-    const modelGroups = {};
-    typeEquipment.forEach(eq => {
-      const modelName = eq.modele || 'Sans modèle';
-      if (!modelGroups[modelName]) {
-        modelGroups[modelName] = [];
+    // Filtrer les locations du type sélectionné ET du mois/année sélectionné
+    const typeLocations = locationData.filter(loc => {
+      const designation = loc.designation || loc.equipmentType || '';
+      const matches = designation.includes(equipmentType);
+
+      // Vérifier que la location chevauche le mois/année sélectionné
+      const startDate = new Date(loc.startDate || loc.debutLocation || '');
+      const endDate = new Date(loc.endDate || loc.finLocationTheorique || loc.finLocation || '');
+
+      let isInPeriod = false;
+      if (pieChartMode === 'month') {
+        // Vérifier si la location chevauche le mois sélectionné
+        const monthStart = new Date(year, month, 1);
+        const monthEnd = new Date(year, month + 1, 0);
+        isInPeriod = !(endDate < monthStart || startDate > monthEnd);
+      } else {
+        // Vérifier si la location chevauche l'année sélectionnée
+        const yearStart = new Date(year, 0, 1);
+        const yearEnd = new Date(year, 11, 31);
+        isInPeriod = !(endDate < yearStart || startDate > yearEnd);
       }
-      modelGroups[modelName].push(eq);
+
+      return matches && isInPeriod;
     });
 
-    // Calculer les stats par modèle
-    const modelsList = Object.entries(modelGroups).map(([modelName, units]) => {
-      const modelLocations = locationData.filter(loc => units.some(u => u.id === loc.equipment_id));
-      const ca = modelLocations.reduce((sum, loc) => sum + (loc.ca || loc.caThisMonth || loc.caConfirmedThisMonth || 0), 0);
+    console.log('🔧 Locations filtrées pour', equipmentType, ':', typeLocations.length);
+    if (typeLocations.length > 0) {
+      console.log('📍 Premier location filtrée:', JSON.stringify(typeLocations[0]));
+      console.log('📍 Clés dispo dans location:', Object.keys(typeLocations[0]));
+    }
+
+    // Récupérer les IDs uniques des équipements avec locations
+    const equipmentIds = [...new Set(typeLocations.map(loc => loc.equipment_id || loc.id || loc.equipmentId))];
+    console.log('🆔 Equipment IDs trouvés:', equipmentIds);
+    console.log('📊 equipmentData disponible:', equipmentData.length, 'premier:', equipmentData[0]?.id);
+
+    // Pour chaque équipement, créer une ligne avec les infos
+    const rows = equipmentIds.map(eqId => {
+      const equipment = equipmentData.find(e => e.id === eqId);
+      console.log('🔍 Equipement trouvé pour ID', eqId, ':', equipment?.cmu);
+      const eqLocations = typeLocations.filter(loc => loc.equipment_id === eqId);
+
+      // Calculs
+      const daysUsed = eqLocations.reduce((sum, loc) => sum + (loc.businessDaysThisMonth || 0), 0);
+      const daysInMonth = pieChartMode === 'month' ? new Date(year, month + 1, 0).getDate() : 365;
+      const utilizationRate = daysInMonth > 0 ? Math.round((daysUsed / daysInMonth) * 100) : 0;
+      const ca = eqLocations.reduce((sum, loc) => sum + (loc.ca || loc.caThisMonth || 0), 0);
 
       return {
-        name: modelName,
-        units: units,
-        locationsCount: modelLocations.length,
-        ca: ca
+        equipment,
+        daysUsed,
+        utilizationRate,
+        ca,
+        locationsCount: eqLocations.length
       };
     });
 
-    setModels(modelsList);
-  }, [equipmentData, locationData, equipmentType]);
-
-  const handleSelectModel = (modelName) => {
-    const model = models.find(m => m.name === modelName);
-    setSelectedModel(modelName);
-    setSelectedUnits(model?.units || []);
-    setLevel('model');
-  };
-
-  const handleBackToType = () => {
-    setLevel('type');
-    setSelectedModel(null);
-    setSelectedUnits([]);
-  };
-
-  const handleViewUnit = (unit) => {
-    setLevel('unit');
-  };
-
-  const handleBackToModel = () => {
-    setLevel('model');
-  };
+    return rows;
+  }, [equipmentData, locationData, equipmentType, pieChartMode, month, year]);
 
   if (!isOpen) return null;
 
@@ -73,25 +87,7 @@ const EquipmentTypeDetailsModal = ({ isOpen, onClose, equipmentType, pieChartMod
         {/* Header */}
         <div className="equipment-details-header">
           <div className="equipment-details-title-section">
-            <div className="breadcrumb-nav">
-              {level === 'type' && <span className="breadcrumb-active">🔧 {equipmentType}</span>}
-              {level === 'model' && (
-                <>
-                  <button className="breadcrumb-link" onClick={handleBackToType}>🔧 {equipmentType}</button>
-                  <span className="breadcrumb-separator">›</span>
-                  <span className="breadcrumb-active">{selectedModel}</span>
-                </>
-              )}
-              {level === 'unit' && (
-                <>
-                  <button className="breadcrumb-link" onClick={handleBackToType}>🔧 {equipmentType}</button>
-                  <span className="breadcrumb-separator">›</span>
-                  <button className="breadcrumb-link" onClick={handleBackToModel}>{selectedModel}</button>
-                  <span className="breadcrumb-separator">›</span>
-                  <span className="breadcrumb-active">Détails</span>
-                </>
-              )}
-            </div>
+            <h2 className="equipment-details-title">🔧 {equipmentType}</h2>
             <p className="equipment-details-period">Période: {timeLabel}</p>
           </div>
           <button className="equipment-details-close" onClick={onClose}>✕</button>
@@ -99,76 +95,51 @@ const EquipmentTypeDetailsModal = ({ isOpen, onClose, equipmentType, pieChartMod
 
         {/* Content */}
         <div className="equipment-details-content">
-          {/* TYPE LEVEL */}
-          {level === 'type' && (
-            <>
-              <h3 className="section-title">📦 Modèles disponibles</h3>
-              <div className="models-grid">
-                {models.length === 0 ? (
-                  <div className="no-data-message">Aucun modèle trouvé</div>
-                ) : (
-                  models.map((model, idx) => (
-                    <div
-                      key={idx}
-                      className="model-card"
-                      onClick={() => handleSelectModel(model.name)}
-                    >
-                      <h4 className="model-name">{model.name}</h4>
-                      <div className="model-stats">
-                        <div className="stat-mini">
-                          <span className="stat-label">Unités</span>
-                          <span className="stat-value">{model.units.length}</span>
-                        </div>
-                        <div className="stat-mini">
-                          <span className="stat-label">Locations</span>
-                          <span className="stat-value">{model.locationsCount}</span>
-                        </div>
-                        <div className="stat-mini">
-                          <span className="stat-label">CA</span>
-                          <span className="stat-value">{model.ca.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 })}</span>
-                        </div>
-                      </div>
-                      <div className="model-arrow">›</div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </>
-          )}
-
-          {/* MODEL LEVEL */}
-          {level === 'model' && selectedModel && (
-            <>
-              <h3 className="section-title">🔧 Matériels du modèle "{selectedModel}"</h3>
-              <div className="units-table-wrapper">
-                <table className="units-table">
-                  <thead>
-                    <tr>
-                      <th>Référence</th>
-                      <th>Numéro de série</th>
-                      <th>État</th>
-                      <th>Statut</th>
+          {tableData.length === 0 ? (
+            <div className="no-data-message">Aucun équipement loué cette période</div>
+          ) : (
+            <div className="table-wrapper">
+              <table className="equipment-table">
+                <thead>
+                  <tr>
+                    <th>Référence</th>
+                    <th>N° Série</th>
+                    <th>Marque</th>
+                    <th>Modèle</th>
+                    <th>État</th>
+                    <th>Statut</th>
+                    <th>Jours loués</th>
+                    <th>Utilisation</th>
+                    <th>CA</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tableData.map((row, idx) => (
+                    <tr key={idx}>
+                      <td className="ref-cell">{row.equipment?.cmu || row.equipment?.id || 'N/A'}</td>
+                      <td>{row.equipment?.numerSerie || row.equipment?.num_serie || '-'}</td>
+                      <td>{row.equipment?.marque || '-'}</td>
+                      <td>{row.equipment?.modele || '-'}</td>
+                      <td>
+                        <span className={`state-badge state-${(row.equipment?.etat || 'bon').toLowerCase()}`}>
+                          {row.equipment?.etat || 'Bon'}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={`status-badge status-${(row.equipment?.statut || 'disponible').toLowerCase().replace(/\s+/g, '-')}`}>
+                          {row.equipment?.statut || 'Disponible'}
+                        </span>
+                      </td>
+                      <td className="number-cell">{row.daysUsed}</td>
+                      <td className="number-cell">{row.utilizationRate}%</td>
+                      <td className="ca-cell">
+                        💰 {row.ca.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 })}
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {selectedUnits.length === 0 ? (
-                      <tr>
-                        <td colSpan="4" className="no-data-cell">Aucun matériel</td>
-                      </tr>
-                    ) : (
-                      selectedUnits.map((unit, idx) => (
-                        <tr key={idx}>
-                          <td className="ref-cell">{unit.cmu || unit.id || 'N/A'}</td>
-                          <td>{unit.numerSerie || unit.num_serie || '-'}</td>
-                          <td><span className={`state-badge state-${unit.etat || 'unknown'}`}>{unit.etat || 'Bon'}</span></td>
-                          <td><span className={`status-badge status-${unit.statut || 'unknown'}`}>{unit.statut || '-'}</span></td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </div>
