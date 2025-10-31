@@ -985,15 +985,17 @@ export const analyticsService = {
       const hasMinimumBilling = equipment.minimumFacturationApply && equipment.minimumFacturation;
 
       // CA Confirmé pour ce mois
+      // IMPORTANT: Pour les locations EN COURS, le confirmé = jours écoulés seulement
+      // Le minimum ne s'applique que sur la DURÉE TOTALE, pas partiellement
       let caConfirmedThisMonth = businessDaysConfirmedThisMonth * dailyRate;
       if (hasLongDurationDiscount) caConfirmedThisMonth *= 0.8;
-      if (hasMinimumBilling) {
-        caConfirmedThisMonth = parseFloat(equipment.minimumFacturation) || 0;
-      }
+      // ❌ NE PAS appliquer le minimum ici, c'est un calcul partiel (jours écoulés)
+      // Le minimum s'applique sur la durée TOTALE à la fin de la location
 
-      // CA Estimé pour ce mois (confirmé + estimé futur)
+      // CA Estimé pour ce mois (projection jusqu'à fin théorique)
       let caEstimatedThisMonth = businessDaysThisMonth * dailyRate;
       if (hasLongDurationDiscount) caEstimatedThisMonth *= 0.8;
+      // ✅ APPLIQUER le minimum ici, car c'est la projection TOTALE
       if (hasMinimumBilling) {
         caEstimatedThisMonth = parseFloat(equipment.minimumFacturation) || 0;
       }
