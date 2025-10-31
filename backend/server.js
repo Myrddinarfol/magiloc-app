@@ -653,9 +653,7 @@ app.post("/api/equipment/:id/return", async (req, res) => {
 
   try {
     const { id } = req.params;
-    const { rentreeLe, noteRetour, minimumFacturationApply } = req.body;
-
-    console.log(`🔄 Retour équipement ${id}:`, { rentreeLe, noteRetour, minimumFacturationApply });
+    const { rentreeLe, noteRetour, minimumFacturationApply: minimumFromRequest } = req.body;
 
     await dbClient.query('BEGIN');
 
@@ -671,6 +669,11 @@ app.post("/api/equipment/:id/return", async (req, res) => {
     }
 
     const equipment = equipmentResult.rows[0];
+
+    // Déterminer le flag minimum facturation: utiliser la valeur envoyée du frontend ou celle de l'équipement
+    const minimumFacturationApply = minimumFromRequest !== undefined ? minimumFromRequest : equipment.minimum_facturation_apply;
+
+    console.log(`🔄 Retour équipement ${id}:`, { rentreeLe, noteRetour, minimumFacturationApply });
 
     // Convertir les dates au format ISO
     const debutLocationISO = convertFrenchDateToISO(equipment.debut_location);
@@ -696,13 +699,11 @@ app.post("/api/equipment/:id/return", async (req, res) => {
         calculatedCA = (businessDays * prixHT);
       }
 
-      // Si minimum de facturation est appliqué à la création et que le CA dépasse le minimum, utiliser le CA
-      if (minimumFacturationApply && calculatedCA > minimumFacturation) {
-        caTotal = calculatedCA.toFixed(2);
-        finalMinimumFacturation = minimumFacturation;
-      } else if (minimumFacturationApply) {
-        // Utiliser le minimum
+      // Si minimum de facturation est appliqué, TOUJOURS utiliser le minimum (pas le CA calculé)
+      if (minimumFacturationApply) {
+        // Toujours utiliser le minimum quand le flag est activé
         caTotal = minimumFacturation.toFixed(2);
+        finalMinimumFacturation = minimumFacturation;
       } else {
         // Pas de minimum appliqué, utiliser le CA calculé
         caTotal = calculatedCA.toFixed(2);
