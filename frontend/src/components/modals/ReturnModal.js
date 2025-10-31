@@ -5,7 +5,9 @@ const ReturnModal = ({ show, equipment, onConfirm, onCancel }) => {
   const { showToast } = useUI();
   const today = new Date().toISOString().split('T')[0];
   const [returnDate, setReturnDate] = useState(today);
+  const [returnTime, setReturnTime] = useState('');
   const [returnNotes, setReturnNotes] = useState('');
+  const [minimumFacturationApply, setMinimumFacturationApply] = useState(equipment?.minimumFacturationApply || false);
 
   if (!show) return null;
 
@@ -30,15 +32,19 @@ const ReturnModal = ({ show, equipment, onConfirm, onCancel }) => {
     if (!validateReturnDate()) {
       return;
     }
-    onConfirm(returnDate, returnNotes);
+    onConfirm(returnDate, returnNotes, returnTime, minimumFacturationApply);
     // Reset pour la prochaine fois
     setReturnDate(today);
+    setReturnTime('');
     setReturnNotes('');
+    setMinimumFacturationApply(equipment?.minimumFacturationApply || false);
   };
 
   const handleCancel = () => {
     setReturnDate(today);
+    setReturnTime('');
     setReturnNotes('');
+    setMinimumFacturationApply(equipment?.minimumFacturationApply || false);
     onCancel();
   };
 
@@ -119,41 +125,78 @@ const ReturnModal = ({ show, equipment, onConfirm, onCancel }) => {
           </div>
         )}
 
-        {/* Date input */}
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{
-            display: 'block',
-            color: '#d1d5db',
-            fontSize: '14px',
-            fontWeight: '600',
-            marginBottom: '8px'
-          }}>
-            Date de retour <span style={{ color: '#dc2626' }}>*</span>
-          </label>
-          <input
-            type="date"
-            value={returnDate}
-            onChange={(e) => setReturnDate(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              fontSize: '16px',
-              color: '#fff',
-              background: 'rgba(31, 41, 55, 0.8)',
-              border: '2px solid rgba(59, 130, 246, 0.3)',
-              borderRadius: '8px',
-              outline: 'none',
-              transition: 'all 0.3s ease'
-            }}
-            onFocus={(e) => {
-              e.target.style.borderColor = '#3b82f6';
-              e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = 'rgba(59, 130, 246, 0.3)';
-              e.target.style.boxShadow = 'none';
-            }}
-          />
+        {/* Date et Heure input */}
+        <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+          <div style={{ flex: 1 }}>
+            <label style={{
+              display: 'block',
+              color: '#d1d5db',
+              fontSize: '14px',
+              fontWeight: '600',
+              marginBottom: '8px'
+            }}>
+              Date de retour <span style={{ color: '#dc2626' }}>*</span>
+            </label>
+            <input
+              type="date"
+              value={returnDate}
+              onChange={(e) => setReturnDate(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                fontSize: '16px',
+                color: '#fff',
+                background: 'rgba(31, 41, 55, 0.8)',
+                border: '2px solid rgba(59, 130, 246, 0.3)',
+                borderRadius: '8px',
+                outline: 'none',
+                transition: 'all 0.3s ease'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#3b82f6';
+                e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+                e.target.style.boxShadow = 'none';
+              }}
+            />
+          </div>
+          <div style={{ flex: 1 }}>
+            <label style={{
+              display: 'block',
+              color: '#d1d5db',
+              fontSize: '14px',
+              fontWeight: '600',
+              marginBottom: '8px'
+            }}>
+              Heure de retour <span style={{ color: '#9ca3af', fontWeight: '400' }}>(optionnel)</span>
+            </label>
+            <input
+              type="time"
+              value={returnTime}
+              onChange={(e) => setReturnTime(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                fontSize: '16px',
+                color: '#fff',
+                background: 'rgba(31, 41, 55, 0.8)',
+                border: '2px solid rgba(59, 130, 246, 0.3)',
+                borderRadius: '8px',
+                outline: 'none',
+                transition: 'all 0.3s ease'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#3b82f6';
+                e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+                e.target.style.boxShadow = 'none';
+              }}
+            />
+          </div>
         </div>
 
         {/* Notes textarea */}
@@ -194,6 +237,46 @@ const ReturnModal = ({ show, equipment, onConfirm, onCancel }) => {
               e.target.style.boxShadow = 'none';
             }}
           />
+        </div>
+
+        {/* Minimum Facturation Checkbox */}
+        <div style={{
+          marginBottom: '20px',
+          padding: '14px',
+          backgroundColor: 'rgba(251, 191, 36, 0.1)',
+          borderRadius: '8px',
+          border: '1px solid rgba(251, 191, 36, 0.3)'
+        }}>
+          <label style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            color: '#d1d5db',
+            fontWeight: '500'
+          }}>
+            <input
+              type="checkbox"
+              checked={minimumFacturationApply}
+              onChange={(e) => setMinimumFacturationApply(e.target.checked)}
+              style={{
+                cursor: 'pointer',
+                width: '18px',
+                height: '18px',
+                accentColor: '#fbbf24'
+              }}
+            />
+            <span>💰 Appliquer le minimum de facturation</span>
+          </label>
+          <small style={{
+            color: '#9ca3af',
+            marginTop: '8px',
+            display: 'block',
+            marginLeft: '28px'
+          }}>
+            Décochez si la durée réelle dépasse amplement le minimum et que vous souhaitez facturer sur la durée réelle
+          </small>
         </div>
 
         {/* Info message */}

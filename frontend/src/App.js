@@ -226,14 +226,21 @@ const MainApp = ({ shouldStartTour }) => {
   };
 
   // Gestionnaire de démarrage de location
-  const handleStartLocation = async (equipment, startDate) => {
+  const handleStartLocation = async (equipment, startDate, startTime) => {
     if (!equipment || !startDate) return;
 
     try {
       const { equipmentService } = await import('./services/equipmentService');
+
+      // Combiner date et heure si heure fournie
+      let debutLocation = startDate;
+      if (startTime) {
+        debutLocation = `${startDate}T${startTime}:00`;
+      }
+
       await equipmentService.update(equipment.id, {
         statut: 'En Location',
-        debutLocation: startDate
+        debutLocation: debutLocation
       });
       showToast('Location démarrée avec succès !', 'success');
       await loadEquipments();
@@ -249,17 +256,23 @@ const MainApp = ({ shouldStartTour }) => {
   };
 
   // Gestionnaire de retour de location
-  const handleReturnLocation = async (equipment, returnDate, returnNotes) => {
+  const handleReturnLocation = async (equipment, returnDate, returnNotes, returnTime, minimumFacturationApply) => {
     if (!equipment || !returnDate) return;
 
     try {
       const { equipmentService } = await import('./services/equipmentService');
 
+      // Combiner date et heure si heure fournie
+      let rentreeLe = returnDate;
+      if (returnTime) {
+        rentreeLe = `${returnDate}T${returnTime}:00`;
+      }
+
       // Préparer les données de retour
       const returnData = {
-        rentreeLe: returnDate,
+        rentreeLe: rentreeLe,
         noteRetour: returnNotes || '',
-        minimumFacturationApply: equipment.minimumFacturationApply || false
+        minimumFacturationApply: minimumFacturationApply !== undefined ? minimumFacturationApply : (equipment.minimumFacturationApply || false)
       };
 
       // Appeler le service de retour

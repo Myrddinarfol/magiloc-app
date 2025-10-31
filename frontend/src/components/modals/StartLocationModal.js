@@ -5,6 +5,7 @@ const StartLocationModal = ({ show, equipment, onConfirm, onCancel }) => {
   const { showToast } = useUI();
   const today = new Date().toISOString().split('T')[0];
   const [startDate, setStartDate] = useState(today);
+  const [startTime, setStartTime] = useState('');
 
   if (!show) return null;
 
@@ -25,8 +26,9 @@ const StartLocationModal = ({ show, equipment, onConfirm, onCancel }) => {
     if (!validateStartDate()) {
       return;
     }
-    onConfirm(startDate);
+    onConfirm(startDate, startTime);
     setStartDate(today); // Reset pour la prochaine fois
+    setStartTime('');
   };
 
   return (
@@ -101,41 +103,78 @@ const StartLocationModal = ({ show, equipment, onConfirm, onCancel }) => {
           </div>
         )}
 
-        {/* Date input */}
-        <div style={{ marginBottom: '24px' }}>
-          <label style={{
-            display: 'block',
-            color: '#d1d5db',
-            fontSize: '14px',
-            fontWeight: '600',
-            marginBottom: '8px'
-          }}>
-            Date de début de location <span style={{ color: '#dc2626' }}>*</span>
-          </label>
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              fontSize: '16px',
-              color: '#fff',
-              background: 'rgba(31, 41, 55, 0.8)',
-              border: '2px solid rgba(16, 185, 129, 0.3)',
-              borderRadius: '8px',
-              outline: 'none',
-              transition: 'all 0.3s ease'
-            }}
-            onFocus={(e) => {
-              e.target.style.borderColor = '#10b981';
-              e.target.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.1)';
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = 'rgba(16, 185, 129, 0.3)';
-              e.target.style.boxShadow = 'none';
-            }}
-          />
+        {/* Date et Heure input */}
+        <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
+          <div style={{ flex: 1 }}>
+            <label style={{
+              display: 'block',
+              color: '#d1d5db',
+              fontSize: '14px',
+              fontWeight: '600',
+              marginBottom: '8px'
+            }}>
+              Date de début de location <span style={{ color: '#dc2626' }}>*</span>
+            </label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                fontSize: '16px',
+                color: '#fff',
+                background: 'rgba(31, 41, 55, 0.8)',
+                border: '2px solid rgba(16, 185, 129, 0.3)',
+                borderRadius: '8px',
+                outline: 'none',
+                transition: 'all 0.3s ease'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#10b981';
+                e.target.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.1)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                e.target.style.boxShadow = 'none';
+              }}
+            />
+          </div>
+          <div style={{ flex: 1 }}>
+            <label style={{
+              display: 'block',
+              color: '#d1d5db',
+              fontSize: '14px',
+              fontWeight: '600',
+              marginBottom: '8px'
+            }}>
+              Heure d'enlèvement <span style={{ color: '#9ca3af', fontWeight: '400' }}>(optionnel)</span>
+            </label>
+            <input
+              type="time"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                fontSize: '16px',
+                color: '#fff',
+                background: 'rgba(31, 41, 55, 0.8)',
+                border: '2px solid rgba(16, 185, 129, 0.3)',
+                borderRadius: '8px',
+                outline: 'none',
+                transition: 'all 0.3s ease'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#10b981';
+                e.target.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.1)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                e.target.style.boxShadow = 'none';
+              }}
+            />
+          </div>
         </div>
 
         {/* Info message */}
