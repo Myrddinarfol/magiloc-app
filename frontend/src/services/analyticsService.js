@@ -1112,9 +1112,10 @@ export const analyticsService = {
         continue;
       }
 
-      // Pour une location fermée, CA confirmé = CA total pour ce mois
-      let caThisMonth = businessDaysThisMonth * dailyRate;
-      if (hasLongDurationDiscount) caThisMonth *= 0.8;
+      // Pour une location fermée, CA confirmé = CA total archivé dans location_history
+      // IMPORTANT: Utiliser CA_TOTAL_HT de la BDD, pas recalculer depuis jours × tarif
+      // Car le CA en BDD tient compte du minimum de facturation appliqué
+      let caThisMonth = parseFloat(location.ca_total_ht) || 0;
 
       // Sécuriser la valeur CA avant de la convertir
       const safeCAThisMonth = typeof caThisMonth === 'number' && !isNaN(caThisMonth)
