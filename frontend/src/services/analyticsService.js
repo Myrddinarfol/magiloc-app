@@ -239,10 +239,8 @@ export const analyticsService = {
       ca = ca * 0.8; // Remise 20%
     }
 
-    // Si minimum de facturation coché, CA = minimum (strictement)
-    if (equipment.minimumFacturationApply && equipment.minimumFacturation) {
-      ca = parseFloat(equipment.minimumFacturation) || 0;
-    }
+    // ❌ NE PAS appliquer le minimum ici - c'est un calcul CONFIRMÉ (jours écoulés)
+    // Le minimum s'applique à la FIN de la location, pas partiellement
 
     return parseFloat(ca.toFixed(2));
   },
@@ -296,10 +294,8 @@ export const analyticsService = {
       ca = ca * 0.8; // Remise 20%
     }
 
-    // Si minimum de facturation coché, CA = minimum (strictement)
-    if (equipment.minimumFacturationApply && equipment.minimumFacturation) {
-      ca = parseFloat(equipment.minimumFacturation) || 0;
-    }
+    // ❌ NE PAS appliquer le minimum ici - c'est un calcul CONFIRMÉ (jours écoulés)
+    // Le minimum s'applique à la FIN de la location, pas partiellement
 
     return parseFloat(ca.toFixed(2));
   },
