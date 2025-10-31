@@ -83,14 +83,23 @@ export const analyticsService = {
     }
 
     const locationStart = new Date(convertFrenchToISO(equipment.debutLocation));
+    const today = new Date();
+    const monthEnd = new Date(year, month + 1, 0);
 
     // Si pas de date fin théorique, utiliser fin du mois demandé
     let locationEnd = locationStart;
     if (equipment.finLocationTheorique) {
       locationEnd = new Date(convertFrenchToISO(equipment.finLocationTheorique));
+
+      // ✅ FIX: Si la fin théorique est DÉPASSÉE et qu'on est le dernier jour du mois,
+      // utiliser fin du mois au lieu de la fin théorique
+      if (locationEnd < today && today <= monthEnd) {
+        console.log(`⚠️  ${equipment.nom}: fin théorique dépassée (${equipment.finLocationTheorique}), utilisation fin du mois`);
+        locationEnd = monthEnd;
+      }
     } else {
       // Pas de date fin théorique → utiliser fin du mois
-      locationEnd = new Date(year, month + 1, 0);
+      locationEnd = monthEnd;
       console.log(`⚠️  ${equipment.nom}: calculateCurrentLocationEstimatedCAByMonth - pas de finLocationTheorique, utilisation fin du mois`);
     }
 
@@ -198,20 +207,25 @@ export const analyticsService = {
 
     const today = new Date();
     const locationStart = new Date(convertFrenchToISO(equipment.debutLocation));
+    const monthEnd = new Date(year, month + 1, 0);
 
-    // Si pas de date fin théorique, utiliser fin du mois demandé (cohérent avec estimé)
+    // Si pas de date fin théorique, utiliser fin du mois demandé
     let locationEnd = today; // Par défaut, jusqu'à aujourd'hui
     if (equipment.finLocationTheorique) {
       locationEnd = new Date(convertFrenchToISO(equipment.finLocationTheorique));
     } else {
       // Pas de date fin théorique → jusqu'à fin du mois demandé si avant aujourd'hui
-      const monthEnd = new Date(year, month + 1, 0);
       locationEnd = monthEnd < today ? monthEnd : today;
       console.log(`⚠️  ${equipment.nom}: calculateCurrentLocationConfirmedCAByMonth - pas de finLocationTheorique, utilisation fin du mois ou aujourd'hui`);
     }
 
-    // La fin réelle est le minimum entre fin théorique et aujourd'hui
-    const realEnd = new Date(Math.min(today.getTime(), locationEnd.getTime()));
+    // ✅ FIX: La fin réelle = minimum entre (fin théorique OU fin du mois) et aujourd'hui
+    // Si fin théorique est dépassée, compter jusqu'à fin du mois, pas jusqu'à la date passée
+    let realEnd = new Date(Math.min(today.getTime(), locationEnd.getTime()));
+    if (realEnd < monthEnd && locationEnd < monthEnd) {
+      // Si fin théorique est avant fin du mois, utiliser fin du mois comme limite
+      realEnd = monthEnd;
+    }
 
     // Obtenir la répartition des jours par mois (jusqu'à realEnd)
     const startStr = locationStart.toISOString().split('T')[0];
