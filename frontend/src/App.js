@@ -198,6 +198,9 @@ const MainApp = ({ shouldStartTour }) => {
     const equipmentToCancel = equipment || selectedEquipment;
     if (!equipmentToCancel) return;
 
+    // Détecter d'où on est appelé: si equipment est passé, on est dans la liste; sinon, on est dans la fiche
+    const isCalledFromList = !!equipment;
+
     try {
       const { equipmentService } = await import('./services/equipmentService');
       await equipmentService.update(equipmentToCancel.id, {
@@ -210,10 +213,11 @@ const MainApp = ({ shouldStartTour }) => {
       });
       showToast('Réservation annulée ! Le matériel est de retour sur parc.', 'success');
       await loadEquipments();
-      // Rafraîchir selectedEquipment avec les données à jour
-      const updatedEquipment = equipmentData.find(eq => eq.id === equipmentToCancel.id);
-      if (updatedEquipment) {
-        setSelectedEquipment(updatedEquipment);
+
+      // Si appelé depuis la fiche détail, retourner à la liste
+      // Si appelé depuis la liste, rester sur la liste
+      if (!isCalledFromList) {
+        handleGoBack();
       }
     } catch (error) {
       console.error('❌ Erreur annulation:', error);
@@ -337,7 +341,7 @@ const MainApp = ({ shouldStartTour }) => {
           // Option A: Envoyer en Maintenance si le matériel réservé a un défaut
           await equipmentService.update(currentEquipment.id, {
             statut: 'En Maintenance',
-            motif: exchangeReason || 'Défaut détecté - Matériel réservé non utilisable',
+            motifMaintenance: exchangeReason || 'Défaut détecté - Matériel réservé non utilisable',
             client: null,
             debutLocation: null,
             finLocationTheorique: null,
@@ -391,8 +395,7 @@ const MainApp = ({ shouldStartTour }) => {
         // Mettre le matériel actuel en Maintenance
         await equipmentService.update(currentEquipment.id, {
           statut: 'En Maintenance',
-          motif: maintenanceReason,
-          noteRetour: `Matériel échangé - Remplacement: ${replacementEquipment.numeroSerie}`
+          motifMaintenance: maintenanceReason
         });
 
         // Enregistrer l'historique de location de l'ancien matériel
@@ -441,7 +444,7 @@ const MainApp = ({ shouldStartTour }) => {
 
     window.addEventListener('equipment-exchange', handleExchangeEvent);
     return () => window.removeEventListener('equipment-exchange', handleExchangeEvent);
-  }, []);
+  }, [handleExchange]);
 
   const handleDataImported = async (newData) => {
     setEquipmentData(newData);
