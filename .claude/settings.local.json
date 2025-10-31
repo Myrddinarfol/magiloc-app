@@ -36,7 +36,11 @@
       "Bash(timeout 10 bash:*)",
       "Bash(cmd /c netstat:*)",
       "Bash(timeout 5 node:*)",
-      "Bash(Stop-Process -Name node -Force -ErrorAction SilentlyContinue)"
+      "Bash(Stop-Process -Name node -Force -ErrorAction SilentlyContinue)",
+      "Bash(cat:*)",
+      "Read(//c/Users/atelier/Desktop/**)",
+      "mcp__ide__getDiagnostics",
+      "Bash(Stop-Process -Id 1924 -Force -ErrorAction SilentlyContinue)"
     ],
     "deny": [],
     "ask": []
