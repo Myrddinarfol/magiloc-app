@@ -737,23 +737,6 @@ const CAModule = () => {
             <div className="kpi-footer">Cliquez pour voir les détails →</div>
           </div>
 
-          {/* Écart CA */}
-          <div className="kpi-card ca-gap">
-            <div className="kpi-header">
-              <span className="kpi-icon">📈</span>
-              <span className="kpi-label">Écart CA</span>
-            </div>
-            <div className="kpi-value">
-              {(stats.estimatedCA - stats.confirmedCA).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
-            </div>
-            <div className="kpi-detail">
-              {monthName}
-            </div>
-            <div className="kpi-subtext">
-              Jours à facturer sur le mois
-            </div>
-          </div>
-
         </div>
       )}
 

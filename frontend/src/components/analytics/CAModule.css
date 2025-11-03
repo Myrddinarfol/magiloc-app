@@ -269,11 +269,6 @@ body.light-theme .yearly-ca-banner {
   color: var(--color-green);
 }
 
-.kpi-card.ca-gap::before {
-  background: linear-gradient(90deg, var(--color-primary), transparent);
-  color: var(--color-primary);
-}
-
 .kpi-card.active-locations::before {
   background: linear-gradient(90deg, var(--color-warning), transparent);
   color: var(--color-warning);
