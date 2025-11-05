@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS location_history (
     ca_total_ht DECIMAL(10,2),
     minimum_facturation_apply BOOLEAN DEFAULT FALSE,
     minimum_facturation DECIMAL(10,2) DEFAULT 0,
+    est_pret BOOLEAN DEFAULT FALSE,
     archived_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
