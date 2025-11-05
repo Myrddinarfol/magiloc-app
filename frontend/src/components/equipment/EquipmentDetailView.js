@@ -1031,10 +1031,10 @@ const EquipmentDetailView = ({
       <ReturnModal
         show={showReturnModalDetail}
         equipment={equipment}
-        onConfirm={(returnDate, returnNotes) => {
+        onConfirm={(returnDate, returnNotes, returnTime, minimumFacturationApply) => {
           setShowReturnModalDetail(false);
           if (onReturnLocation) {
-            onReturnLocation(equipment, returnDate, returnNotes);
+            onReturnLocation(equipment, returnDate, returnNotes, returnTime, minimumFacturationApply);
           }
         }}
         onCancel={() => setShowReturnModalDetail(false)}
