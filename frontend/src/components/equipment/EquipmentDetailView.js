@@ -436,10 +436,25 @@ const EquipmentDetailView = ({
                 );
                 const prixHT = equipment.prixHT ? parseFloat(equipment.prixHT) : null;
                 const isLongDuration = equipment.estLongDuree === true || equipment.estLongDuree === 1;
+                const isLoan = equipment.estPret === true || equipment.estPret === 1;
+                const hasMinimumBilling = equipment.minimumFacturationApply === true || equipment.minimumFacturationApply === 1;
 
                 return (
                   <>
-                    {businessDays !== null && (
+                    {/* AFFICHAGE PRÊT (non facturé) */}
+                    {isLoan && (
+                      <div className="detail-item" style={{ backgroundColor: 'rgba(168, 85, 247, 0.1)', padding: '10px', borderRadius: '8px', border: '2px solid rgba(168, 85, 247, 0.3)' }}>
+                        <span className="detail-label" style={{ color: '#a855f7', fontWeight: 'bold' }}>
+                          🎁 Statut Prêt:
+                        </span>
+                        <span className="detail-value" style={{ fontWeight: 'bold', color: '#a855f7' }}>
+                          ✅ Matériel en prêt (non facturé)
+                        </span>
+                      </div>
+                    )}
+
+                    {/* AFFICHAGE DURÉE - SEULEMENT SI PAS UN PRÊT */}
+                    {!isLoan && businessDays !== null && (
                       <div className="detail-item">
                         <span className="detail-label">Durée (jours ouvrés):</span>
                         <span className="detail-value" style={{ fontWeight: 'bold', color: '#2196F3' }}>
@@ -447,26 +462,44 @@ const EquipmentDetailView = ({
                         </span>
                       </div>
                     )}
-                    <div className="detail-item">
-                      <span className="detail-label">Longue Durée:</span>
-                      <span className="detail-value" style={{
-                        fontWeight: 'bold',
-                        color: isLongDuration ? '#10b981' : '#9ca3af',
-                        padding: '4px 12px',
-                        backgroundColor: isLongDuration ? 'rgba(16, 185, 129, 0.1)' : 'rgba(156, 163, 175, 0.1)',
-                        borderRadius: '6px',
-                        display: 'inline-block'
-                      }}>
-                        {isLongDuration ? '✅ Oui (-20%)' : '❌ Non'}
-                      </span>
-                    </div>
-                    {isLongDuration && prixHT && (
+
+                    {/* AFFICHAGE LONGUE DURÉE - SEULEMENT SI PAS UN PRÊT */}
+                    {!isLoan && (
+                      <div className="detail-item">
+                        <span className="detail-label">Longue Durée:</span>
+                        <span className="detail-value" style={{
+                          fontWeight: 'bold',
+                          color: isLongDuration ? '#10b981' : '#9ca3af',
+                          padding: '4px 12px',
+                          backgroundColor: isLongDuration ? 'rgba(16, 185, 129, 0.1)' : 'rgba(156, 163, 175, 0.1)',
+                          borderRadius: '6px',
+                          display: 'inline-block'
+                        }}>
+                          {isLongDuration ? '✅ Oui (-20%)' : '❌ Non'}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* AFFICHAGE TARIF REMISE - SEULEMENT SI LONGUE DURÉE ET PAS PRÊT */}
+                    {!isLoan && isLongDuration && prixHT && (
                       <div className="detail-item" style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', padding: '10px', borderRadius: '8px', border: '2px solid rgba(16, 185, 129, 0.3)' }}>
                         <span className="detail-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#10b981' }}>
                           💰 Tarif appliqué:
                         </span>
                         <span className="detail-value" style={{ fontWeight: 'bold', color: '#10b981' }}>
                           {(prixHT * 0.8).toFixed(2)}€/j au lieu de {prixHT}€/j
+                        </span>
+                      </div>
+                    )}
+
+                    {/* AFFICHAGE MINIMUM FACTURATION - SEULEMENT SI ACTIVÉ ET PAS PRÊT */}
+                    {!isLoan && hasMinimumBilling && equipment.minimumFacturation && (
+                      <div className="detail-item" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', padding: '10px', borderRadius: '8px', border: '2px solid rgba(59, 130, 246, 0.3)' }}>
+                        <span className="detail-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#3b82f6' }}>
+                          💵 Minimum de facturation:
+                        </span>
+                        <span className="detail-value" style={{ fontWeight: 'bold', color: '#3b82f6' }}>
+                          {equipment.minimumFacturation}€ (appliqué)
                         </span>
                       </div>
                     )}
@@ -984,10 +1017,10 @@ const EquipmentDetailView = ({
         <StartLocationModal
           show={true}
           equipment={equipment}
-          onConfirm={(startDate) => {
+          onConfirm={(startDate, startTime, reservationData) => {
             setShowStartLocationModalDetail(false);
             if (onStartLocation) {
-              onStartLocation(equipment, startDate);
+              onStartLocation(equipment, startDate, startTime, reservationData);
             }
           }}
           onCancel={() => setShowStartLocationModalDetail(false)}

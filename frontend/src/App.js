@@ -226,7 +226,7 @@ const MainApp = ({ shouldStartTour }) => {
   };
 
   // Gestionnaire de démarrage de location
-  const handleStartLocation = async (equipment, startDate, startTime) => {
+  const handleStartLocation = async (equipment, startDate, startTime, reservationData) => {
     if (!equipment || !startDate) return;
 
     try {
@@ -238,10 +238,24 @@ const MainApp = ({ shouldStartTour }) => {
         debutLocation = `${startDate}T${startTime}:00`;
       }
 
-      await equipmentService.update(equipment.id, {
+      // Préparer les données de mise à jour
+      const updateData = {
         statut: 'En Location',
         debutLocation: debutLocation
-      });
+      };
+
+      // Ajouter les données de réservation modifiées si fournies
+      if (reservationData) {
+        updateData.client = reservationData.client || equipment.client;
+        updateData.finLocationTheorique = reservationData.finLocationTheorique || equipment.finLocationTheorique;
+        updateData.numeroOffre = reservationData.numeroOffre || equipment.numeroOffre;
+        updateData.notesLocation = reservationData.notesLocation || equipment.notesLocation;
+        updateData.estPret = reservationData.estPret !== undefined ? reservationData.estPret : equipment.estPret;
+        updateData.estLongDuree = reservationData.estLongDuree !== undefined ? reservationData.estLongDuree : equipment.estLongDuree;
+        updateData.minimumFacturationApply = reservationData.minimumFacturationApply !== undefined ? reservationData.minimumFacturationApply : equipment.minimumFacturationApply;
+      }
+
+      await equipmentService.update(equipment.id, updateData);
       showToast('Location démarrée avec succès !', 'success');
       await loadEquipments();
       // Rafraîchir selectedEquipment avec les données à jour
