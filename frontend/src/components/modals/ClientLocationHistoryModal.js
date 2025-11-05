@@ -83,8 +83,10 @@ const ClientLocationHistoryModal = ({ clientName, history, onClose }) => {
                     const isLongDuration = loc.remise_ld === true || loc.remise_ld === 1;
                     const hasMinimumBilling = loc.minimum_facturation_apply === true || loc.minimum_facturation_apply === 1;
                     const calculatedCA = calculateLocationCA(loc);
-                    const hasCA = calculatedCA !== null && calculatedCA !== undefined && !isLoan;
-                    const caDetail = hasCA && loc.duree_jours_ouvres && loc.prix_ht_jour
+
+                    // S'assurer que hasCA est false si c'est un prêt
+                    const hasCA = calculatedCA !== null && calculatedCA !== undefined && !isLoan && calculatedCA > 0;
+                    const caDetail = hasCA && loc.duree_jours_ouvres && loc.prix_ht_jour && !isLoan
                       ? `${loc.duree_jours_ouvres}j × ${parseFloat(loc.prix_ht_jour).toFixed(2)}€/j${isLongDuration ? ' -20%' : ''}`
                       : '';
 

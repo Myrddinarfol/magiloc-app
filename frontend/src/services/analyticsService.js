@@ -409,9 +409,6 @@ export const analyticsService = {
     const locations = [];
 
     filteredHistory.forEach(location => {
-      // IMPORTANT: Exclure les locations marquées comme prêt
-      if (location.est_pret) return;
-
       // Utiliser la date de retour réelle ou rentrée
       const returnDateStr = location.date_retour_reel || location.rentre_le;
       if (!returnDateStr) return;
@@ -420,7 +417,13 @@ export const analyticsService = {
 
       // La location a été clôturée ce mois-ci
       if (returnDate >= monthStart && returnDate <= monthEnd) {
-        if (location.ca_total_ht) {
+        const isLoan = location.est_pret === true || location.est_pret === 1;
+
+        if (isLoan) {
+          // Les prêts ont CA = 0 mais doivent être affichés
+          locations.push(location);
+        } else if (location.ca_total_ht) {
+          // Les locations normales comptent dans le CA
           const caValue = parseFloat(location.ca_total_ht) || 0;
           if (typeof caValue === 'number' && !isNaN(caValue)) {
             totalCA += caValue;

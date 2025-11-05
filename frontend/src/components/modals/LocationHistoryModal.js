@@ -39,10 +39,12 @@ const LocationHistoryModal = ({ history, onClose }) => {
                 </thead>
                 <tbody>
                   {history.map((loc, index) => {
-                    const hasCA = loc.ca_total_ht && loc.duree_jours_ouvres && loc.prix_ht_jour;
                     const isLoan = loc.est_pret === true || loc.est_pret === 1;
                     const isLongDuration = loc.remise_ld === true || loc.remise_ld === 1;
                     const hasMinimumBilling = loc.minimum_facturation_apply === true || loc.minimum_facturation_apply === 1;
+
+                    // Vérifier s'il y a un CA ET que ce n'est pas un prêt
+                    const hasCA = loc.ca_total_ht && loc.duree_jours_ouvres && loc.prix_ht_jour && !isLoan;
 
                     let caDetail = '';
                     if (hasCA && !isLoan) {
