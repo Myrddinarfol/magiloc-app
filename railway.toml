@@ -3,4 +3,4 @@ rootDirectory = "backend"
 ignoredPaths = ["frontend", ".claude", "*.md"]
 
 [deploy]
-startCommand = "cd backend && npm start"
+startCommand = "npm start"
