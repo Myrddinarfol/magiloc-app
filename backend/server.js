@@ -93,7 +93,7 @@ app.use(cors({
   origin: [
     'http://localhost:3000',
     'http://localhost:5001',
-    'https://magiloc-backend.onrender.com',
+    'https://magiloc-app-production.up.railway.app',
     /\.vercel\.app$/
   ],
   credentials: true,
