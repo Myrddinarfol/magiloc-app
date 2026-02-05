@@ -1,5 +1,98 @@
--- Migration: Create CLIENTS and SPARE_PARTS tables
+-- Migration: Create CLIENTS, SPARE_PARTS and BASE TABLES
 -- Date: 2025-10-16
+-- NOTE: Now includes base table creation
+
+-- ═══════════════════════════════════════════════════════════════════════════
+--  BASE TABLES - CREATED FIRST
+-- ═══════════════════════════════════════════════════════════════════════════
+
+-- Table des équipements (table principale)
+CREATE TABLE IF NOT EXISTS public.equipments (
+    id SERIAL PRIMARY KEY,
+    designation VARCHAR(100) NOT NULL,
+    cmu VARCHAR(20),
+    modele VARCHAR(100),
+    marque VARCHAR(100),
+    longueur VARCHAR(50),
+    infos_complementaires TEXT,
+    numero_serie VARCHAR(100) UNIQUE NOT NULL,
+    prix_ht_jour DECIMAL(10,2),
+    minimum_facturation DECIMAL(10,2) DEFAULT 0,
+    minimum_facturation_apply BOOLEAN DEFAULT FALSE,
+    id_article VARCHAR(50),
+    etat VARCHAR(50),
+    certificat VARCHAR(100),
+    dernier_vgp DATE,
+    prochain_vgp DATE,
+    statut VARCHAR(50) DEFAULT 'Sur Parc',
+    client VARCHAR(200),
+    debut_location VARCHAR(50),
+    fin_location_theorique VARCHAR(50),
+    depart_enlevement VARCHAR(50),
+    rentre_le VARCHAR(50),
+    numero_offre VARCHAR(100),
+    notes_location TEXT,
+    note_retour TEXT,
+    motif_maintenance TEXT,
+    debut_maintenance TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table des locations actives
+CREATE TABLE IF NOT EXISTS public.locations (
+    id SERIAL PRIMARY KEY,
+    equipment_id INTEGER REFERENCES public.equipments(id) ON DELETE CASCADE,
+    client VARCHAR(200),
+    date_debut DATE,
+    date_fin_theorique DATE,
+    date_retour_reel DATE,
+    numero_offre VARCHAR(100),
+    notes_location TEXT,
+    statut VARCHAR(50) DEFAULT 'En cours',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table historique des locations (avec CA)
+CREATE TABLE IF NOT EXISTS public.location_history (
+    id SERIAL PRIMARY KEY,
+    equipment_id INTEGER REFERENCES public.equipments(id),
+    client VARCHAR(200),
+    date_debut DATE,
+    date_fin_theorique DATE,
+    date_retour_reel DATE,
+    rentre_le VARCHAR(50),
+    numero_offre VARCHAR(100),
+    notes_location TEXT,
+    note_retour TEXT,
+    prix_facture DECIMAL(10,2),
+    duree_jours_ouvres INTEGER,
+    prix_ht_jour DECIMAL(10,2),
+    remise_ld BOOLEAN DEFAULT FALSE,
+    ca_total_ht DECIMAL(10,2),
+    minimum_facturation_apply BOOLEAN DEFAULT FALSE,
+    minimum_facturation DECIMAL(10,2) DEFAULT 0,
+    est_pret BOOLEAN DEFAULT FALSE,
+    archived_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table historique des maintenances
+CREATE TABLE IF NOT EXISTS public.maintenance_history (
+    id SERIAL PRIMARY KEY,
+    equipment_id INTEGER REFERENCES public.equipments(id) ON DELETE CASCADE,
+    date_entree TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    date_sortie TIMESTAMP,
+    motif_maintenance TEXT,
+    note_retour TEXT,
+    travaux_effectues TEXT,
+    cout_maintenance DECIMAL(10,2),
+    technicien VARCHAR(100),
+    archived_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ═══════════════════════════════════════════════════════════════════════════
+--  CLIENTS AND RELATED TABLES
+-- ═══════════════════════════════════════════════════════════════════════════
 
 -- Table CLIENTS
 CREATE TABLE IF NOT EXISTS public.clients (
