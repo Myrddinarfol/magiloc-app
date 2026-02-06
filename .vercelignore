@@ -1,0 +1,6 @@
+backend
+.claude
+*.md
+.gitignore
+node_modules
+frontend/node_modules

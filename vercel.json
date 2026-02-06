@@ -1,7 +1,4 @@
 {
-  "buildCommand": "cd frontend && npm ci --legacy-peer-deps && npm run build",
-  "outputDirectory": "frontend/build",
-  "env": {
-    "REACT_APP_API_URL": "@react_app_api_url"
-  }
+  "buildCommand": "npm ci --legacy-peer-deps --prefix frontend && npm run build --prefix frontend",
+  "outputDirectory": "frontend/build"
 }
