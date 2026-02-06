@@ -8,6 +8,6 @@
   "scripts": {
     "start": "cd backend && npm install && npm start",
     "dev": "cd backend && npm run dev",
-    "build": "cd frontend && npm install --legacy-peer-deps && npm run build"
+    "build": "cd frontend && npm install --legacy-peer-deps && npm run build && mv build ../build"
   }
 }
