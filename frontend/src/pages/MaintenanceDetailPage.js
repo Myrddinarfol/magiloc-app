@@ -11,6 +11,8 @@ import LocationHistoryModal from '../components/modals/LocationHistoryModal';
 import MaintenanceHistoryModal from '../components/modals/MaintenanceHistoryModal';
 import './MaintenanceDetailPage.css';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 // Helper pour convertir une date française DD/MM/YYYY en Date object
 const parseFrenchDate = (dateStr) => {
   if (!dateStr) return null;
@@ -199,7 +201,7 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
 
       console.log('📦 Payload envoyé:', maintenancePayload);
 
-      const response = await fetch(`http://localhost:5000/api/equipment/${equipment.id}/maintenance/validate`, {
+      const response = await fetch(`${API_URL}/api/equipment/${equipment.id}/maintenance/validate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(maintenancePayload)

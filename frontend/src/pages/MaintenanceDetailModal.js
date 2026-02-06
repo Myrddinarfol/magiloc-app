@@ -5,6 +5,8 @@ import MaintenanceManagementPanel from '../components/maintenance/MaintenanceMan
 import ValidateMaintenanceModal from '../components/modals/ValidateMaintenanceModal';
 import './MaintenanceDetailModal.css';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const MaintenanceDetailModal = ({ equipment, onClose }) => {
   const { showToast } = useUI();
   const [showValidateModal, setShowValidateModal] = useState(false);
@@ -27,7 +29,7 @@ const MaintenanceDetailModal = ({ equipment, onClose }) => {
       };
 
       // Appel API pour sauvegarder la maintenance
-      const response = await fetch(`http://localhost:5000/api/equipment/${equipment.id}/maintenance/validate`, {
+      const response = await fetch(`${API_URL}/api/equipment/${equipment.id}/maintenance/validate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(maintenancePayload)
