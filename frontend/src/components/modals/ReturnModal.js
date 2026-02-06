@@ -19,9 +19,20 @@ const ReturnModal = ({ show, equipment, onConfirm, onCancel }) => {
     // Validate that return date is not before the rental start date
     if (equipment?.debutLocation) {
       const returnDateObj = new Date(returnDate);
-      const startDateObj = new Date(equipment.debutLocation);
+
+      // Convertir la date de début (peut être en format français JJ/MM/AAAA ou ISO AAAA-MM-JJ)
+      let startDateObj;
+      if (equipment.debutLocation.includes('/')) {
+        // Format français: JJ/MM/AAAA
+        const [day, month, year] = equipment.debutLocation.split('/');
+        startDateObj = new Date(`${year}-${month}-${day}`);
+      } else {
+        // Format ISO: AAAA-MM-JJ
+        startDateObj = new Date(equipment.debutLocation);
+      }
+
       if (returnDateObj < startDateObj) {
-        showToast('La date de retour doit être après la date de début de location', 'error');
+        showToast('La date de retour doit être après ou égale à la date de début de location', 'error');
         return false;
       }
     }
