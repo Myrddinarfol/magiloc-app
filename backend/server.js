@@ -112,6 +112,26 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "OK", timestamp: new Date().toISOString() });
 });
 
+// Endpoint de diagnostic pour vérifier les colonnes de maintenance_history
+app.get("/api/diagnostic/maintenance-columns", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT column_name, data_type FROM information_schema.columns
+       WHERE table_name = 'maintenance_history' ORDER BY column_name`
+    );
+    console.log('📋 Colonnes de maintenance_history:', result.rows.map(r => `${r.column_name} (${r.data_type})`).join(', '));
+    res.json({
+      message: "Colonnes de la table maintenance_history",
+      columns: result.rows,
+      hasDbDays: result.rows.some(r => r.column_name === 'duree_jours'),
+      hasVgp: result.rows.some(r => r.column_name === 'vgp_effectuee')
+    });
+  } catch (err) {
+    console.error('❌ Erreur diagnostic:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ═══════════════════════════════════════════════════════════════════════════
 // AUTHENTIFICATION JWT (Modular routes from routes/auth.js)
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1262,11 +1282,14 @@ app.post("/api/equipment/:id/maintenance/validate", async (req, res) => {
 
     // S'assurer que les colonnes manquantes existent dans maintenance_history
     try {
+      console.log('🔧 Tentative de création des colonnes manquantes...');
       await dbClient.query('ALTER TABLE public.maintenance_history ADD COLUMN IF NOT EXISTS duree_jours INTEGER DEFAULT 0;');
+      console.log('✅ Colonne duree_jours créée/vérifiée');
       await dbClient.query('ALTER TABLE public.maintenance_history ADD COLUMN IF NOT EXISTS vgp_effectuee BOOLEAN DEFAULT FALSE;');
-      console.log('✅ Colonnes maintenance_history vérifiées');
+      console.log('✅ Colonne vgp_effectuee créée/vérifiée');
     } catch (err) {
-      console.log('📝 Colonnes maintenance_history déjà existantes');
+      console.error('❌ Erreur lors de la création des colonnes:', err.message);
+      console.error('   Détails:', err);
     }
 
     // Récupérer l'équipement pour avoir la date de début de maintenance
