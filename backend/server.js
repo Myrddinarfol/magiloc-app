@@ -1260,6 +1260,15 @@ app.post("/api/equipment/:id/maintenance/validate", async (req, res) => {
 
     await dbClient.query('BEGIN');
 
+    // S'assurer que les colonnes manquantes existent dans maintenance_history
+    try {
+      await dbClient.query('ALTER TABLE public.maintenance_history ADD COLUMN IF NOT EXISTS duree_jours INTEGER DEFAULT 0;');
+      await dbClient.query('ALTER TABLE public.maintenance_history ADD COLUMN IF NOT EXISTS vgp_effectuee BOOLEAN DEFAULT FALSE;');
+      console.log('✅ Colonnes maintenance_history vérifiées');
+    } catch (err) {
+      console.log('📝 Colonnes maintenance_history déjà existantes');
+    }
+
     // Récupérer l'équipement pour avoir la date de début de maintenance
     const equipmentResult = await dbClient.query(
       'SELECT * FROM equipments WHERE id = $1',
