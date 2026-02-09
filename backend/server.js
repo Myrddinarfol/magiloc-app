@@ -66,46 +66,6 @@ async function runPendingMigrations() {
 // Exécuter les migrations avant de démarrer le serveur
 await runPendingMigrations();
 
-// ═══════════════════════════════════════════════════════════════════════════
-// FONCTION POUR S'ASSURER QUE LES COLONNES MANQUANTES EXISTENT
-// ═══════════════════════════════════════════════════════════════════════════
-async function ensureMaintenanceHistoryColumns() {
-  try {
-    console.log('🔍 Vérification des colonnes manquantes dans maintenance_history...');
-
-    // Ajouter duree_jours si elle n'existe pas
-    try {
-      await pool.query(`
-        ALTER TABLE public.maintenance_history
-        ADD COLUMN IF NOT EXISTS duree_jours INTEGER DEFAULT 0;
-      `);
-      console.log('✅ Colonne duree_jours vérifiée/créée');
-    } catch (err) {
-      if (!err.message.includes('already exists')) {
-        console.log('📝 duree_jours existe déjà');
-      }
-    }
-
-    // Ajouter vgp_effectuee si elle n'existe pas
-    try {
-      await pool.query(`
-        ALTER TABLE public.maintenance_history
-        ADD COLUMN IF NOT EXISTS vgp_effectuee BOOLEAN DEFAULT FALSE;
-      `);
-      console.log('✅ Colonne vgp_effectuee vérifiée/créée');
-    } catch (err) {
-      if (!err.message.includes('already exists')) {
-        console.log('📝 vgp_effectuee existe déjà');
-      }
-    }
-  } catch (err) {
-    console.error('❌ Erreur lors de la vérification des colonnes:', err.message);
-  }
-}
-
-// Exécuter la vérification des colonnes
-await ensureMaintenanceHistoryColumns();
-
 // Note: initDb() n'est plus appelé automatiquement
 // Utiliser "npm run reset-db" pour réinitialiser une base locale
 
