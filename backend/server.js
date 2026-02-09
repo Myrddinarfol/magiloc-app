@@ -1280,18 +1280,6 @@ app.post("/api/equipment/:id/maintenance/validate", async (req, res) => {
 
     await dbClient.query('BEGIN');
 
-    // S'assurer que les colonnes manquantes existent dans maintenance_history
-    try {
-      console.log('🔧 Tentative de création des colonnes manquantes...');
-      await dbClient.query('ALTER TABLE public.maintenance_history ADD COLUMN IF NOT EXISTS duree_jours INTEGER DEFAULT 0;');
-      console.log('✅ Colonne duree_jours créée/vérifiée');
-      await dbClient.query('ALTER TABLE public.maintenance_history ADD COLUMN IF NOT EXISTS vgp_effectuee BOOLEAN DEFAULT FALSE;');
-      console.log('✅ Colonne vgp_effectuee créée/vérifiée');
-    } catch (err) {
-      console.error('❌ Erreur lors de la création des colonnes:', err.message);
-      console.error('   Détails:', err);
-    }
-
     // Récupérer l'équipement pour avoir la date de début de maintenance
     const equipmentResult = await dbClient.query(
       'SELECT * FROM equipments WHERE id = $1',
@@ -1313,18 +1301,22 @@ app.post("/api/equipment/:id/maintenance/validate", async (req, res) => {
       dureeDays = Math.ceil((dateActuelle - debutMaintenance) / (1000 * 60 * 60 * 24));
     }
 
-    // 1. Sauvegarder l'entrée de maintenance dans maintenance_history avec les bonnes colonnes
-    // Construire les détails des travaux en JSON
+    // 1. Sauvegarder l'entrée de maintenance dans maintenance_history
+    // Construire les détails des travaux en JSON (inclut duree_jours et vgp_effectuee)
     const travauxDetails = {
       notes_maintenance: notes || '',
       temps_heures: tempsHeures || 0,
-      pieces_utilisees: pieces && pieces.length > 0 ? pieces : []
+      pieces_utilisees: pieces && pieces.length > 0 ? pieces : [],
+      duree_jours: dureeDays,
+      vgp_effectuee: vgpDone || false
     };
+
+    console.log('📝 Détails maintenance:', travauxDetails);
 
     const maintenanceResult = await dbClient.query(
       `INSERT INTO maintenance_history
-       (equipment_id, motif_maintenance, note_retour, travaux_effectues, technicien, date_entree, date_sortie, duree_jours, vgp_effectuee)
-       VALUES ($1, $2, $3, $4, $5, $6, NOW(), $7, $8)
+       (equipment_id, motif_maintenance, note_retour, travaux_effectues, technicien, date_entree)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
       [
         id,
@@ -1332,15 +1324,13 @@ app.post("/api/equipment/:id/maintenance/validate", async (req, res) => {
         notes || '',
         JSON.stringify(travauxDetails),
         technicien || '',
-        equipment.debut_maintenance || new Date().toISOString(),
-        dureeDays,
-        vgpDone || false
+        equipment.debut_maintenance || new Date().toISOString()
       ]
     );
 
     console.log('✅ Maintenance enregistrée:', maintenanceResult.rows[0].id);
     console.log('📝 Détails sauvegardés:', travauxDetails);
-    console.log('📅 VGP effectuée sauvegardée:', maintenanceResult.rows[0].vgp_effectuee);
+    console.log('📅 VGP effectuée:', vgpDone);
 
     // 2. Mettre à jour le statut de l'équipement à "Sur Parc" et réinitialiser les champs de maintenance
     const equipmentUpdateResult = await dbClient.query(
