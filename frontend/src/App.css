@@ -2745,13 +2745,13 @@ body.modal-open {
   position: relative;
 }
 
-/* Créer un tooltip CSS personnalisé */
+/* Créer un tooltip CSS personnalisé - Affiché à gauche de l'icône */
 [data-tooltip]:hover::before {
   content: attr(data-tooltip);
   position: absolute;
-  bottom: calc(100% + 12px);
-  left: 50%;
-  transform: translateX(-50%);
+  right: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
   padding: 10px 16px;
   background: linear-gradient(135deg, rgba(26, 26, 26, 0.98), rgba(15, 15, 15, 0.98));
   color: #ffffff;
@@ -2777,18 +2777,18 @@ body.modal-open {
   line-height: 1.4;
 }
 
-/* Flèche du tooltip */
+/* Flèche du tooltip - Pointée vers la droite */
 [data-tooltip]:hover::after {
   content: '';
   position: absolute;
-  bottom: calc(100% + 2px);
-  left: 50%;
-  transform: translateX(-50%);
+  right: calc(100% - 2px);
+  top: 50%;
+  transform: translateY(-50%);
   width: 0;
   height: 0;
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-top: 10px solid rgba(220, 38, 38, 0.6);
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 10px solid rgba(220, 38, 38, 0.6);
   z-index: 999999;
   pointer-events: none;
   animation: tooltipFadeIn 0.2s ease-out;
