@@ -158,7 +158,8 @@ export const VirtualizedEquipmentList = ({
         border: '1px solid #2d3748',
         borderRadius: '8px',
         overflowY: 'auto',
-        overflowX: 'hidden'
+        overflowX: 'hidden',
+        paddingBottom: '60px'
       }}
     >
       <List
