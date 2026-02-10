@@ -2,6 +2,22 @@ import React from 'react';
 import './HistoryModals.css';
 
 const MaintenanceHistoryModal = ({ history, onClose }) => {
+  // Parser le JSON travaux_effectues
+  const parseTravauxData = (travaux) => {
+    if (!travaux) return { travaux: '', vgpEffectuee: false, dureeDays: null };
+
+    try {
+      const parsed = typeof travaux === 'string' ? JSON.parse(travaux) : travaux;
+      return {
+        travaux: parsed,
+        vgpEffectuee: parsed.vgp_effectuee || false,
+        dureeDays: parsed.duree_jours || null
+      };
+    } catch (e) {
+      return { travaux: travaux, vgpEffectuee: false, dureeDays: null };
+    }
+  };
+
   const formatTravaux = (travaux) => {
     if (!travaux) return '-';
 
@@ -24,7 +40,7 @@ const MaintenanceHistoryModal = ({ history, onClose }) => {
 
         // Temps de main d'oeuvre
         if (parsed.temps_heures && parsed.temps_heures > 0) {
-          parts.push(`Durée: ${parsed.temps_heures}h`);
+          parts.push(`Durée travail: ${parsed.temps_heures}h`);
         }
 
         // Si rien n'a été rempli
@@ -38,6 +54,26 @@ const MaintenanceHistoryModal = ({ history, onClose }) => {
       }
     }
     return travaux;
+  };
+
+  // Calculer la durée totale de maintenance
+  const calculateMaintenanceDuration = (maint) => {
+    const parsedData = parseTravauxData(maint.travaux_effectues);
+
+    // Si la durée est en JSON, l'utiliser
+    if (parsedData.dureeDays !== null && parsedData.dureeDays > 0) {
+      return `${parsedData.dureeDays} j`;
+    }
+
+    // Sinon, calculer à partir des dates
+    if (maint.date_entree && maint.date_sortie) {
+      const entree = new Date(maint.date_entree);
+      const sortie = new Date(maint.date_sortie);
+      const diffDays = Math.ceil((sortie - entree) / (1000 * 60 * 60 * 24));
+      return `${diffDays} j`;
+    }
+
+    return 'En cours';
   };
 
   return (
@@ -74,7 +110,8 @@ const MaintenanceHistoryModal = ({ history, onClose }) => {
                 </thead>
                 <tbody>
                   {history.map((maint, index) => {
-                    const dureeMaintenance = maint.duree_jours ? `${maint.duree_jours} j` : 'N/A';
+                    const parsedData = parseTravauxData(maint.travaux_effectues);
+                    const dureeMaintenance = calculateMaintenanceDuration(maint);
 
                     return (
                       <tr key={index} className="history-row">
@@ -99,7 +136,7 @@ const MaintenanceHistoryModal = ({ history, onClose }) => {
                         </td>
                         <td className="col-vgp">
                           <span className="maintenance-vgp-badge">
-                            {maint.vgp_effectuee ? '✅ Oui' : '❌ Non'}
+                            {parsedData.vgpEffectuee ? '✅ Oui' : '❌ Non'}
                           </span>
                         </td>
                       </tr>
