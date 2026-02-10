@@ -2816,6 +2816,21 @@ thead [data-tooltip]:hover::after {
   transform: translateX(-50%) rotate(180deg);
 }
 
+/* Tooltips pour le bas du tableau - s'affichent en dessous */
+tbody [data-tooltip]:hover::before {
+  bottom: auto;
+  top: calc(100% + 12px);
+  transform: translateX(-50%);
+}
+
+tbody [data-tooltip]:hover::after {
+  bottom: auto;
+  top: calc(100% + 2px);
+  border-top: none;
+  border-bottom: 10px solid rgba(220, 38, 38, 0.6);
+  transform: translateX(-50%) rotate(180deg);
+}
+
 /* Animation d'apparition */
 @keyframes tooltipFadeIn {
   from {
