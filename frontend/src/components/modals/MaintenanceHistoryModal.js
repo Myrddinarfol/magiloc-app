@@ -2,53 +2,50 @@ import React from 'react';
 import './HistoryModals.css';
 
 const MaintenanceHistoryModal = ({ history, onClose }) => {
-  // Parser le JSON travaux_effectues
-  const parseTravauxData = (travaux) => {
-    if (!travaux) return { travaux: '', vgpEffectuee: false, dureeDays: null };
+  // Parser le JSON travaux_effectues pour extraire les données
+  const getMaintenanceData = (maint) => {
+    let vgpEffectuee = false;
+    let dureeDays = null;
 
-    try {
-      const parsed = typeof travaux === 'string' ? JSON.parse(travaux) : travaux;
-      return {
-        travaux: parsed,
-        vgpEffectuee: parsed.vgp_effectuee || false,
-        dureeDays: parsed.duree_jours || null
-      };
-    } catch (e) {
-      return { travaux: travaux, vgpEffectuee: false, dureeDays: null };
+    // Essayer de parser le JSON travaux_effectues
+    if (maint.travaux_effectues) {
+      try {
+        const parsed = typeof maint.travaux_effectues === 'string'
+          ? JSON.parse(maint.travaux_effectues)
+          : maint.travaux_effectues;
+
+        vgpEffectuee = parsed.vgp_effectuee === true;
+        dureeDays = parsed.duree_jours;
+      } catch (e) {
+        // Ignorer l'erreur de parsing
+      }
     }
+
+    return { vgpEffectuee, dureeDays };
   };
 
   const formatTravaux = (travaux) => {
     if (!travaux) return '-';
 
-    // Si c'est un string JSON, essayer de parser
     if (typeof travaux === 'string') {
       try {
         const parsed = JSON.parse(travaux);
         const parts = [];
 
-        // Notes de maintenance
         if (parsed.notes_maintenance && parsed.notes_maintenance.trim()) {
           parts.push(`Notes: ${parsed.notes_maintenance}`);
         }
 
-        // Pièces détachées utilisées
         if (parsed.pieces_utilisees && Array.isArray(parsed.pieces_utilisees) && parsed.pieces_utilisees.length > 0) {
           const piecesStr = parsed.pieces_utilisees.map(p => p.designation || p).join(', ');
           parts.push(`Pièces: ${piecesStr}`);
         }
 
-        // Temps de main d'oeuvre
         if (parsed.temps_heures && parsed.temps_heures > 0) {
-          parts.push(`Durée travail: ${parsed.temps_heures}h`);
+          parts.push(`Main d'œuvre: ${parsed.temps_heures}h`);
         }
 
-        // Si rien n'a été rempli
-        if (parts.length === 0) {
-          return '-';
-        }
-
-        return parts.join(' • ');
+        return parts.length > 0 ? parts.join(' • ') : '-';
       } catch (e) {
         return travaux;
       }
@@ -56,21 +53,22 @@ const MaintenanceHistoryModal = ({ history, onClose }) => {
     return travaux;
   };
 
-  // Calculer la durée totale de maintenance
-  const calculateMaintenanceDuration = (maint) => {
-    const parsedData = parseTravauxData(maint.travaux_effectues);
+  const getMaintenanceDuration = (maint) => {
+    const { dureeDays } = getMaintenanceData(maint);
 
-    // Si la durée est en JSON, l'utiliser
-    if (parsedData.dureeDays !== null && parsedData.dureeDays > 0) {
-      return `${parsedData.dureeDays} j`;
+    if (dureeDays && dureeDays > 0) {
+      return `${dureeDays} j`;
     }
 
-    // Sinon, calculer à partir des dates
     if (maint.date_entree && maint.date_sortie) {
-      const entree = new Date(maint.date_entree);
-      const sortie = new Date(maint.date_sortie);
-      const diffDays = Math.ceil((sortie - entree) / (1000 * 60 * 60 * 24));
-      return `${diffDays} j`;
+      try {
+        const entree = new Date(maint.date_entree);
+        const sortie = new Date(maint.date_sortie);
+        const diff = Math.ceil((sortie - entree) / (1000 * 60 * 60 * 24));
+        return `${diff} j`;
+      } catch (e) {
+        return 'N/A';
+      }
     }
 
     return 'En cours';
@@ -79,7 +77,6 @@ const MaintenanceHistoryModal = ({ history, onClose }) => {
   return (
     <div className="history-overlay">
       <div className="history-modal">
-        {/* Header */}
         <div className="history-modal-header">
           <div className="history-modal-title">
             <span className="history-modal-icon">🔧</span>
@@ -89,7 +86,6 @@ const MaintenanceHistoryModal = ({ history, onClose }) => {
           <button onClick={onClose} className="history-close-btn">✕</button>
         </div>
 
-        {/* Content */}
         <div className="history-modal-content">
           {history.length === 0 ? (
             <div className="history-empty-state">
@@ -110,8 +106,8 @@ const MaintenanceHistoryModal = ({ history, onClose }) => {
                 </thead>
                 <tbody>
                   {history.map((maint, index) => {
-                    const parsedData = parseTravauxData(maint.travaux_effectues);
-                    const dureeMaintenance = calculateMaintenanceDuration(maint);
+                    const { vgpEffectuee } = getMaintenanceData(maint);
+                    const dureeMaintenance = getMaintenanceDuration(maint);
 
                     return (
                       <tr key={index} className="history-row">
@@ -136,7 +132,7 @@ const MaintenanceHistoryModal = ({ history, onClose }) => {
                         </td>
                         <td className="col-vgp">
                           <span className="maintenance-vgp-badge">
-                            {parsedData.vgpEffectuee ? '✅ Oui' : '❌ Non'}
+                            {vgpEffectuee ? '✅ Oui' : '❌ Non'}
                           </span>
                         </td>
                       </tr>
@@ -148,7 +144,6 @@ const MaintenanceHistoryModal = ({ history, onClose }) => {
           )}
         </div>
 
-        {/* Footer */}
         <div className="history-modal-footer">
           <button onClick={onClose} className="history-btn-close">
             Fermer
