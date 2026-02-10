@@ -1343,8 +1343,8 @@ app.post("/api/equipment/:id/maintenance/validate", async (req, res) => {
 
     const maintenanceResult = await dbClient.query(
       `INSERT INTO maintenance_history
-       (equipment_id, motif_maintenance, note_retour, travaux_effectues, technicien, date_entree)
-       VALUES ($1, $2, $3, $4, $5, $6)
+       (equipment_id, motif_maintenance, note_retour, travaux_effectues, technicien, date_entree, date_sortie)
+       VALUES ($1, $2, $3, $4, $5, $6, NOW())
        RETURNING *`,
       [
         id,
