@@ -132,6 +132,34 @@ app.get("/api/diagnostic/maintenance-columns", async (req, res) => {
   }
 });
 
+// Endpoint de diagnostic pour vérifier les données réelles de maintenance
+app.get("/api/diagnostic/maintenance-data", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT id, equipment_id, date_entree, date_sortie, motif_maintenance,
+              travaux_effectues, vgp_effectuee
+       FROM public.maintenance_history
+       ORDER BY id DESC
+       LIMIT 5`
+    );
+
+    console.log('📊 Derniers enregistrements de maintenance:');
+    result.rows.forEach((row, idx) => {
+      console.log(`  [${idx}] ID: ${row.id}, Equipment: ${row.equipment_id}`);
+      console.log(`      Travaux: ${row.travaux_effectues}`);
+      console.log(`      VGP DB: ${row.vgp_effectuee}`);
+    });
+
+    res.json({
+      message: "Derniers enregistrements de maintenance_history",
+      records: result.rows
+    });
+  } catch (err) {
+    console.error('❌ Erreur diagnostic:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ═══════════════════════════════════════════════════════════════════════════
 // AUTHENTIFICATION JWT (Modular routes from routes/auth.js)
 // ═══════════════════════════════════════════════════════════════════════════
