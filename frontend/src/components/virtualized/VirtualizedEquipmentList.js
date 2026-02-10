@@ -157,7 +157,8 @@ export const VirtualizedEquipmentList = ({
         height: typeof height === 'string' ? height : `${height}px`,
         border: '1px solid #2d3748',
         borderRadius: '8px',
-        overflow: 'hidden'
+        overflowY: 'auto',
+        overflowX: 'hidden'
       }}
     >
       <List
