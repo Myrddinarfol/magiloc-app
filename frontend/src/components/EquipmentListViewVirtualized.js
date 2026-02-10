@@ -68,7 +68,7 @@ const EquipmentRowVirtual = ({
                       e.stopPropagation();
                       onReturnLocation && onReturnLocation(equipment);
                     }}
-                    title="Effectuer le retour"
+                    data-tooltip="Effectuer le retour"
                   >
                     ↩️
                   </button>
@@ -81,7 +81,7 @@ const EquipmentRowVirtual = ({
                         e.stopPropagation();
                         onStartLocation && onStartLocation(equipment);
                       }}
-                      title="Démarrer une location"
+                      data-tooltip="Démarrer une location"
                     >
                       ▶
                     </button>
@@ -91,7 +91,7 @@ const EquipmentRowVirtual = ({
                         e.stopPropagation();
                         onCreateReservation && onCreateReservation(equipment);
                       }}
-                      title="Créer une réservation"
+                      data-tooltip="Créer une réservation"
                     >
                       📋
                     </button>
@@ -104,7 +104,7 @@ const EquipmentRowVirtual = ({
                       e.stopPropagation();
                       onCancelReservation && onCancelReservation(equipment);
                     }}
-                    title="Annuler la réservation"
+                    data-tooltip="Annuler la réservation"
                   >
                     ❌
                   </button>

@@ -2367,7 +2367,7 @@ body.modal-open {
   border: 2px solid;
   margin-top: 20px;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   transition: all 0.3s ease;
 }
 
@@ -2379,12 +2379,18 @@ body.modal-open {
   right: 0;
   bottom: 0;
   opacity: 0.1;
-  z-index: 0;
+  z-index: -1;
 }
 
 .vgp-status-card > * {
   position: relative;
-  z-index: 1;
+  z-index: 0;
+}
+
+/* Assurer que les tooltips du VGP card s'affichent au-dessus */
+.vgp-status-card [data-tooltip]:hover::before,
+.vgp-status-card [data-tooltip]:hover::after {
+  z-index: 99999999 !important;
 }
 
 /* Statut ROUGE - Dépassé */
@@ -2758,7 +2764,7 @@ body.modal-open {
   font-size: 13px;
   font-weight: 600;
   border-radius: 8px;
-  z-index: 999999;
+  z-index: 9999999;
   pointer-events: none;
   border: 2px solid rgba(220, 38, 38, 0.6);
   box-shadow:
@@ -2789,7 +2795,7 @@ body.modal-open {
   border-top: 8px solid transparent;
   border-bottom: 8px solid transparent;
   border-left: 10px solid rgba(220, 38, 38, 0.6);
-  z-index: 999999;
+  z-index: 9999999;
   pointer-events: none;
   animation: tooltipFadeIn 0.2s ease-out;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
@@ -2817,13 +2823,32 @@ thead [data-tooltip]:hover::after {
 }
 
 /* Tooltips pour le bas du tableau - s'affichent en dessous */
-tbody [data-tooltip]:hover::before {
+/* MAIS les boutons action gardent les tooltips à gauche */
+tbody .btn-icon[data-tooltip]:hover::before {
+  /* Les boutons action gardent le tooltip à gauche */
+  right: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+tbody .btn-icon[data-tooltip]:hover::after {
+  /* La flèche du bouton action pointe à droite */
+  right: calc(100% - 2px);
+  top: 50%;
+  transform: translateY(-50%);
+  border-left: 10px solid rgba(220, 38, 38, 0.6);
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+}
+
+/* Les autres éléments du tableau affichent les tooltips en bas */
+tbody [data-tooltip]:not(.btn-icon):hover::before {
   bottom: auto;
   top: calc(100% + 12px);
   transform: translateX(-50%);
 }
 
-tbody [data-tooltip]:hover::after {
+tbody [data-tooltip]:not(.btn-icon):hover::after {
   bottom: auto;
   top: calc(100% + 2px);
   border-top: none;
@@ -2844,11 +2869,19 @@ tbody [data-tooltip]:hover::after {
 }
 
 /* Variant pour les tooltips à droite (boutons en fin de ligne) */
+/* SAUF les boutons action dans le tableau qui gardent tooltips à gauche */
 .btn-icon[data-tooltip]:hover::before,
 .action-button[data-tooltip]:hover::before,
 button[data-tooltip]:hover::before {
   left: 50%;
   transform: translateX(-50%);
+}
+
+/* Les boutons action dans le tableau gardent tooltips à gauche */
+tbody .btn-icon[data-tooltip]:hover::before {
+  left: auto;
+  right: calc(100% + 12px);
+  transform: translateY(-50%);
 }
 
 /* Glow effect pour les tooltips */

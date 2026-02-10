@@ -46,8 +46,10 @@ async function runPendingMigrations() {
           try {
             await pool.query(command);
           } catch (err) {
-            // Ignorer les erreurs "already exists" ou "does not exist"
-            if (!err.message.includes('already exists') && !err.message.includes('does not exist')) {
+            // Ignorer les erreurs "already exists" ou "does not exist" (en anglais et français)
+            const ignorePatterns = ['already exists', 'does not exist', 'existe déjà', "n'existe pas"];
+            const shouldIgnore = ignorePatterns.some(pattern => err.message.includes(pattern));
+            if (!shouldIgnore) {
               console.error(`❌ Erreur migration ${file}:`, err.message);
               throw err;
             }
