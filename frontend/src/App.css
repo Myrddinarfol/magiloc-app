@@ -2758,7 +2758,6 @@ body.modal-open {
   font-size: 13px;
   font-weight: 600;
   border-radius: 8px;
-  white-space: nowrap;
   z-index: 999999;
   pointer-events: none;
   border: 2px solid rgba(220, 38, 38, 0.6);
@@ -2770,7 +2769,8 @@ body.modal-open {
   animation: tooltipFadeIn 0.2s ease-out;
   letter-spacing: 0.5px;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-  max-width: 500px;
+  min-width: 140px;
+  max-width: 250px;
   white-space: normal;
   word-wrap: break-word;
   text-align: center;
