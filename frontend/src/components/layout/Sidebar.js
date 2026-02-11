@@ -318,38 +318,6 @@ const Sidebar = () => {
                     <span>⚓ Mode Marine</span>
                     {theme === 'marine' && <span className="check-icon">✓</span>}
                   </button>
-                  <button
-                    className={`theme-option ${theme === 'forest' ? 'active' : ''}`}
-                    onClick={() => handleThemeChange('forest')}
-                  >
-                    <div className="theme-preview forest"></div>
-                    <span>🌿 Mode Forêt</span>
-                    {theme === 'forest' && <span className="check-icon">✓</span>}
-                  </button>
-                  <button
-                    className={`theme-option ${theme === 'ruby' ? 'active' : ''}`}
-                    onClick={() => handleThemeChange('ruby')}
-                  >
-                    <div className="theme-preview ruby"></div>
-                    <span>💎 Mode Rubis</span>
-                    {theme === 'ruby' && <span className="check-icon">✓</span>}
-                  </button>
-                  <button
-                    className={`theme-option ${theme === 'cyber' ? 'active' : ''}`}
-                    onClick={() => handleThemeChange('cyber')}
-                  >
-                    <div className="theme-preview cyber"></div>
-                    <span>⚡ Mode Cyber</span>
-                    {theme === 'cyber' && <span className="check-icon">✓</span>}
-                  </button>
-                  <button
-                    className={`theme-option ${theme === 'cafe' ? 'active' : ''}`}
-                    onClick={() => handleThemeChange('cafe')}
-                  >
-                    <div className="theme-preview cafe"></div>
-                    <span>☕ Mode Café</span>
-                    {theme === 'cafe' && <span className="check-icon">✓</span>}
-                  </button>
                 </div>
               </div>
 

@@ -40,7 +40,11 @@
       "Bash(cat:*)",
       "Read(//c/Users/atelier/Desktop/**)",
       "mcp__ide__getDiagnostics",
-      "Bash(Stop-Process -Id 1924 -Force -ErrorAction SilentlyContinue)"
+      "Bash(Stop-Process -Id 1924 -Force -ErrorAction SilentlyContinue)",
+      "Bash(ls:*)",
+      "Bash(git rm:*)",
+      "Bash(backend/.env << 'EOF'\nPORT=5000\nNODE_ENV=development\nDATABASE_URL=postgresql://postgres:WacxrJVEHHFbGXoolRHkzRGCdzMLnyDw@postgres.railway.internal:5432/railway\nDATABASE_PUBLIC_URL=postgresql://postgres:WacxrJVEHHFbGXoolRHkzRGCdzMLnyDw@postgres.railway.internal:5432/railway\nJWT_SECRET=magiloc_dev_secret_key_change_in_production\nEOF)",
+      "Bash(powershell -Command:*)"
     ],
     "deny": [],
     "ask": []
