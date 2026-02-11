@@ -3078,7 +3078,7 @@ tbody .btn-icon[data-tooltip]:hover::before {
 
 /* Modal des notes de mise à jour */
 .release-notes-modal {
-  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+  background: linear-gradient(135deg, rgba(26, 26, 26, 0.95) 0%, rgba(15, 15, 15, 0.98) 100%);
   border-radius: var(--radius-lg);
   max-width: 800px;
   width: 90%;
