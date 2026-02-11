@@ -69,13 +69,13 @@
 
 /* Variables CSS pour le thème clair */
 body.light-theme {
-  --bg-main: #f8fafc;
-  --bg-secondary: #ffffff;
-  --bg-card: #ffffff;
-  --text-primary: #0f172a;
-  --text-secondary: #334155;
-  --text-muted: #64748b;
-  --border-color: #e2e8f0;
+  --bg-main: #f5f7fa;
+  --bg-secondary: #eef1f6;
+  --bg-card: #f9fafc;
+  --text-primary: #2c3e50;
+  --text-secondary: #4a6080;
+  --text-muted: #7a8fa6;
+  --border-color: #d8e2ef;
 
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -93,6 +93,20 @@ body.anthracite-theme {
 
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* Thème Marine - Bleu nuit profond avec accents rouges */
+body.marine-theme {
+  --bg-main: #0c1220;
+  --bg-secondary: #111827;
+  --bg-card: #1a2840;
+  --text-primary: #e8f0fe;
+  --text-secondary: #9cb3d0;
+  --text-muted: #64829e;
+  --border-color: #2a3f5f;
+
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.5);
 }
 
 /* Reset et base */
@@ -5853,6 +5867,10 @@ tbody .btn-icon[data-tooltip]:hover::before {
   background: linear-gradient(135deg, #1e2029 0%, #30364a 50%, #272b35 100%);
 }
 
+.theme-preview.marine {
+  background: linear-gradient(135deg, #0c1220 0%, #1a2840 50%, #111827 100%);
+}
+
 .check-icon {
   position: absolute;
   top: 10px;
@@ -5969,6 +5987,169 @@ body.anthracite-theme .theme-option.active {
 
 body.anthracite-theme .theme-preview.anthracite {
   background: linear-gradient(135deg, #1e2029, #30364a);
+}
+
+/* ==================== THÈME MARINE ==================== */
+
+body.marine-theme .sidebar {
+  background: linear-gradient(135deg, #090e1a 0%, #0c1220 100%);
+  box-shadow: 4px 0 20px rgba(220, 38, 38, 0.25), 2px 0 8px rgba(42, 63, 95, 0.2);
+  border-right: 1px solid rgba(42, 63, 95, 0.4);
+}
+
+body.marine-theme .sidebar::after {
+  background: linear-gradient(to bottom, rgba(220, 38, 38, 0.3), rgba(14, 165, 233, 0.1));
+}
+
+body.marine-theme .logo-magi {
+  background: linear-gradient(135deg, #dc2626, #0ea5e9);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+body.marine-theme .logo-loc {
+  color: #9cb3d0;
+}
+
+body.marine-theme .nav-button {
+  background: linear-gradient(135deg, rgba(30, 60, 100, 0.3) 0%, rgba(30, 60, 100, 0.1) 100%);
+  border: 2px solid rgba(42, 63, 95, 0.4);
+  color: #e8f0fe;
+}
+
+body.marine-theme .nav-button:hover {
+  background: linear-gradient(135deg, rgba(30, 60, 100, 0.5) 0%, rgba(30, 60, 100, 0.3) 100%);
+  border-color: rgba(220, 38, 38, 0.5);
+}
+
+body.marine-theme .nav-button.active {
+  background: linear-gradient(135deg, rgba(153, 27, 27, 0.5) 0%, rgba(153, 27, 27, 0.3) 100%);
+  border-color: #dc2626;
+  color: #f87171;
+}
+
+body.marine-theme .nav-badge {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.8) 0%, rgba(185, 28, 28, 0.7) 100%);
+}
+
+body.marine-theme .logout-button {
+  background: rgba(153, 27, 27, 0.2);
+  border: 2px solid rgba(220, 38, 38, 0.4);
+  color: #9cb3d0;
+}
+
+body.marine-theme .logout-button:hover {
+  background: rgba(220, 38, 38, 0.3);
+  border-color: #dc2626;
+  color: #f87171;
+}
+
+body.marine-theme .main-content {
+  background-color: #0c1220;
+}
+
+body.marine-theme .stat-card,
+body.marine-theme .featured-equipment,
+body.marine-theme .week-events {
+  background: linear-gradient(135deg, #1a2840 0%, #111827 100%);
+  border: 1px solid #2a3f5f;
+}
+
+body.marine-theme .stat-card:hover {
+  background: linear-gradient(135deg, #1f2f4a 0%, #161d30 100%);
+}
+
+body.marine-theme .featured-item:hover {
+  background: rgba(26, 40, 64, 0.6);
+}
+
+body.marine-theme .equipment-table {
+  background-color: #111827;
+}
+
+body.marine-theme .equipment-table th {
+  background-color: #1a2840;
+  color: #e8f0fe;
+  border-color: #2a3f5f;
+}
+
+body.marine-theme .equipment-table td {
+  border-color: #2a3f5f;
+}
+
+body.marine-theme .equipment-table tbody tr:hover {
+  background-color: rgba(26, 40, 64, 0.6);
+}
+
+body.marine-theme .modal-content {
+  background: linear-gradient(135deg, #111827 0%, #0c1220 100%);
+  border: 1px solid #2a3f5f;
+}
+
+body.marine-theme .modal-overlay {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+body.marine-theme .modal-close {
+  color: #e8f0fe;
+}
+
+body.marine-theme .modal-close:hover {
+  background: rgba(220, 38, 38, 0.3);
+  color: #f87171;
+}
+
+body.marine-theme .action-button {
+  background: rgba(42, 63, 95, 0.2);
+  border: none;
+  color: #9cb3d0;
+}
+
+body.marine-theme .action-button:hover {
+  background: rgba(220, 38, 38, 0.3);
+  color: #f87171;
+}
+
+body.marine-theme .theme-option {
+  background: #111827;
+  border: 1px solid #2a3f5f;
+  color: #e8f0fe;
+}
+
+body.marine-theme .theme-option:hover {
+  background: #1a2840;
+  border-color: rgba(220, 38, 38, 0.5);
+}
+
+body.marine-theme .theme-option.active {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.3) 0%, rgba(153, 27, 27, 0.2) 100%);
+  border-color: #dc2626;
+  color: #f87171;
+}
+
+body.marine-theme .detail-card {
+  background: linear-gradient(135deg, #1a2840 0%, #111827 100%);
+  border: 1px solid #2a3f5f;
+}
+
+body.marine-theme .dashboard-card {
+  background: linear-gradient(135deg, #1a2840 0%, #111827 100%);
+}
+
+body.marine-theme .form-input {
+  background-color: #111827;
+  border-color: #2a3f5f;
+  color: #e8f0fe;
+}
+
+body.marine-theme .form-input::placeholder {
+  color: #64829e;
+}
+
+body.marine-theme .form-input:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
 }
 
 /* ==================== THÈME CLAIR ==================== */
@@ -6181,7 +6362,7 @@ body.light-theme .modal-header h2 {
 }
 
 body.light-theme .modal-overlay {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.3);
 }
 
 body.light-theme .nav-arrow-bottom {

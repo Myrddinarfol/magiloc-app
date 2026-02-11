@@ -33,16 +33,21 @@ export const ThemeProvider = ({ children }) => {
       if (theme === 'light') {
         // Mode clair
         bodyElement.classList.add('light-theme');
-        bodyElement.classList.remove('anthracite-theme');
+        bodyElement.classList.remove('anthracite-theme', 'marine-theme');
         htmlElement.style.colorScheme = 'light';
       } else if (theme === 'anthracite') {
         // Mode anthracite
         bodyElement.classList.add('anthracite-theme');
-        bodyElement.classList.remove('light-theme');
+        bodyElement.classList.remove('light-theme', 'marine-theme');
+        htmlElement.style.colorScheme = 'dark';
+      } else if (theme === 'marine') {
+        // Mode marine
+        bodyElement.classList.add('marine-theme');
+        bodyElement.classList.remove('light-theme', 'anthracite-theme');
         htmlElement.style.colorScheme = 'dark';
       } else {
         // Mode sombre (défaut)
-        bodyElement.classList.remove('light-theme', 'anthracite-theme');
+        bodyElement.classList.remove('light-theme', 'anthracite-theme', 'marine-theme');
         htmlElement.style.colorScheme = 'dark';
       }
 
@@ -50,7 +55,7 @@ export const ThemeProvider = ({ children }) => {
       localStorage.setItem('theme', theme);
 
       // Log pour debug
-      const themeLabel = theme === 'light' ? '☀️ Clair' : theme === 'anthracite' ? '🪨 Anthracite' : '🌙 Sombre';
+      const themeLabel = theme === 'light' ? '☀️ Clair' : theme === 'anthracite' ? '🪨 Anthracite' : theme === 'marine' ? '⚓ Marine' : '🌙 Sombre';
       console.log(`🎨 Thème changé: ${themeLabel}`);
     } catch (e) {
       console.error('Erreur application thème:', e);
@@ -68,7 +73,7 @@ export const ThemeProvider = ({ children }) => {
    * Définir un thème spécifique
    */
   const setThemeMode = useCallback((mode) => {
-    if (mode === 'light' || mode === 'dark' || mode === 'anthracite') {
+    if (mode === 'light' || mode === 'dark' || mode === 'anthracite' || mode === 'marine') {
       setTheme(mode);
     }
   }, []);
@@ -88,6 +93,11 @@ export const ThemeProvider = ({ children }) => {
    */
   const isAnthraciteTheme = theme === 'anthracite';
 
+  /**
+   * Vérifier si c'est le mode marine
+   */
+  const isMarineTheme = theme === 'marine';
+
   const value = {
     theme,
     toggleTheme,
@@ -95,6 +105,7 @@ export const ThemeProvider = ({ children }) => {
     isLightTheme,
     isDarkTheme,
     isAnthraciteTheme,
+    isMarineTheme,
   };
 
   return (

@@ -308,6 +308,14 @@ const Sidebar = () => {
                     <span>🪨 Mode Anthracite</span>
                     {theme === 'anthracite' && <span className="check-icon">✓</span>}
                   </button>
+                  <button
+                    className={`theme-option ${theme === 'marine' ? 'active' : ''}`}
+                    onClick={() => handleThemeChange('marine')}
+                  >
+                    <div className="theme-preview marine"></div>
+                    <span>⚓ Mode Marine</span>
+                    {theme === 'marine' && <span className="check-icon">✓</span>}
+                  </button>
                 </div>
               </div>
             </div>
