@@ -3213,7 +3213,7 @@ tbody .btn-icon[data-tooltip]:hover::before {
 }
 
 .version-header h3 {
-  color: var(--color-primary);
+  color: #a82020;
   font-size: 22px;
   display: flex;
   align-items: center;
@@ -3221,7 +3221,7 @@ tbody .btn-icon[data-tooltip]:hover::before {
 }
 
 .current-badge {
-  background-color: var(--color-primary);
+  background-color: #a82020;
   color: white;
   font-size: 12px;
   padding: 4px 10px;
@@ -3242,7 +3242,7 @@ tbody .btn-icon[data-tooltip]:hover::before {
 }
 
 .release-section h5 {
-  color: var(--color-primary);
+  color: #a82020;
   margin-bottom: 10px;
   font-size: 16px;
   margin-top: 15px;
