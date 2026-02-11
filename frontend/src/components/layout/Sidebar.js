@@ -77,6 +77,13 @@ const Sidebar = () => {
         </h1>
         <div className="logo-actions">
           <button
+            onClick={resetAppSelection}
+            className="action-button"
+            title="Retour au panneau d'accueil"
+          >
+            🏠
+          </button>
+          <button
             onClick={toggleFullscreen}
             className="action-button"
             title={isFullscreen ? 'Quitter le plein écran' : 'Mode plein écran'}
@@ -301,22 +308,6 @@ const Sidebar = () => {
                     <div className="theme-preview light"></div>
                     <span>Mode Clair</span>
                     {theme === 'light' && <span className="check-icon">✓</span>}
-                  </button>
-                  <button
-                    className={`theme-option ${theme === 'anthracite' ? 'active' : ''}`}
-                    onClick={() => handleThemeChange('anthracite')}
-                  >
-                    <div className="theme-preview anthracite"></div>
-                    <span>🪨 Mode Anthracite</span>
-                    {theme === 'anthracite' && <span className="check-icon">✓</span>}
-                  </button>
-                  <button
-                    className={`theme-option ${theme === 'marine' ? 'active' : ''}`}
-                    onClick={() => handleThemeChange('marine')}
-                  >
-                    <div className="theme-preview marine"></div>
-                    <span>⚓ Mode Marine</span>
-                    {theme === 'marine' && <span className="check-icon">✓</span>}
                   </button>
                 </div>
               </div>

@@ -11,46 +11,66 @@ const AppSelector = () => {
         {/* Logo */}
         <div className="app-selector-header">
           <h1 className="app-selector-logo">
-            <span className="logo-magi">MAGI</span><span className="logo-loc">Loc</span>
+            <span className="logo-magi">MAGI</span>
           </h1>
           <p className="app-selector-subtitle">Sélectionner une application</p>
         </div>
 
         {/* App Cards */}
         <div className="app-cards-container">
-          {/* PARC LOC Card */}
+          {/* MAGI-LOC Card */}
           <button
             className="app-card parc-loc-card"
             onClick={() => switchApp('parc-loc')}
           >
-            <div className="card-icon">🏗️</div>
-            <h2 className="card-title">PARC LOC</h2>
-            <p className="card-subtitle">Gestion du parc de location</p>
-            <p className="card-description">
-              Équipements, locations, maintenance, pièces détachées et bien plus
-            </p>
-            <div className="card-arrow">→</div>
+            <div className="card-icon">📦</div>
+            <div className="card-content">
+              <h2 className="card-title">MAGI-LOC</h2>
+              <p className="card-description">GESTION DU PARC LOCATION</p>
+            </div>
+            <div className="card-arrow">
+              <svg
+                className="arrow-svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </div>
           </button>
 
-          {/* VGP SITE Card */}
+          {/* MAGI-VGP Card */}
           <button
             className="app-card vgp-site-card"
             onClick={() => switchApp('vgp-site')}
           >
-            <div className="card-icon">🔧</div>
-            <h2 className="card-title">VGP SITE</h2>
-            <p className="card-subtitle">Interventions sur site client</p>
-            <p className="card-description">
-              Gestion des interventions et parcs matériel des clients
-            </p>
-            <div className="card-arrow">→</div>
+            <div className="card-icon">📋</div>
+            <div className="card-content">
+              <h2 className="card-title">MAGI-VGP</h2>
+              <p className="card-description">GESTION DES INTERVENTIONS DE CONTROLE VGP SUR SITE CLIENT</p>
+            </div>
+            <div className="card-arrow">
+              <svg
+                className="arrow-svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </div>
           </button>
         </div>
 
-        {/* Footer */}
-        <div className="app-selector-footer">
-          <p>Vous pourrez changer d'application via les paramètres à tout moment</p>
-        </div>
       </div>
     </div>
   );
