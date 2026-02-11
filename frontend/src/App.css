@@ -3101,7 +3101,7 @@ tbody .btn-icon[data-tooltip]:hover::before {
 }
 
 .release-notes-header {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  background: linear-gradient(135deg, #8b1a1a 0%, #6b1515 100%);
   padding: 30px;
   text-align: center;
   color: white;
@@ -3157,7 +3157,7 @@ tbody .btn-icon[data-tooltip]:hover::before {
 }
 
 .release-notes-footer {
-  background-color: var(--bg-secondary);
+  background: linear-gradient(135deg, #8b1a1a 0%, #6b1515 100%);
   padding: 25px;
   text-align: center;
   border-top: 1px solid var(--border-color);
