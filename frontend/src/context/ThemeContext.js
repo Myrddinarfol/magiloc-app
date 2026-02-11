@@ -33,10 +33,16 @@ export const ThemeProvider = ({ children }) => {
       if (theme === 'light') {
         // Mode clair
         bodyElement.classList.add('light-theme');
+        bodyElement.classList.remove('anthracite-theme');
         htmlElement.style.colorScheme = 'light';
+      } else if (theme === 'anthracite') {
+        // Mode anthracite
+        bodyElement.classList.add('anthracite-theme');
+        bodyElement.classList.remove('light-theme');
+        htmlElement.style.colorScheme = 'dark';
       } else {
         // Mode sombre (défaut)
-        bodyElement.classList.remove('light-theme');
+        bodyElement.classList.remove('light-theme', 'anthracite-theme');
         htmlElement.style.colorScheme = 'dark';
       }
 
@@ -44,7 +50,8 @@ export const ThemeProvider = ({ children }) => {
       localStorage.setItem('theme', theme);
 
       // Log pour debug
-      console.log(`🎨 Thème changé: ${theme === 'light' ? '☀️ Clair' : '🌙 Sombre'}`);
+      const themeLabel = theme === 'light' ? '☀️ Clair' : theme === 'anthracite' ? '🪨 Anthracite' : '🌙 Sombre';
+      console.log(`🎨 Thème changé: ${themeLabel}`);
     } catch (e) {
       console.error('Erreur application thème:', e);
     }
@@ -61,7 +68,7 @@ export const ThemeProvider = ({ children }) => {
    * Définir un thème spécifique
    */
   const setThemeMode = useCallback((mode) => {
-    if (mode === 'light' || mode === 'dark') {
+    if (mode === 'light' || mode === 'dark' || mode === 'anthracite') {
       setTheme(mode);
     }
   }, []);
@@ -76,12 +83,18 @@ export const ThemeProvider = ({ children }) => {
    */
   const isDarkTheme = theme === 'dark';
 
+  /**
+   * Vérifier si c'est le mode anthracite
+   */
+  const isAnthraciteTheme = theme === 'anthracite';
+
   const value = {
     theme,
     toggleTheme,
     setThemeMode,
     isLightTheme,
     isDarkTheme,
+    isAnthraciteTheme,
   };
 
   return (

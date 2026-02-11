@@ -81,6 +81,20 @@ body.light-theme {
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+/* Thème Anthracite - Sombre amélioré avec meilleure lisibilité */
+body.anthracite-theme {
+  --bg-main: #1e2029;
+  --bg-secondary: #272b35;
+  --bg-card: #30364a;
+  --text-primary: #f0f2f7;
+  --text-secondary: #b8c0d4;
+  --text-muted: #7c8599;
+  --border-color: #444d63;
+
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+}
+
 /* Reset et base */
 * {
   margin: 0;
@@ -5835,6 +5849,10 @@ tbody .btn-icon[data-tooltip]:hover::before {
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
 }
 
+.theme-preview.anthracite {
+  background: linear-gradient(135deg, #1e2029 0%, #30364a 50%, #272b35 100%);
+}
+
 .check-icon {
   position: absolute;
   top: 10px;
@@ -5862,6 +5880,95 @@ tbody .btn-icon[data-tooltip]:hover::before {
   font-size: 11px;
   font-weight: 600;
   border: 1px solid rgba(255, 193, 7, 0.4);
+}
+
+/* ==================== THÈME ANTHRACITE ==================== */
+
+body.anthracite-theme .sidebar {
+  background: linear-gradient(135deg, #181c26 0%, #1e2029 100%);
+  box-shadow: 4px 0 20px rgba(220, 38, 38, 0.2), 2px 0 8px rgba(220, 38, 38, 0.15);
+  border-right: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+body.anthracite-theme .nav-button {
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.08) 0%, rgba(148, 163, 184, 0.04) 100%);
+  border: 2px solid rgba(220, 38, 38, 0.2);
+  color: #f0f2f7;
+}
+
+body.anthracite-theme .nav-button:hover {
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.15) 0%, rgba(148, 163, 184, 0.08) 100%);
+  border-color: rgba(220, 38, 38, 0.4);
+}
+
+body.anthracite-theme .nav-button.active {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.3) 0%, rgba(185, 28, 28, 0.2) 100%);
+  border-color: rgba(220, 38, 38, 0.6);
+  color: #f87171;
+}
+
+body.anthracite-theme .main-content {
+  background-color: #1e2029;
+}
+
+body.anthracite-theme .stat-card,
+body.anthracite-theme .featured-equipment,
+body.anthracite-theme .week-events {
+  background: linear-gradient(135deg, #30364a 0%, #2d3448 100%);
+  border-color: #444d63;
+}
+
+body.anthracite-theme .equipment-table {
+  background-color: #272b35;
+}
+
+body.anthracite-theme .equipment-table th {
+  background-color: #30364a;
+  color: #f0f2f7;
+  border-color: #444d63;
+}
+
+body.anthracite-theme .equipment-table td {
+  border-color: #444d63;
+}
+
+body.anthracite-theme .equipment-table tbody tr:hover {
+  background-color: rgba(68, 77, 99, 0.3);
+}
+
+body.anthracite-theme .modal-content {
+  background: linear-gradient(135deg, #272b35 0%, #1e2029 100%);
+  border-color: #444d63;
+}
+
+body.anthracite-theme .modal-close {
+  color: #f0f2f7;
+}
+
+body.anthracite-theme .modal-close:hover {
+  background: rgba(220, 38, 38, 0.2);
+  color: #f87171;
+}
+
+body.anthracite-theme .theme-option {
+  background: #272b35;
+  border-color: #444d63;
+  color: #f0f2f7;
+}
+
+body.anthracite-theme .theme-option:hover {
+  background: #30364a;
+  border-color: rgba(220, 38, 38, 0.4);
+}
+
+body.anthracite-theme .theme-option.active {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.3) 0%, rgba(185, 28, 28, 0.2) 100%);
+  border-color: #dc2626;
+  color: #f87171;
+}
+
+body.anthracite-theme .theme-preview.anthracite {
+  background: linear-gradient(135deg, #1e2029, #30364a);
 }
 
 /* ==================== THÈME CLAIR ==================== */
