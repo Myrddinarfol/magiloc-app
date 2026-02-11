@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useParams } from 'react-router-
 import { Analytics } from '@vercel/analytics/react';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
+import { AppProvider, useApp } from './context/AppContext';
 import { EquipmentProvider } from './context/EquipmentContext';
 import { UIProvider } from './context/UIContext';
 import { ClientProvider } from './context/ClientContext';
@@ -39,6 +40,8 @@ import EquipmentListView from './components/EquipmentListView';
 import EquipmentDetailView from './components/equipment/EquipmentDetailView';
 import CSVImporter from './components/CSVImporter';
 import ReleaseNotesHistory from './components/ReleaseNotesHistory';
+import AppSelector from './components/AppSelector/AppSelector';
+import VGPSiteApp from './components/vgp-site/VGPSiteApp';
 
 // Modals
 import CertificatModal from './components/modals/CertificatModal';
@@ -670,15 +673,17 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <EquipmentProvider>
-          <UIProvider>
-            <ClientProvider>
-              <SparePartsProvider>
-                <AppContent />
-              </SparePartsProvider>
-            </ClientProvider>
-          </UIProvider>
-        </EquipmentProvider>
+        <AppProvider>
+          <EquipmentProvider>
+            <UIProvider>
+              <ClientProvider>
+                <SparePartsProvider>
+                  <AppContent />
+                </SparePartsProvider>
+              </ClientProvider>
+            </UIProvider>
+          </EquipmentProvider>
+        </AppProvider>
       </AuthProvider>
     </ThemeProvider>
   );
@@ -694,6 +699,7 @@ const MaintenanceDetailPageWrapper = () => {
 const AppContent = () => {
   const { isAuthenticated } = useAuth();
   const { showReleaseNotes } = useUI();
+  const { activeApp } = useApp();
   const [shouldStartTour, setShouldStartTour] = React.useState(false);
 
   const handleLoginSuccess = (startTour) => {
@@ -720,6 +726,27 @@ const AppContent = () => {
     );
   }
 
+  // Si pas d'app sélectionnée, montrer le sélecteur
+  if (!activeApp) {
+    return (
+      <>
+        <AppSelector />
+        <Analytics />
+      </>
+    );
+  }
+
+  // Si VGP SITE est sélectionné
+  if (activeApp === 'vgp-site') {
+    return (
+      <>
+        <VGPSiteApp />
+        <Analytics />
+      </>
+    );
+  }
+
+  // Sinon, montrer PARC LOC (application par défaut)
   return (
     <Router>
       <Routes>

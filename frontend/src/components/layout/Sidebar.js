@@ -3,6 +3,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useEquipment } from '../../hooks/useEquipment';
 import { useUI } from '../../hooks/useUI';
 import { useTheme } from '../../context/ThemeContext';
+import { useApp } from '../../context/AppContext';
 import GuidedTour from '../common/GuidedTour';
 
 const Sidebar = () => {
@@ -10,6 +11,7 @@ const Sidebar = () => {
   const { stats } = useEquipment();
   const { currentPage, handleNavigate, setShowNotesHistory, expandedMenus, toggleMenu } = useUI();
   const { theme, toggleTheme, setThemeMode, isLightTheme } = useTheme();
+  const { resetAppSelection } = useApp();
 
   const [showSettings, setShowSettings] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -349,6 +351,18 @@ const Sidebar = () => {
                     {theme === 'cafe' && <span className="check-icon">✓</span>}
                   </button>
                 </div>
+              </div>
+
+              {/* Application Switcher */}
+              <div className="settings-section">
+                <h3 className="settings-label">Application</h3>
+                <button
+                  className="switch-app-button"
+                  onClick={resetAppSelection}
+                  title="Retourner à la sélection d'application"
+                >
+                  🔄 Changer d'application
+                </button>
               </div>
             </div>
           </div>

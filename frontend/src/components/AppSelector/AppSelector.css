@@ -1,0 +1,308 @@
+.app-selector-container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--bg-main) 0%, var(--bg-secondary) 100%);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+}
+
+.app-selector-content {
+  max-width: 1000px;
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 60px;
+}
+
+/* Header */
+.app-selector-header {
+  text-align: center;
+  animation: slideDown 0.6s ease-out;
+}
+
+.app-selector-logo {
+  font-size: 48px;
+  font-weight: 800;
+  margin: 0 0 16px 0;
+  letter-spacing: -1px;
+}
+
+.app-selector-logo .logo-magi {
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f87171 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.app-selector-logo .logo-loc {
+  color: var(--text-secondary);
+}
+
+.app-selector-subtitle {
+  font-size: 18px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Cards Container */
+.app-cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 40px;
+  width: 100%;
+  margin: 0;
+}
+
+/* App Card Base Styles */
+.app-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 40px 32px;
+  border: 2px solid;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(255, 255, 255, 0.02) 100%);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  text-align: center;
+  color: inherit;
+  font-family: inherit;
+  overflow: hidden;
+  min-height: 340px;
+  justify-content: space-between;
+}
+
+.app-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+  pointer-events: none;
+}
+
+.app-card:hover::before {
+  opacity: 0.5;
+}
+
+.app-card:hover {
+  transform: translateY(-8px);
+  border-color: currentColor;
+}
+
+/* PARC LOC Card */
+.parc-loc-card {
+  border-color: rgba(220, 38, 38, 0.3);
+  color: var(--text-primary);
+  animation: slideLeft 0.6s ease-out 0.1s backwards;
+}
+
+.parc-loc-card::before {
+  background: radial-gradient(circle at top right, rgba(220, 38, 38, 0.4), transparent);
+}
+
+.parc-loc-card:hover {
+  border-color: #dc2626;
+  box-shadow: 0 0 40px rgba(220, 38, 38, 0.2), inset 0 0 40px rgba(220, 38, 38, 0.05);
+}
+
+/* VGP SITE Card */
+.vgp-site-card {
+  border-color: rgba(37, 99, 235, 0.3);
+  color: var(--text-primary);
+  animation: slideRight 0.6s ease-out 0.1s backwards;
+}
+
+.vgp-site-card::before {
+  background: radial-gradient(circle at top right, rgba(37, 99, 235, 0.4), transparent);
+}
+
+.vgp-site-card:hover {
+  border-color: #2563eb;
+  box-shadow: 0 0 40px rgba(37, 99, 235, 0.2), inset 0 0 40px rgba(37, 99, 235, 0.05);
+}
+
+/* Card Elements */
+.card-icon {
+  font-size: 56px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+.card-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.card-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+  font-weight: 500;
+}
+
+.card-description {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 8px 0 0 0;
+  line-height: 1.5;
+}
+
+.card-arrow {
+  font-size: 24px;
+  transition: transform 0.3s ease-out;
+  margin-top: 8px;
+}
+
+.app-card:hover .card-arrow {
+  transform: translateX(4px);
+}
+
+/* Footer */
+.app-selector-footer {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  animation: slideUp 0.6s ease-out 0.3s backwards;
+}
+
+/* Animations */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .app-selector-content {
+    gap: 40px;
+  }
+
+  .app-selector-logo {
+    font-size: 36px;
+  }
+
+  .app-selector-subtitle {
+    font-size: 16px;
+  }
+
+  .app-cards-container {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .app-card {
+    padding: 32px 24px;
+    min-height: 300px;
+    gap: 12px;
+  }
+
+  .card-icon {
+    font-size: 48px;
+    height: 56px;
+  }
+
+  .card-title {
+    font-size: 24px;
+  }
+
+  .card-description {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-selector-container {
+    padding: 20px;
+  }
+
+  .app-selector-logo {
+    font-size: 28px;
+  }
+
+  .app-selector-subtitle {
+    font-size: 14px;
+  }
+
+  .app-card {
+    padding: 24px 16px;
+    gap: 12px;
+  }
+
+  .card-icon {
+    font-size: 40px;
+    height: 48px;
+  }
+
+  .card-title {
+    font-size: 20px;
+  }
+
+  .card-subtitle {
+    font-size: 13px;
+  }
+
+  .card-description {
+    font-size: 12px;
+  }
+}
