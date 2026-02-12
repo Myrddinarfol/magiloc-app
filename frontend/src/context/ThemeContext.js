@@ -78,24 +78,12 @@ export const ThemeProvider = ({ children }) => {
    */
   const isDarkTheme = theme === 'dark';
 
-  /**
-   * Vérifier si c'est le mode anthracite
-   */
-  const isAnthraciteTheme = theme === 'anthracite';
-
-  /**
-   * Vérifier si c'est le mode marine
-   */
-  const isMarineTheme = theme === 'marine';
-
   const value = {
     theme,
     toggleTheme,
     setThemeMode,
     isLightTheme,
     isDarkTheme,
-    isAnthraciteTheme,
-    isMarineTheme,
   };
 
   return (

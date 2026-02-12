@@ -10,7 +10,7 @@ const VGPSiteApp = () => {
       {/* Header */}
       <header className="vgp-site-header">
         <div className="vgp-header-content">
-          <h1 className="vgp-title">🔧 VGP SITE</h1>
+          <h1 className="vgp-title">🔧 MAGI-VGP</h1>
           <p className="vgp-subtitle">Interventions sur site client</p>
         </div>
         <button
@@ -28,7 +28,7 @@ const VGPSiteApp = () => {
           <div className="construction-icon">🚧</div>
           <h2 className="construction-title">Module en construction</h2>
           <p className="construction-text">
-            L'application VGP SITE est en cours de développement.
+            L'application MAGI-VGP est en cours de développement.
           </p>
           <p className="construction-subtext">
             Revenez bientôt pour gérer vos interventions et parcs matériel !

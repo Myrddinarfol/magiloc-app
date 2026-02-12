@@ -12,8 +12,11 @@ const AppSelector = () => {
         <div className="app-selector-header">
           <h1 className="app-selector-logo">
             <span className="logo-magi">MAGI</span>
+            <span className="logo-apps">-Apps</span>
           </h1>
-          <p className="app-selector-subtitle">Sélectionner une application</p>
+          <div className="app-selector-description">
+            <p>Bienvenue sur MAGI-Apps où vous retrouverez une application de gestion de parc location ainsi qu'une application de gestion d'interventions de contrôle VGP sur site client.</p>
+          </div>
         </div>
 
         {/* App Cards */}

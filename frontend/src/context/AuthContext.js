@@ -59,6 +59,9 @@ export const AuthProvider = ({ children }) => {
       // Compatibilité: garder aussi l'ancienne clé
       localStorage.setItem(AUTH_KEY, 'true');
 
+      // Réinitialiser le choix d'application pour afficher le sélecteur
+      localStorage.removeItem('activeApp');
+
       setToken(newToken);
       setIsAuthenticated(true);
       setLoading(false);
@@ -75,9 +78,12 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(TOKEN_EXPIRY_KEY);
     localStorage.removeItem(AUTH_KEY);
+    localStorage.removeItem('activeApp');
     setToken(null);
     setIsAuthenticated(false);
     setError(null);
+    // Recharger la page pour réinitialiser tous les states React
+    window.location.reload();
   }, []);
 
   const getToken = useCallback(() => {
