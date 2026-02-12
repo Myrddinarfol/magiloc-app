@@ -1,0 +1,148 @@
+.vgp-dashboard-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.vgp-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.vgp-dashboard-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  transition: all 0.2s ease;
+}
+
+.vgp-dashboard-card:hover {
+  border-color: rgba(16, 185, 129, 0.3);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08);
+  transform: translateY(-2px);
+}
+
+.vgp-card-icon {
+  font-size: 40px;
+  min-width: 50px;
+  text-align: center;
+}
+
+.vgp-card-content {
+  flex: 1;
+}
+
+.vgp-card-content h3 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vgp-card-stat {
+  margin: 0 0 4px 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #10b981;
+}
+
+.vgp-card-subtitle {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.vgp-dashboard-placeholder {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.02));
+  border: 1px solid rgba(16, 185, 129, 0.1);
+  border-radius: 12px;
+  padding: 60px 40px;
+  text-align: center;
+  border-radius: 12px;
+}
+
+.vgp-placeholder-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+.vgp-dashboard-placeholder h3 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.vgp-dashboard-placeholder p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@media (max-width: 768px) {
+  .vgp-dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .vgp-dashboard-placeholder {
+    padding: 40px 24px;
+  }
+
+  .vgp-placeholder-icon {
+    font-size: 48px;
+  }
+
+  .vgp-dashboard-placeholder h3 {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .vgp-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .vgp-dashboard-placeholder {
+    padding: 32px 20px;
+  }
+
+  .vgp-placeholder-icon {
+    font-size: 40px;
+  }
+
+  .vgp-dashboard-placeholder h3 {
+    font-size: 16px;
+  }
+
+  .vgp-placeholder-p {
+    font-size: 12px;
+  }
+
+  .vgp-card-content h3 {
+    font-size: 12px;
+  }
+
+  .vgp-card-stat {
+    font-size: 24px;
+  }
+}

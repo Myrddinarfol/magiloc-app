@@ -1097,6 +1097,149 @@ app.delete("/api/clients/:id", async (req, res) => {
   }
 });
 
+// ===== ROUTES VGP CLIENTS =====
+
+// GET tous les clients VGP
+app.get("/api/vgp-clients", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT * FROM vgp_clients ORDER BY nom ASC`
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error("❌ Erreur récupération clients VGP:", err.message);
+    res.status(500).json({ error: "Erreur base de données" });
+  }
+});
+
+// GET un client VGP spécifique
+app.get("/api/vgp-clients/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      `SELECT * FROM vgp_clients WHERE id = $1`,
+      [id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Client VGP non trouvé" });
+    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("❌ Erreur récupération client VGP:", err.message);
+    res.status(500).json({ error: "Erreur base de données" });
+  }
+});
+
+// POST ajouter un nouveau client VGP
+app.post("/api/vgp-clients", async (req, res) => {
+  try {
+    const { nom, email, telephone, adresse, contact_principal, notes } = req.body;
+
+    if (!nom) {
+      return res.status(400).json({ error: "Le nom du client est requis" });
+    }
+
+    console.log("➕ Ajout nouveau client VGP:", nom);
+
+    const result = await pool.query(
+      `INSERT INTO vgp_clients (nom, email, telephone, adresse, contact_principal, notes)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [nom, email || null, telephone || null, adresse || null, contact_principal || null, notes || null]
+    );
+
+    console.log("✅ Client VGP ajouté:", result.rows[0]);
+    res.json({ message: "✅ Client VGP ajouté", client: result.rows[0] });
+  } catch (err) {
+    console.error("❌ Erreur insertion client VGP:", err.message);
+    if (err.code === '23505') {
+      res.status(409).json({ error: "Ce nom de client VGP existe déjà" });
+    } else {
+      res.status(500).json({ error: "Erreur lors de l'ajout", details: err.message });
+    }
+  }
+});
+
+// PATCH mettre à jour un client VGP
+app.patch("/api/vgp-clients/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nom, email, telephone, adresse, contact_principal, notes } = req.body;
+
+    const updateFields = [];
+    const values = [];
+    let paramIndex = 1;
+
+    if (nom !== undefined) {
+      updateFields.push(`nom = $${paramIndex++}`);
+      values.push(nom);
+    }
+    if (email !== undefined) {
+      updateFields.push(`email = $${paramIndex++}`);
+      values.push(email);
+    }
+    if (telephone !== undefined) {
+      updateFields.push(`telephone = $${paramIndex++}`);
+      values.push(telephone);
+    }
+    if (adresse !== undefined) {
+      updateFields.push(`adresse = $${paramIndex++}`);
+      values.push(adresse);
+    }
+    if (contact_principal !== undefined) {
+      updateFields.push(`contact_principal = $${paramIndex++}`);
+      values.push(contact_principal);
+    }
+    if (notes !== undefined) {
+      updateFields.push(`notes = $${paramIndex++}`);
+      values.push(notes);
+    }
+
+    updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
+
+    if (updateFields.length <= 1) {
+      return res.status(400).json({ error: "Aucun champ à mettre à jour" });
+    }
+
+    values.push(id);
+    const query = `UPDATE vgp_clients SET ${updateFields.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
+
+    const result = await pool.query(query, values);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Client VGP non trouvé" });
+    }
+
+    res.json({ message: "✅ Client VGP mis à jour", client: result.rows[0] });
+  } catch (err) {
+    console.error("❌ Erreur mise à jour client VGP:", err.message);
+    res.status(500).json({ error: "Erreur lors de la mise à jour" });
+  }
+});
+
+// DELETE supprimer un client VGP
+app.delete("/api/vgp-clients/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    console.log(`🗑️ Suppression client VGP ${id}`);
+
+    const result = await pool.query(
+      `DELETE FROM vgp_clients WHERE id = $1 RETURNING *`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Client VGP non trouvé" });
+    }
+
+    console.log(`✅ Client VGP ${id} supprimé`);
+    res.json({ message: "✅ Client VGP supprimé", client: result.rows[0] });
+  } catch (err) {
+    console.error("❌ Erreur suppression client VGP:", err.message);
+    res.status(500).json({ error: "Erreur lors de la suppression" });
+  }
+});
+
 // ===== ROUTES PIECES DETACHEES =====
 
 // GET toutes les pièces détachées

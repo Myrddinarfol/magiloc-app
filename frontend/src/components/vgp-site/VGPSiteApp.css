@@ -1,73 +1,53 @@
+/* VGP Site App Layout */
 .vgp-site-app {
   display: flex;
-  flex-direction: column;
   height: 100vh;
   background-color: var(--bg-main);
   color: var(--text-primary);
 }
 
-/* Header */
-.vgp-site-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 32px;
-  background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(220, 38, 38, 0.1) 100%);
-  border-bottom: 1px solid var(--border-color);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.vgp-header-content {
+/* Main Content Area */
+.vgp-main-content {
+  flex: 1;
+  margin-left: 250px;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 4px;
 }
 
-.vgp-title {
+.vgp-content-container {
+  flex: 1;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  animation: fadeIn 0.6s ease-out;
+}
+
+.vgp-content-container h2 {
+  margin: 0;
   font-size: 28px;
   font-weight: 700;
-  margin: 0;
   color: var(--text-primary);
 }
 
-.vgp-subtitle {
-  font-size: 14px;
+.vgp-content-container p {
+  margin: 0;
+  font-size: 16px;
   color: var(--text-secondary);
-  margin: 0;
 }
 
-.vgp-back-button {
-  padding: 8px 16px;
-  background: rgba(220, 38, 38, 0.1);
-  border: 2px solid rgba(220, 38, 38, 0.3);
-  border-radius: 8px;
-  color: var(--text-primary);
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.vgp-back-button:hover {
-  background: rgba(220, 38, 38, 0.2);
-  border-color: #dc2626;
-  color: #f87171;
-}
-
-/* Main Content */
-.vgp-site-main {
-  flex: 1;
+/* Construction Message */
+.vgp-construction-message {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  overflow-y: auto;
-}
-
-.vgp-construction-container {
+  min-height: calc(100vh - 250px);
   text-align: center;
   padding: 40px 32px;
-  max-width: 500px;
-  animation: fadeIn 0.6s ease-out;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .construction-icon {
@@ -98,8 +78,8 @@
 }
 
 .construction-features {
-  background: rgba(220, 38, 38, 0.05);
-  border: 1px solid rgba(220, 38, 38, 0.2);
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.2);
   border-radius: 12px;
   padding: 24px;
   text-align: left;
@@ -150,18 +130,12 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .vgp-site-header {
-    flex-direction: column;
-    gap: 16px;
-    align-items: flex-start;
+  .vgp-main-content {
+    margin-left: 0;
   }
 
-  .vgp-title {
-    font-size: 24px;
-  }
-
-  .vgp-back-button {
-    align-self: flex-end;
+  .vgp-content-container {
+    padding: 24px;
   }
 
   .construction-icon {
@@ -171,23 +145,20 @@
   .construction-title {
     font-size: 24px;
   }
+
+  .vgp-construction-message {
+    min-height: auto;
+    padding: 32px 24px;
+  }
 }
 
 @media (max-width: 480px) {
-  .vgp-site-header {
+  .vgp-content-container {
     padding: 16px;
   }
 
-  .vgp-title {
-    font-size: 20px;
-  }
-
-  .vgp-site-main {
-    padding: 16px;
-  }
-
-  .vgp-construction-container {
-    padding: 24px 16px;
+  .vgp-content-container h2 {
+    font-size: 22px;
   }
 
   .construction-icon {

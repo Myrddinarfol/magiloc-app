@@ -7,6 +7,7 @@ import { AppProvider, useApp } from './context/AppContext';
 import { EquipmentProvider } from './context/EquipmentContext';
 import { UIProvider } from './context/UIContext';
 import { ClientProvider } from './context/ClientContext';
+import { VGPClientProvider } from './context/VGPClientContext';
 import { SparePartsProvider } from './context/SparePartsContext';
 import { useAuth } from './hooks/useAuth';
 import { useEquipment } from './hooks/useEquipment';
@@ -677,9 +678,11 @@ function App() {
           <EquipmentProvider>
             <UIProvider>
               <ClientProvider>
-                <SparePartsProvider>
-                  <AppContent />
-                </SparePartsProvider>
+                <VGPClientProvider>
+                  <SparePartsProvider>
+                    <AppContent />
+                  </SparePartsProvider>
+                </VGPClientProvider>
               </ClientProvider>
             </UIProvider>
           </EquipmentProvider>

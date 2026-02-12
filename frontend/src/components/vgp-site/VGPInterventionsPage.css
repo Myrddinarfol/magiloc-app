@@ -1,0 +1,121 @@
+.vgp-interventions-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.vgp-interventions-placeholder {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.02));
+  border: 1px solid rgba(16, 185, 129, 0.1);
+  border-radius: 12px;
+  padding: 60px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-height: 400px;
+}
+
+.vgp-placeholder-content {
+  text-align: center;
+  max-width: 500px;
+}
+
+.vgp-placeholder-icon {
+  font-size: 80px;
+  margin-bottom: 24px;
+  display: block;
+  animation: iconFloat 3s ease-in-out infinite;
+}
+
+@keyframes iconFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.vgp-placeholder-content h2 {
+  margin: 0 0 16px 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.vgp-placeholder-content > p {
+  margin: 0 0 20px 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.vgp-features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vgp-features-list li {
+  font-size: 14px;
+  color: var(--text-secondary);
+  padding: 10px 16px;
+  background: rgba(16, 185, 129, 0.08);
+  border-left: 3px solid #10b981;
+  border-radius: 6px;
+  text-align: left;
+}
+
+.vgp-coming-soon {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(16, 185, 129, 0.15);
+  font-size: 13px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .vgp-interventions-placeholder {
+    padding: 40px 24px;
+    min-height: 300px;
+  }
+
+  .vgp-placeholder-icon {
+    font-size: 60px;
+    margin-bottom: 16px;
+  }
+
+  .vgp-placeholder-content h2 {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .vgp-interventions-placeholder {
+    padding: 32px 20px;
+    min-height: 250px;
+  }
+
+  .vgp-placeholder-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+  }
+
+  .vgp-placeholder-content h2 {
+    font-size: 18px;
+  }
+
+  .vgp-placeholder-content > p {
+    font-size: 13px;
+  }
+
+  .vgp-features-list li {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+}
