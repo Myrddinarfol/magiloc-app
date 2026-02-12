@@ -4,7 +4,6 @@ import { useEquipment } from '../../hooks/useEquipment';
 import { useUI } from '../../hooks/useUI';
 import { useTheme } from '../../context/ThemeContext';
 import { useApp } from '../../context/AppContext';
-import GuidedTour from '../common/GuidedTour';
 
 const Sidebar = () => {
   const { logout } = useAuth();
@@ -15,7 +14,6 @@ const Sidebar = () => {
 
   const [showSettings, setShowSettings] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showTour, setShowTour] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const toggleFullscreen = () => {
@@ -96,13 +94,6 @@ const Sidebar = () => {
             title="Paramètres"
           >
             ⚙️
-          </button>
-          <button
-            onClick={() => setShowTour(true)}
-            className="action-button tour-button"
-            title="Visite Guidée"
-          >
-            🎯
           </button>
         </div>
       </div>
@@ -328,8 +319,6 @@ const Sidebar = () => {
         </div>
       )}
 
-      {/* Guided Tour */}
-      <GuidedTour isActive={showTour} onClose={() => setShowTour(false)} />
     </div>
     </>
   );
