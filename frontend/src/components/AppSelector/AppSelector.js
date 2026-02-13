@@ -14,9 +14,6 @@ const AppSelector = () => {
             <span className="logo-magi">MAGI</span>
             <span className="logo-apps">-Apps</span>
           </h1>
-          <div className="app-selector-description">
-            <p>Bienvenue sur MAGI-Apps où vous retrouverez une application de gestion de parc location ainsi qu'une application de gestion d'interventions de contrôle VGP sur site client.</p>
-          </div>
         </div>
 
         {/* App Cards */}
