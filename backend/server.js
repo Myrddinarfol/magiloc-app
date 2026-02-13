@@ -90,6 +90,47 @@ app.get("/api/diagnostic/columns", async (req, res) => {
   }
 });
 
+// ═══════════════════════════════════════════════════════════════════════════
+// ENDPOINT DIAGNOSTIC POUR VÉRIFIER LA TABLE FEEDBACKS
+// ═══════════════════════════════════════════════════════════════════════════
+app.get("/api/diagnostic/feedbacks", async (req, res) => {
+  try {
+    // Vérifier si la table feedbacks existe
+    const tableExists = await pool.query(
+      `SELECT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = 'feedbacks')`
+    );
+    const feedbacksTableExists = tableExists.rows[0].exists;
+
+    if (!feedbacksTableExists) {
+      return res.status(400).json({
+        error: "Table feedbacks n'existe pas",
+        exists: false,
+        message: "Veuillez vérifier que les migrations ont été exécutées"
+      });
+    }
+
+    // Vérifier les colonnes de la table feedbacks
+    const columns = await pool.query(
+      `SELECT column_name, data_type FROM information_schema.columns
+       WHERE table_name = 'feedbacks' ORDER BY ordinal_position`
+    );
+
+    // Compter les feedbacks
+    const count = await pool.query(`SELECT COUNT(*) as total FROM feedbacks`);
+
+    res.json({
+      status: "OK",
+      exists: true,
+      columns: columns.rows,
+      totalFeedbacks: count.rows[0].total,
+      message: "Table feedbacks est correctement créée"
+    });
+  } catch (err) {
+    console.error('❌ Erreur diagnostic feedbacks:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Middleware CORS configuré
 app.use(cors({
   origin: [
@@ -1804,6 +1845,151 @@ app.patch("/api/location-history/auto-fill-prices", async (req, res) => {
     res.status(500).json({ error: "Erreur lors du remplissage automatique", details: err.message });
   } finally {
     dbClient.release();
+  }
+});
+
+// ===== ROUTES FEEDBACKS =====
+
+// GET tous les feedbacks
+app.get("/api/feedbacks", async (req, res) => {
+  try {
+    const { app: appFilter, status, type } = req.query;
+    let query = `SELECT * FROM feedbacks WHERE status != 'deleted'`;
+    const params = [];
+
+    if (appFilter) {
+      query += ` AND app = $${params.length + 1}`;
+      params.push(appFilter);
+    }
+    if (status) {
+      query += ` AND status = $${params.length + 1}`;
+      params.push(status);
+    }
+    if (type) {
+      query += ` AND type = $${params.length + 1}`;
+      params.push(type);
+    }
+
+    query += ` ORDER BY priority DESC, created_at DESC`;
+
+    const result = await pool.query(query, params);
+    res.json(result.rows);
+  } catch (err) {
+    console.error("❌ Erreur récupération feedbacks:", err.message);
+    res.status(500).json({ error: "Erreur base de données" });
+  }
+});
+
+// GET feedbacks par application
+app.get("/api/feedbacks/:app", async (req, res) => {
+  try {
+    const { app } = req.params;
+    if (!['parc-loc', 'vgp-site'].includes(app)) {
+      return res.status(400).json({ error: "App invalide" });
+    }
+
+    const result = await pool.query(
+      `SELECT * FROM feedbacks WHERE app = $1 AND status != 'deleted' ORDER BY priority DESC, created_at DESC`,
+      [app]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error("❌ Erreur récupération feedbacks app:", err.message);
+    res.status(500).json({ error: "Erreur base de données" });
+  }
+});
+
+// POST ajouter un feedback
+app.post("/api/feedbacks", async (req, res) => {
+  try {
+    const { app, type, message } = req.body;
+
+    if (!['parc-loc', 'vgp-site'].includes(app)) {
+      return res.status(400).json({ error: "App invalide" });
+    }
+    if (!['bug', 'suggestion'].includes(type)) {
+      return res.status(400).json({ error: "Type invalide" });
+    }
+    if (!message || message.trim().length === 0) {
+      return res.status(400).json({ error: "Message requis" });
+    }
+
+    console.log(`📝 Nouveau feedback ${type} pour ${app}: ${message.substring(0, 50)}...`);
+
+    const result = await pool.query(
+      `INSERT INTO feedbacks (app, type, message) VALUES ($1, $2, $3) RETURNING *`,
+      [app, type, message.trim()]
+    );
+
+    console.log("✅ Feedback ajouté:", result.rows[0]);
+    res.json({ message: "✅ Feedback envoyé", feedback: result.rows[0] });
+  } catch (err) {
+    console.error("❌ Erreur création feedback:", err.message);
+    res.status(500).json({ error: "Erreur lors de l'envoi", details: err.message });
+  }
+});
+
+// PATCH mettre à jour status/priority d'un feedback
+app.patch("/api/feedbacks/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, priority } = req.body;
+
+    const updateFields = [];
+    const values = [];
+    let paramIndex = 1;
+
+    if (status && ['pending', 'validated', 'deleted'].includes(status)) {
+      updateFields.push(`status = $${paramIndex++}`);
+      values.push(status);
+    }
+    if (priority && ['low', 'medium', 'high'].includes(priority)) {
+      updateFields.push(`priority = $${paramIndex++}`);
+      values.push(priority);
+    }
+
+    updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
+
+    if (updateFields.length <= 1) {
+      return res.status(400).json({ error: "Aucun champ à mettre à jour" });
+    }
+
+    values.push(id);
+    const query = `UPDATE feedbacks SET ${updateFields.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
+
+    const result = await pool.query(query, values);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Feedback non trouvé" });
+    }
+
+    console.log("✅ Feedback mis à jour:", result.rows[0]);
+    res.json({ message: "✅ Feedback mis à jour", feedback: result.rows[0] });
+  } catch (err) {
+    console.error("❌ Erreur mise à jour feedback:", err.message);
+    res.status(500).json({ error: "Erreur lors de la mise à jour" });
+  }
+});
+
+// DELETE supprimer un feedback
+app.delete("/api/feedbacks/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      `UPDATE feedbacks SET status = 'deleted', updated_at = CURRENT_TIMESTAMP WHERE id = $1 RETURNING *`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Feedback non trouvé" });
+    }
+
+    console.log(`✅ Feedback ${id} supprimé`);
+    res.json({ message: "✅ Feedback supprimé", feedback: result.rows[0] });
+  } catch (err) {
+    console.error("❌ Erreur suppression feedback:", err.message);
+    res.status(500).json({ error: "Erreur lors de la suppression" });
   }
 });
 

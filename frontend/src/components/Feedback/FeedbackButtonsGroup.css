@@ -1,0 +1,111 @@
+.feedback-buttons-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.02));
+  border: 1px solid rgba(16, 185, 129, 0.1);
+  border-radius: 12px;
+  margin-top: 16px;
+}
+
+.feedback-btn-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--bg-hover);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  flex: 1;
+  max-width: 120px;
+}
+
+.feedback-btn-icon:hover {
+  transform: translateY(-2px);
+  border-color: currentColor;
+  background-color: var(--bg-card);
+}
+
+.feedback-btn-icon.bug-btn:hover {
+  color: #ef4444;
+  border-color: #ef4444;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.feedback-btn-icon.suggestion-btn:hover {
+  color: #2563eb;
+  border-color: #2563eb;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.feedback-btn-icon-emoji {
+  font-size: 20px;
+  display: block;
+}
+
+.feedback-btn-icon-label {
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .feedback-buttons-group {
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .feedback-btn-icon {
+    padding: 8px 12px;
+    font-size: 12px;
+    max-width: 100px;
+  }
+
+  .feedback-btn-icon-emoji {
+    font-size: 18px;
+  }
+
+  .feedback-btn-icon-label {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .feedback-buttons-group {
+    gap: 6px;
+    padding: 10px;
+    margin-top: 12px;
+  }
+
+  .feedback-btn-icon {
+    padding: 6px 10px;
+    font-size: 11px;
+    max-width: 90px;
+    gap: 4px;
+  }
+
+  .feedback-btn-icon-emoji {
+    font-size: 16px;
+  }
+
+  .feedback-btn-icon-label {
+    font-size: 10px;
+  }
+}
+
+/* Light theme support */
+[data-theme="light"] {
+  --bg-hover: rgba(0, 0, 0, 0.02);
+  --bg-card: #ffffff;
+  --border-color: rgba(0, 0, 0, 0.1);
+  --text-primary: #1a1a1a;
+}

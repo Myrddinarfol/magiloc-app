@@ -8,6 +8,7 @@ import { EquipmentProvider } from './context/EquipmentContext';
 import { UIProvider } from './context/UIContext';
 import { ClientProvider } from './context/ClientContext';
 import { VGPClientProvider } from './context/VGPClientContext';
+import { FeedbackProvider } from './context/FeedbackContext';
 import { SparePartsProvider } from './context/SparePartsContext';
 import { useAuth } from './hooks/useAuth';
 import { useEquipment } from './hooks/useEquipment';
@@ -675,17 +676,19 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <AppProvider>
-          <EquipmentProvider>
-            <UIProvider>
-              <ClientProvider>
-                <VGPClientProvider>
-                  <SparePartsProvider>
-                    <AppContent />
-                  </SparePartsProvider>
-                </VGPClientProvider>
-              </ClientProvider>
-            </UIProvider>
-          </EquipmentProvider>
+          <FeedbackProvider>
+            <EquipmentProvider>
+              <UIProvider>
+                <ClientProvider>
+                  <VGPClientProvider>
+                    <SparePartsProvider>
+                      <AppContent />
+                    </SparePartsProvider>
+                  </VGPClientProvider>
+                </ClientProvider>
+              </UIProvider>
+            </EquipmentProvider>
+          </FeedbackProvider>
         </AppProvider>
       </AuthProvider>
     </ThemeProvider>
