@@ -11,12 +11,13 @@
 }
 
 .app-selector-content {
-  max-width: 1000px;
+  max-width: 1200px;
   width: 90%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 60px;
+  justify-content: center;
+  gap: 80px;
 }
 
 /* Header */
@@ -26,9 +27,9 @@
 }
 
 .app-selector-logo {
-  font-size: 160px;
+  font-size: 220px;
   font-weight: 900;
-  margin: 0 0 48px 0;
+  margin: 0;
   letter-spacing: -4px;
   line-height: 1;
 }
@@ -333,11 +334,11 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .app-selector-content {
-    gap: 40px;
+    gap: 60px;
   }
 
   .app-selector-logo {
-    font-size: 80px;
+    font-size: 140px;
   }
 
   .app-selector-subtitle {
@@ -383,9 +384,13 @@
     padding: 20px;
   }
 
+  .app-selector-content {
+    gap: 40px;
+  }
+
   .app-selector-logo {
-    font-size: 56px;
-    margin: 0 0 24px 0;
+    font-size: 80px;
+    margin: 0;
   }
 
   .app-selector-subtitle {
