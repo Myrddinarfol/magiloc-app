@@ -1281,6 +1281,374 @@ app.delete("/api/vgp-clients/:id", async (req, res) => {
   }
 });
 
+// ===== ROUTES SITES VGP (POUR CLIENTS) =====
+
+// GET tous les sites d'un client VGP
+app.get("/api/vgp-client-sites", async (req, res) => {
+  try {
+    const { client_id } = req.query;
+
+    let query = `SELECT * FROM vgp_client_sites`;
+    const params = [];
+
+    if (client_id) {
+      query += ` WHERE client_id = $1`;
+      params.push(client_id);
+    }
+
+    query += ` ORDER BY nom ASC`;
+
+    const result = await pool.query(query, params);
+    res.json(result.rows);
+  } catch (err) {
+    console.error("❌ Erreur récupération sites VGP:", err.message);
+    res.status(500).json({ error: "Erreur base de données" });
+  }
+});
+
+// GET un site VGP spécifique
+app.get("/api/vgp-client-sites/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      `SELECT * FROM vgp_client_sites WHERE id = $1`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Site VGP non trouvé" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("❌ Erreur récupération site VGP:", err.message);
+    res.status(500).json({ error: "Erreur base de données" });
+  }
+});
+
+// POST ajouter un nouveau site VGP
+app.post("/api/vgp-client-sites", async (req, res) => {
+  try {
+    const { client_id, nom, adresse, contact_site, notes } = req.body;
+
+    if (!client_id || !nom || !adresse) {
+      return res.status(400).json({ error: "client_id, nom et adresse sont requis" });
+    }
+
+    console.log(`📍 Création site VGP pour client ${client_id}: ${nom}`);
+
+    const result = await pool.query(
+      `INSERT INTO vgp_client_sites (client_id, nom, adresse, contact_site, notes, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
+       RETURNING *`,
+      [client_id, nom, adresse, contact_site || null, notes || null]
+    );
+
+    console.log(`✅ Site VGP créé: ${result.rows[0].id}`);
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error("❌ Erreur création site VGP:", err.message);
+    res.status(500).json({ error: "Erreur lors de la création" });
+  }
+});
+
+// PATCH mettre à jour un site VGP
+app.patch("/api/vgp-client-sites/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nom, adresse, contact_site, notes } = req.body;
+
+    const updateFields = [];
+    const values = [];
+    let paramIndex = 1;
+
+    if (nom !== undefined) {
+      updateFields.push(`nom = $${paramIndex}`);
+      values.push(nom);
+      paramIndex++;
+    }
+    if (adresse !== undefined) {
+      updateFields.push(`adresse = $${paramIndex}`);
+      values.push(adresse);
+      paramIndex++;
+    }
+    if (contact_site !== undefined) {
+      updateFields.push(`contact_site = $${paramIndex}`);
+      values.push(contact_site);
+      paramIndex++;
+    }
+    if (notes !== undefined) {
+      updateFields.push(`notes = $${paramIndex}`);
+      values.push(notes);
+      paramIndex++;
+    }
+
+    updateFields.push(`updated_at = NOW()`);
+
+    if (updateFields.length === 1) {
+      return res.status(400).json({ error: "Aucun champ à mettre à jour" });
+    }
+
+    values.push(id);
+
+    const result = await pool.query(
+      `UPDATE vgp_client_sites SET ${updateFields.join(", ")} WHERE id = $${paramIndex} RETURNING *`,
+      values
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Site VGP non trouvé" });
+    }
+
+    console.log(`✅ Site VGP ${id} mis à jour`);
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("❌ Erreur mise à jour site VGP:", err.message);
+    res.status(500).json({ error: "Erreur lors de la mise à jour" });
+  }
+});
+
+// DELETE supprimer un site VGP
+app.delete("/api/vgp-client-sites/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    console.log(`🗑️ Suppression site VGP ${id}`);
+
+    const result = await pool.query(
+      `DELETE FROM vgp_client_sites WHERE id = $1 RETURNING *`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Site VGP non trouvé" });
+    }
+
+    console.log(`✅ Site VGP ${id} supprimé`);
+    res.json({ message: "✅ Site VGP supprimé", site: result.rows[0] });
+  } catch (err) {
+    console.error("❌ Erreur suppression site VGP:", err.message);
+    res.status(500).json({ error: "Erreur lors de la suppression" });
+  }
+});
+
+// ===== ROUTES INTERVENTIONS VGP =====
+
+// GET toutes les interventions VGP
+app.get("/api/vgp-interventions", async (req, res) => {
+  try {
+    const { statut } = req.query;
+
+    let query = `
+      SELECT
+        vi.id,
+        vi.client_id,
+        COALESCE(vi.client_nom, vc.nom) as client_nom,
+        vi.site_id,
+        COALESCE(vi.site_nom, vcs.nom) as site_nom,
+        vi.adresse_intervention,
+        vi.contact_site,
+        TO_CHAR(vi.date_intervention, 'YYYY-MM-DD') as date_intervention,
+        vi.duree_jours::numeric,
+        vi.recommandations,
+        vi.statut,
+        vi.created_at,
+        vi.updated_at
+      FROM vgp_interventions vi
+      LEFT JOIN vgp_clients vc ON vi.client_id = vc.id
+      LEFT JOIN vgp_client_sites vcs ON vi.site_id = vcs.id
+    `;
+    const params = [];
+
+    if (statut) {
+      query += ` WHERE vi.statut = $1`;
+      params.push(statut);
+    }
+
+    query += ` ORDER BY vi.date_intervention ASC`;
+
+    const result = await pool.query(query, params);
+    res.json(result.rows);
+  } catch (err) {
+    console.error("❌ Erreur récupération interventions:", err.message);
+    res.status(500).json({ error: "Erreur base de données" });
+  }
+});
+
+// GET une intervention VGP spécifique
+app.get("/api/vgp-interventions/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      `SELECT
+        vi.id,
+        vi.client_id,
+        COALESCE(vi.client_nom, vc.nom) as client_nom,
+        vi.site_id,
+        COALESCE(vi.site_nom, vcs.nom) as site_nom,
+        vi.adresse_intervention,
+        vi.contact_site,
+        TO_CHAR(vi.date_intervention, 'YYYY-MM-DD') as date_intervention,
+        vi.duree_jours::numeric,
+        vi.recommandations,
+        vi.statut,
+        vi.created_at,
+        vi.updated_at
+      FROM vgp_interventions vi
+      LEFT JOIN vgp_clients vc ON vi.client_id = vc.id
+      LEFT JOIN vgp_client_sites vcs ON vi.site_id = vcs.id
+      WHERE vi.id = $1`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Intervention VGP non trouvée" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("❌ Erreur récupération intervention:", err.message);
+    res.status(500).json({ error: "Erreur base de données" });
+  }
+});
+
+// POST créer une nouvelle intervention VGP
+app.post("/api/vgp-interventions", async (req, res) => {
+  try {
+    const { client_id, client_nom, site_id, site_nom, adresse_intervention, contact_site, date_intervention, duree_jours, recommandations } = req.body;
+
+    if (!adresse_intervention || !date_intervention) {
+      return res.status(400).json({ error: "adresse_intervention et date_intervention sont requis" });
+    }
+
+    console.log(`📅 Création intervention VGP: ${date_intervention}`);
+
+    const result = await pool.query(
+      `INSERT INTO vgp_interventions
+        (client_id, client_nom, site_id, site_nom, adresse_intervention, contact_site, date_intervention, duree_jours, recommandations, statut, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'planifiee', NOW(), NOW())
+       RETURNING *`,
+      [client_id || null, client_nom || null, site_id || null, site_nom || null, adresse_intervention, contact_site || null, date_intervention, duree_jours || 1.0, recommandations || null]
+    );
+
+    console.log(`✅ Intervention créée: ${result.rows[0].id}`);
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error("❌ Erreur création intervention:", err.message);
+    res.status(500).json({ error: "Erreur lors de la création" });
+  }
+});
+
+// PATCH mettre à jour une intervention VGP
+app.patch("/api/vgp-interventions/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { client_id, client_nom, site_id, site_nom, adresse_intervention, contact_site, date_intervention, duree_jours, recommandations, statut } = req.body;
+
+    const updateFields = [];
+    const values = [];
+    let paramIndex = 1;
+
+    if (client_id !== undefined) {
+      updateFields.push(`client_id = $${paramIndex}`);
+      values.push(client_id);
+      paramIndex++;
+    }
+    if (client_nom !== undefined) {
+      updateFields.push(`client_nom = $${paramIndex}`);
+      values.push(client_nom);
+      paramIndex++;
+    }
+    if (site_id !== undefined) {
+      updateFields.push(`site_id = $${paramIndex}`);
+      values.push(site_id);
+      paramIndex++;
+    }
+    if (site_nom !== undefined) {
+      updateFields.push(`site_nom = $${paramIndex}`);
+      values.push(site_nom);
+      paramIndex++;
+    }
+    if (adresse_intervention !== undefined) {
+      updateFields.push(`adresse_intervention = $${paramIndex}`);
+      values.push(adresse_intervention);
+      paramIndex++;
+    }
+    if (contact_site !== undefined) {
+      updateFields.push(`contact_site = $${paramIndex}`);
+      values.push(contact_site);
+      paramIndex++;
+    }
+    if (date_intervention !== undefined) {
+      updateFields.push(`date_intervention = $${paramIndex}`);
+      values.push(date_intervention);
+      paramIndex++;
+    }
+    if (duree_jours !== undefined) {
+      updateFields.push(`duree_jours = $${paramIndex}`);
+      values.push(duree_jours);
+      paramIndex++;
+    }
+    if (recommandations !== undefined) {
+      updateFields.push(`recommandations = $${paramIndex}`);
+      values.push(recommandations);
+      paramIndex++;
+    }
+    if (statut !== undefined) {
+      updateFields.push(`statut = $${paramIndex}`);
+      values.push(statut);
+      paramIndex++;
+    }
+
+    updateFields.push(`updated_at = NOW()`);
+
+    if (updateFields.length === 1) {
+      return res.status(400).json({ error: "Aucun champ à mettre à jour" });
+    }
+
+    values.push(id);
+
+    const result = await pool.query(
+      `UPDATE vgp_interventions SET ${updateFields.join(", ")} WHERE id = $${paramIndex} RETURNING *`,
+      values
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Intervention VGP non trouvée" });
+    }
+
+    console.log(`✅ Intervention ${id} mise à jour`);
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("❌ Erreur mise à jour intervention:", err.message);
+    res.status(500).json({ error: "Erreur lors de la mise à jour" });
+  }
+});
+
+// DELETE supprimer une intervention VGP
+app.delete("/api/vgp-interventions/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    console.log(`🗑️ Suppression intervention VGP ${id}`);
+
+    const result = await pool.query(
+      `DELETE FROM vgp_interventions WHERE id = $1 RETURNING *`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Intervention VGP non trouvée" });
+    }
+
+    console.log(`✅ Intervention ${id} supprimée`);
+    res.json({ message: "✅ Intervention supprimée", intervention: result.rows[0] });
+  } catch (err) {
+    console.error("❌ Erreur suppression intervention:", err.message);
+    res.status(500).json({ error: "Erreur lors de la suppression" });
+  }
+});
+
 // ===== ROUTES PIECES DETACHEES =====
 
 // GET toutes les pièces détachées
