@@ -71,11 +71,19 @@ const FeedbackPanel = () => {
   };
 
   const getTypeIcon = (type) => {
-    return type === 'bug' ? '🐛' : '💡';
+    return type === 'bug' ? '🔴' : '⭐';
   };
 
   const getTypeColor = (type) => {
-    return type === 'bug' ? '#ef4444' : '#2563eb';
+    return type === 'bug' ? '#ef4444' : '#10b981';
+  };
+
+  const getAppIcon = (app) => {
+    return app === 'parc-loc' ? '📦' : '🔍';
+  };
+
+  const getAppColor = (app) => {
+    return app === 'parc-loc' ? '#dc2626' : '#10b981';
   };
 
   const getStatusLabel = (status) => {
@@ -134,16 +142,18 @@ const FeedbackPanel = () => {
             ) : (
               <>
                 {/* MAGI-LOC Feedbacks */}
-                <div className="feedback-app-section">
+                <div className="feedback-app-section" style={{ borderTopColor: getAppColor('parc-loc') }}>
                   <button
                     className="feedback-app-header"
                     onClick={() => toggleApp('parc-loc')}
+                    style={{ backgroundColor: `${getAppColor('parc-loc')}08` }}
                   >
                     <span className="feedback-app-toggle">
                       {expandedApps['parc-loc'] ? '▼' : '▶'}
                     </span>
-                    <span className="feedback-app-name">🏗️ MAGI-LOC</span>
-                    <span className="feedback-app-count">({parcLocFeedbacks.length})</span>
+                    <span className="feedback-app-icon">{getAppIcon('parc-loc')}</span>
+                    <span className="feedback-app-name">MAGI-LOC</span>
+                    <span className="feedback-app-count">{parcLocFeedbacks.length}</span>
                   </button>
 
                   {expandedApps['parc-loc'] && (
@@ -210,16 +220,18 @@ const FeedbackPanel = () => {
                 </div>
 
                 {/* VGP-SITE Feedbacks */}
-                <div className="feedback-app-section">
+                <div className="feedback-app-section" style={{ borderTopColor: getAppColor('vgp-site') }}>
                   <button
                     className="feedback-app-header"
                     onClick={() => toggleApp('vgp-site')}
+                    style={{ backgroundColor: `${getAppColor('vgp-site')}08` }}
                   >
                     <span className="feedback-app-toggle">
                       {expandedApps['vgp-site'] ? '▼' : '▶'}
                     </span>
-                    <span className="feedback-app-name">🔧 MAGI-VGP</span>
-                    <span className="feedback-app-count">({vgpFeedbacks.length})</span>
+                    <span className="feedback-app-icon">{getAppIcon('vgp-site')}</span>
+                    <span className="feedback-app-name">MAGI-VGP</span>
+                    <span className="feedback-app-count">{vgpFeedbacks.length}</span>
                   </button>
 
                   {expandedApps['vgp-site'] && (

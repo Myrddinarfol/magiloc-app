@@ -9,6 +9,7 @@ import { UIProvider } from './context/UIContext';
 import { ClientProvider } from './context/ClientContext';
 import { VGPClientProvider } from './context/VGPClientContext';
 import { FeedbackProvider } from './context/FeedbackContext';
+import { InterventionProvider } from './context/InterventionContext';
 import { SparePartsProvider } from './context/SparePartsContext';
 import { useAuth } from './hooks/useAuth';
 import { useEquipment } from './hooks/useEquipment';
@@ -575,21 +576,6 @@ const MainApp = ({ shouldStartTour }) => {
         {renderMainContent()}
       </div>
 
-      {/* Toast Notifications */}
-      <div className="toast-container">
-        {toasts.map(toast => (
-          <div key={toast.id} className={`toast toast-${toast.type}`}>
-            <span className="toast-icon">
-              {toast.type === 'success' && '✓'}
-              {toast.type === 'error' && '✕'}
-              {toast.type === 'info' && 'ℹ'}
-              {toast.type === 'warning' && '⚠'}
-            </span>
-            <span className="toast-message">{toast.message}</span>
-          </div>
-        ))}
-      </div>
-
       {/* Modals */}
       {showNotesHistory && (
         <ReleaseNotesHistory onClose={() => setShowNotesHistory(false)} />
@@ -677,17 +663,19 @@ function App() {
       <AuthProvider>
         <AppProvider>
           <FeedbackProvider>
-            <EquipmentProvider>
-              <UIProvider>
-                <ClientProvider>
-                  <VGPClientProvider>
-                    <SparePartsProvider>
-                      <AppContent />
-                    </SparePartsProvider>
-                  </VGPClientProvider>
-                </ClientProvider>
-              </UIProvider>
-            </EquipmentProvider>
+            <InterventionProvider>
+              <EquipmentProvider>
+                <UIProvider>
+                  <ClientProvider>
+                    <VGPClientProvider>
+                      <SparePartsProvider>
+                        <AppContent />
+                      </SparePartsProvider>
+                    </VGPClientProvider>
+                  </ClientProvider>
+                </UIProvider>
+              </EquipmentProvider>
+            </InterventionProvider>
           </FeedbackProvider>
         </AppProvider>
       </AuthProvider>
@@ -704,7 +692,7 @@ const MaintenanceDetailPageWrapper = () => {
 // Composant de routage principal
 const AppContent = () => {
   const { isAuthenticated } = useAuth();
-  const { showReleaseNotes } = useUI();
+  const { showReleaseNotes, toasts } = useUI();
   const { activeApp } = useApp();
   const [shouldStartTour, setShouldStartTour] = React.useState(false);
 
@@ -714,52 +702,69 @@ const AppContent = () => {
     }
   };
 
+  let content;
+
   if (showReleaseNotes) {
-    return (
+    content = (
       <>
         <ReleaseNotesPage />
         <Analytics />
       </>
     );
-  }
-
-  if (!isAuthenticated) {
-    return (
+  } else if (!isAuthenticated) {
+    content = (
       <>
         <LoginPage onLoginSuccess={handleLoginSuccess} />
         <Analytics />
       </>
     );
-  }
-
-  // Si pas d'app sélectionnée, montrer le sélecteur
-  if (!activeApp) {
-    return (
+  } else if (!activeApp) {
+    // Si pas d'app sélectionnée, montrer le sélecteur
+    content = (
       <>
         <AppSelector />
         <Analytics />
       </>
     );
-  }
-
-  // Si VGP SITE est sélectionné
-  if (activeApp === 'vgp-site') {
-    return (
+  } else if (activeApp === 'vgp-site') {
+    // Si VGP SITE est sélectionné
+    content = (
       <>
         <VGPSiteApp />
         <Analytics />
       </>
     );
+  } else {
+    // Sinon, montrer PARC LOC (application par défaut)
+    content = (
+      <Router>
+        <Routes>
+          <Route path="/maintenance/:id" element={<MaintenanceDetailPageWrapper />} />
+          <Route path="*" element={<><MainApp shouldStartTour={shouldStartTour} /><Analytics /></>} />
+        </Routes>
+      </Router>
+    );
   }
 
-  // Sinon, montrer PARC LOC (application par défaut)
   return (
-    <Router>
-      <Routes>
-        <Route path="/maintenance/:id" element={<MaintenanceDetailPageWrapper />} />
-        <Route path="*" element={<><MainApp shouldStartTour={shouldStartTour} /><Analytics /></>} />
-      </Routes>
-    </Router>
+    <>
+      {content}
+
+      {/* Toast Notifications - Available on all pages */}
+      <div className="toast-container">
+        {toasts.map(toast => (
+          <div key={toast.id} className={`toast toast-${toast.type}`}>
+            <span className="toast-icon">
+              {toast.type === 'success' && '✓'}
+              {toast.type === 'error' && '✕'}
+              {toast.type === 'info' && 'ℹ'}
+              {toast.type === 'warning' && '⚠'}
+            </span>
+            <span className="toast-message">{toast.message}</span>
+          </div>
+        ))}
+      </div>
+    </>
   );
 };
 
