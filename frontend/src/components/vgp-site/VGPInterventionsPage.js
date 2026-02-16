@@ -260,10 +260,15 @@ const VGPInterventionsPage = () => {
                           backgroundColor: getStatusColor(intervention.statut),
                           borderColor: getStatusColor(intervention.statut)
                         }}
-                        title={`${intervention.client_nom || 'Client ponctuel'}\n${intervention.adresse_intervention}\nDurée: ${intervention.duree_jours}j`}
+                        title={`${intervention.site_nom || intervention.client_nom || 'Client ponctuel'}\n${intervention.adresse_intervention}\nDurée: ${intervention.duree_jours}j`}
                         onClick={() => handleOpenModal(intervention)}
                       >
                         <div className="capsule-content">
+                          {intervention.site_nom && (
+                            <span className="capsule-site">
+                              {intervention.site_nom}
+                            </span>
+                          )}
                           <span className="capsule-client">
                             {intervention.client_nom || 'Client'}
                           </span>
