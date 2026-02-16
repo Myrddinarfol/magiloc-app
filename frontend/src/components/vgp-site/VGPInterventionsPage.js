@@ -35,6 +35,8 @@ const VGPInterventionsPage = () => {
     try {
       await updateIntervention(interventionId, { statut: newStatus });
       showToast(`✅ Statut mis à jour en "${getStatusLabel(newStatus)}"`, 'success');
+      // Reload interventions to update both views
+      loadInterventions();
     } catch (err) {
       showToast(`Erreur: ${err.message}`, 'error');
     }
@@ -45,6 +47,8 @@ const VGPInterventionsPage = () => {
       try {
         await deleteIntervention(interventionId);
         showToast('✅ Intervention supprimée', 'success');
+        // Reload interventions to update both views
+        loadInterventions();
       } catch (err) {
         showToast(`Erreur: ${err.message}`, 'error');
       }
