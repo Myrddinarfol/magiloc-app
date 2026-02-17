@@ -172,7 +172,7 @@ body.light-theme .pieces-table {
 
 body.light-theme .pieces-header {
   background: rgba(76, 175, 80, 0.08);
-  color: #0d9488;
+  color: #059669;
   border-bottom-color: rgba(76, 175, 80, 0.15);
 }
 
@@ -225,7 +225,7 @@ body.light-theme .pieces-total {
 }
 
 body.light-theme .pieces-total strong {
-  color: #0d9488;
+  color: #059669;
 }
 
 /* TEMPS RECAP */
@@ -351,7 +351,7 @@ body.light-theme .vgp-option span {
 body.light-theme .vgp-confirmation {
   background: rgba(76, 175, 80, 0.08);
   border-color: rgba(76, 175, 80, 0.15);
-  color: #0d9488;
+  color: #059669;
 }
 
 /* NOTES RETOUR RECAP */

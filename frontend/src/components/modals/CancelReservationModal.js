@@ -20,7 +20,7 @@ const CancelReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
     }}>
       <div style={{
         background: 'linear-gradient(135deg, #1a1a1a, #2d2d2d)',
-        border: '3px solid #f97316',
+        border: '3px solid #dc2626',
         borderRadius: '20px',
         padding: '40px',
         maxWidth: '500px',
@@ -40,7 +40,7 @@ const CancelReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
 
         {/* Title */}
         <h2 style={{
-          color: '#f97316',
+          color: '#dc2626',
           fontSize: '24px',
           fontWeight: 'bold',
           textAlign: 'center',
@@ -86,7 +86,7 @@ const CancelReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
         }}>
           Êtes-vous sûr de vouloir annuler cette réservation ?
           {'\n\n'}
-          Le matériel sera remis <span style={{ color: '#14b8a6', fontWeight: 'bold' }}>SUR PARC</span>.
+          Le matériel sera remis <span style={{ color: '#10b981', fontWeight: 'bold' }}>SUR PARC</span>.
         </p>
 
         {/* Buttons */}
@@ -130,20 +130,20 @@ const CancelReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
               fontSize: '16px',
               fontWeight: 'bold',
               color: '#fff',
-              background: 'linear-gradient(135deg, #f97316, #d97706)',
-              border: '2px solid #f97316',
+              background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+              border: '2px solid #dc2626',
               borderRadius: '12px',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
               minWidth: '140px'
             }}
             onMouseEnter={(e) => {
-              e.target.style.background = 'linear-gradient(135deg, #fb923c, #f97316)';
+              e.target.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
               e.target.style.transform = 'translateY(-2px)';
               e.target.style.boxShadow = '0 8px 20px rgba(220, 38, 38, 0.6)';
             }}
             onMouseLeave={(e) => {
-              e.target.style.background = 'linear-gradient(135deg, #f97316, #d97706)';
+              e.target.style.background = 'linear-gradient(135deg, #dc2626, #b91c1c)';
               e.target.style.transform = 'translateY(0)';
               e.target.style.boxShadow = 'none';
             }}

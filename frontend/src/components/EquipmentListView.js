@@ -442,16 +442,16 @@ function EquipmentListView({
               style={{
                 padding: '10px 18px',
                 borderRadius: '8px',
-                border: '2px solid #f97316',
-                backgroundColor: '#f97316',
+                border: '2px solid #dc2626',
+                backgroundColor: '#dc2626',
                 color: 'white',
                 fontSize: '14px',
                 fontWeight: '600',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease'
               }}
-              onMouseOver={(e) => e.target.style.backgroundColor = '#d97706'}
-              onMouseOut={(e) => e.target.style.backgroundColor = '#f97316'}
+              onMouseOver={(e) => e.target.style.backgroundColor = '#b91c1c'}
+              onMouseOut={(e) => e.target.style.backgroundColor = '#dc2626'}
             >
               ✕ Effacer filtres
             </button>

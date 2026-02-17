@@ -163,14 +163,14 @@
 }
 
 .feedback-btn-submit {
-  background-color: #14b8a6;
+  background-color: #10b981;
   color: white;
   border: none;
   font-weight: 600;
 }
 
 .feedback-btn-submit.bug {
-  background-color: #fb923c;
+  background-color: #ef4444;
 }
 
 .feedback-btn-submit.suggestion {
@@ -200,7 +200,7 @@
   --bg-input: rgba(255, 255, 255, 0.03);
   --bg-disabled: rgba(255, 255, 255, 0.02);
   --bg-button-secondary: transparent;
-  --accent-color: #14b8a6;
+  --accent-color: #10b981;
 }
 
 @media (max-width: 768px) {

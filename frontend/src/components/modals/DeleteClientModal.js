@@ -18,7 +18,7 @@ const DeleteClientModal = ({ client, onClose, onConfirm }) => {
     }}>
       <div style={{
         background: 'linear-gradient(135deg, #1a1a1a, #2d2d2d)',
-        border: '3px solid #f97316',
+        border: '3px solid #dc2626',
         borderRadius: '20px',
         padding: '40px',
         maxWidth: '500px',
@@ -40,7 +40,7 @@ const DeleteClientModal = ({ client, onClose, onConfirm }) => {
             🗑️
           </div>
           <h2 style={{
-            color: '#f97316',
+            color: '#dc2626',
             fontSize: '28px',
             fontWeight: 'bold',
             marginBottom: '15px',
@@ -80,7 +80,7 @@ const DeleteClientModal = ({ client, onClose, onConfirm }) => {
             "{client?.nom}"
           </p>
           <p style={{
-            color: '#fed7aa',
+            color: '#f87171',
             fontSize: '16px',
             fontWeight: 'bold',
             textAlign: 'center',
@@ -129,7 +129,7 @@ const DeleteClientModal = ({ client, onClose, onConfirm }) => {
             onClick={onConfirm}
             style={{
               padding: '15px 35px',
-              background: 'linear-gradient(135deg, #f97316, #991b1b)',
+              background: 'linear-gradient(135deg, #dc2626, #991b1b)',
               color: 'white',
               border: 'none',
               borderRadius: '12px',
@@ -144,12 +144,12 @@ const DeleteClientModal = ({ client, onClose, onConfirm }) => {
             onMouseEnter={(e) => {
               e.target.style.transform = 'translateY(-3px)';
               e.target.style.boxShadow = '0 6px 30px rgba(220, 38, 38, 0.7)';
-              e.target.style.background = 'linear-gradient(135deg, #fb923c, #f97316)';
+              e.target.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
             }}
             onMouseLeave={(e) => {
               e.target.style.transform = 'translateY(0)';
               e.target.style.boxShadow = '0 4px 15px rgba(220, 38, 38, 0.5)';
-              e.target.style.background = 'linear-gradient(135deg, #f97316, #991b1b)';
+              e.target.style.background = 'linear-gradient(135deg, #dc2626, #991b1b)';
             }}
           >
             🗑️ Supprimer

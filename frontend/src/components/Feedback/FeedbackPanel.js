@@ -57,7 +57,7 @@ const FeedbackPanel = () => {
   const getPriorityColor = (priority) => {
     switch (priority) {
       case 'high':
-        return '#fb923c';
+        return '#ef4444';
       case 'medium':
         return '#f59e0b';
       case 'low':
@@ -75,7 +75,7 @@ const FeedbackPanel = () => {
   };
 
   const getTypeColor = (type) => {
-    return type === 'bug' ? '#fb923c' : '#14b8a6';
+    return type === 'bug' ? '#ef4444' : '#10b981';
   };
 
   const getAppIcon = (app) => {
@@ -83,7 +83,7 @@ const FeedbackPanel = () => {
   };
 
   const getAppColor = (app) => {
-    return app === 'parc-loc' ? '#f97316' : '#14b8a6';
+    return app === 'parc-loc' ? '#dc2626' : '#10b981';
   };
 
   const getStatusLabel = (status) => {

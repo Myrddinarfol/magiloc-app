@@ -259,16 +259,16 @@ const ExchangeModal = ({ show, equipment, equipmentData, onConfirm, onCancel }) 
                 style={{
                   padding: '10px 18px',
                   borderRadius: '8px',
-                  border: '2px solid #f97316',
-                  backgroundColor: '#f97316',
+                  border: '2px solid #dc2626',
+                  backgroundColor: '#dc2626',
                   color: 'white',
                   fontSize: '14px',
                   fontWeight: '600',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease'
                 }}
-                onMouseOver={(e) => e.target.style.backgroundColor = '#d97706'}
-                onMouseOut={(e) => e.target.style.backgroundColor = '#f97316'}
+                onMouseOver={(e) => e.target.style.backgroundColor = '#b91c1c'}
+                onMouseOut={(e) => e.target.style.backgroundColor = '#dc2626'}
               >
                 ✕ Effacer filtres
               </button>
@@ -375,7 +375,7 @@ const ExchangeModal = ({ show, equipment, equipmentData, onConfirm, onCancel }) 
                       transition: 'all 0.2s ease'
                     }}
                     onFocus={(e) => {
-                      e.target.style.borderColor = '#14b8a6';
+                      e.target.style.borderColor = '#10b981';
                       e.target.style.boxShadow = '0 0 0 2px rgba(16, 185, 129, 0.1)';
                     }}
                     onBlur={(e) => {
@@ -430,7 +430,7 @@ const ExchangeModal = ({ show, equipment, equipmentData, onConfirm, onCancel }) 
                                        eq.etat === 'Bon état' ? 'rgba(59, 130, 246, 0.2)' :
                                        eq.etat === 'À réviser' ? 'rgba(251, 191, 36, 0.2)' :
                                        'rgba(156, 163, 175, 0.2)',
-                      color: eq.etat === 'Neuf' ? '#14b8a6' :
+                      color: eq.etat === 'Neuf' ? '#10b981' :
                              eq.etat === 'Bon état' ? '#3b82f6' :
                              eq.etat === 'À réviser' ? '#fbbf24' :
                              '#9ca3af'

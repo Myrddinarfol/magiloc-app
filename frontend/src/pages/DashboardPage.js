@@ -124,7 +124,7 @@ const DashboardPage = () => {
         subtitle: 'Treuil 500kg',
         models: ['TR50', 'LM500+', 'LM 500+', 'LM500'],
         icon: '⚡',
-        color: '#f97316'
+        color: '#dc2626'
       },
       {
         title: 'TE3000',
@@ -367,7 +367,7 @@ const DashboardPage = () => {
             </div>
             <div className="alert-capsule-content">
               <div className="alert-capsule-number">
-                {alerts.lateVGP.length > 0 && <span style={{color: '#f97316', fontWeight: 'bold'}}>{alerts.lateVGP.length}</span>}
+                {alerts.lateVGP.length > 0 && <span style={{color: '#dc2626', fontWeight: 'bold'}}>{alerts.lateVGP.length}</span>}
                 {alerts.lateVGP.length > 0 && alerts.upcomingVGP.length > 0 && ' + '}
                 {alerts.upcomingVGP.length > 0 && <span style={{color: '#f59e0b', fontWeight: 'bold'}}>{alerts.upcomingVGP.length}</span>}
                 {alerts.lateVGP.length === 0 && alerts.upcomingVGP.length === 0 && '0'}

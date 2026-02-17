@@ -149,7 +149,7 @@ export const releaseNotes = [
         title: '🎨 Affichage Détail Équipement Amélioré',
         items: [
           'Nouvelle section : "Longue Durée: ✅ Oui (-20%)" ou "❌ Non"',
-          'Styling conditionnel : vert (#14b8a6) si longue durée, gris (#9ca3af) sinon',
+          'Styling conditionnel : vert (#10b981) si longue durée, gris (#9ca3af) sinon',
           'Affichage tarif appliqué : "[prix réduit]€/j au lieu de [prix original]€/j"',
           'Section tarifaire avec arrière-plan vert clair et border',
           'Suppression du calcul automatique des jours ouvrés pour détermination',
@@ -272,7 +272,7 @@ export const releaseNotes = [
           'Solution : Augmentation spécificité des sélecteurs de couleur',
           'Résultat :',
           '  • ✏️ Modifier → Amber/Jaune gradient (#fbbf24)',
-          '  • ✕ Supprimer → Rouge gradient (#f97316)',
+          '  • ✕ Supprimer → Rouge gradient (#dc2626)',
           '  • 📋 Historique → Bleu gradient (#60a5fa)',
           'Build successfully compiled - CSS changes now effective',
         ]

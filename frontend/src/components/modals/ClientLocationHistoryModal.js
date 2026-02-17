@@ -172,7 +172,7 @@ const ClientLocationHistoryModal = ({ clientName, history, onClose }) => {
                             {isLongDuration && !isLoan && (
                               <span style={{
                                 background: 'rgba(16, 185, 129, 0.2)',
-                                color: '#14b8a6',
+                                color: '#10b981',
                                 padding: '3px 8px',
                                 borderRadius: '4px',
                                 fontSize: '11px',

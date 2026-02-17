@@ -97,7 +97,7 @@
 .form-group textarea:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #14b8a6;
+  border-color: #10b981;
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
@@ -111,13 +111,13 @@
 .form-group input.input-error,
 .form-group textarea.input-error,
 .form-group select.input-error {
-  border-color: #fb923c;
+  border-color: #ef4444;
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
 .error-text {
   font-size: 12px;
-  color: #fb923c;
+  color: #ef4444;
   margin-top: 4px;
 }
 
@@ -141,7 +141,7 @@
   cursor: pointer;
   width: 18px;
   height: 18px;
-  accent-color: #14b8a6;
+  accent-color: #10b981;
 }
 
 /* Duration Buttons */
@@ -164,14 +164,14 @@
 }
 
 .duration-btn:hover:not(:disabled) {
-  border-color: #14b8a6;
+  border-color: #10b981;
   background-color: rgba(16, 185, 129, 0.1);
 }
 
 .duration-btn.active {
-  background-color: #14b8a6;
+  background-color: #10b981;
   color: white;
-  border-color: #14b8a6;
+  border-color: #10b981;
 }
 
 .duration-btn:disabled {
@@ -203,7 +203,7 @@
 .checkbox-label input[type="checkbox"] {
   width: 18px;
   height: 18px;
-  accent-color: #14b8a6;
+  accent-color: #10b981;
   cursor: pointer;
 }
 
@@ -228,7 +228,7 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #14b8a6, #0d9488);
+  background: linear-gradient(135deg, #10b981, #059669);
   color: white;
 }
 

@@ -9,7 +9,7 @@
   width: 56px;
   height: 56px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #14b8a6, #0d9488);
+  background: linear-gradient(135deg, #10b981, #059669);
   border: none;
   cursor: pointer;
   display: flex;
@@ -40,7 +40,7 @@
   position: absolute;
   top: -8px;
   right: -8px;
-  background-color: #fb923c;
+  background-color: #ef4444;
   color: white;
   border-radius: 50%;
   width: 24px;
@@ -241,7 +241,7 @@
 
 .feedback-item:hover {
   background-color: var(--bg-hover);
-  border-left-color: #14b8a6;
+  border-left-color: #10b981;
   transform: translateX(2px);
 }
 
@@ -330,7 +330,7 @@
 }
 
 .feedback-action-btn.validate {
-  color: #14b8a6;
+  color: #10b981;
 }
 
 .feedback-action-btn.priority {
@@ -338,7 +338,7 @@
 }
 
 .feedback-action-btn.delete {
-  color: #fb923c;
+  color: #ef4444;
 }
 
 /* Scrollbar styling */

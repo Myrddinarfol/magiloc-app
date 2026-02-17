@@ -74,7 +74,7 @@ const StartLocationModal = ({ show, equipment, onConfirm, onCancel }) => {
     }}>
       <div style={{
         background: 'linear-gradient(135deg, #1a1a1a, #2d2d2d)',
-        border: '3px solid #14b8a6',
+        border: '3px solid #10b981',
         borderRadius: '20px',
         padding: '30px',
         maxWidth: '800px',
@@ -96,7 +96,7 @@ const StartLocationModal = ({ show, equipment, onConfirm, onCancel }) => {
 
         {/* Title */}
         <h2 style={{
-          color: '#14b8a6',
+          color: '#10b981',
           fontSize: '24px',
           fontWeight: 'bold',
           textAlign: 'center',
@@ -206,7 +206,7 @@ const StartLocationModal = ({ show, equipment, onConfirm, onCancel }) => {
             {estLongDuree && (
               <span style={{
                 background: 'rgba(16, 185, 129, 0.2)',
-                color: '#14b8a6',
+                color: '#10b981',
                 padding: '4px 10px',
                 borderRadius: '6px',
                 fontSize: '12px',
@@ -252,7 +252,7 @@ const StartLocationModal = ({ show, equipment, onConfirm, onCancel }) => {
         {/* ===== INFOS DÉMARRAGE LOCATION ===== */}
         <div style={{ marginBottom: '15px' }}>
           <h3 style={{
-            color: '#14b8a6',
+            color: '#10b981',
             fontSize: '14px',
             fontWeight: 'bold',
             marginBottom: '10px',
@@ -271,7 +271,7 @@ const StartLocationModal = ({ show, equipment, onConfirm, onCancel }) => {
                 fontWeight: '600',
                 marginBottom: '6px'
               }}>
-                Date de début <span style={{ color: '#f97316' }}>*</span>
+                Date de début <span style={{ color: '#dc2626' }}>*</span>
               </label>
               <input
                 type="date"
@@ -289,7 +289,7 @@ const StartLocationModal = ({ show, equipment, onConfirm, onCancel }) => {
                   transition: 'all 0.3s ease'
                 }}
                 onFocus={(e) => {
-                  e.target.style.borderColor = '#14b8a6';
+                  e.target.style.borderColor = '#10b981';
                   e.target.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.1)';
                 }}
                 onBlur={(e) => {
@@ -324,7 +324,7 @@ const StartLocationModal = ({ show, equipment, onConfirm, onCancel }) => {
                   transition: 'all 0.3s ease'
                 }}
                 onFocus={(e) => {
-                  e.target.style.borderColor = '#14b8a6';
+                  e.target.style.borderColor = '#10b981';
                   e.target.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.1)';
                 }}
                 onBlur={(e) => {
@@ -344,7 +344,7 @@ const StartLocationModal = ({ show, equipment, onConfirm, onCancel }) => {
           marginBottom: '15px',
           fontStyle: 'italic'
         }}>
-          Le matériel passera en statut <span style={{ color: '#14b8a6', fontWeight: 'bold' }}>EN LOCATION</span>
+          Le matériel passera en statut <span style={{ color: '#10b981', fontWeight: 'bold' }}>EN LOCATION</span>
         </p>
 
         {/* Buttons */}
@@ -391,20 +391,20 @@ const StartLocationModal = ({ show, equipment, onConfirm, onCancel }) => {
               fontSize: '15px',
               fontWeight: 'bold',
               color: '#fff',
-              background: 'linear-gradient(135deg, #14b8a6, #0d9488)',
-              border: '2px solid #14b8a6',
+              background: 'linear-gradient(135deg, #10b981, #059669)',
+              border: '2px solid #10b981',
               borderRadius: '12px',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
               minWidth: '130px'
             }}
             onMouseEnter={(e) => {
-              e.target.style.background = 'linear-gradient(135deg, #34d399, #14b8a6)';
+              e.target.style.background = 'linear-gradient(135deg, #34d399, #10b981)';
               e.target.style.transform = 'translateY(-2px)';
               e.target.style.boxShadow = '0 8px 20px rgba(16, 185, 129, 0.6)';
             }}
             onMouseLeave={(e) => {
-              e.target.style.background = 'linear-gradient(135deg, #14b8a6, #0d9488)';
+              e.target.style.background = 'linear-gradient(135deg, #10b981, #059669)';
               e.target.style.transform = 'translateY(0)';
               e.target.style.boxShadow = 'none';
             }}

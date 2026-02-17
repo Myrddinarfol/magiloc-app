@@ -122,8 +122,8 @@ body.light-theme .vgp-sidebar .logo .logo-vgp {
 
 .vgp-sidebar .nav-button.active {
   background: rgba(16, 185, 129, 0.15);
-  color: #14b8a6;
-  border-left: 3px solid #14b8a6;
+  color: #10b981;
+  border-left: 3px solid #10b981;
   padding-left: 13px;
 }
 
@@ -270,9 +270,9 @@ body.light-theme .vgp-sidebar .logo .logo-vgp {
 }
 
 .vgp-sidebar .theme-option.active {
-  border-color: #14b8a6;
+  border-color: #10b981;
   background: rgba(16, 185, 129, 0.15);
-  color: #14b8a6;
+  color: #10b981;
 }
 
 .vgp-sidebar .theme-preview {
@@ -294,7 +294,7 @@ body.light-theme .vgp-sidebar .logo .logo-vgp {
 .vgp-sidebar .check-icon {
   font-size: 16px;
   margin-top: 4px;
-  color: #14b8a6;
+  color: #10b981;
 }
 
 .vgp-sidebar .switch-app-button {
