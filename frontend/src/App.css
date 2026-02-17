@@ -1552,15 +1552,15 @@ body.modal-open {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
-  border: 1px solid var(--color-primary-dark);
+  border: 1px solid #059669;
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--color-primary-dark) 0%, #991b1b 100%);
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
 }
 
 .btn-success {

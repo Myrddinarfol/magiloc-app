@@ -40,7 +40,7 @@ const ReleaseNotesHistory = ({ onClose }) => {
         </div>
 
         <div className="release-notes-footer">
-          <button onClick={onClose} className="btn btn-primary">
+          <button onClick={onClose} className="btn btn-gray">
             Fermer
           </button>
         </div>
