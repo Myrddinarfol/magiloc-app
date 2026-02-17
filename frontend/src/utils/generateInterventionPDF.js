@@ -151,7 +151,60 @@ export function generateInterventionPDF(intervention) {
     yPosition += 10;
 
     // ═════════════════════════════════════════
-    // SECTION 3: OBSERVATIONS
+    // SECTION 3: HORAIRES ET DURÉE EFFECTIVE
+    // ═════════════════════════════════════════
+
+    doc.setFont(undefined, 'bold');
+    doc.setTextColor(...primaryColor);
+    doc.setFontSize(11);
+    doc.text('HORAIRES ET DURÉE EFFECTIVE', margin, yPosition);
+    yPosition += 7;
+
+    // Fond gris
+    doc.setFillColor(...lightBg);
+    doc.rect(margin, yPosition - 3, contentWidth, 20, 'F');
+
+    doc.setTextColor(...textColor);
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+
+    // Trois colonnes pour les horaires
+    const col1X = margin + 3;
+    const col2X = margin + contentWidth / 3 + 3;
+    const col3X = margin + (contentWidth * 2) / 3 + 3;
+
+    // Heure d'arrivée
+    doc.text('Heure d\'arrivée:', col1X, yPosition);
+    doc.setDrawColor(...borderColor);
+    doc.setLineWidth(0.4);
+    doc.rect(col1X, yPosition + 2, 40, 6);
+    doc.setFontSize(8);
+    doc.text('__:__', col1X + 3, yPosition + 5.5);
+
+    // Heure de départ
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text('Heure de départ:', col2X, yPosition);
+    doc.setDrawColor(...borderColor);
+    doc.setLineWidth(0.4);
+    doc.rect(col2X, yPosition + 2, 40, 6);
+    doc.setFontSize(8);
+    doc.text('__:__', col2X + 3, yPosition + 5.5);
+
+    // Heures effectives
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text('Heures effectives:', col3X, yPosition);
+    doc.setDrawColor(...borderColor);
+    doc.setLineWidth(0.4);
+    doc.rect(col3X, yPosition + 2, 40, 6);
+    doc.setFontSize(8);
+    doc.text('____h', col3X + 3, yPosition + 5.5);
+
+    yPosition += 22;
+
+    // ═════════════════════════════════════════
+    // SECTION 4: OBSERVATIONS
     // ═════════════════════════════════════════
 
     doc.setFont(undefined, 'bold');
@@ -168,7 +221,7 @@ export function generateInterventionPDF(intervention) {
     yPosition += 40;
 
     // ═════════════════════════════════════════
-    // SECTION 4: SIGNATURES
+    // SECTION 5: SIGNATURES
     // ═════════════════════════════════════════
 
     yPosition += 5;
