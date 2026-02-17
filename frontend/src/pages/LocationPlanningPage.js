@@ -562,7 +562,7 @@ const LocationPlanningPage = () => {
               <span>Dépassement</span>
             </div>
             <div className="legend-item">
-              <span className="legend-color today-indicator" style={{ background: '#dc2626' }}></span>
+              <span className="legend-color today-indicator" style={{ background: '#f97316' }}></span>
               <span>Aujourd'hui</span>
             </div>
           </div>

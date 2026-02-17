@@ -186,11 +186,11 @@ const ClientAutocomplete = ({ value, onChange, placeholder = "Nom du client" }) 
             left: 0,
             right: 0,
             background: 'linear-gradient(135deg, #1a1a1a, #2d2d2d)',
-            border: '2px solid #dc2626',
+            border: '2px solid #f97316',
             borderTop: 'none',
             borderRadius: '0 0 8px 8px',
             padding: '12px 16px',
-            color: '#f87171',
+            color: '#fed7aa',
             textAlign: 'center',
             fontSize: '14px',
             zIndex: 1000

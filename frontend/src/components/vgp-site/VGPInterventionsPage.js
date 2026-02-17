@@ -70,7 +70,7 @@ const VGPInterventionsPage = () => {
     const colors = {
       'planifiee': '#3b82f6',     // blue
       'en_cours': '#f59e0b',      // orange
-      'terminee': '#10b981',      // green
+      'terminee': '#14b8a6',      // green
       'annulee': '#6b7280'        // gray
     };
     return colors[status] || '#9ca3af';
@@ -314,7 +314,7 @@ const VGPInterventionsPage = () => {
             <span>En cours</span>
           </div>
           <div className="legend-item">
-            <span className="legend-dot" style={{ backgroundColor: '#10b981' }}></span>
+            <span className="legend-dot" style={{ backgroundColor: '#14b8a6' }}></span>
             <span>Terminée</span>
           </div>
           <div className="legend-item">

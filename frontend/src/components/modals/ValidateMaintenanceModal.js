@@ -59,11 +59,11 @@ const ValidateMaintenanceModal = ({
           {maintenance?.motif_maintenance && (
             <div className="recap-section motif-recap" style={{
               background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(185, 28, 28, 0.05))',
-              borderLeft: '4px solid #dc2626',
+              borderLeft: '4px solid #f97316',
               padding: '16px',
               borderRadius: '8px'
             }}>
-              <h3 style={{ margin: '0 0 8px 0', color: '#dc2626' }}>🔴 MOTIF DE MAINTENANCE</h3>
+              <h3 style={{ margin: '0 0 8px 0', color: '#f97316' }}>🔴 MOTIF DE MAINTENANCE</h3>
               <p className="recap-text" style={{ margin: '0', color: '#fff', fontSize: '14px' }}>{maintenance.motif_maintenance}</p>
             </div>
           )}
@@ -87,17 +87,17 @@ const ValidateMaintenanceModal = ({
             {maintenance?.pieces_utilisees && maintenance.pieces_utilisees.length > 0 && (
               <div className="recap-section pieces-recap" style={{
                 background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.05))',
-                borderLeft: '4px solid #10b981',
+                borderLeft: '4px solid #14b8a6',
                 padding: '12px',
                 borderRadius: '8px'
               }}>
-                <h4 style={{ margin: '0 0 8px 0', color: '#10b981', fontSize: '14px' }}>🔧 PIÈCES UTILISÉES</h4>
+                <h4 style={{ margin: '0 0 8px 0', color: '#14b8a6', fontSize: '14px' }}>🔧 PIÈCES UTILISÉES</h4>
                 <div style={{ fontSize: '13px', color: '#d1d5db' }}>
-                  <strong style={{ color: '#10b981', fontSize: '18px' }}>{maintenance.pieces_utilisees.length}</strong> pièce{maintenance.pieces_utilisees.length > 1 ? 's' : ''}
+                  <strong style={{ color: '#14b8a6', fontSize: '18px' }}>{maintenance.pieces_utilisees.length}</strong> pièce{maintenance.pieces_utilisees.length > 1 ? 's' : ''}
                 </div>
                 {totalSparePartsCost > 0 && (
                   <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '6px' }}>
-                    Coût: <span style={{ color: '#10b981', fontWeight: 'bold' }}>{totalSparePartsCost.toFixed(2)}€</span>
+                    Coût: <span style={{ color: '#14b8a6', fontWeight: 'bold' }}>{totalSparePartsCost.toFixed(2)}€</span>
                   </div>
                 )}
               </div>

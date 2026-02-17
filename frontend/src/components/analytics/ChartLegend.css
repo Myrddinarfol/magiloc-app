@@ -51,7 +51,7 @@
 .light-theme .legend-item:hover,
 .light-theme .legend-item.hovered {
   background-color: #f9fafb;
-  border-color: #dc2626;
+  border-color: #f97316;
   box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
 }
 
@@ -83,7 +83,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: linear-gradient(135deg, #dc2626, #991b1b);
+  background: linear-gradient(135deg, #f97316, #991b1b);
   color: #ffffff;
   box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
 }
@@ -139,7 +139,7 @@
 }
 
 .light-theme .legend-percentage {
-  color: #dc2626;
+  color: #f97316;
 }
 
 .dark-theme .legend-percentage {
@@ -174,7 +174,7 @@
 }
 
 .light-theme .total-value {
-  color: #dc2626;
+  color: #f97316;
 }
 
 .dark-theme .total-value {

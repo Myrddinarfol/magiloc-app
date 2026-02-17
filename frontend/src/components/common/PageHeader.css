@@ -81,7 +81,7 @@ body.light-theme .page-header {
   margin: 0 0 8px 0;
   text-transform: uppercase;
   letter-spacing: 2px;
-  background: linear-gradient(135deg, #fff, #dc2626);
+  background: linear-gradient(135deg, #fff, #f97316);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -89,7 +89,7 @@ body.light-theme .page-header {
 }
 
 body.light-theme .page-header-title {
-  background: linear-gradient(135deg, #1f2937, #dc2626);
+  background: linear-gradient(135deg, #1f2937, #f97316);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -99,14 +99,14 @@ body.light-theme .page-header-title {
 .page-header-subtitle {
   font-size: 16px;
   font-weight: 600;
-  color: #dc2626;
+  color: #f97316;
   margin: 0 0 4px 0;
   text-transform: uppercase;
   letter-spacing: 3px;
 }
 
 body.light-theme .page-header-subtitle {
-  color: #dc2626;
+  color: #f97316;
 }
 
 .page-header-description {

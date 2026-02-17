@@ -93,7 +93,7 @@
 }
 
 .equipment-details-close:hover {
-  color: #dc2626;
+  color: #f97316;
   background: rgba(220, 38, 38, 0.1);
 }
 
@@ -176,12 +176,12 @@
 
 .state-bon {
   background: rgba(16, 185, 129, 0.2);
-  color: #10b981;
+  color: #14b8a6;
 }
 
 .state-mauvais {
   background: rgba(220, 38, 38, 0.2);
-  color: #dc2626;
+  color: #f97316;
 }
 
 .state-maintenance {
@@ -211,7 +211,7 @@
 
 .status-disponible {
   background: rgba(16, 185, 129, 0.2);
-  color: #10b981;
+  color: #14b8a6;
 }
 
 .status-unknown {

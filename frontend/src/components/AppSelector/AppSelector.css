@@ -35,7 +35,7 @@
 }
 
 .app-selector-logo .logo-magi {
-  background: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f87171 100%);
+  background: linear-gradient(135deg, #f97316 0%, #fb923c 50%, #fed7aa 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -144,14 +144,14 @@
 }
 
 .parc-loc-card .card-title {
-  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+  background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .parc-loc-card:hover {
-  border-color: #dc2626;
+  border-color: #f97316;
   box-shadow: 0 12px 48px rgba(220, 38, 38, 0.25), inset 0 0 40px rgba(220, 38, 38, 0.05);
 }
 
@@ -167,14 +167,14 @@
 }
 
 .vgp-site-card .card-title {
-  background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+  background: linear-gradient(135deg, #14b8a6 0%, #14b8a6 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .vgp-site-card:hover {
-  border-color: #10b981;
+  border-color: #14b8a6;
   box-shadow: 0 12px 48px rgba(16, 185, 129, 0.25), inset 0 0 40px rgba(16, 185, 129, 0.05);
 }
 
@@ -227,13 +227,13 @@
 .parc-loc-card .card-description {
   border-color: rgba(220, 38, 38, 0.5);
   background: rgba(220, 38, 38, 0.08);
-  color: #dc2626;
+  color: #f97316;
 }
 
 .vgp-site-card .card-description {
   border-color: rgba(16, 185, 129, 0.5);
   background: rgba(16, 185, 129, 0.08);
-  color: #10b981;
+  color: #14b8a6;
 }
 
 .app-card:hover .card-description {
@@ -258,11 +258,11 @@
 }
 
 .parc-loc-card .arrow-svg {
-  color: #dc2626;
+  color: #f97316;
 }
 
 .vgp-site-card .arrow-svg {
-  color: #10b981;
+  color: #14b8a6;
 }
 
 .app-card:hover .arrow-svg {

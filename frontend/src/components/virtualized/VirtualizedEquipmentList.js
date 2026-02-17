@@ -79,9 +79,9 @@ const EquipmentRow = ({ index, style, data }) => {
             display: 'inline-block',
             backgroundColor:
               equipment.statut === 'En Location'
-                ? '#dc2626'
+                ? '#f97316'
                 : equipment.statut === 'Sur Parc'
-                ? '#10b981'
+                ? '#14b8a6'
                 : equipment.statut === 'En Réservation'
                 ? '#8b5cf6'
                 : equipment.statut === 'En Maintenance'

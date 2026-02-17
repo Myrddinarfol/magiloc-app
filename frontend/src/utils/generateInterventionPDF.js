@@ -10,7 +10,7 @@ export function generateInterventionPDF(intervention) {
     const doc = new jsPDF('p', 'mm', 'a4');
 
     // Couleurs et dimensions
-    const primaryColor = [16, 185, 129]; // #10b981 (vert)
+    const primaryColor = [16, 185, 129]; // #14b8a6 (vert)
     const borderColor = [200, 200, 200];
     const textColor = [0, 0, 0];
     const lightBg = [245, 245, 245];

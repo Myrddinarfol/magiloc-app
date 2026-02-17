@@ -74,7 +74,7 @@ const EquipmentDetailView = ({
                       className="btn btn-sm"
                       onClick={onEditTechInfo}
                       style={{
-                        background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                        background: 'linear-gradient(135deg, #f97316, #d97706)',
                         color: 'white',
                         border: 'none',
                         padding: '8px 12px',
@@ -208,11 +208,11 @@ const EquipmentDetailView = ({
                 padding: '15px',
                 background: 'linear-gradient(135deg, #1a1a1a, #2d2d2d)',
                 borderRadius: '12px',
-                border: '2px solid #dc2626',
+                border: '2px solid #f97316',
                 boxShadow: '0 4px 15px rgba(220, 38, 38, 0.3)'
               }}>
                 <h4 style={{
-                  color: '#dc2626',
+                  color: '#f97316',
                   fontSize: '14px',
                   fontWeight: 'bold',
                   marginBottom: '12px',
@@ -287,7 +287,7 @@ const EquipmentDetailView = ({
                     onClick={onDelete}
                     style={{
                       padding: '8px 16px',
-                      background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                      background: 'linear-gradient(135deg, #f97316, #d97706)',
                       color: 'white',
                       border: 'none',
                       borderRadius: '8px',
@@ -319,7 +319,7 @@ const EquipmentDetailView = ({
                     className="btn btn-sm"
                     onClick={onEditTechInfo}
                     style={{
-                      background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                      background: 'linear-gradient(135deg, #f97316, #d97706)',
                       color: 'white',
                       border: 'none',
                       padding: '8px 12px',
@@ -469,7 +469,7 @@ const EquipmentDetailView = ({
                         <span className="detail-label">Longue Durée:</span>
                         <span className="detail-value" style={{
                           fontWeight: 'bold',
-                          color: isLongDuration ? '#10b981' : '#9ca3af',
+                          color: isLongDuration ? '#14b8a6' : '#9ca3af',
                           padding: '4px 12px',
                           backgroundColor: isLongDuration ? 'rgba(16, 185, 129, 0.1)' : 'rgba(156, 163, 175, 0.1)',
                           borderRadius: '6px',
@@ -483,10 +483,10 @@ const EquipmentDetailView = ({
                     {/* AFFICHAGE TARIF REMISE - SEULEMENT SI LONGUE DURÉE ET PAS PRÊT */}
                     {!isLoan && isLongDuration && prixHT && (
                       <div className="detail-item" style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', padding: '10px', borderRadius: '8px', border: '2px solid rgba(16, 185, 129, 0.3)' }}>
-                        <span className="detail-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#10b981' }}>
+                        <span className="detail-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#14b8a6' }}>
                           💰 Tarif appliqué:
                         </span>
-                        <span className="detail-value" style={{ fontWeight: 'bold', color: '#10b981' }}>
+                        <span className="detail-value" style={{ fontWeight: 'bold', color: '#14b8a6' }}>
                           {(prixHT * 0.8).toFixed(2)}€/j au lieu de {prixHT}€/j
                         </span>
                       </div>
@@ -654,11 +654,11 @@ const EquipmentDetailView = ({
             padding: '15px',
             background: 'linear-gradient(135deg, #1a1a1a, #2d2d2d)',
             borderRadius: '12px',
-            border: '2px solid #dc2626',
+            border: '2px solid #f97316',
             boxShadow: '0 4px 15px rgba(220, 38, 38, 0.3)'
           }}>
             <h4 style={{
-              color: '#dc2626',
+              color: '#f97316',
               fontSize: '14px',
               fontWeight: 'bold',
               marginBottom: '12px',
@@ -680,7 +680,7 @@ const EquipmentDetailView = ({
                   onClick={() => setShowStartLocationModalDetail(true)}
                   style={{
                     padding: '8px 16px',
-                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                    background: 'linear-gradient(135deg, #14b8a6, #0d9488)',
                     color: 'white',
                     border: 'none',
                     borderRadius: '8px',
@@ -699,7 +699,7 @@ const EquipmentDetailView = ({
                   onClick={() => setShowCancelConfirm(true)}
                   style={{
                     padding: '8px 16px',
-                    background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                    background: 'linear-gradient(135deg, #f97316, #d97706)',
                     color: 'white',
                     border: 'none',
                     borderRadius: '8px',
@@ -723,7 +723,7 @@ const EquipmentDetailView = ({
                 onClick={() => setShowReturnModalDetail(true)}
                 style={{
                   padding: '8px 16px',
-                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  background: 'linear-gradient(135deg, #14b8a6, #0d9488)',
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',
@@ -790,7 +790,7 @@ const EquipmentDetailView = ({
                 onClick={() => setShowCompleteMaintenance(true)}
                 style={{
                   padding: '8px 16px',
-                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  background: 'linear-gradient(135deg, #14b8a6, #0d9488)',
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',
@@ -833,7 +833,7 @@ const EquipmentDetailView = ({
                   onClick={onDelete}
                   style={{
                     padding: '8px 16px',
-                    background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                    background: 'linear-gradient(135deg, #f97316, #d97706)',
                     color: 'white',
                     border: 'none',
                     borderRadius: '8px',
@@ -875,7 +875,7 @@ const EquipmentDetailView = ({
         }}>
           <div style={{
             background: 'linear-gradient(135deg, #1a1a1a, #2d2d2d)',
-            border: '2px solid #dc2626',
+            border: '2px solid #f97316',
             borderRadius: '16px',
             padding: '30px',
             maxWidth: '450px',
@@ -890,7 +890,7 @@ const EquipmentDetailView = ({
                 animation: 'bounce 1s ease-in-out infinite'
               }}>⚠️</div>
               <h2 style={{
-                color: '#dc2626',
+                color: '#f97316',
                 fontSize: '24px',
                 fontWeight: 'bold',
                 marginBottom: '10px',
@@ -946,7 +946,7 @@ const EquipmentDetailView = ({
                 }}
                 style={{
                   padding: '12px 30px',
-                  background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                  background: 'linear-gradient(135deg, #f97316, #d97706)',
                   color: 'white',
                   border: 'none',
                   borderRadius: '10px',

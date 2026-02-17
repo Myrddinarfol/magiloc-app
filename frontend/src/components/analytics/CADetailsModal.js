@@ -70,7 +70,7 @@ const CADetailsModal = ({
 
   const getStatusColor = (status) => {
     if (status === 'Fermée') return '#6b7280'; // Gris
-    if (status === 'En cours') return '#10b981'; // Vert
+    if (status === 'En cours') return '#14b8a6'; // Vert
     return '#9ca3af';
   };
 
@@ -189,7 +189,7 @@ const CADetailsModal = ({
                               <span>
                                 {hasNoEndDate ? <em>Indéfinie</em> : endDate}
                                 {hasOverdue && (
-                                  <span style={{ marginLeft: '4px', color: '#ef4444', fontWeight: 'bold' }} title="Dépassement: location non retournée">
+                                  <span style={{ marginLeft: '4px', color: '#fb923c', fontWeight: 'bold' }} title="Dépassement: location non retournée">
                                     ⚠️ +
                                   </span>
                                 )}

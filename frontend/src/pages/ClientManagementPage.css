@@ -74,7 +74,7 @@ body.light-theme .search-bar-input:focus {
 }
 
 .search-bar-clear:hover {
-  color: #dc2626;
+  color: #f97316;
   transform: scale(1.1);
 }
 
@@ -83,7 +83,7 @@ body.light-theme .search-bar-clear {
 }
 
 body.light-theme .search-bar-clear:hover {
-  color: #dc2626;
+  color: #f97316;
 }
 
 /* ==================== LISTE DE LIGNES ==================== */
@@ -236,7 +236,7 @@ body.light-theme .field-value {
 body.light-theme .contact-badge {
   background: rgba(220, 38, 38, 0.08);
   border-color: rgba(220, 38, 38, 0.2);
-  color: #dc2626;
+  color: #f97316;
 }
 
 .contacts-empty {
@@ -419,7 +419,7 @@ body.light-theme .client-actions-panel .client-action-edit:hover:not(:disabled) 
 body.light-theme .client-actions-panel .client-action-delete {
   background: linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(220, 38, 38, 0.05));
   border-color: rgba(220, 38, 38, 0.2);
-  color: #dc2626;
+  color: #f97316;
 }
 
 .client-actions-panel .client-action-delete:hover:not(:disabled) {

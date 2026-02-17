@@ -263,7 +263,7 @@ body.light-theme .tarifs-table td {
 }
 
 .btn-success {
-  background: linear-gradient(135deg, var(--color-success), #059669);
+  background: linear-gradient(135deg, var(--color-success), #0d9488);
   color: white;
   border: 1px solid rgba(22, 163, 74, 0.3);
 }

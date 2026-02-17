@@ -32,7 +32,7 @@ const ConfirmModal = ({
     }}>
       <div style={{
         background: 'linear-gradient(135deg, #1a1a1a, #2d2d2d)',
-        border: `3px solid ${danger ? '#dc2626' : '#fbbf24'}`,
+        border: `3px solid ${danger ? '#f97316' : '#fbbf24'}`,
         borderRadius: '20px',
         padding: '40px',
         maxWidth: '500px',
@@ -54,7 +54,7 @@ const ConfirmModal = ({
             {icon}
           </div>
           <h2 style={{
-            color: danger ? '#dc2626' : '#fbbf24',
+            color: danger ? '#f97316' : '#fbbf24',
             fontSize: '28px',
             fontWeight: 'bold',
             marginBottom: '15px',
@@ -125,7 +125,7 @@ const ConfirmModal = ({
             onClick={onConfirm}
             style={{
               padding: '15px 35px',
-              background: danger ? 'linear-gradient(135deg, #dc2626, #991b1b)' : 'linear-gradient(135deg, #16a34a, #15803d)',
+              background: danger ? 'linear-gradient(135deg, #f97316, #991b1b)' : 'linear-gradient(135deg, #16a34a, #15803d)',
               color: 'white',
               border: 'none',
               borderRadius: '12px',
@@ -141,12 +141,12 @@ const ConfirmModal = ({
             onMouseEnter={(e) => {
               e.target.style.transform = 'translateY(-3px)';
               e.target.style.boxShadow = danger ? '0 6px 30px rgba(220, 38, 38, 0.7)' : '0 6px 30px rgba(22, 163, 74, 0.7)';
-              e.target.style.background = danger ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #22c55e, #16a34a)';
+              e.target.style.background = danger ? 'linear-gradient(135deg, #fb923c, #f97316)' : 'linear-gradient(135deg, #22c55e, #16a34a)';
             }}
             onMouseLeave={(e) => {
               e.target.style.transform = 'translateY(0)';
               e.target.style.boxShadow = danger ? '0 4px 15px rgba(220, 38, 38, 0.5)' : '0 4px 15px rgba(22, 163, 74, 0.5)';
-              e.target.style.background = danger ? 'linear-gradient(135deg, #dc2626, #991b1b)' : 'linear-gradient(135deg, #16a34a, #15803d)';
+              e.target.style.background = danger ? 'linear-gradient(135deg, #f97316, #991b1b)' : 'linear-gradient(135deg, #16a34a, #15803d)';
             }}
           >
             {confirmIcon} {confirmText}

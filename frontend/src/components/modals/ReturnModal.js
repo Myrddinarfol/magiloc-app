@@ -129,7 +129,7 @@ const ReturnModal = ({ show, equipment, onConfirm, onCancel }) => {
               </div>
             )}
             {equipment.debutLocation && (
-              <div style={{ color: '#10b981', fontSize: '14px', marginTop: '8px', fontWeight: '500' }}>
+              <div style={{ color: '#14b8a6', fontSize: '14px', marginTop: '8px', fontWeight: '500' }}>
                 Départ: {equipment.debutLocation}
               </div>
             )}
@@ -146,7 +146,7 @@ const ReturnModal = ({ show, equipment, onConfirm, onCancel }) => {
               fontWeight: '600',
               marginBottom: '8px'
             }}>
-              Date de retour <span style={{ color: '#dc2626' }}>*</span>
+              Date de retour <span style={{ color: '#f97316' }}>*</span>
             </label>
             <input
               type="date"

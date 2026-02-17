@@ -44,7 +44,12 @@
       "Bash(ls:*)",
       "Bash(git rm:*)",
       "Bash(backend/.env << 'EOF'\nPORT=5000\nNODE_ENV=development\nDATABASE_URL=postgresql://postgres:WacxrJVEHHFbGXoolRHkzRGCdzMLnyDw@postgres.railway.internal:5432/railway\nDATABASE_PUBLIC_URL=postgresql://postgres:WacxrJVEHHFbGXoolRHkzRGCdzMLnyDw@postgres.railway.internal:5432/railway\nJWT_SECRET=magiloc_dev_secret_key_change_in_production\nEOF)",
-      "Bash(powershell -Command:*)"
+      "Bash(powershell -Command:*)",
+      "Bash(grep:*)",
+      "Bash(kill:*)",
+      "Bash(wmic process where ProcessId=12600 delete /nointeractive)",
+      "Bash(python3 -c \"import subprocess; subprocess.run\\([''taskkill'', ''/PID'', ''12600'', ''/F''], check=False\\)\")",
+      "Bash(cmd /C kill-node.bat:*)"
     ],
     "deny": [],
     "ask": []

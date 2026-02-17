@@ -70,9 +70,9 @@ const CAModule = () => {
 
   // Palette de couleurs premium cohérente avec l'app (memoized)
   const chartPalette = React.useMemo(() => [
-    '#dc2626', // Rouge primaire
+    '#f97316', // Rouge primaire
     '#3b82f6', // Bleu
-    '#10b981', // Vert
+    '#14b8a6', // Vert
     '#f59e0b', // Amber
     '#8b5cf6', // Purple
     '#ec4899', // Pink
@@ -279,10 +279,10 @@ const CAModule = () => {
               label: 'CA Confirmé par Mois',
               data: barConfirmedValues,
               backgroundColor: [
-                '#10b981', // Vert éclatant
+                '#14b8a6', // Vert éclatant
                 '#06b6d4', // Cyan
                 '#f59e0b', // Amber
-                '#ef4444', // Red
+                '#fb923c', // Red
                 '#8b5cf6', // Purple
                 '#ec4899', // Pink
                 '#14b8a6', // Teal
@@ -1025,7 +1025,7 @@ const CAModule = () => {
                         padding: 14,
                         titleFont: { size: 13, weight: 'bold', family: "'Segoe UI', 'Roboto', sans-serif" },
                         bodyFont: { size: 12, family: "'Segoe UI', 'Roboto', sans-serif" },
-                        titleColor: isDarkTheme ? '#fbbf24' : '#dc2626',
+                        titleColor: isDarkTheme ? '#fbbf24' : '#f97316',
                         bodyColor: isDarkTheme ? '#d1d5db' : '#374151',
                         borderColor: isDarkTheme ? 'rgba(220, 38, 38, 0.5)' : 'rgba(220, 38, 38, 0.2)',
                         borderWidth: 2,
@@ -1117,7 +1117,7 @@ const CAModule = () => {
                         padding: 14,
                         titleFont: { size: 13, weight: 'bold', family: "'Segoe UI', 'Roboto', sans-serif" },
                         bodyFont: { size: 12, family: "'Segoe UI', 'Roboto', sans-serif" },
-                        titleColor: isDarkTheme ? '#fbbf24' : '#dc2626',
+                        titleColor: isDarkTheme ? '#fbbf24' : '#f97316',
                         bodyColor: isDarkTheme ? '#d1d5db' : '#374151',
                         borderColor: isDarkTheme ? 'rgba(220, 38, 38, 0.5)' : 'rgba(220, 38, 38, 0.2)',
                         borderWidth: 2,

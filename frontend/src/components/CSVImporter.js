@@ -155,7 +155,7 @@ const transformedData = results.data
       )}
 
       {error && (
-        <p style={{ color: '#dc2626', marginTop: '10px', fontWeight: 'bold' }}>
+        <p style={{ color: '#f97316', marginTop: '10px', fontWeight: 'bold' }}>
           {error}
         </p>
       )}

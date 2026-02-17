@@ -147,7 +147,7 @@ const CreateReservationModal = ({ show, equipment, onConfirm, onCancel }) => {
             fontWeight: '600',
             marginBottom: '8px'
           }}>
-            CLIENT <span style={{ color: '#dc2626' }}>*</span>
+            CLIENT <span style={{ color: '#f97316' }}>*</span>
           </label>
           <ClientAutocomplete
             value={formData.client}

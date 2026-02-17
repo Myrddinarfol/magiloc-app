@@ -142,7 +142,7 @@
 
 .warning-action-btn {
   flex-shrink: 0;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
   color: white;
   border: none;
   padding: 8px 14px;
@@ -155,7 +155,7 @@
 }
 
 .warning-action-btn:hover {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  background: linear-gradient(135deg, #f97316 0%, #d97706 100%);
   box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
   transform: translateY(-1px);
 }
@@ -810,8 +810,8 @@ body.light-theme .ca-module-loading {
 }
 
 .filter-btn.active {
-  background: linear-gradient(135deg, #dc2626, #b91c1c);
-  border-color: #dc2626;
+  background: linear-gradient(135deg, #f97316, #d97706);
+  border-color: #f97316;
   color: #ffffff;
   box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
 }
@@ -848,7 +848,7 @@ body.light-theme .ca-module-loading {
 
 .filter-select:focus {
   outline: none;
-  border-color: #dc2626;
+  border-color: #f97316;
   box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
 }
 
