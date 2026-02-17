@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useIntervention } from '../../hooks/useIntervention';
 import { useUI } from '../../hooks/useUI';
+import { generateInterventionPDF } from '../../utils/generateInterventionPDF';
 import VGPPageHeader from './VGPPageHeader';
 import PlanifierInterventionModal from './modals/PlanifierInterventionModal';
 import './VGPInterventionsPage.css';
@@ -126,6 +127,12 @@ const VGPInterventionsPage = () => {
                 )}
               </div>
 
+              {intervention.nature_intervention && (
+                <div className="nature-info">
+                  <span className="nature-badge">🔧 {intervention.nature_intervention}</span>
+                </div>
+              )}
+
               <div className="address-info">
                 <span className="address-label">📍</span>
                 <span className="address-text">{intervention.adresse_intervention}</span>
@@ -173,6 +180,13 @@ const VGPInterventionsPage = () => {
                 <option value="terminee">Terminée</option>
                 <option value="annulee">Annulée</option>
               </select>
+              <button
+                className="pdf-button"
+                onClick={() => generateInterventionPDF(intervention)}
+                title="Télécharger le bon d'intervention en PDF"
+              >
+                🖨️ PDF
+              </button>
             </div>
           </div>
         ))}

@@ -19,6 +19,7 @@ const PlanifierInterventionModal = ({ onClose, intervention = null, isEditing = 
   const [contactSite, setContactSite] = useState(intervention?.contact_site || '');
   const [date, setDate] = useState(intervention?.date_intervention || '');
   const [duration, setDuration] = useState(intervention?.duree_jours || 1);
+  const [natureIntervention, setNatureIntervention] = useState(intervention?.nature_intervention || '');
   const [recommendations, setRecommendations] = useState(intervention?.recommandations || '');
   const [registerSite, setRegisterSite] = useState(false);
 
@@ -119,6 +120,7 @@ const PlanifierInterventionModal = ({ onClose, intervention = null, isEditing = 
         contact_site: contactSite || null,
         date_intervention: date,
         duree_jours: parseFloat(duration),
+        nature_intervention: natureIntervention || null,
         recommandations: recommendations || null
       };
 
@@ -279,6 +281,18 @@ const PlanifierInterventionModal = ({ onClose, intervention = null, isEditing = 
               value={contactSite}
               onChange={(e) => setContactSite(e.target.value)}
               rows="3"
+              disabled={isSubmitting}
+            />
+          </div>
+
+          {/* NATURE */}
+          <div className="form-group">
+            <label>Nature de l'intervention</label>
+            <input
+              type="text"
+              placeholder="Ex: Contrôle périodique, Vérification annuelle, Maintenance..."
+              value={natureIntervention}
+              onChange={(e) => setNatureIntervention(e.target.value)}
               disabled={isSubmitting}
             />
           </div>

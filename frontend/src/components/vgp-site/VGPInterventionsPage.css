@@ -192,6 +192,22 @@
   font-style: italic;
 }
 
+.nature-info {
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+.nature-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
 .address-info,
 .contact-info {
   display: flex;
@@ -256,10 +272,13 @@
   padding: 12px 16px;
   border-top: 1px solid var(--border-color);
   background: var(--bg-hover);
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
 .status-select {
-  width: 100%;
+  flex: 1;
   padding: 8px 12px;
   background: var(--bg-main);
   color: var(--text-primary);
@@ -274,6 +293,29 @@
   outline: none;
   border-color: #10b981;
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.pdf-button {
+  padding: 8px 14px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.pdf-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.pdf-button:active {
+  transform: translateY(0px);
 }
 
 /* Planning View */

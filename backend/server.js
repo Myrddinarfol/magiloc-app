@@ -1450,6 +1450,7 @@ app.get("/api/vgp-interventions", async (req, res) => {
         vi.contact_site,
         TO_CHAR(vi.date_intervention, 'YYYY-MM-DD') as date_intervention,
         vi.duree_jours::numeric,
+        vi.nature_intervention,
         vi.recommandations,
         vi.statut,
         vi.created_at,
@@ -1515,7 +1516,7 @@ app.get("/api/vgp-interventions/:id", async (req, res) => {
 // POST créer une nouvelle intervention VGP
 app.post("/api/vgp-interventions", async (req, res) => {
   try {
-    const { client_id, client_nom, site_id, site_nom, adresse_intervention, contact_site, date_intervention, duree_jours, recommandations } = req.body;
+    const { client_id, client_nom, site_id, site_nom, adresse_intervention, contact_site, date_intervention, duree_jours, nature_intervention, recommandations } = req.body;
 
     if (!adresse_intervention || !date_intervention) {
       return res.status(400).json({ error: "adresse_intervention et date_intervention sont requis" });
@@ -1525,10 +1526,10 @@ app.post("/api/vgp-interventions", async (req, res) => {
 
     const result = await pool.query(
       `INSERT INTO vgp_interventions
-        (client_id, client_nom, site_id, site_nom, adresse_intervention, contact_site, date_intervention, duree_jours, recommandations, statut, created_at, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'planifiee', NOW(), NOW())
+        (client_id, client_nom, site_id, site_nom, adresse_intervention, contact_site, date_intervention, duree_jours, nature_intervention, recommandations, statut, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'planifiee', NOW(), NOW())
        RETURNING *`,
-      [client_id || null, client_nom || null, site_id || null, site_nom || null, adresse_intervention, contact_site || null, date_intervention, duree_jours || 1.0, recommandations || null]
+      [client_id || null, client_nom || null, site_id || null, site_nom || null, adresse_intervention, contact_site || null, date_intervention, duree_jours || 1.0, nature_intervention || null, recommandations || null]
     );
 
     console.log(`✅ Intervention créée: ${result.rows[0].id}`);
@@ -1543,7 +1544,7 @@ app.post("/api/vgp-interventions", async (req, res) => {
 app.patch("/api/vgp-interventions/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { client_id, client_nom, site_id, site_nom, adresse_intervention, contact_site, date_intervention, duree_jours, recommandations, statut } = req.body;
+    const { client_id, client_nom, site_id, site_nom, adresse_intervention, contact_site, date_intervention, duree_jours, nature_intervention, recommandations, statut } = req.body;
 
     const updateFields = [];
     const values = [];
@@ -1587,6 +1588,11 @@ app.patch("/api/vgp-interventions/:id", async (req, res) => {
     if (duree_jours !== undefined) {
       updateFields.push(`duree_jours = $${paramIndex}`);
       values.push(duree_jours);
+      paramIndex++;
+    }
+    if (nature_intervention !== undefined) {
+      updateFields.push(`nature_intervention = $${paramIndex}`);
+      values.push(nature_intervention);
       paramIndex++;
     }
     if (recommandations !== undefined) {
