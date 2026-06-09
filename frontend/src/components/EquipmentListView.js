@@ -360,98 +360,96 @@ function EquipmentListView({
         </div>
       )}
 
-      {/* Filtres avancés pour SUR PARC et PARC LOC */}
+      {/* Filtres et Recherche - Même capsule */}
       {(currentPage === 'sur-parc' || currentPage === 'parc-loc') && (
-        <div className="filters-container" style={{
-          display: 'flex',
-          gap: '10px',
-          margin: '0 -30px',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          boxShadow: '0 4px 12px rgba(220, 38, 38, 0.4), 0 2px 6px rgba(220, 38, 38, 0.2), 0 4px 12px rgba(0, 0, 0, 0.3)',
-          width: 'calc(100% + 60px)',
-          background: 'linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%)',
-          padding: '20px 30px',
-          borderRadius: '16px'
-        }}>
-          <select
-            value={filterDesignation}
-            onChange={(e) => setFilterDesignation(e.target.value)}
-            style={{
-              padding: '10px 14px',
-              borderRadius: '8px',
-              border: '2px solid #1f2937',
-              backgroundColor: '#111827',
-              color: 'white',
-              fontSize: '14px',
-              minWidth: '200px',
-              cursor: 'pointer',
-              fontWeight: '500'
-            }}
-          >
-            <option value="" style={{backgroundColor: '#1f2937'}}>Toutes les désignations</option>
-            {filterOptions.designations?.map(designation => (
-              <option key={designation} value={designation} style={{backgroundColor: '#1f2937'}}>{designation}</option>
-            ))}
-          </select>
-
-          <select
-            value={filterCMU}
-            onChange={(e) => setFilterCMU(e.target.value)}
-            style={{
-              padding: '10px 14px',
-              borderRadius: '8px',
-              border: '2px solid #1f2937',
-              backgroundColor: '#111827',
-              color: 'white',
-              fontSize: '14px',
-              minWidth: '150px',
-              cursor: 'pointer',
-              fontWeight: '500'
-            }}
-          >
-            <option value="" style={{backgroundColor: '#1f2937'}}>Toutes les CMU</option>
-            {filterOptions.cmus?.map(cmu => (
-              <option key={cmu} value={cmu} style={{backgroundColor: '#1f2937'}}>{cmu}</option>
-            ))}
-          </select>
-
-          <select
-            value={filterLongueur}
-            onChange={(e) => setFilterLongueur(e.target.value)}
-            style={{
-              padding: '10px 14px',
-              borderRadius: '8px',
-              border: '2px solid #1f2937',
-              backgroundColor: '#111827',
-              color: 'white',
-              fontSize: '14px',
-              minWidth: '150px',
-              cursor: 'pointer',
-              fontWeight: '500'
-            }}
-          >
-            <option value="" style={{backgroundColor: '#1f2937'}}>Toutes les longueurs</option>
-            {filterOptions.longueurs?.map(longueur => (
-              <option key={longueur} value={longueur} style={{backgroundColor: '#1f2937'}}>{longueur}</option>
-            ))}
-          </select>
-
-          {(filterDesignation || filterCMU || filterLongueur) && (
-            <button
-              onClick={() => {
-                setFilterDesignation('');
-                setFilterCMU('');
-                setFilterLongueur('');
-              }}
+        <div className="filters-search-block">
+          {/* Filtres avancés pour SUR PARC et PARC LOC */}
+          <div className="filters-container" style={{
+            display: 'flex',
+            gap: '10px',
+            margin: '0',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            padding: '20px 30px'
+          }}>
+            <select
+              value={filterDesignation}
+              onChange={(e) => setFilterDesignation(e.target.value)}
               style={{
-                padding: '10px 18px',
+                padding: '10px 14px',
                 borderRadius: '8px',
-                border: '2px solid #dc2626',
-                backgroundColor: '#dc2626',
+                border: '2px solid #1f2937',
+                backgroundColor: '#111827',
                 color: 'white',
                 fontSize: '14px',
-                fontWeight: '600',
+                minWidth: '200px',
+                cursor: 'pointer',
+                fontWeight: '500'
+              }}
+            >
+              <option value="" style={{backgroundColor: '#1f2937'}}>Toutes les désignations</option>
+              {filterOptions.designations?.map(designation => (
+                <option key={designation} value={designation} style={{backgroundColor: '#1f2937'}}>{designation}</option>
+              ))}
+            </select>
+
+            <select
+              value={filterCMU}
+              onChange={(e) => setFilterCMU(e.target.value)}
+              style={{
+                padding: '10px 14px',
+                borderRadius: '8px',
+                border: '2px solid #1f2937',
+                backgroundColor: '#111827',
+                color: 'white',
+                fontSize: '14px',
+                minWidth: '150px',
+                cursor: 'pointer',
+                fontWeight: '500'
+              }}
+            >
+              <option value="" style={{backgroundColor: '#1f2937'}}>Toutes les CMU</option>
+              {filterOptions.cmus?.map(cmu => (
+                <option key={cmu} value={cmu} style={{backgroundColor: '#1f2937'}}>{cmu}</option>
+              ))}
+            </select>
+
+            <select
+              value={filterLongueur}
+              onChange={(e) => setFilterLongueur(e.target.value)}
+              style={{
+                padding: '10px 14px',
+                borderRadius: '8px',
+                border: '2px solid #1f2937',
+                backgroundColor: '#111827',
+                color: 'white',
+                fontSize: '14px',
+                minWidth: '150px',
+                cursor: 'pointer',
+                fontWeight: '500'
+              }}
+            >
+              <option value="" style={{backgroundColor: '#1f2937'}}>Toutes les longueurs</option>
+              {filterOptions.longueurs?.map(longueur => (
+                <option key={longueur} value={longueur} style={{backgroundColor: '#1f2937'}}>{longueur}</option>
+              ))}
+            </select>
+
+            {(filterDesignation || filterCMU || filterLongueur) && (
+              <button
+                onClick={() => {
+                  setFilterDesignation('');
+                  setFilterCMU('');
+                  setFilterLongueur('');
+                }}
+                style={{
+                  padding: '10px 18px',
+                  borderRadius: '8px',
+                  border: '2px solid #dc2626',
+                  backgroundColor: '#dc2626',
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: '600',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease'
               }}
@@ -460,29 +458,36 @@ function EquipmentListView({
             >
               ✕ Effacer filtres
             </button>
-          )}
+            )}
+          </div>
+
+          {/* Barre de recherche - Inside same block */}
+          <div className="search-container-inner" style={{
+            display: 'flex',
+            gap: '10px',
+            padding: '0 30px 20px 30px',
+            alignItems: 'center'
+          }}>
+            <input
+              type="text"
+              placeholder="Rechercher par désignation, modèle, n° série ou client..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+              style={{ flex: 1 }}
+            />
+            {equipmentFilter && currentPage === 'sur-parc' && (
+              <button
+                onClick={() => setEquipmentFilter(null)}
+                className="btn btn-secondary btn-sm"
+                style={{ marginLeft: '10px' }}
+              >
+                ✕ Effacer filtre
+              </button>
+            )}
+          </div>
         </div>
       )}
-
-      {/* Barre de recherche */}
-      <div className="search-container">
-        <input
-          type="text"
-          placeholder="Rechercher par désignation, modèle, n° série ou client..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
-        />
-        {equipmentFilter && currentPage === 'sur-parc' && (
-          <button
-            onClick={() => setEquipmentFilter(null)}
-            className="btn btn-secondary btn-sm"
-            style={{ marginLeft: '10px' }}
-          >
-            ✕ Effacer filtre
-          </button>
-        )}
-      </div>
 
       {/* Nombre de résultats */}
       <div className="results-count" style={{ margin: '10px 0', color: '#9ca3af' }}>
