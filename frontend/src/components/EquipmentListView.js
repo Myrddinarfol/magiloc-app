@@ -367,7 +367,8 @@ function EquipmentListView({
           gap: '10px',
           margin: '15px 0',
           flexWrap: 'wrap',
-          alignItems: 'center'
+          alignItems: 'center',
+          boxShadow: '0 4px 12px rgba(220, 38, 38, 0.4), 0 2px 6px rgba(220, 38, 38, 0.2), 0 4px 12px rgba(0, 0, 0, 0.3)'
         }}>
           <select
             value={filterDesignation}
