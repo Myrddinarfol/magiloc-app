@@ -1655,6 +1655,111 @@ app.delete("/api/vgp-interventions/:id", async (req, res) => {
   }
 });
 
+// ===== ROUTES VGP INTERVENTION EXECUTIONS =====
+
+// GET execution data for an intervention
+app.get("/api/vgp-interventions/:id/execution", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    console.log(`📋 Récupération execution intervention ${id}`);
+
+    const result = await pool.query(
+      `SELECT * FROM vgp_intervention_executions WHERE intervention_id = $1`,
+      [id]
+    );
+
+    // Return null if no execution exists yet
+    if (result.rows.length === 0) {
+      return res.json(null);
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("❌ Erreur GET execution:", err.message);
+    res.status(500).json({ error: "Erreur lors de la récupération execution" });
+  }
+});
+
+// POST/PUT execution data for an intervention (create or update)
+app.post("/api/vgp-interventions/:id/execution", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      heure_debut,
+      heure_fin,
+      duree_effective_heures,
+      equipements_controles,
+      pieces_changees,
+      observations,
+      brouillon
+    } = req.body;
+
+    console.log(`💾 Sauvegarde execution intervention ${id}`);
+
+    // Check if execution already exists
+    const existing = await pool.query(
+      `SELECT id FROM vgp_intervention_executions WHERE intervention_id = $1`,
+      [id]
+    );
+
+    if (existing.rows.length > 0) {
+      // UPDATE existing execution
+      const result = await pool.query(
+        `UPDATE vgp_intervention_executions
+         SET heure_debut = $1,
+             heure_fin = $2,
+             duree_effective_heures = $3,
+             equipements_controles = $4,
+             pieces_changees = $5,
+             observations = $6,
+             brouillon = $7,
+             updated_at = NOW()
+         WHERE intervention_id = $8
+         RETURNING *`,
+        [
+          heure_debut,
+          heure_fin,
+          duree_effective_heures,
+          JSON.stringify(equipements_controles || []),
+          JSON.stringify(pieces_changees || []),
+          JSON.stringify(observations || []),
+          brouillon !== false,
+          id
+        ]
+      );
+
+      console.log(`✅ Execution intervention ${id} mise à jour`);
+      res.json(result.rows[0]);
+    } else {
+      // INSERT new execution
+      const result = await pool.query(
+        `INSERT INTO vgp_intervention_executions
+         (intervention_id, heure_debut, heure_fin, duree_effective_heures,
+          equipements_controles, pieces_changees, observations, brouillon)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+         RETURNING *`,
+        [
+          id,
+          heure_debut,
+          heure_fin,
+          duree_effective_heures,
+          JSON.stringify(equipements_controles || []),
+          JSON.stringify(pieces_changees || []),
+          JSON.stringify(observations || []),
+          brouillon !== false
+        ]
+      );
+
+      console.log(`✅ Execution intervention ${id} créée`);
+      res.status(201).json(result.rows[0]);
+    }
+  } catch (err) {
+    console.error("❌ Erreur POST/PUT execution:", err.message);
+    res.status(500).json({ error: "Erreur lors de la sauvegarde execution" });
+  }
+});
+
 // ===== ROUTES PIECES DETACHEES =====
 
 // GET toutes les pièces détachées

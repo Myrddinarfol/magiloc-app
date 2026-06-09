@@ -201,6 +201,59 @@ export const InterventionProvider = ({ children }) => {
     }
   }, [API_URL]);
 
+  // =============================================
+  // INTERVENTION EXECUTIONS (Field work tracking)
+  // =============================================
+
+  const loadExecution = useCallback(async (interventionId) => {
+    setError(null);
+    try {
+      console.log(`📋 Chargement execution intervention ${interventionId}`);
+
+      const response = await fetch(`${API_URL}/api/vgp-interventions/${interventionId}/execution`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log(`✅ Execution chargée:`, data);
+      return data;
+    } catch (err) {
+      setError(err.message);
+      console.error('❌ Erreur loadExecution:', err.message);
+      throw err;
+    }
+  }, [API_URL]);
+
+  const saveExecution = useCallback(async (interventionId, executionData) => {
+    setError(null);
+    try {
+      console.log(`💾 Sauvegarde execution intervention ${interventionId}:`, executionData);
+
+      const response = await fetch(
+        `${API_URL}/api/vgp-interventions/${interventionId}/execution`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(executionData)
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      }
+
+      const savedData = await response.json();
+      console.log(`✅ Execution sauvegardée:`, savedData);
+      return savedData;
+    } catch (err) {
+      setError(err.message);
+      console.error('❌ Erreur saveExecution:', err.message);
+      throw err;
+    }
+  }, [API_URL]);
+
   return (
     <InterventionContext.Provider
       value={{
@@ -214,7 +267,9 @@ export const InterventionProvider = ({ children }) => {
         deleteIntervention,
         loadClientSites,
         addClientSite,
-        deleteClientSite
+        deleteClientSite,
+        loadExecution,
+        saveExecution
       }}
     >
       {children}

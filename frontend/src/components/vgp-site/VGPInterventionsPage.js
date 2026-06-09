@@ -4,13 +4,15 @@ import { useUI } from '../../hooks/useUI';
 import { generateInterventionPDF } from '../../utils/generateInterventionPDF';
 import VGPPageHeader from './VGPPageHeader';
 import PlanifierInterventionModal from './modals/PlanifierInterventionModal';
+import VGPExecutionPage from './VGPExecutionPage';
 import './VGPInterventionsPage.css';
 
 const VGPInterventionsPage = () => {
   const { interventions, loadInterventions, updateIntervention, deleteIntervention } = useIntervention();
   const { showToast } = useUI();
 
-  const [currentView, setCurrentView] = useState('fiches'); // 'fiches' | 'planning'
+  const [currentView, setCurrentView] = useState('fiches'); // 'fiches' | 'planning' | 'execution'
+  const [executingInterventionId, setExecutingInterventionId] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [editingIntervention, setEditingIntervention] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -54,6 +56,26 @@ const VGPInterventionsPage = () => {
         showToast(`Erreur: ${err.message}`, 'error');
       }
     }
+  };
+
+  const handleLaunchExecution = async (interventionId) => {
+    try {
+      // Change status to 'en_cours'
+      await updateIntervention(interventionId, { statut: 'en_cours' });
+      showToast('🚀 Intervention lancée', 'success');
+
+      // Switch to execution view
+      setExecutingInterventionId(interventionId);
+      setCurrentView('execution');
+    } catch (err) {
+      showToast(`Erreur: ${err.message}`, 'error');
+    }
+  };
+
+  const handleExitExecution = () => {
+    setCurrentView('fiches');
+    setExecutingInterventionId(null);
+    loadInterventions(); // Refresh
   };
 
   const getStatusLabel = (status) => {
@@ -187,6 +209,15 @@ const VGPInterventionsPage = () => {
               >
                 🖨️ PDF
               </button>
+              {intervention.statut === 'planifiee' && (
+                <button
+                  className="btn-lancer"
+                  onClick={() => handleLaunchExecution(intervention.id)}
+                  title="Lancer l'intervention sur le terrain"
+                >
+                  🚀 Lancer
+                </button>
+              )}
             </div>
           </div>
         ))}
@@ -328,51 +359,60 @@ const VGPInterventionsPage = () => {
 
   return (
     <div className="vgp-interventions-page">
-      <VGPPageHeader
-        icon="🛠️"
-        title="Interventions"
-        subtitle="Gestion des interventions VGP"
-        description="Planifier, suivre et gérer les interventions sur site"
-      />
-
-      {/* Navigation Buttons */}
-      <div className="interventions-nav">
-        <button
-          className={`nav-button ${currentView === 'fiches' ? 'active' : ''}`}
-          onClick={() => setCurrentView('fiches')}
-        >
-          📋 Fiches d'interventions
-        </button>
-        <button
-          className={`nav-button ${currentView === 'planning' ? 'active' : ''}`}
-          onClick={() => setCurrentView('planning')}
-        >
-          📅 Planning
-        </button>
-      </div>
-
-      {/* Primary Action Button */}
-      <div className="action-header">
-        <button
-          className="btn btn-primary btn-large"
-          onClick={() => handleOpenModal()}
-        >
-          🗓️ Planifier une intervention
-        </button>
-      </div>
-
-      {/* Content */}
-      <div className="interventions-content">
-        {currentView === 'fiches' ? renderFichesView() : renderPlanningView()}
-      </div>
-
-      {/* Modal */}
-      {showModal && (
-        <PlanifierInterventionModal
-          onClose={handleCloseModal}
-          intervention={editingIntervention}
-          isEditing={!!editingIntervention}
+      {currentView === 'execution' ? (
+        <VGPExecutionPage
+          interventionId={executingInterventionId}
+          onExit={handleExitExecution}
         />
+      ) : (
+        <>
+          <VGPPageHeader
+            icon="🛠️"
+            title="Interventions"
+            subtitle="Gestion des interventions VGP"
+            description="Planifier, suivre et gérer les interventions sur site"
+          />
+
+          {/* Navigation Buttons */}
+          <div className="interventions-nav">
+            <button
+              className={`nav-button ${currentView === 'fiches' ? 'active' : ''}`}
+              onClick={() => setCurrentView('fiches')}
+            >
+              📋 Fiches d'interventions
+            </button>
+            <button
+              className={`nav-button ${currentView === 'planning' ? 'active' : ''}`}
+              onClick={() => setCurrentView('planning')}
+            >
+              📅 Planning
+            </button>
+          </div>
+
+          {/* Primary Action Button */}
+          <div className="action-header">
+            <button
+              className="btn btn-primary btn-large"
+              onClick={() => handleOpenModal()}
+            >
+              🗓️ Planifier une intervention
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="interventions-content">
+            {currentView === 'fiches' ? renderFichesView() : renderPlanningView()}
+          </div>
+
+          {/* Modal */}
+          {showModal && (
+            <PlanifierInterventionModal
+              onClose={handleCloseModal}
+              intervention={editingIntervention}
+              isEditing={!!editingIntervention}
+            />
+          )}
+        </>
       )}
     </div>
   );

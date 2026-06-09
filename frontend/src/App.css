@@ -160,6 +160,9 @@ body.modal-open {
   position: relative;
   z-index: 1;
   overflow-x: hidden; /* Empêcher débordement horizontal */
+  overflow-y: auto; /* Activer scroll vertical pour sticky positioning */
+  height: 100vh;
+  height: 100dvh; /* Dynamic viewport height pour mobile */
 }
 
 /* Sidebar - Gris foncé avec accents rouges */
@@ -1671,7 +1674,13 @@ body.modal-open {
 
 /* Pages de liste */
 .page-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
   margin-bottom: 20px;
+  background: var(--bg-main);
+  padding: 20px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .page-title {
@@ -1681,7 +1690,12 @@ body.modal-open {
 }
 
 .search-container {
+  position: sticky;
+  top: 230px;
+  z-index: 40;
   margin-bottom: 20px;
+  background: var(--bg-main);
+  padding: 12px 0;
 }
 
 .search-input {
@@ -1705,8 +1719,25 @@ body.modal-open {
   color: var(--text-muted);
 }
 
+/* Actions PARC LOC */
+.parc-loc-actions {
+  position: sticky;
+  top: 140px;
+  z-index: 42;
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding: 15px 0;
+  background: var(--bg-main);
+  flex-wrap: wrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
 /* Conteneur de filtres */
 .filters-container {
+  position: sticky;
+  top: 140px;
+  z-index: 41;
   display: flex;
   flex-wrap: wrap;
   gap: 15px;
@@ -1715,7 +1746,7 @@ body.modal-open {
   padding: 20px;
   background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
   border-radius: var(--radius-md);
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4), 0 2px 6px rgba(220, 38, 38, 0.2);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4), 0 2px 6px rgba(220, 38, 38, 0.2), 0 4px 12px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(220, 38, 38, 0.3);
 }
 
@@ -1759,6 +1790,16 @@ body.modal-open {
 .filter-select option {
   background-color: var(--bg-card);
   color: var(--text-primary);
+}
+
+/* Ajustements sticky pour PARC LOC */
+/* Cas avec actions PARC LOC */
+.parc-loc-actions ~ .filters-container {
+  top: 160px !important;
+}
+
+.parc-loc-actions ~ .search-container {
+  top: 270px !important;
 }
 
 /* Responsive filtres */
