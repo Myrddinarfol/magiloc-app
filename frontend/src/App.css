@@ -1677,7 +1677,7 @@ body.modal-open {
   position: sticky;
   top: 0;
   z-index: 50;
-  margin: 0 -30px 0 -30px;
+  margin: 0 -30px -16px -30px;
   background: var(--bg-main);
   padding: 12px 30px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
@@ -1731,7 +1731,7 @@ body.modal-open {
 /* Bloc Filtres + Recherche fusionné */
 .filters-search-block {
   position: sticky;
-  top: 144px;
+  top: 128px;
   z-index: 41;
   margin: 0 -30px;
   background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
