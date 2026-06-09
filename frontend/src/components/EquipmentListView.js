@@ -329,37 +329,6 @@ function EquipmentListView({
         description={pageHeader.description}
       />
 
-      {/* Boutons d'action pour PARC LOC */}
-      {currentPage === 'parc-loc' && setShowImporter && (
-        <div className="parc-loc-actions">
-          <button
-            onClick={() => setShowAddEquipmentModal(true)}
-            className="btn btn-add"
-          >
-            ➕ AJOUTER
-          </button>
-          <button
-            onClick={() => setShowImporter(true)}
-            className="btn btn-import"
-          >
-            📥 IMPORTER CSV
-          </button>
-          <button
-            onClick={() => {
-              // Reset filters
-              setSearchTerm('');
-              setEquipmentFilter(null);
-              setFilterDesignation('');
-              setFilterCMU('');
-              setFilterLongueur('');
-            }}
-            className="btn btn-secondary"
-          >
-            🔄 RÉINITIALISER
-          </button>
-        </div>
-      )}
-
       {/* Filtres et Recherche - Même capsule */}
       {(currentPage === 'sur-parc' || currentPage === 'parc-loc') && (
         <div className="filters-search-block">
@@ -370,94 +339,169 @@ function EquipmentListView({
             margin: '0',
             flexWrap: 'wrap',
             alignItems: 'center',
-            padding: '20px 30px'
+            padding: '20px 30px',
+            justifyContent: 'space-between'
           }}>
-            <select
-              value={filterDesignation}
-              onChange={(e) => setFilterDesignation(e.target.value)}
-              style={{
-                padding: '10px 14px',
-                borderRadius: '8px',
-                border: '2px solid #1f2937',
-                backgroundColor: '#111827',
-                color: 'white',
-                fontSize: '14px',
-                minWidth: '200px',
-                cursor: 'pointer',
-                fontWeight: '500'
-              }}
-            >
-              <option value="" style={{backgroundColor: '#1f2937'}}>Toutes les désignations</option>
-              {filterOptions.designations?.map(designation => (
-                <option key={designation} value={designation} style={{backgroundColor: '#1f2937'}}>{designation}</option>
-              ))}
-            </select>
-
-            <select
-              value={filterCMU}
-              onChange={(e) => setFilterCMU(e.target.value)}
-              style={{
-                padding: '10px 14px',
-                borderRadius: '8px',
-                border: '2px solid #1f2937',
-                backgroundColor: '#111827',
-                color: 'white',
-                fontSize: '14px',
-                minWidth: '150px',
-                cursor: 'pointer',
-                fontWeight: '500'
-              }}
-            >
-              <option value="" style={{backgroundColor: '#1f2937'}}>Toutes les CMU</option>
-              {filterOptions.cmus?.map(cmu => (
-                <option key={cmu} value={cmu} style={{backgroundColor: '#1f2937'}}>{cmu}</option>
-              ))}
-            </select>
-
-            <select
-              value={filterLongueur}
-              onChange={(e) => setFilterLongueur(e.target.value)}
-              style={{
-                padding: '10px 14px',
-                borderRadius: '8px',
-                border: '2px solid #1f2937',
-                backgroundColor: '#111827',
-                color: 'white',
-                fontSize: '14px',
-                minWidth: '150px',
-                cursor: 'pointer',
-                fontWeight: '500'
-              }}
-            >
-              <option value="" style={{backgroundColor: '#1f2937'}}>Toutes les longueurs</option>
-              {filterOptions.longueurs?.map(longueur => (
-                <option key={longueur} value={longueur} style={{backgroundColor: '#1f2937'}}>{longueur}</option>
-              ))}
-            </select>
-
-            {(filterDesignation || filterCMU || filterLongueur) && (
-              <button
-                onClick={() => {
-                  setFilterDesignation('');
-                  setFilterCMU('');
-                  setFilterLongueur('');
-                }}
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center', flex: 1 }}>
+              <select
+                value={filterDesignation}
+                onChange={(e) => setFilterDesignation(e.target.value)}
                 style={{
-                  padding: '10px 18px',
+                  padding: '10px 14px',
                   borderRadius: '8px',
-                  border: '2px solid #dc2626',
-                  backgroundColor: '#dc2626',
+                  border: '2px solid #1f2937',
+                  backgroundColor: '#111827',
                   color: 'white',
                   fontSize: '14px',
-                  fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseOver={(e) => e.target.style.backgroundColor = '#b91c1c'}
-              onMouseOut={(e) => e.target.style.backgroundColor = '#dc2626'}
-            >
-              ✕ Effacer filtres
-            </button>
+                  minWidth: '200px',
+                  cursor: 'pointer',
+                  fontWeight: '500'
+                }}
+              >
+                <option value="" style={{backgroundColor: '#1f2937'}}>Toutes les désignations</option>
+                {filterOptions.designations?.map(designation => (
+                  <option key={designation} value={designation} style={{backgroundColor: '#1f2937'}}>{designation}</option>
+                ))}
+              </select>
+
+              <select
+                value={filterCMU}
+                onChange={(e) => setFilterCMU(e.target.value)}
+                style={{
+                  padding: '10px 14px',
+                  borderRadius: '8px',
+                  border: '2px solid #1f2937',
+                  backgroundColor: '#111827',
+                  color: 'white',
+                  fontSize: '14px',
+                  minWidth: '150px',
+                  cursor: 'pointer',
+                  fontWeight: '500'
+                }}
+              >
+                <option value="" style={{backgroundColor: '#1f2937'}}>Toutes les CMU</option>
+                {filterOptions.cmus?.map(cmu => (
+                  <option key={cmu} value={cmu} style={{backgroundColor: '#1f2937'}}>{cmu}</option>
+                ))}
+              </select>
+
+              <select
+                value={filterLongueur}
+                onChange={(e) => setFilterLongueur(e.target.value)}
+                style={{
+                  padding: '10px 14px',
+                  borderRadius: '8px',
+                  border: '2px solid #1f2937',
+                  backgroundColor: '#111827',
+                  color: 'white',
+                  fontSize: '14px',
+                  minWidth: '150px',
+                  cursor: 'pointer',
+                  fontWeight: '500'
+                }}
+              >
+                <option value="" style={{backgroundColor: '#1f2937'}}>Toutes les longueurs</option>
+                {filterOptions.longueurs?.map(longueur => (
+                  <option key={longueur} value={longueur} style={{backgroundColor: '#1f2937'}}>{longueur}</option>
+                ))}
+              </select>
+
+              {(filterDesignation || filterCMU || filterLongueur) && (
+                <button
+                  onClick={() => {
+                    setFilterDesignation('');
+                    setFilterCMU('');
+                    setFilterLongueur('');
+                  }}
+                  style={{
+                    padding: '10px 18px',
+                    borderRadius: '8px',
+                    border: '2px solid #dc2626',
+                    backgroundColor: '#dc2626',
+                    color: 'white',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseOver={(e) => e.target.style.backgroundColor = '#b91c1c'}
+                onMouseOut={(e) => e.target.style.backgroundColor = '#dc2626'}
+              >
+                ✕ Effacer filtres
+              </button>
+              )}
+            </div>
+
+            {/* Boutons d'action PARC LOC - à droite */}
+            {currentPage === 'parc-loc' && setShowImporter && (
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <button
+                  onClick={() => setShowAddEquipmentModal(true)}
+                  className="btn btn-small"
+                  style={{
+                    padding: '8px 14px',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    borderRadius: '6px',
+                    border: 'none',
+                    backgroundColor: '#10b981',
+                    color: 'white',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    whiteSpace: 'nowrap'
+                  }}
+                  onMouseOver={(e) => e.target.style.backgroundColor = '#059669'}
+                  onMouseOut={(e) => e.target.style.backgroundColor = '#10b981'}
+                >
+                  ➕ Ajouter
+                </button>
+                <button
+                  onClick={() => setShowImporter(true)}
+                  className="btn btn-small"
+                  style={{
+                    padding: '8px 14px',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    borderRadius: '6px',
+                    border: 'none',
+                    backgroundColor: '#10b981',
+                    color: 'white',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    whiteSpace: 'nowrap'
+                  }}
+                  onMouseOver={(e) => e.target.style.backgroundColor = '#059669'}
+                  onMouseOut={(e) => e.target.style.backgroundColor = '#10b981'}
+                >
+                  📥 CSV
+                </button>
+                <button
+                  onClick={() => {
+                    setSearchTerm('');
+                    setEquipmentFilter(null);
+                    setFilterDesignation('');
+                    setFilterCMU('');
+                    setFilterLongueur('');
+                  }}
+                  className="btn btn-small"
+                  style={{
+                    padding: '8px 14px',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    borderRadius: '6px',
+                    border: 'none',
+                    backgroundColor: '#6b7280',
+                    color: 'white',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    whiteSpace: 'nowrap'
+                  }}
+                  onMouseOver={(e) => e.target.style.backgroundColor = '#4b5563'}
+                  onMouseOut={(e) => e.target.style.backgroundColor = '#6b7280'}
+                >
+                  🔄 Réinit
+                </button>
+              </div>
             )}
           </div>
 

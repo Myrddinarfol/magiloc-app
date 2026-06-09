@@ -1727,22 +1727,6 @@ body.modal-open {
   color: var(--text-muted);
 }
 
-/* Actions PARC LOC */
-.parc-loc-actions {
-  position: sticky;
-  top: 125px;
-  z-index: 42;
-  display: flex;
-  gap: 15px;
-  margin: 0 -30px;
-  padding: 15px 30px;
-  background: var(--bg-main);
-  flex-wrap: wrap;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  width: calc(100% + 60px);
-  left: 0;
-  right: 0;
-}
 
 /* Bloc Filtres + Recherche fusionné */
 .filters-search-block {
@@ -1810,11 +1794,6 @@ body.modal-open {
   color: var(--text-primary);
 }
 
-/* Ajustements sticky pour PARC LOC */
-/* Cas avec actions PARC LOC */
-.parc-loc-actions ~ .filters-search-block {
-  top: 145px !important;
-}
 
 /* Responsive filtres */
 @media (max-width: 768px) {
