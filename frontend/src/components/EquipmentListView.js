@@ -365,10 +365,14 @@ function EquipmentListView({
         <div className="filters-container" style={{
           display: 'flex',
           gap: '10px',
-          margin: '15px 0',
+          margin: '0',
           flexWrap: 'wrap',
           alignItems: 'center',
-          boxShadow: '0 4px 12px rgba(220, 38, 38, 0.4), 0 2px 6px rgba(220, 38, 38, 0.2), 0 4px 12px rgba(0, 0, 0, 0.3)'
+          boxShadow: '0 4px 12px rgba(220, 38, 38, 0.4), 0 2px 6px rgba(220, 38, 38, 0.2), 0 4px 12px rgba(0, 0, 0, 0.3)',
+          width: '100%',
+          background: 'linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%)',
+          padding: '20px',
+          borderRadius: '16px'
         }}>
           <select
             value={filterDesignation}
