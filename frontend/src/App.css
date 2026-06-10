@@ -417,24 +417,42 @@ body.modal-open {
 }
 
 .nav-button:hover {
-  background: linear-gradient(135deg, rgba(220, 38, 38, 0.25) 0%, rgba(185, 28, 28, 0.15) 100%);
-  border-color: rgba(220, 38, 38, 0.5);
-  transform: translateX(4px);
-  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  background: transparent;
+  border-color: transparent;
+  transform: translateX(0px);
+  box-shadow: none;
+  color: white;
 }
 
 .nav-button:hover::before {
-  transform: scaleY(1);
+  transform: scaleY(0);
+}
+
+.nav-button:hover .nav-text {
+  color: white;
+}
+
+.nav-button:hover .nav-icon {
+  color: white;
 }
 
 .nav-button.active {
   background: transparent;
   border-color: transparent;
   box-shadow: none;
+  color: white;
 }
 
 .nav-button.active::before {
   transform: scaleY(0);
+}
+
+.nav-button.active .nav-text {
+  color: white;
+}
+
+.nav-button.active .nav-icon {
+  color: white;
 }
 
 .nav-icon {
@@ -553,25 +571,42 @@ body.modal-open {
 }
 
 .nav-sub-button:hover {
-  background: rgba(220, 38, 38, 0.15);
-  border-color: rgba(220, 38, 38, 0.3);
+  background: transparent;
+  border-color: transparent;
   color: white;
-  transform: translateX(4px);
+  transform: translateX(0px);
+  box-shadow: none;
 }
 
 .nav-sub-button:hover::before {
-  transform: scaleY(1);
+  transform: scaleY(0);
+}
+
+.nav-sub-button:hover .nav-sub-text {
+  color: white;
+}
+
+.nav-sub-button:hover .nav-sub-icon {
+  color: white;
 }
 
 .nav-sub-button.active {
   background: transparent;
   border-color: transparent;
-  color: inherit;
+  color: white;
   box-shadow: none;
 }
 
 .nav-sub-button.active::before {
   transform: scaleY(0);
+}
+
+.nav-sub-button.active .nav-sub-text {
+  color: white;
+}
+
+.nav-sub-button.active .nav-sub-icon {
+  color: white;
 }
 
 .nav-sub-icon {
