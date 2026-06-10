@@ -33,6 +33,12 @@ echo.
 echo Appuyez sur Ctrl+C pour arrêter l'application
 echo.
 
-npm run dev:all
+call npm run dev:all
+if errorlevel 1 (
+    echo.
+    echo ❌ Erreur lors du lancement de l'application
+    echo Vérifiez les ports 3000 et 5000 ne sont pas déjà utilisés
+    echo.
+)
 
 pause
