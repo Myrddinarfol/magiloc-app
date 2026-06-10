@@ -59,11 +59,10 @@ async function start() {
     ? `cd ${backendDir} && npm install && npm run dev`
     : `cd ${backendDir} && npm install && npm run dev`;
 
-  // Frontend - Lancer depuis le répertoire frontend avec npm start
-  const frontendDir = path.join(__dirname, 'frontend');
+  // Frontend - Lancer avec le script start:frontend du root
   const frontendCmd = isWindows
-    ? `cd ${frontendDir} && npm install --legacy-peer-deps && set PORT=3000 && npm start`
-    : `cd ${frontendDir} && npm install --legacy-peer-deps && PORT=3000 npm start`;
+    ? `set PORT=3000 && npm run start:frontend`
+    : `PORT=3000 npm run start:frontend`;
 
   console.log('✅ Ports libres - Lancement des serveurs\n');
   console.log('📦 Backend: npm run dev (port 5000)');
