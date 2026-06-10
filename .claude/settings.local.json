@@ -45,7 +45,9 @@
       "Bash(git rm:*)",
       "Bash(backend/.env << 'EOF'\nPORT=5000\nNODE_ENV=development\nDATABASE_URL=postgresql://postgres:WacxrJVEHHFbGXoolRHkzRGCdzMLnyDw@postgres.railway.internal:5432/railway\nDATABASE_PUBLIC_URL=postgresql://postgres:WacxrJVEHHFbGXoolRHkzRGCdzMLnyDw@postgres.railway.internal:5432/railway\nJWT_SECRET=magiloc_dev_secret_key_change_in_production\nEOF)",
       "Bash(powershell -Command:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(Start-Sleep -Seconds 8)",
+      "Bash(Get-Content C:\\\\Users\\\\atelier\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-atelier-Desktop-MagiLoc-magiloc-app\\\\9e9903de-605d-4c7d-a3e4-48260e334d6d\\\\tasks\\\\bvppnayjm.output -Tail 30)"
     ],
     "deny": [],
     "ask": []

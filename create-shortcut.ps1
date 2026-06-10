@@ -22,4 +22,4 @@ $Shortcut.Save()
 
 Write-Host "✅ Raccourci créé sur le bureau: $ShortcutPath" -ForegroundColor Green
 Write-Host ""
-Write-Host "Vous pouvez maintenant double-cliquer sur 'MagiLoc' sur le bureau pour lancer l'application!" -ForegroundColor Cyan
+Write-Host "Vous pouvez maintenant double-cliquer sur 'MagiApps' sur le bureau pour lancer l'application!" -ForegroundColor Cyan
