@@ -14,8 +14,8 @@ $Shortcut.WorkingDirectory = $PSScriptRoot
 $Shortcut.Description = "Lance MagiLoc en mode développement local (Frontend + Backend)"
 $Shortcut.WindowStyle = 1  # Mode normal
 
-# Définir l'icône (optional - utilise l'icône par défaut de Node si disponible)
-# $Shortcut.IconLocation = "C:\Program Files\nodejs\node.exe,0"
+# Définir l'icône personnalisée MagiLoc
+$Shortcut.IconLocation = "$PSScriptRoot\magiloc-icon.ico"
 
 # Sauvegarder le raccourci
 $Shortcut.Save()
