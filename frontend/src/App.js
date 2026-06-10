@@ -21,6 +21,7 @@ import { initTooltips } from './utils/tooltipManager';
 
 // Pages
 import LoginPage from './pages/LoginPage';
+import HomePage from './pages/HomePage';
 import ReleaseNotesPage from './pages/ReleaseNotesPage';
 import DashboardPage from './pages/DashboardPage';
 import AnalyticsPage from './pages/AnalyticsPage';
@@ -43,7 +44,6 @@ import EquipmentListView from './components/EquipmentListView';
 import EquipmentDetailView from './components/equipment/EquipmentDetailView';
 import CSVImporter from './components/CSVImporter';
 import ReleaseNotesHistory from './components/ReleaseNotesHistory';
-import AppSelector from './components/AppSelector/AppSelector';
 import VGPSiteApp from './components/vgp-site/VGPSiteApp';
 
 // Modals
@@ -719,10 +719,10 @@ const AppContent = () => {
       </>
     );
   } else if (!activeApp) {
-    // Si pas d'app sélectionnée, montrer le sélecteur
+    // Si pas d'app sélectionnée, montrer la page d'accueil
     content = (
       <>
-        <AppSelector />
+        <HomePage />
         <Analytics />
       </>
     );

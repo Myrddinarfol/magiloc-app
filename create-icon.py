@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Script pour créer une icône Windows .ico pour MagiLoc
+Script pour créer une icône Windows .ico pour MagiApps
 """
 import sys
 import os
@@ -36,7 +36,7 @@ try:
     draw.ellipse([110, 110, 146, 146], fill=(16, 185, 129, 255))
 
     # Sauvegarder en PNG
-    img.save('magiloc-icon.png')
+    img.save('magiapps-icon.png')
 
     # Créer les différentes tailles pour l'ICO
     sizes = [(256, 256), (128, 128), (64, 64), (48, 48), (32, 32), (16, 16)]
@@ -47,11 +47,11 @@ try:
         icons.append(icon)
 
     # Sauvegarder en ICO
-    icons[0].save('magiloc-icon.ico', sizes=sizes)
+    icons[0].save('magiapps-icon.ico', sizes=sizes)
 
     print("[OK] Icon created successfully!")
-    print("   - magiloc-icon.png (256x256)")
-    print("   - magiloc-icon.ico (multi-resolution)")
+    print("   - magiapps-icon.png (256x256)")
+    print("   - magiapps-icon.ico (multi-resolution)")
 
 except Exception as e:
     print(f"[ERROR] {str(e)}")

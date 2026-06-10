@@ -1,7 +1,7 @@
 # Script pour créer un raccourci sur le bureau
 
 $DesktopPath = [Environment]::GetFolderPath("Desktop")
-$ShortcutPath = "$DesktopPath\MagiLoc.lnk"
+$ShortcutPath = "$DesktopPath\MagiApps.lnk"
 $TargetPath = "$PSScriptRoot\run-magiloc.bat"
 
 # Créer l'objet shell
@@ -11,11 +11,11 @@ $Shortcut = $Shell.CreateShortcut($ShortcutPath)
 # Configurer le raccourci
 $Shortcut.TargetPath = $TargetPath
 $Shortcut.WorkingDirectory = $PSScriptRoot
-$Shortcut.Description = "Lance MagiLoc en mode développement local (Frontend + Backend)"
+$Shortcut.Description = "Lance MagiApps en mode développement local (Frontend + Backend)"
 $Shortcut.WindowStyle = 1  # Mode normal
 
-# Définir l'icône personnalisée MagiLoc
-$Shortcut.IconLocation = "$PSScriptRoot\magiloc-icon.ico"
+# Définir l'icône personnalisée MagiApps
+$Shortcut.IconLocation = "$PSScriptRoot\magiapps-icon.ico"
 
 # Sauvegarder le raccourci
 $Shortcut.Save()
