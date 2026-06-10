@@ -11,12 +11,14 @@ export const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const [activeApp, setActiveApp] = useState(() => {
+    // Toujours commencer avec null (afficher AppSelector au démarrage)
+    // L'utilisateur choisit son app via le panneau d'accueil
     try {
-      return localStorage.getItem('activeApp') || null;
+      localStorage.removeItem('activeApp');
     } catch (e) {
-      console.warn('Erreur lecture localStorage activeApp:', e);
-      return null;
+      console.warn('Erreur clearing localStorage activeApp:', e);
     }
+    return null;
   });
 
   const switchApp = (appName) => {
