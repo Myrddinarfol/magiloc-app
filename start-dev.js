@@ -59,11 +59,11 @@ async function start() {
     ? `cd ${backendDir} && npm install && npm run dev`
     : `cd ${backendDir} && npm install && npm run dev`;
 
-  // Frontend - Lancer avec npx react-scripts
+  // Frontend - Lancer avec npx react-scripts (forcer yes automatiquement)
   const frontendDir = path.join(__dirname, 'frontend');
   const frontendCmd = isWindows
-    ? `cd ${frontendDir} && npm install --legacy-peer-deps && set PORT=3000 && npx react-scripts start`
-    : `cd ${frontendDir} && npm install --legacy-peer-deps && PORT=3000 npx react-scripts start`;
+    ? `cd ${frontendDir} && npm install --legacy-peer-deps && set PORT=3000 && set npm_config_yes=true && npx react-scripts start`
+    : `cd ${frontendDir} && npm install --legacy-peer-deps && PORT=3000 npm_config_yes=true npx react-scripts start`;
 
   console.log('✅ Ports libres - Lancement des serveurs\n');
   console.log('📦 Backend: npm run dev (port 5000)');
