@@ -59,15 +59,15 @@ async function start() {
     ? `cd ${backendDir} && npm install && npm run dev`
     : `cd ${backendDir} && npm install && npm run dev`;
 
-  // Frontend
+  // Frontend - Lancer directement react-scripts pour éviter les conflits
   const frontendDir = path.join(__dirname, 'frontend');
   const frontendCmd = isWindows
-    ? `cd ${frontendDir} && npm install --legacy-peer-deps && npm start`
-    : `cd ${frontendDir} && npm install --legacy-peer-deps && npm start`;
+    ? `cd ${frontendDir} && npm install --legacy-peer-deps && set PORT=3000 && node node_modules/react-scripts/bin/react-scripts.js start`
+    : `cd ${frontendDir} && npm install --legacy-peer-deps && PORT=3000 node node_modules/react-scripts/bin/react-scripts.js start`;
 
   console.log('✅ Ports libres - Lancement des serveurs\n');
-  console.log('📦 Backend: npm run dev');
-  console.log('🎨 Frontend: npm start\n');
+  console.log('📦 Backend: npm run dev (port 5000)');
+  console.log('🎨 Frontend: react-scripts start (port 3000)\n');
 
   const backend = spawn(shell, [...shellArgs, backendCmd], {
     stdio: 'inherit',
@@ -75,6 +75,7 @@ async function start() {
   });
 
   setTimeout(() => {
+    console.log('\n⏳ Lancement du frontend...\n');
     const frontend = spawn(shell, [...shellArgs, frontendCmd], {
       stdio: 'inherit',
       shell: true
@@ -84,7 +85,7 @@ async function start() {
       console.log(`\n❌ Frontend fermé (code ${code})`);
       process.exit(code);
     });
-  }, 3000);
+  }, 4000);
 
   backend.on('close', (code) => {
     console.log(`\n❌ Backend fermé (code ${code})`);
