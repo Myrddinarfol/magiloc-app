@@ -428,13 +428,13 @@ body.modal-open {
 }
 
 .nav-button.active {
-  background: linear-gradient(135deg, rgba(220, 38, 38, 0.4) 0%, rgba(185, 28, 28, 0.3) 100%);
-  border-color: rgba(220, 38, 38, 0.7);
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .nav-button.active::before {
-  transform: scaleY(1);
+  transform: scaleY(0);
 }
 
 .nav-icon {
@@ -465,9 +465,10 @@ body.modal-open {
   flex-shrink: 0;
 }
 
+/* Badges ne sont pas mis en évidence quand actifs */
 .nav-button.active .nav-badge {
-  background: linear-gradient(135deg, rgba(220, 38, 38, 0.8) 0%, rgba(185, 28, 28, 0.7) 100%);
-  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  background: inherit;
+  box-shadow: none;
 }
 
 /* Sous-menus collapsibles */
@@ -563,14 +564,14 @@ body.modal-open {
 }
 
 .nav-sub-button.active {
-  background: rgba(220, 38, 38, 0.25);
-  border-color: rgba(220, 38, 38, 0.5);
-  color: white;
-  box-shadow: 0 2px 12px rgba(220, 38, 38, 0.3);
+  background: transparent;
+  border-color: transparent;
+  color: inherit;
+  box-shadow: none;
 }
 
 .nav-sub-button.active::before {
-  transform: scaleY(1);
+  transform: scaleY(0);
 }
 
 .nav-sub-icon {
@@ -5986,9 +5987,9 @@ body.light-theme .nav-button:hover {
 }
 
 body.light-theme .nav-button.active {
-  background: linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(220, 38, 38, 0.1));
-  color: #dc2626;
-  border-left-color: #dc2626;
+  background: transparent;
+  color: inherit;
+  border-left-color: transparent;
 }
 
 body.light-theme .nav-badge {
