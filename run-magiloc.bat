@@ -1,5 +1,5 @@
 @echo off
-REM Script pour lancer MagiLoc localement
+REM Script pour lancer MagiLoc localement avec nettoyage automatique des ports
 
 setlocal enabledelayedexpansion
 
@@ -24,7 +24,15 @@ echo.
 REM Aller au répertoire du projet
 cd /d "%~dp0"
 
+REM Nettoyer les processus Node qui occupent les ports
+echo 🧹 Nettoyage des ports 3000 et 5000...
+taskkill /F /IM node.exe >nul 2>&1
+
+REM Attendre que les ports se libèrent
+timeout /t 3 /nobreak >nul
+
 REM Lancer le script de démarrage
+echo.
 echo Lancement du Frontend et Backend...
 echo.
 echo 💡 Le Frontend ouvrira à: http://localhost:3000
