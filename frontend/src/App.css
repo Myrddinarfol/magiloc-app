@@ -2879,8 +2879,8 @@ body.modal-open {
 [data-tooltip]:hover::before {
   content: attr(data-tooltip);
   position: fixed;
-  left: calc(var(--mouse-x, 0) + 15px);
-  top: calc(var(--mouse-y, 0) - 30px);
+  left: calc(var(--tooltip-x, 0px) + 15px);
+  top: calc(var(--tooltip-y, 0px) - 30px);
   padding: 8px 12px;
   background: linear-gradient(135deg, rgba(45, 45, 45, 0.95), rgba(30, 30, 30, 0.95));
   color: #f0f0f0;
@@ -2908,8 +2908,8 @@ body.modal-open {
 [data-tooltip]:hover::after {
   content: '';
   position: fixed;
-  left: calc(var(--mouse-x, 0) + 10px);
-  top: calc(var(--mouse-y, 0) - 15px);
+  left: calc(var(--tooltip-x, 0px) + 10px);
+  top: calc(var(--tooltip-y, 0px) - 15px);
   width: 0;
   height: 0;
   border-top: 4px solid transparent;
