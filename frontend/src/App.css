@@ -1602,6 +1602,34 @@ body.modal-open {
   box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
 }
 
+.btn-reset {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+  border: 1px solid #7c3aed;
+  padding: 12px 20px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-reset:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+}
+
+.parc-loc-btn {
+  padding: 12px 24px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  white-space: nowrap;
+}
+
 .btn-success {
   background-color: var(--color-success);
   color: white;

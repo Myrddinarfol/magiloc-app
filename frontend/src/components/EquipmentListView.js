@@ -437,41 +437,13 @@ function EquipmentListView({
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <button
                   onClick={() => setShowAddEquipmentModal(true)}
-                  className="btn btn-small"
-                  style={{
-                    padding: '8px 14px',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    borderRadius: '6px',
-                    border: 'none',
-                    backgroundColor: '#10b981',
-                    color: 'white',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    whiteSpace: 'nowrap'
-                  }}
-                  onMouseOver={(e) => e.target.style.backgroundColor = '#059669'}
-                  onMouseOut={(e) => e.target.style.backgroundColor = '#10b981'}
+                  className="btn btn-primary parc-loc-btn"
                 >
                   ➕ Ajouter
                 </button>
                 <button
                   onClick={() => setShowImporter(true)}
-                  className="btn btn-small"
-                  style={{
-                    padding: '8px 14px',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    borderRadius: '6px',
-                    border: 'none',
-                    backgroundColor: '#10b981',
-                    color: 'white',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    whiteSpace: 'nowrap'
-                  }}
-                  onMouseOver={(e) => e.target.style.backgroundColor = '#059669'}
-                  onMouseOut={(e) => e.target.style.backgroundColor = '#10b981'}
+                  className="btn btn-primary parc-loc-btn"
                 >
                   📥 CSV
                 </button>
@@ -483,21 +455,7 @@ function EquipmentListView({
                     setFilterCMU('');
                     setFilterLongueur('');
                   }}
-                  className="btn btn-small"
-                  style={{
-                    padding: '8px 14px',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    borderRadius: '6px',
-                    border: 'none',
-                    backgroundColor: '#6b7280',
-                    color: 'white',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    whiteSpace: 'nowrap'
-                  }}
-                  onMouseOver={(e) => e.target.style.backgroundColor = '#4b5563'}
-                  onMouseOut={(e) => e.target.style.backgroundColor = '#6b7280'}
+                  className="btn btn-reset parc-loc-btn"
                 >
                   🔄 Réinit
                 </button>
