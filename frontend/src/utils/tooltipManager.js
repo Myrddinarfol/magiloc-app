@@ -49,9 +49,6 @@ export const initTooltips = () => {
     }
   });
 
-  // Masquer le tooltip quand on quitte
-  document.addEventListener('mouseleave', hideTooltip);
-
   return observer;
 };
 
