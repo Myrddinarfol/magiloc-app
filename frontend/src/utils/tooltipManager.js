@@ -1,7 +1,9 @@
 let currentTooltipElement = null;
+let currentTooltipOwner = null;
 let tooltipContainer = null;
 let mouseX = 0;
 let mouseY = 0;
+let hideTimeoutId = null;
 
 export const initTooltips = () => {
   // Créer le conteneur global pour les tooltips
@@ -93,6 +95,15 @@ const showTooltip = (e) => {
   const tooltipText = element.getAttribute('data-tooltip');
   if (!tooltipText) return;
 
+  // Si on est déjà en train de montrer un tooltip pour cet élément, ne rien faire
+  if (currentTooltipOwner === element) return;
+
+  // Annuler le timeout de hide s'il existe
+  if (hideTimeoutId) {
+    clearTimeout(hideTimeoutId);
+    hideTimeoutId = null;
+  }
+
   // Créer le tooltip
   if (currentTooltipElement) {
     currentTooltipElement.remove();
@@ -143,6 +154,7 @@ const showTooltip = (e) => {
   currentTooltipElement.appendChild(textContainer);
 
   tooltipContainer.appendChild(currentTooltipElement);
+  currentTooltipOwner = element;
   updateTooltipPosition();
 };
 
@@ -177,13 +189,20 @@ const updateTooltipPosition = () => {
   currentTooltipElement.style.top = y + 'px';
 };
 
-const hideTooltip = () => {
+const hideTooltip = (e) => {
+  const element = e.target.closest('[data-tooltip]');
+  if (!element) return;
+
+  // Ne cacher que si le tooltip appartient à cet élément
+  if (currentTooltipOwner !== element) return;
+
   if (currentTooltipElement) {
     currentTooltipElement.style.animation = 'tooltipFadeOut 0.2s ease-out forwards';
-    setTimeout(() => {
-      if (currentTooltipElement) {
+    hideTimeoutId = setTimeout(() => {
+      if (currentTooltipElement && currentTooltipOwner === element) {
         currentTooltipElement.remove();
         currentTooltipElement = null;
+        currentTooltipOwner = null;
       }
     }, 200);
   }
