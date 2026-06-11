@@ -64,6 +64,20 @@ export const initTooltips = () => {
     }
   });
 
+  // Vérifier et nettoyer quand on clique
+  document.addEventListener('click', () => {
+    if (currentTooltipOwner && !document.contains(currentTooltipOwner)) {
+      forceHideTooltip();
+    }
+  });
+
+  // Vérifier périodiquement si l'élément propriétaire existe toujours
+  const checkInterval = setInterval(() => {
+    if (currentTooltipOwner && !document.contains(currentTooltipOwner)) {
+      forceHideTooltip();
+    }
+  }, 500);
+
   return observer;
 };
 
