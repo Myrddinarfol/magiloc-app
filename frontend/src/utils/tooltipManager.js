@@ -76,7 +76,6 @@ const attachTooltipListeners = (element) => {
   // Pour l'élément lui-même
   if (element.hasAttribute && element.hasAttribute('data-tooltip')) {
     element.addEventListener('mouseenter', showTooltip);
-    element.addEventListener('mousemove', updateTooltipPosition);
     element.addEventListener('mouseleave', hideTooltip);
   }
 
@@ -85,7 +84,6 @@ const attachTooltipListeners = (element) => {
     const elementsWithTooltip = element.querySelectorAll('[data-tooltip]');
     elementsWithTooltip.forEach(el => {
       el.addEventListener('mouseenter', showTooltip);
-      el.addEventListener('mousemove', updateTooltipPosition);
       el.addEventListener('mouseleave', hideTooltip);
     });
   }
