@@ -242,7 +242,12 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
     if (editing && editing[field] !== undefined) {
       return editing[field];
     }
-    return tariff[field] || '';
+    const value = tariff[field];
+    // Traiter 0 et undefined/null comme vides pour les champs minimum et prixHT
+    if (value === 0 || value === null || value === undefined) {
+      return '';
+    }
+    return value;
   };
 
   const hasChanges = (tariff) => {
