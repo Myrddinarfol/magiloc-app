@@ -9,28 +9,38 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
   const [editingTariffs, setEditingTariffs] = useState({});
   const [selectedFilter, setSelectedFilter] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState({});
 
-  // Grouper les équipements par (designation + CMU) - clé unique
+  // Catégories avec tarification par modèle
+  const TARIF_PAR_MODELE = ['Treuil électrique 300kg', 'Treuil électrique 500kg'];
+
+  // Grouper les équipements - avec sous-sections par modèle pour certaines catégories
   const groupedTariffs = useMemo(() => {
     if (!equipmentData || equipmentData.length === 0) return [];
 
     const groups = {};
 
     equipmentData.forEach(eq => {
-      const key = `${eq.designation}||${eq.cmu}`;
+      const isTarifParModele = TARIF_PAR_MODELE.includes(eq.designation);
+      const key = isTarifParModele
+        ? `${eq.designation}||${eq.cmu}||${eq.modele || 'N/A'}`
+        : `${eq.designation}||${eq.cmu}`;
 
       if (!groups[key]) {
-        // Prendre les valeurs du premier équipement du groupe
         groups[key] = {
           key,
           designation: eq.designation,
           cmu: eq.cmu,
-          label: `${eq.designation} ${eq.cmu ? `- ${eq.cmu}` : ''}`,
+          modele: eq.modele,
+          label: isTarifParModele
+            ? `${eq.designation} ${eq.cmu ? `- ${eq.cmu}` : ''} • ${eq.modele || 'Sans modèle'}`
+            : `${eq.designation} ${eq.cmu ? `- ${eq.cmu}` : ''}`,
           prixHT: eq.prixHT,
           minimumFacturation: eq.minimumFacturation,
           idArticle: eq.idArticle,
           count: 0,
-          equipmentIds: []
+          equipmentIds: [],
+          isTarifParModele
         };
       }
 
@@ -38,19 +48,57 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
       groups[key].equipmentIds.push(eq.id);
     });
 
-    // Convertir en array et trier par désignation + CMU
+    // Convertir en array et trier
+    return Object.values(groups).sort((a, b) => {
+      const desComp = a.designation.localeCompare(b.designation);
+      if (desComp !== 0) return desComp;
+      if ((a.cmu || '') !== (b.cmu || '')) return (a.cmu || '').localeCompare(b.cmu || '');
+      return (a.modele || '').localeCompare(b.modele || '');
+    });
+  }, [equipmentData]);
+
+  // Grouper les tarifs pour l'affichage avec sections et sous-sections
+  const displayGroups = useMemo(() => {
+    const groups = {};
+
+    groupedTariffs.forEach(tariff => {
+      const parentKey = `${tariff.designation}||${tariff.cmu}`;
+
+      if (!groups[parentKey]) {
+        groups[parentKey] = {
+          parentKey,
+          designation: tariff.designation,
+          cmu: tariff.cmu,
+          label: `${tariff.designation} ${tariff.cmu ? `- ${tariff.cmu}` : ''}`,
+          isTarifParModele: tariff.isTarifParModele,
+          subTariffs: [],
+          totalCount: 0
+        };
+      }
+
+      groups[parentKey].subTariffs.push(tariff);
+      groups[parentKey].totalCount += tariff.count;
+    });
+
     return Object.values(groups).sort((a, b) => {
       const desComp = a.designation.localeCompare(b.designation);
       if (desComp !== 0) return desComp;
       return (a.cmu || '').localeCompare(b.cmu || '');
     });
-  }, [equipmentData]);
+  }, [groupedTariffs]);
 
-  // Filtrer les tarifs selon la sélection
-  const filteredTariffs = useMemo(() => {
-    if (!selectedFilter) return groupedTariffs;
-    return groupedTariffs.filter(t => t.key === selectedFilter);
-  }, [groupedTariffs, selectedFilter]);
+  const toggleGroupExpanded = (key) => {
+    setExpandedGroups(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
+  // Filtrer les groupes d'affichage selon la sélection
+  const filteredGroups = useMemo(() => {
+    if (!selectedFilter) return displayGroups;
+    return displayGroups.filter(g => g.parentKey === selectedFilter);
+  }, [displayGroups, selectedFilter]);
 
   // Mettre à jour un tarif (édition locale)
   const handleTarifChange = (key, field, value) => {
@@ -193,9 +241,9 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
             className="filter-select"
           >
             <option value="">-- Tous les matériels --</option>
-            {groupedTariffs.map(tariff => (
-              <option key={tariff.key} value={tariff.key}>
-                {tariff.label} ({tariff.count})
+            {displayGroups.map(group => (
+              <option key={group.parentKey} value={group.parentKey}>
+                {group.label} ({group.totalCount})
               </option>
             ))}
           </select>
@@ -210,75 +258,152 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
         </button>
       </div>
 
-      {filteredTariffs.length === 0 ? (
+      {filteredGroups.length === 0 ? (
         <div className="tarifs-empty">
           <p>Aucun matériel trouvé</p>
         </div>
       ) : (
         <div className="tarifs-table-container">
-          <table className="tarifs-table">
-            <thead>
-              <tr>
-                <th className="col-material">Type de Matériel</th>
-                <th className="col-count">Quantité</th>
-                <th className="col-prix">Prix HT/J (€)</th>
-                <th className="col-minimum">Minimum de facturation (€)</th>
-                <th className="col-id-article">ID ARTICLE</th>
-                <th className="col-action">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTariffs.map(tariff => (
-                <tr key={tariff.key} className={`tarif-row ${hasChanges(tariff) ? 'modified' : ''}`}>
-                  <td className="col-material">
-                    <span className="material-name">{tariff.label}</span>
-                  </td>
-                  <td className="col-count">
-                    <span className="count-badge">{tariff.count}</span>
-                  </td>
-                  <td className="col-prix">
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={getTarifValue(tariff, 'prixHT')}
-                      onChange={(e) => handleTarifChange(tariff.key, 'prixHT', e.target.value)}
-                      className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
-                      disabled={isLoading}
-                    />
-                  </td>
-                  <td className="col-minimum">
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={getTarifValue(tariff, 'minimumFacturation')}
-                      onChange={(e) => handleTarifChange(tariff.key, 'minimumFacturation', e.target.value)}
-                      className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
-                      disabled={isLoading}
-                    />
-                  </td>
-                  <td className="col-id-article">
-                    <input
-                      type="text"
-                      value={getTarifValue(tariff, 'idArticle')}
-                      onChange={(e) => handleTarifChange(tariff.key, 'idArticle', e.target.value)}
-                      className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
-                      disabled={isLoading}
-                      placeholder="-"
-                    />
-                  </td>
-                  <td className="col-action">
-                    <button
-                      onClick={() => handleSaveTarif(tariff)}
-                      disabled={!hasChanges(tariff) || isLoading}
-                      className={`btn btn-small ${hasChanges(tariff) ? 'btn-success' : 'btn-disabled'}`}
-                    >
-                      {hasChanges(tariff) ? '💾 MAJ' : '✓'}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {filteredGroups.map(group => (
+            <div key={group.parentKey} className="tarif-group">
+              {/* En-tête du groupe */}
+              {group.isTarifParModele && (
+                <div
+                  className="tarif-group-header"
+                  onClick={() => toggleGroupExpanded(group.parentKey)}
+                >
+                  <span className="group-toggle">
+                    {expandedGroups[group.parentKey] ? '▼' : '▶'}
+                  </span>
+                  <span className="group-title">📦 {group.label}</span>
+                  <span className="group-count">({group.totalCount})</span>
+                </div>
+              )}
+
+              {/* Tableau - affichage normal pour non-modèle */}
+              {!group.isTarifParModele ? (
+                <table className="tarifs-table">
+                  <thead>
+                    <tr>
+                      <th className="col-material">Type de Matériel</th>
+                      <th className="col-count">Quantité</th>
+                      <th className="col-prix">Prix HT/J (€)</th>
+                      <th className="col-minimum">Minimum de facturation (€)</th>
+                      <th className="col-id-article">ID ARTICLE</th>
+                      <th className="col-action">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {group.subTariffs.map(tariff => (
+                      <tr key={tariff.key} className={`tarif-row ${hasChanges(tariff) ? 'modified' : ''}`}>
+                        <td className="col-material">
+                          <span className="material-name">{tariff.label}</span>
+                        </td>
+                        <td className="col-count">
+                          <span className="count-badge">{tariff.count}</span>
+                        </td>
+                        <td className="col-prix">
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={getTarifValue(tariff, 'prixHT')}
+                            onChange={(e) => handleTarifChange(tariff.key, 'prixHT', e.target.value)}
+                            className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
+                            disabled={isLoading}
+                          />
+                        </td>
+                        <td className="col-minimum">
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={getTarifValue(tariff, 'minimumFacturation')}
+                            onChange={(e) => handleTarifChange(tariff.key, 'minimumFacturation', e.target.value)}
+                            className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
+                            disabled={isLoading}
+                          />
+                        </td>
+                        <td className="col-id-article">
+                          <input
+                            type="text"
+                            value={getTarifValue(tariff, 'idArticle')}
+                            onChange={(e) => handleTarifChange(tariff.key, 'idArticle', e.target.value)}
+                            className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
+                            disabled={isLoading}
+                            placeholder="-"
+                          />
+                        </td>
+                        <td className="col-action">
+                          <button
+                            onClick={() => handleSaveTarif(tariff)}
+                            disabled={!hasChanges(tariff) || isLoading}
+                            className={`btn btn-small ${hasChanges(tariff) ? 'btn-success' : 'btn-disabled'}`}
+                          >
+                            {hasChanges(tariff) ? '💾 MAJ' : '✓'}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                // Sous-sections par modèle pour treuils
+                expandedGroups[group.parentKey] && (
+                  <div className="tarif-modeles">
+                    {group.subTariffs.map(tariff => (
+                      <div key={tariff.key} className={`tarif-modele ${hasChanges(tariff) ? 'modified' : ''}`}>
+                        <div className="modele-header">
+                          <span className="modele-name">🔧 {tariff.modele || 'Sans modèle'}</span>
+                          <span className="modele-count">{tariff.count} unité(s)</span>
+                        </div>
+                        <div className="modele-fields">
+                          <div className="field-group">
+                            <label>Prix HT/J (€)</label>
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={getTarifValue(tariff, 'prixHT')}
+                              onChange={(e) => handleTarifChange(tariff.key, 'prixHT', e.target.value)}
+                              className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
+                              disabled={isLoading}
+                            />
+                          </div>
+                          <div className="field-group">
+                            <label>Minimum facturation (€)</label>
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={getTarifValue(tariff, 'minimumFacturation')}
+                              onChange={(e) => handleTarifChange(tariff.key, 'minimumFacturation', e.target.value)}
+                              className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
+                              disabled={isLoading}
+                            />
+                          </div>
+                          <div className="field-group">
+                            <label>ID ARTICLE</label>
+                            <input
+                              type="text"
+                              value={getTarifValue(tariff, 'idArticle')}
+                              onChange={(e) => handleTarifChange(tariff.key, 'idArticle', e.target.value)}
+                              className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
+                              disabled={isLoading}
+                              placeholder="-"
+                            />
+                          </div>
+                          <button
+                            onClick={() => handleSaveTarif(tariff)}
+                            disabled={!hasChanges(tariff) || isLoading}
+                            className={`btn btn-small ${hasChanges(tariff) ? 'btn-success' : 'btn-disabled'}`}
+                          >
+                            {hasChanges(tariff) ? '💾 Sauvegarder' : '✓ Enregistré'}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>
