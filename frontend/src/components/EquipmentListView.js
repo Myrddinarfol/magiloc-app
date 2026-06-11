@@ -8,6 +8,7 @@ import StartLocationModal from './modals/StartLocationModal';
 import ReturnModal from './modals/ReturnModal';
 import CreateReservationModal from './modals/CreateReservationModal';
 import ExchangeModal from './modals/ExchangeModal';
+import { smartSearchWithScore } from '../utils/smartSearch';
 
 function EquipmentListView({
   equipmentData,
@@ -305,14 +306,18 @@ function EquipmentListView({
       );
     }
 
-    // Recherche textuelle
+    // Recherche textuelle intelligente
     if (searchTerm) {
-      filtered = filtered.filter(equipment =>
-        equipment.designation?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        equipment.numeroSerie?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        equipment.modele?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (equipment.client && equipment.client.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
+      const results = filtered
+        .map(equipment => ({
+          equipment,
+          ...smartSearchWithScore(equipment, searchTerm)
+        }))
+        .filter(item => item.match)
+        .sort((a, b) => b.score - a.score)
+        .map(item => item.equipment);
+
+      return results;
     }
 
     return filtered;
