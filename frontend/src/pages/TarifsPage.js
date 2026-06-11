@@ -244,10 +244,12 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
     }
     const value = tariff[field];
     // Traiter 0 et undefined/null comme vides pour les champs minimum et prixHT
-    if (value === 0 || value === null || value === undefined) {
-      return '';
+    if (field === 'minimumFacturation' || field === 'prixHT') {
+      if (!value || value === 0 || value === '0' || value === '0.00') {
+        return '';
+      }
     }
-    return value;
+    return value || '';
   };
 
   const hasChanges = (tariff) => {
