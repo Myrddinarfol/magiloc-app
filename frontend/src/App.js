@@ -568,9 +568,11 @@ const MainApp = ({ shouldStartTour }) => {
 
       <div className="main-content">
         {showImporter && (
-          <div style={{ marginBottom: '20px' }}>
-            <CSVImporter onDataImported={handleDataImported} showToast={showToast} />
-          </div>
+          <CSVImporter
+            onDataImported={handleDataImported}
+            showToast={showToast}
+            onClose={() => setShowImporter(false)}
+          />
         )}
 
         {renderMainContent()}

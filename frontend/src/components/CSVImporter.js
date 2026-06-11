@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Papa from 'papaparse';
 
-function CSVImporter({ onDataImported, showToast }) {
+function CSVImporter({ onDataImported, showToast, onClose }) {
   const [isLoading, setIsLoading] = useState(false);
   const [fileName, setFileName] = useState('');
   const [error, setError] = useState('');
@@ -115,51 +115,163 @@ const transformedData = results.data
   };
 
   return (
-    <div style={{
-      padding: '20px',
-      backgroundColor: 'white',
-      borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      margin: '20px 0'
-    }}>
-      <h3>Importer votre fichier CSV</h3>
-      <p style={{ color: '#666', marginBottom: '15px' }}>
-        Sélectionnez votre fichier CSV pour importer tous vos équipements
-      </p>
-      
-      <input
-        type="file"
-        accept=".csv"
-        onChange={handleFileUpload}
-        disabled={isLoading}
+    <>
+      {/* Backdrop */}
+      <div
         style={{
-          padding: '10px',
-          border: '2px dashed #ccc',
-          borderRadius: '4px',
-          width: '100%',
-          backgroundColor: isLoading ? '#e5e5e5' : '#f9f9f9',
-          cursor: isLoading ? 'not-allowed' : 'pointer'
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          zIndex: 999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
         }}
-      />
-      
-      {isLoading && (
-        <p style={{ color: '#2563eb', marginTop: '10px', fontWeight: 'bold' }}>
-          Import en cours...
-        </p>
-      )}
-      
-      {fileName && !isLoading && !error && (
-        <p style={{ color: '#16a34a', marginTop: '10px', fontWeight: 'bold' }}>
-          Fichier importé : {fileName}
-        </p>
-      )}
+        onClick={onClose}
+      >
+        {/* Modal */}
+        <div
+          style={{
+            backgroundColor: 'var(--bg-card, #2a2a2a)',
+            borderRadius: '12px',
+            padding: '30px',
+            maxWidth: '500px',
+            width: '90%',
+            boxShadow: '0 10px 40px rgba(0, 0, 0, 0.5)',
+            border: '1px solid rgba(220, 38, 38, 0.2)',
+            position: 'relative'
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Bouton Fermer */}
+          <button
+            onClick={onClose}
+            style={{
+              position: 'absolute',
+              top: '12px',
+              right: '12px',
+              background: 'none',
+              border: 'none',
+              fontSize: '24px',
+              cursor: 'pointer',
+              color: 'var(--text-primary, #f3f4f6)',
+              padding: '4px 8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseOver={(e) => e.target.style.transform = 'scale(1.2)'}
+            onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
+            title="Fermer"
+          >
+            ✕
+          </button>
 
-      {error && (
-        <p style={{ color: '#dc2626', marginTop: '10px', fontWeight: 'bold' }}>
-          {error}
-        </p>
-      )}
-    </div>
+          <h3 style={{
+            margin: '0 0 10px 0',
+            color: 'var(--text-primary, #f3f4f6)',
+            fontSize: '20px',
+            fontWeight: '600'
+          }}>
+            📥 Importer votre fichier CSV
+          </h3>
+
+          <p style={{
+            color: 'var(--text-muted, #9ca3af)',
+            marginBottom: '20px',
+            fontSize: '14px'
+          }}>
+            Sélectionnez votre fichier CSV pour importer tous vos équipements
+          </p>
+
+          <input
+            type="file"
+            accept=".csv"
+            onChange={handleFileUpload}
+            disabled={isLoading}
+            style={{
+              padding: '14px',
+              border: '2px dashed rgba(220, 38, 38, 0.4)',
+              borderRadius: '8px',
+              width: '100%',
+              backgroundColor: isLoading ? 'rgba(107, 114, 128, 0.1)' : 'rgba(34, 197, 94, 0.05)',
+              color: 'var(--text-primary, #f3f4f6)',
+              cursor: isLoading ? 'not-allowed' : 'pointer',
+              boxSizing: 'border-box',
+              fontSize: '14px',
+              transition: 'all 0.2s ease'
+            }}
+          />
+
+          {isLoading && (
+            <p style={{
+              color: '#3b82f6',
+              marginTop: '15px',
+              fontWeight: '600',
+              textAlign: 'center'
+            }}>
+              ⏳ Import en cours...
+            </p>
+          )}
+
+          {fileName && !isLoading && !error && (
+            <p style={{
+              color: '#22c55e',
+              marginTop: '15px',
+              fontWeight: '600',
+              textAlign: 'center'
+            }}>
+              ✅ Fichier importé : {fileName}
+            </p>
+          )}
+
+          {error && (
+            <p style={{
+              color: '#ef4444',
+              marginTop: '15px',
+              fontWeight: '600',
+              textAlign: 'center'
+            }}>
+              ❌ {error}
+            </p>
+          )}
+
+          {/* Bouton Annuler */}
+          {!isLoading && (
+            <button
+              onClick={onClose}
+              style={{
+                marginTop: '20px',
+                width: '100%',
+                padding: '12px',
+                backgroundColor: 'rgba(107, 114, 128, 0.2)',
+                color: 'var(--text-primary, #f3f4f6)',
+                border: '1px solid rgba(107, 114, 128, 0.3)',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseOver={(e) => {
+                e.target.style.backgroundColor = 'rgba(107, 114, 128, 0.3)';
+                e.target.style.transform = 'translateY(-1px)';
+              }}
+              onMouseOut={(e) => {
+                e.target.style.backgroundColor = 'rgba(107, 114, 128, 0.2)';
+                e.target.style.transform = 'translateY(0)';
+              }}
+            >
+              Annuler
+            </button>
+          )}
+        </div>
+      </div>
+    </>
   );
 }
 
