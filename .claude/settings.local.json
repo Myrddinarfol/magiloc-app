@@ -49,7 +49,8 @@
       "Bash(Start-Sleep -Seconds 8)",
       "Bash(Get-Content C:\\\\Users\\\\atelier\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-atelier-Desktop-MagiLoc-magiloc-app\\\\9e9903de-605d-4c7d-a3e4-48260e334d6d\\\\tasks\\\\bvppnayjm.output -Tail 30)",
       "Bash(pkill -9 -f \"node\")",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "PowerShell(Get-Process | Where-Object { $_.Name -eq \"node\" } | Stop-Process -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 3)"
     ],
     "deny": [],
     "ask": []

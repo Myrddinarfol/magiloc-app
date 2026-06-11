@@ -2867,272 +2867,35 @@ body.modal-open {
 }
 
 /* ===================================
-   TOOLTIPS PERSONNALISÉS
+   TOOLTIPS PERSONNALISÉS (JavaScript-based)
    =================================== */
 
-/* Masquer les tooltips natifs du navigateur */
 [data-tooltip] {
-  position: relative;
+  cursor: help;
 }
 
-/* Créer un tooltip CSS personnalisé - Suit le curseur de la souris */
-[data-tooltip]:hover::before {
-  content: attr(data-tooltip);
-  position: fixed;
-  left: calc(var(--tooltip-x, 0px) + 15px);
-  top: calc(var(--tooltip-y, 0px) - 30px);
-  padding: 8px 12px;
-  background: linear-gradient(135deg, rgba(45, 45, 45, 0.95), rgba(30, 30, 30, 0.95));
-  color: #f0f0f0;
-  font-size: 12px;
-  font-weight: 500;
-  border-radius: 6px;
-  z-index: 9999999;
-  pointer-events: none;
-  border: 1px solid rgba(220, 38, 38, 0.25);
-  box-shadow:
-    0 2px 12px rgba(0, 0, 0, 0.3),
-    0 0 16px rgba(220, 38, 38, 0.08);
-  animation: tooltipFadeIn 0.2s ease-out;
-  letter-spacing: 0.3px;
-  min-width: 100px;
-  max-width: 200px;
-  white-space: normal;
-  word-wrap: break-word;
-  text-align: center;
-  line-height: 1.3;
-  backdrop-filter: blur(4px);
-}
-
-/* Flèche du tooltip - Pointée vers le curseur */
-[data-tooltip]:hover::after {
-  content: '';
-  position: fixed;
-  left: calc(var(--tooltip-x, 0px) + 10px);
-  top: calc(var(--tooltip-y, 0px) - 15px);
-  width: 0;
-  height: 0;
-  border-top: 4px solid transparent;
-  border-bottom: 4px solid transparent;
-  border-left: 4px solid rgba(220, 38, 38, 0.2);
-  z-index: 10000000;
-  pointer-events: none;
-  animation: tooltipFadeIn 0.2s ease-out;
-}
-
-/* Tooltips pour les éléments proches du haut de page - s'affichent en dessous */
-.page-header [data-tooltip]:hover::before,
-.timeline-header [data-tooltip]:hover::before,
-thead [data-tooltip]:hover::before,
-tbody tr:first-child [data-tooltip]:hover::before {
-  bottom: auto;
-  top: calc(100% + 12px);
-  transform: translateX(-50%);
-}
-
-.page-header [data-tooltip]:hover::after,
-.timeline-header [data-tooltip]:hover::after,
-tbody tr:first-child [data-tooltip]:hover::after,
-thead [data-tooltip]:hover::after {
-  bottom: auto;
-  top: calc(100% + 2px);
-  border-top: none;
-  border-bottom: 10px solid rgba(220, 38, 38, 0.6);
-  transform: translateX(-50%) rotate(180deg);
-}
-
-/* Tooltips pour le bas du tableau - s'affichent en dessous */
-/* MAIS les boutons action gardent les tooltips à gauche */
-tbody .btn-icon[data-tooltip]:hover::before {
-  /* Les boutons action gardent le tooltip à gauche */
-  right: calc(100% + 12px);
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-tbody .btn-icon[data-tooltip]:hover::after {
-  /* La flèche du bouton action pointe à droite */
-  right: calc(100% - 2px);
-  top: 50%;
-  transform: translateY(-50%);
-  border-left: 10px solid rgba(220, 38, 38, 0.6);
-  border-top: 8px solid transparent;
-  border-bottom: 8px solid transparent;
-}
-
-/* Les autres éléments du tableau affichent les tooltips en bas */
-tbody [data-tooltip]:not(.btn-icon):hover::before {
-  bottom: auto;
-  top: calc(100% + 12px);
-  transform: translateX(-50%);
-}
-
-tbody [data-tooltip]:not(.btn-icon):hover::after {
-  bottom: auto;
-  top: calc(100% + 2px);
-  border-top: none;
-  border-bottom: 10px solid rgba(220, 38, 38, 0.6);
-  transform: translateX(-50%) rotate(180deg);
-}
-
-/* Animation d'apparition */
 @keyframes tooltipFadeIn {
   from {
     opacity: 0;
-    transform: translateX(-50%) translateY(-5px);
+    transform: scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
+    transform: scale(1);
   }
 }
 
-/* Variant pour les tooltips à droite (boutons en fin de ligne) */
-/* SAUF les boutons action dans le tableau qui gardent tooltips à gauche */
-.btn-icon[data-tooltip]:hover::before,
-.action-button[data-tooltip]:hover::before,
-button[data-tooltip]:hover::before {
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-/* Les boutons action dans le tableau gardent tooltips à gauche */
-tbody .btn-icon[data-tooltip]:hover::before {
-  left: auto;
-  right: calc(100% + 12px);
-  transform: translateY(-50%);
-}
-
-/* Glow effect pour les tooltips */
-[data-tooltip]:hover::before {
-  animation: tooltipFadeIn 0.2s ease-out, tooltipGlow 2s ease-in-out infinite;
-}
-
-@keyframes tooltipGlow {
-  0%, 100% {
-    box-shadow:
-      0 4px 20px rgba(0, 0, 0, 0.6),
-      0 0 0 1px rgba(220, 38, 38, 0.2),
-      0 0 30px rgba(220, 38, 38, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+@keyframes tooltipFadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
   }
-  50% {
-    box-shadow:
-      0 4px 25px rgba(0, 0, 0, 0.7),
-      0 0 0 1px rgba(220, 38, 38, 0.4),
-      0 0 40px rgba(220, 38, 38, 0.5),
-      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  to {
+    opacity: 0;
+    transform: scale(0.95);
   }
 }
 
-/* Tooltips spécifiques au planning - texte long */
-.timeline-bar[data-tooltip]:hover::before,
-.timeline-event-marker[data-tooltip]:hover::before {
-  max-width: 350px;
-  white-space: normal;
-  word-wrap: break-word;
-  text-align: left;
-  padding: 12px 16px;
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-/* Timeline bars - tooltip en haut avec effet bleu pour locations */
-.timeline-bar.location[data-tooltip]:hover::before {
-  border-color: rgba(59, 130, 246, 0.8);
-  box-shadow:
-    0 4px 20px rgba(59, 130, 246, 0.4),
-    0 0 30px rgba(59, 130, 246, 0.4);
-}
-
-.timeline-bar.location[data-tooltip]:hover::after {
-  border-top-color: rgba(59, 130, 246, 0.8);
-}
-
-/* Timeline bars - tooltip vert pour réservations */
-.timeline-bar.reservation[data-tooltip]:hover::before {
-  border-color: rgba(34, 197, 94, 0.8);
-  box-shadow:
-    0 4px 20px rgba(34, 197, 94, 0.4),
-    0 0 30px rgba(34, 197, 94, 0.4);
-}
-
-.timeline-bar.reservation[data-tooltip]:hover::after {
-  border-top-color: rgba(34, 197, 94, 0.8);
-}
-
-/* Timeline bars - tooltip orange pour dépassements */
-.timeline-bar.overtime[data-tooltip]:hover::before,
-.timeline-event-marker.overdue[data-tooltip]:hover::before {
-  border-color: rgba(251, 146, 60, 0.8);
-  box-shadow:
-    0 4px 20px rgba(251, 146, 60, 0.4),
-    0 0 30px rgba(251, 146, 60, 0.4);
-}
-
-.timeline-bar.overtime[data-tooltip]:hover::after,
-.timeline-event-marker.overdue[data-tooltip]:hover::after {
-  border-top-color: rgba(251, 146, 60, 0.8);
-}
-
-/* Tooltips colorés selon le type de bouton */
-.btn-cancel[data-tooltip]:hover::before {
-  border-color: rgba(220, 38, 38, 0.8);
-  box-shadow:
-    0 4px 20px rgba(220, 38, 38, 0.4),
-    0 0 30px rgba(220, 38, 38, 0.4);
-}
-
-.btn-cancel[data-tooltip]:hover::after {
-  border-top-color: rgba(220, 38, 38, 0.8);
-}
-
-.btn-reservation[data-tooltip]:hover::before {
-  border-color: rgba(251, 191, 36, 0.8);
-  box-shadow:
-    0 4px 20px rgba(251, 191, 36, 0.4),
-    0 0 30px rgba(251, 191, 36, 0.4);
-}
-
-.btn-reservation[data-tooltip]:hover::after {
-  border-top-color: rgba(251, 191, 36, 0.8);
-}
-
-.btn-return[data-tooltip]:hover::before {
-  border-color: rgba(34, 197, 94, 0.8);
-  box-shadow:
-    0 4px 20px rgba(34, 197, 94, 0.4),
-    0 0 30px rgba(34, 197, 94, 0.4);
-}
-
-.btn-return[data-tooltip]:hover::after {
-  border-top-color: rgba(34, 197, 94, 0.8);
-}
-
-/* Amélioration pour les petits écrans */
-@media (max-width: 768px) {
-  [data-tooltip]:hover::before {
-    font-size: 12px;
-    padding: 8px 12px;
-    max-width: 200px;
-    white-space: normal;
-    word-wrap: break-word;
-  }
-
-  /* Sur mobile, désactiver les animations complexes pour meilleures performances */
-  [data-tooltip]:hover::before {
-    animation: tooltipFadeIn 0.15s ease-out;
-  }
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 100%;
-    height: auto;
-    position: relative;
-  }
-  
   .main-content {
     margin-left: 0;
     width: 100%;
