@@ -83,7 +83,7 @@ const DashboardPage = () => {
     };
   }, [equipmentData]);
 
-  // Calcul des ruptures de stock (matériels avec 0 ou 1 exemplaire disponible)
+  // Calcul des ruptures de disponibilité (matériels avec 0 ou 1 exemplaire disponible)
   const stockAlerts = useMemo(() => {
     // Grouper par modèle
     const modelGroups = {};
@@ -408,13 +408,13 @@ const DashboardPage = () => {
       {/* Panneau Ruptures de Stock */}
       <div className="dashboard-section">
         <div className="ruptures-panel">
-          <h2>📦 Alertes Ruptures de Stock</h2>
+          <h2>📦 Alertes Ruptures de Disponibilité</h2>
           <p className="ruptures-subtitle">Matériels avec 0 disponible sur parc</p>
           <div className="ruptures-grid">
             {stockAlerts.length === 0 ? (
               <div className="ruptures-empty">
                 <span className="ruptures-empty-icon">✅</span>
-                <p>Aucune alerte de stock</p>
+                <p>Aucune alerte de disponibilité</p>
               </div>
             ) : (
               stockAlerts.map((item, index) => (
