@@ -408,7 +408,7 @@ const DashboardPage = () => {
       {/* Panneau Ruptures de Stock */}
       <div className="dashboard-section">
         <div className="ruptures-panel">
-          <h2>📦 Alertes Ruptures de Disponibilité</h2>
+          <h2>📦 Ruptures de Disponibilité</h2>
           <p className="ruptures-subtitle">Matériels avec 0 disponible sur parc</p>
           <div className="ruptures-grid">
             {stockAlerts.length === 0 ? (
