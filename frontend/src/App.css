@@ -2896,28 +2896,30 @@ body.modal-open {
   }
 }
 
+/* Responsive */
+@media (max-width: 768px) {
   .main-content {
     margin-left: 0;
     width: 100%;
   }
-  
+
   .stats-grid {
     grid-template-columns: 1fr 1fr;
   }
-  
+
   .dashboard-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .detail-grid {
     grid-template-columns: 1fr;
     gap: 20px;
   }
-  
+
   .vgp-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .actions-container {
     flex-direction: column;
   }
