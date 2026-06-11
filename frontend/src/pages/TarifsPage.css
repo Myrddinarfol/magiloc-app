@@ -273,6 +273,35 @@ body.light-theme .tarifs-table td {
   white-space: nowrap;
 }
 
+/* Groupe d'actions avec boutons */
+.tarif-actions-group {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.btn-icon {
+  padding: 8px 10px;
+  font-size: 14px;
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.btn-icon:hover:not(:disabled) {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+  transform: scale(1.05);
+}
+
+.btn-icon:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .btn-success {
   background: linear-gradient(135deg, var(--color-success), #059669);
   color: white;

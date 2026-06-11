@@ -10,6 +10,7 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
   const [selectedFilter, setSelectedFilter] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState({});
+  const [copiedTariff, setCopiedTariff] = useState(null);
 
   // Catégories avec tarification par modèle (designation + cmu)
   const TARIF_PAR_MODELE_CONFIG = [
@@ -258,6 +259,33 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
 
   const hasAnyChanges = Object.values(editingTariffs).some(changes => changes.isDirty);
 
+  // Copier les tarifs d'une ligne
+  const handleCopyTariff = (tariff) => {
+    setCopiedTariff({
+      prixHT: getTarifValue(tariff, 'prixHT'),
+      minimumFacturation: getTarifValue(tariff, 'minimumFacturation'),
+      idArticle: getTarifValue(tariff, 'idArticle'),
+      label: tariff.label
+    });
+    showToast(`✅ Tarifs copiés: ${tariff.label}`, 'success');
+  };
+
+  // Coller les tarifs dans une ligne
+  const handlePasteTariff = (tariff) => {
+    if (!copiedTariff) return;
+
+    setEditingTariffs(prev => ({
+      ...prev,
+      [tariff.key]: {
+        prixHT: copiedTariff.prixHT,
+        minimumFacturation: copiedTariff.minimumFacturation,
+        idArticle: copiedTariff.idArticle,
+        isDirty: true
+      }
+    }));
+    showToast(`✅ Tarifs collés sur: ${tariff.label}`, 'success');
+  };
+
   return (
     <div className="tarifs-page">
       <PageHeader
@@ -355,13 +383,30 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
                         />
                       </td>
                       <td className="col-action">
-                        <button
-                          onClick={() => handleSaveTarif(tariff)}
-                          disabled={!hasChanges(tariff) || isLoading}
-                          className={`btn btn-small ${hasChanges(tariff) ? 'btn-success' : 'btn-disabled'}`}
-                        >
-                          {hasChanges(tariff) ? '💾 MAJ' : '✓'}
-                        </button>
+                        <div className="tarif-actions-group">
+                          <button
+                            onClick={() => handleCopyTariff(tariff)}
+                            title="Copier les tarifs"
+                            className="btn btn-small btn-icon"
+                          >
+                            📋
+                          </button>
+                          <button
+                            onClick={() => handlePasteTariff(tariff)}
+                            disabled={!copiedTariff || isLoading}
+                            title={copiedTariff ? `Coller tarifs de: ${copiedTariff.label}` : 'Rien à coller'}
+                            className={`btn btn-small btn-icon ${!copiedTariff ? 'btn-disabled' : ''}`}
+                          >
+                            📌
+                          </button>
+                          <button
+                            onClick={() => handleSaveTarif(tariff)}
+                            disabled={!hasChanges(tariff) || isLoading}
+                            className={`btn btn-small ${hasChanges(tariff) ? 'btn-success' : 'btn-disabled'}`}
+                          >
+                            {hasChanges(tariff) ? '💾 MAJ' : '✓'}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -446,13 +491,30 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
                                       />
                                     </td>
                                     <td className="modele-col-action">
-                                      <button
-                                        onClick={() => handleSaveTarif(tariff)}
-                                        disabled={!hasChanges(tariff) || isLoading}
-                                        className={`btn btn-small ${hasChanges(tariff) ? 'btn-success' : 'btn-disabled'}`}
-                                      >
-                                        {hasChanges(tariff) ? '💾 MAJ' : '✓'}
-                                      </button>
+                                      <div className="tarif-actions-group">
+                                        <button
+                                          onClick={() => handleCopyTariff(tariff)}
+                                          title="Copier les tarifs"
+                                          className="btn btn-small btn-icon"
+                                        >
+                                          📋
+                                        </button>
+                                        <button
+                                          onClick={() => handlePasteTariff(tariff)}
+                                          disabled={!copiedTariff || isLoading}
+                                          title={copiedTariff ? `Coller tarifs de: ${copiedTariff.label}` : 'Rien à coller'}
+                                          className={`btn btn-small btn-icon ${!copiedTariff ? 'btn-disabled' : ''}`}
+                                        >
+                                          📌
+                                        </button>
+                                        <button
+                                          onClick={() => handleSaveTarif(tariff)}
+                                          disabled={!hasChanges(tariff) || isLoading}
+                                          className={`btn btn-small ${hasChanges(tariff) ? 'btn-success' : 'btn-disabled'}`}
+                                        >
+                                          {hasChanges(tariff) ? '💾 MAJ' : '✓'}
+                                        </button>
+                                      </div>
                                     </td>
                                   </tr>
                                 ))}
