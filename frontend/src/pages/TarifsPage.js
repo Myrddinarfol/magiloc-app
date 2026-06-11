@@ -276,13 +276,24 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
             </thead>
             <tbody>
               {filteredGroups.map(group => (
-                group.subTariffs.map((tariff, index) => (
-                  <tr key={tariff.key} className={`tarif-row ${hasChanges(tariff) ? 'modified' : ''} ${tariff.isTarifParModele ? 'tarif-modele-row' : ''}`}>
-                    <td className="col-material">
-                      <span className={`material-name ${tariff.isTarifParModele ? 'modele-indent' : ''}`}>
-                        {tariff.isTarifParModele ? `🔧 ${tariff.modele || 'Sans modèle'}` : tariff.label}
-                      </span>
-                    </td>
+                <React.Fragment key={group.parentKey}>
+                  {/* Afficher la ligne parent pour les groupes avec modèles */}
+                  {group.isTarifParModele && (
+                    <tr className="tarif-group-header-row">
+                      <td colSpan="6" className="col-material">
+                        <span className="group-header-label">📦 {group.label} ({group.totalCount})</span>
+                      </td>
+                    </tr>
+                  )}
+
+                  {/* Afficher les sous-tariffs (modèles pour les treuils, ou ligne unique pour les autres) */}
+                  {group.subTariffs.map((tariff, index) => (
+                    <tr key={tariff.key} className={`tarif-row ${hasChanges(tariff) ? 'modified' : ''} ${tariff.isTarifParModele ? 'tarif-modele-row' : ''}`}>
+                      <td className="col-material">
+                        <span className={`material-name ${tariff.isTarifParModele ? 'modele-indent' : ''}`}>
+                          {tariff.isTarifParModele ? `🔧 ${tariff.modele || 'Sans modèle'}` : tariff.label}
+                        </span>
+                      </td>
                     <td className="col-count">
                       <span className="count-badge">{tariff.count}</span>
                     </td>
@@ -326,7 +337,8 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
                       </button>
                     </td>
                   </tr>
-                ))
+                  ))
+                </React.Fragment>
               ))}
             </tbody>
           </table>
