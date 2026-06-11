@@ -75,28 +75,30 @@
 /* Section Alertes */
 .alerts-section {
   margin: 30px 0;
+  padding: 20px;
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(107, 114, 128, 0.15);
 }
 
 .alerts-section h2 {
   color: var(--text-primary);
   font-size: 18px;
-  margin-bottom: 12px;
+  margin: 0 0 12px 0;
   font-weight: 700;
   letter-spacing: 0.3px;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 16px;
-  background: linear-gradient(135deg, rgba(75, 85, 99, 0.08), rgba(107, 114, 128, 0.04));
-  border: 1px solid rgba(107, 114, 128, 0.15);
-  border-radius: 12px;
-  width: fit-content;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(220, 38, 38, 0.3);
 }
 
 .alerts-section h2::before {
   content: '';
   display: inline-block;
-  width: 3px;
+  width: 4px;
   height: 20px;
   background: linear-gradient(180deg, #dc2626 0%, #991b1b 100%);
   border-radius: 2px;
@@ -105,8 +107,8 @@
 .alerts-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 30px;
+  gap: 12px;
+  margin: 0;
 }
 
 .alert-capsule {
