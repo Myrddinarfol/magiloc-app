@@ -11,18 +11,37 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState({});
 
-  // Catégories avec tarification par modèle
-  const TARIF_PAR_MODELE = ['TREUIL ELECTRIQUE - 300KG', 'TREUIL ELECTRIQUE - 500KG'];
+  // Catégories avec tarification par modèle (designation + cmu)
+  const TARIF_PAR_MODELE_CONFIG = [
+    { designation: 'TREUIL ELECTRIQUE', cmu: '300KG' },
+    { designation: 'TREUIL ELECTRIQUE', cmu: '500KG' }
+  ];
+
+  const isTarifParModele = (eq) => {
+    return TARIF_PAR_MODELE_CONFIG.some(config =>
+      eq.designation === config.designation && eq.cmu === config.cmu
+    );
+  };
 
   // Grouper les équipements - avec sous-sections par modèle pour certaines catégories
   const groupedTariffs = useMemo(() => {
     if (!equipmentData || equipmentData.length === 0) return [];
 
+    // Debug: afficher les treuils et leurs modèles
+    const treuilsData = equipmentData.filter(eq => eq.designation?.includes('TREUIL ELECTRIQUE'));
+    if (treuilsData.length > 0) {
+      console.log('🔧 Treuils trouvés:', treuilsData.map(eq => ({
+        designation: eq.designation,
+        cmu: eq.cmu,
+        modele: eq.modele
+      })));
+    }
+
     const groups = {};
 
     equipmentData.forEach(eq => {
-      const isTarifParModele = TARIF_PAR_MODELE.includes(eq.designation);
-      const key = isTarifParModele
+      const isModeleType = isTarifParModele(eq);
+      const key = isModeleType
         ? `${eq.designation}||${eq.cmu}||${eq.modele || 'N/A'}`
         : `${eq.designation}||${eq.cmu}`;
 
@@ -32,7 +51,7 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
           designation: eq.designation,
           cmu: eq.cmu,
           modele: eq.modele,
-          label: isTarifParModele
+          label: isModeleType
             ? `${eq.designation} ${eq.cmu ? `- ${eq.cmu}` : ''} • ${eq.modele || 'Sans modèle'}`
             : `${eq.designation} ${eq.cmu ? `- ${eq.cmu}` : ''}`,
           prixHT: eq.prixHT,
@@ -40,7 +59,7 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
           idArticle: eq.idArticle,
           count: 0,
           equipmentIds: [],
-          isTarifParModele
+          isTarifParModele: isModeleType
         };
       }
 
