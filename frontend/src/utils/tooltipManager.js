@@ -2,7 +2,10 @@
  * Tooltip Manager
  * Convertit automatiquement les attributs title en data-tooltip
  * pour utiliser nos tooltips CSS personnalisés
+ * Tooltips suivent le curseur de la souris
  */
+
+let currentTooltip = null;
 
 export const initTooltips = () => {
   // Observer pour détecter les nouveaux éléments ajoutés au DOM
@@ -25,7 +28,27 @@ export const initTooltips = () => {
     subtree: true
   });
 
+  // Ajouter le suivi du curseur pour les tooltips
+  document.addEventListener('mousemove', handleMouseMove, true);
+  document.addEventListener('mouseleave', hideTooltip, true);
+
   return observer;
+};
+
+const handleMouseMove = (e) => {
+  const target = e.target;
+  if (target.hasAttribute('data-tooltip')) {
+    currentTooltip = target;
+    // Mettre à jour les variables CSS pour la position du curseur
+    target.style.setProperty('--mouse-x', e.clientX + 'px');
+    target.style.setProperty('--mouse-y', e.clientY + 'px');
+  }
+};
+
+const hideTooltip = (e) => {
+  if (currentTooltip && !e.target.hasAttribute('data-tooltip')) {
+    currentTooltip = null;
+  }
 };
 
 const convertTitleToTooltip = (element) => {
