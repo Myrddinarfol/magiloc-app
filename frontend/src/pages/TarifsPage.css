@@ -227,6 +227,17 @@ body.light-theme .tarifs-table td {
   font-family: inherit;
 }
 
+/* Enlever les flèches d'ajustement pour les inputs number */
+.tarif-input[type="number"]::-webkit-outer-spin-button,
+.tarif-input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.tarif-input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 .tarif-input:focus {
   outline: none;
   border-color: var(--color-primary);
