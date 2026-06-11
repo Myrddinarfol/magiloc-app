@@ -45,9 +45,22 @@ export const initTooltips = () => {
     mouseX = e.clientX;
     mouseY = e.clientY;
 
+    // Vérifier que l'élément propriétaire est toujours dans le DOM
+    if (currentTooltipOwner && !document.contains(currentTooltipOwner)) {
+      forceHideTooltip();
+      return;
+    }
+
     // Mettre à jour la position du tooltip s'il est actuellement affiché
     if (currentTooltipElement) {
       updateTooltipPosition();
+    }
+  });
+
+  // Nettoyer quand la page change
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      forceHideTooltip();
     }
   });
 
@@ -206,4 +219,20 @@ const hideTooltip = (e) => {
       }
     }, 200);
   }
+};
+
+const forceHideTooltip = () => {
+  // Annuler le timeout en attente
+  if (hideTimeoutId) {
+    clearTimeout(hideTimeoutId);
+    hideTimeoutId = null;
+  }
+
+  // Supprimer immédiatement le tooltip
+  if (currentTooltipElement) {
+    currentTooltipElement.remove();
+    currentTooltipElement = null;
+  }
+
+  currentTooltipOwner = null;
 };
