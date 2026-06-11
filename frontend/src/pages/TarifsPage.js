@@ -9,7 +9,6 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
   const [editingTariffs, setEditingTariffs] = useState({});
   const [selectedFilter, setSelectedFilter] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [expandedGroups, setExpandedGroups] = useState({});
 
   // Catégories avec tarification par modèle
   const TARIF_PAR_MODELE = ['Treuil électrique 300kg', 'Treuil électrique 500kg'];
@@ -264,146 +263,73 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
         </div>
       ) : (
         <div className="tarifs-table-container">
-          {filteredGroups.map(group => (
-            <div key={group.parentKey} className="tarif-group">
-              {/* En-tête du groupe */}
-              {group.isTarifParModele && (
-                <div
-                  className="tarif-group-header"
-                  onClick={() => toggleGroupExpanded(group.parentKey)}
-                >
-                  <span className="group-toggle">
-                    {expandedGroups[group.parentKey] ? '▼' : '▶'}
-                  </span>
-                  <span className="group-title">📦 {group.label}</span>
-                  <span className="group-count">({group.totalCount})</span>
-                </div>
-              )}
-
-              {/* Tableau - affichage normal pour non-modèle */}
-              {!group.isTarifParModele ? (
-                <table className="tarifs-table">
-                  <thead>
-                    <tr>
-                      <th className="col-material">Type de Matériel</th>
-                      <th className="col-count">Quantité</th>
-                      <th className="col-prix">Prix HT/J (€)</th>
-                      <th className="col-minimum">Minimum de facturation (€)</th>
-                      <th className="col-id-article">ID ARTICLE</th>
-                      <th className="col-action">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {group.subTariffs.map(tariff => (
-                      <tr key={tariff.key} className={`tarif-row ${hasChanges(tariff) ? 'modified' : ''}`}>
-                        <td className="col-material">
-                          <span className="material-name">{tariff.label}</span>
-                        </td>
-                        <td className="col-count">
-                          <span className="count-badge">{tariff.count}</span>
-                        </td>
-                        <td className="col-prix">
-                          <input
-                            type="number"
-                            step="0.01"
-                            value={getTarifValue(tariff, 'prixHT')}
-                            onChange={(e) => handleTarifChange(tariff.key, 'prixHT', e.target.value)}
-                            className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
-                            disabled={isLoading}
-                          />
-                        </td>
-                        <td className="col-minimum">
-                          <input
-                            type="number"
-                            step="0.01"
-                            value={getTarifValue(tariff, 'minimumFacturation')}
-                            onChange={(e) => handleTarifChange(tariff.key, 'minimumFacturation', e.target.value)}
-                            className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
-                            disabled={isLoading}
-                          />
-                        </td>
-                        <td className="col-id-article">
-                          <input
-                            type="text"
-                            value={getTarifValue(tariff, 'idArticle')}
-                            onChange={(e) => handleTarifChange(tariff.key, 'idArticle', e.target.value)}
-                            className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
-                            disabled={isLoading}
-                            placeholder="-"
-                          />
-                        </td>
-                        <td className="col-action">
-                          <button
-                            onClick={() => handleSaveTarif(tariff)}
-                            disabled={!hasChanges(tariff) || isLoading}
-                            className={`btn btn-small ${hasChanges(tariff) ? 'btn-success' : 'btn-disabled'}`}
-                          >
-                            {hasChanges(tariff) ? '💾 MAJ' : '✓'}
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                // Sous-sections par modèle pour treuils
-                expandedGroups[group.parentKey] && (
-                  <div className="tarif-modeles">
-                    {group.subTariffs.map(tariff => (
-                      <div key={tariff.key} className={`tarif-modele ${hasChanges(tariff) ? 'modified' : ''}`}>
-                        <div className="modele-header">
-                          <span className="modele-name">🔧 {tariff.modele || 'Sans modèle'}</span>
-                          <span className="modele-count">{tariff.count} unité(s)</span>
-                        </div>
-                        <div className="modele-fields">
-                          <div className="field-group">
-                            <label>Prix HT/J (€)</label>
-                            <input
-                              type="number"
-                              step="0.01"
-                              value={getTarifValue(tariff, 'prixHT')}
-                              onChange={(e) => handleTarifChange(tariff.key, 'prixHT', e.target.value)}
-                              className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
-                              disabled={isLoading}
-                            />
-                          </div>
-                          <div className="field-group">
-                            <label>Minimum facturation (€)</label>
-                            <input
-                              type="number"
-                              step="0.01"
-                              value={getTarifValue(tariff, 'minimumFacturation')}
-                              onChange={(e) => handleTarifChange(tariff.key, 'minimumFacturation', e.target.value)}
-                              className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
-                              disabled={isLoading}
-                            />
-                          </div>
-                          <div className="field-group">
-                            <label>ID ARTICLE</label>
-                            <input
-                              type="text"
-                              value={getTarifValue(tariff, 'idArticle')}
-                              onChange={(e) => handleTarifChange(tariff.key, 'idArticle', e.target.value)}
-                              className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
-                              disabled={isLoading}
-                              placeholder="-"
-                            />
-                          </div>
-                          <button
-                            onClick={() => handleSaveTarif(tariff)}
-                            disabled={!hasChanges(tariff) || isLoading}
-                            className={`btn btn-small ${hasChanges(tariff) ? 'btn-success' : 'btn-disabled'}`}
-                          >
-                            {hasChanges(tariff) ? '💾 Sauvegarder' : '✓ Enregistré'}
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )
-              )}
-            </div>
-          ))}
+          <table className="tarifs-table">
+            <thead>
+              <tr>
+                <th className="col-material">Type de Matériel</th>
+                <th className="col-count">Quantité</th>
+                <th className="col-prix">Prix HT/J (€)</th>
+                <th className="col-minimum">Minimum de facturation (€)</th>
+                <th className="col-id-article">ID ARTICLE</th>
+                <th className="col-action">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredGroups.map(group => (
+                group.subTariffs.map((tariff, index) => (
+                  <tr key={tariff.key} className={`tarif-row ${hasChanges(tariff) ? 'modified' : ''} ${tariff.isTarifParModele ? 'tarif-modele-row' : ''}`}>
+                    <td className="col-material">
+                      <span className={`material-name ${tariff.isTarifParModele ? 'modele-indent' : ''}`}>
+                        {tariff.isTarifParModele ? `🔧 ${tariff.modele || 'Sans modèle'}` : tariff.label}
+                      </span>
+                    </td>
+                    <td className="col-count">
+                      <span className="count-badge">{tariff.count}</span>
+                    </td>
+                    <td className="col-prix">
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={getTarifValue(tariff, 'prixHT')}
+                        onChange={(e) => handleTarifChange(tariff.key, 'prixHT', e.target.value)}
+                        className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
+                        disabled={isLoading}
+                      />
+                    </td>
+                    <td className="col-minimum">
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={getTarifValue(tariff, 'minimumFacturation')}
+                        onChange={(e) => handleTarifChange(tariff.key, 'minimumFacturation', e.target.value)}
+                        className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
+                        disabled={isLoading}
+                      />
+                    </td>
+                    <td className="col-id-article">
+                      <input
+                        type="text"
+                        value={getTarifValue(tariff, 'idArticle')}
+                        onChange={(e) => handleTarifChange(tariff.key, 'idArticle', e.target.value)}
+                        className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
+                        disabled={isLoading}
+                        placeholder="-"
+                      />
+                    </td>
+                    <td className="col-action">
+                      <button
+                        onClick={() => handleSaveTarif(tariff)}
+                        disabled={!hasChanges(tariff) || isLoading}
+                        className={`btn btn-small ${hasChanges(tariff) ? 'btn-success' : 'btn-disabled'}`}
+                      >
+                        {hasChanges(tariff) ? '💾 MAJ' : '✓'}
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
