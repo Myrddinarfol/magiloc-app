@@ -78,8 +78,8 @@
   padding: 20px;
   background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
   border-radius: var(--radius-lg);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(107, 114, 128, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 20px rgba(220, 38, 38, 0.15);
+  border: 2px solid rgba(220, 38, 38, 0.35);
 }
 
 .alerts-section h2 {
@@ -113,13 +113,13 @@
 
 .alert-capsule {
   background: linear-gradient(135deg, rgba(75, 85, 99, 0.08), rgba(107, 114, 128, 0.04));
-  border: 2px solid rgba(220, 38, 38, 0.3);
+  border: 1px solid rgba(107, 114, 128, 0.15);
   border-radius: 12px;
   padding: 16px;
   position: relative;
   transition: all 0.3s ease;
   cursor: default;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 0 16px rgba(220, 38, 38, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .alert-capsule:hover {
