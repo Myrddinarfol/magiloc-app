@@ -12,7 +12,7 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
   const [expandedGroups, setExpandedGroups] = useState({});
 
   // Catégories avec tarification par modèle
-  const TARIF_PAR_MODELE = ['Treuil électrique 300kg', 'Treuil électrique 500kg'];
+  const TARIF_PAR_MODELE = ['TREUIL ELECTRIQUE - 300KG', 'TREUIL ELECTRIQUE - 500KG'];
 
   // Grouper les équipements - avec sous-sections par modèle pour certaines catégories
   const groupedTariffs = useMemo(() => {
@@ -80,11 +80,19 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
       groups[parentKey].totalCount += tariff.count;
     });
 
-    return Object.values(groups).sort((a, b) => {
+    const result = Object.values(groups).sort((a, b) => {
       const desComp = a.designation.localeCompare(b.designation);
       if (desComp !== 0) return desComp;
       return (a.cmu || '').localeCompare(b.cmu || '');
     });
+
+    console.log('📊 displayGroups:', result.map(g => ({
+      label: g.label,
+      isTarifParModele: g.isTarifParModele,
+      subTariffs: g.subTariffs.length
+    })));
+
+    return result;
   }, [groupedTariffs]);
 
   const toggleGroupExpanded = (key) => {
