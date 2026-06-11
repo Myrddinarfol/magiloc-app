@@ -505,7 +505,7 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
                                           title={copiedTariff ? `Coller tarifs de: ${copiedTariff.label}` : 'Rien à coller'}
                                           className={`btn btn-small btn-icon ${!copiedTariff ? 'btn-disabled' : ''}`}
                                         >
-                                          📎
+                                          📌
                                         </button>
                                         <button
                                           onClick={() => handleSaveTarif(tariff)}
