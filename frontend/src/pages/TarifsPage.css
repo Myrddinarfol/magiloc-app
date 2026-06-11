@@ -396,36 +396,112 @@ body.light-theme .tarifs-table td {
   }
 }
 
-/* En-tête de groupe avec modèles */
-.tarif-group-header-row {
-  background: rgba(220, 38, 38, 0.08) !important;
+/* Ligne de groupe cliquable */
+.tarif-group-row {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.12), rgba(220, 38, 38, 0.06)) !important;
   border-top: 2px solid rgba(220, 38, 38, 0.3);
   border-bottom: 1px solid rgba(220, 38, 38, 0.2);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.tarif-group-header-row td {
-  padding: 12px 20px !important;
+.tarif-group-row:hover {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.18), rgba(220, 38, 38, 0.12)) !important;
+  box-shadow: inset 0 2px 8px rgba(220, 38, 38, 0.1);
+}
+
+body.light-theme .tarif-group-row {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.06), rgba(220, 38, 38, 0.02)) !important;
+}
+
+body.light-theme .tarif-group-row:hover {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.12), rgba(220, 38, 38, 0.06)) !important;
+}
+
+/* Tableau des modèles expandu */
+.tarif-modele-table-row {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.tarif-modele-table-row td {
+  padding: 0 !important;
+  border: none !important;
+}
+
+.modele-table-wrapper {
+  padding: 20px;
+  background: rgba(220, 38, 38, 0.03);
+  border-radius: 10px;
+  margin: 10px 0;
+}
+
+.modele-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.modele-table thead {
+  background: rgba(220, 38, 38, 0.1);
+}
+
+.modele-table th {
+  padding: 12px 16px;
+  text-align: left;
   font-weight: 600;
+  font-size: 13px;
   color: var(--text-primary);
+  border-bottom: 2px solid rgba(220, 38, 38, 0.2);
 }
 
-.group-header-label {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-primary);
+.modele-table tbody tr {
+  background: transparent;
+  border-bottom: 1px solid rgba(220, 38, 38, 0.1);
+  height: auto;
+  box-shadow: none;
+  transition: all 0.2s ease;
 }
 
-/* Sous-lignes pour les modèles */
-.tarif-modele-row {
-  background: rgba(220, 38, 38, 0.02);
-}
-
-.tarif-modele-row:hover {
+.modele-table tbody tr:hover {
   background: rgba(220, 38, 38, 0.05);
+  transform: none;
+  box-shadow: none;
 }
 
-.modele-indent {
-  display: inline-block;
-  margin-left: 30px;
-  position: relative;
+.modele-table tbody tr.modified {
+  background: rgba(220, 38, 38, 0.1);
+}
+
+.modele-table td {
+  padding: 14px 16px;
+  color: var(--text-primary);
+  border: none;
+}
+
+.modele-col-name {
+  font-weight: 500;
+  width: 25%;
+}
+
+.modele-col-count {
+  text-align: center;
+  width: 12%;
+}
+
+.modele-col-prix {
+  width: 18%;
+}
+
+.modele-col-minimum {
+  width: 16%;
+}
+
+.modele-col-id {
+  width: 14%;
+}
+
+.modele-col-action {
+  text-align: center;
+  width: 10%;
 }

@@ -9,6 +9,7 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
   const [editingTariffs, setEditingTariffs] = useState({});
   const [selectedFilter, setSelectedFilter] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState({});
 
   // Catégories avec tarification par modèle
   const TARIF_PAR_MODELE = ['Treuil électrique 300kg', 'Treuil électrique 500kg'];
@@ -275,71 +276,161 @@ const TarifsPage = ({ equipmentData, onRefresh }) => {
               </tr>
             </thead>
             <tbody>
-              {filteredGroups.map(group => (
-                <React.Fragment key={group.parentKey}>
-                  {/* Afficher la ligne parent pour les groupes avec modèles */}
-                  {group.isTarifParModele && (
-                    <tr className="tarif-group-header-row">
-                      <td colSpan="6" className="col-material">
-                        <span className="group-header-label">📦 {group.label} ({group.totalCount})</span>
+              {filteredGroups.map(group => {
+                const isExpanded = expandedGroups[group.parentKey];
+
+                // Si c'est un groupe sans modèles, afficher une ligne simple
+                if (!group.isTarifParModele) {
+                  const tariff = group.subTariffs[0];
+                  return (
+                    <tr key={group.parentKey} className={`tarif-row ${hasChanges(tariff) ? 'modified' : ''}`}>
+                      <td className="col-material">
+                        <span className="material-name">{tariff.label}</span>
+                      </td>
+                      <td className="col-count">
+                        <span className="count-badge">{tariff.count}</span>
+                      </td>
+                      <td className="col-prix">
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={getTarifValue(tariff, 'prixHT')}
+                          onChange={(e) => handleTarifChange(tariff.key, 'prixHT', e.target.value)}
+                          className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
+                          disabled={isLoading}
+                        />
+                      </td>
+                      <td className="col-minimum">
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={getTarifValue(tariff, 'minimumFacturation')}
+                          onChange={(e) => handleTarifChange(tariff.key, 'minimumFacturation', e.target.value)}
+                          className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
+                          disabled={isLoading}
+                        />
+                      </td>
+                      <td className="col-id-article">
+                        <input
+                          type="text"
+                          value={getTarifValue(tariff, 'idArticle')}
+                          onChange={(e) => handleTarifChange(tariff.key, 'idArticle', e.target.value)}
+                          className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
+                          disabled={isLoading}
+                          placeholder="-"
+                        />
+                      </td>
+                      <td className="col-action">
+                        <button
+                          onClick={() => handleSaveTarif(tariff)}
+                          disabled={!hasChanges(tariff) || isLoading}
+                          className={`btn btn-small ${hasChanges(tariff) ? 'btn-success' : 'btn-disabled'}`}
+                        >
+                          {hasChanges(tariff) ? '💾 MAJ' : '✓'}
+                        </button>
                       </td>
                     </tr>
-                  )}
+                  );
+                }
 
-                  {/* Afficher les sous-tariffs (modèles pour les treuils, ou ligne unique pour les autres) */}
-                  {group.subTariffs.map((tariff, index) => (
-                    <tr key={tariff.key} className={`tarif-row ${hasChanges(tariff) ? 'modified' : ''} ${tariff.isTarifParModele ? 'tarif-modele-row' : ''}`}>
+                // Pour les groupes avec modèles, afficher ligne cliquable + tableau expandu
+                return (
+                  <React.Fragment key={group.parentKey}>
+                    {/* Ligne parent cliquable */}
+                    <tr
+                      className="tarif-group-row"
+                      onClick={() => setExpandedGroups(prev => ({
+                        ...prev,
+                        [group.parentKey]: !isExpanded
+                      }))}
+                      style={{ cursor: 'pointer' }}
+                    >
                       <td className="col-material">
-                        <span className={`material-name ${tariff.isTarifParModele ? 'modele-indent' : ''}`}>
-                          {tariff.isTarifParModele ? `🔧 ${tariff.modele || 'Sans modèle'}` : tariff.label}
+                        <span className="material-name">
+                          {isExpanded ? '▼' : '▶'} {group.label}
                         </span>
                       </td>
-                    <td className="col-count">
-                      <span className="count-badge">{tariff.count}</span>
-                    </td>
-                    <td className="col-prix">
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={getTarifValue(tariff, 'prixHT')}
-                        onChange={(e) => handleTarifChange(tariff.key, 'prixHT', e.target.value)}
-                        className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
-                        disabled={isLoading}
-                      />
-                    </td>
-                    <td className="col-minimum">
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={getTarifValue(tariff, 'minimumFacturation')}
-                        onChange={(e) => handleTarifChange(tariff.key, 'minimumFacturation', e.target.value)}
-                        className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
-                        disabled={isLoading}
-                      />
-                    </td>
-                    <td className="col-id-article">
-                      <input
-                        type="text"
-                        value={getTarifValue(tariff, 'idArticle')}
-                        onChange={(e) => handleTarifChange(tariff.key, 'idArticle', e.target.value)}
-                        className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
-                        disabled={isLoading}
-                        placeholder="-"
-                      />
-                    </td>
-                    <td className="col-action">
-                      <button
-                        onClick={() => handleSaveTarif(tariff)}
-                        disabled={!hasChanges(tariff) || isLoading}
-                        className={`btn btn-small ${hasChanges(tariff) ? 'btn-success' : 'btn-disabled'}`}
-                      >
-                        {hasChanges(tariff) ? '💾 MAJ' : '✓'}
-                      </button>
-                    </td>
-                  </tr>
-                  ))
-                </React.Fragment>
-              ))}
+                      <td className="col-count">
+                        <span className="count-badge">{group.totalCount}</span>
+                      </td>
+                      <td colSpan="4" style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
+                        {isExpanded ? 'Cliquez pour replier' : 'Cliquez pour dérouler'}
+                      </td>
+                    </tr>
+
+                    {/* Tableau des modèles si expandu */}
+                    {isExpanded && (
+                      <tr className="tarif-modele-table-row">
+                        <td colSpan="6">
+                          <div className="modele-table-wrapper">
+                            <table className="modele-table">
+                              <thead>
+                                <tr>
+                                  <th>Modèle</th>
+                                  <th>Quantité</th>
+                                  <th>Prix HT/J (€)</th>
+                                  <th>Minimum (€)</th>
+                                  <th>ID ARTICLE</th>
+                                  <th>Action</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {group.subTariffs.map(tariff => (
+                                  <tr key={tariff.key} className={hasChanges(tariff) ? 'modified' : ''}>
+                                    <td className="modele-col-name">
+                                      🔧 {tariff.modele || 'Sans modèle'}
+                                    </td>
+                                    <td className="modele-col-count">{tariff.count}</td>
+                                    <td className="modele-col-prix">
+                                      <input
+                                        type="number"
+                                        step="0.01"
+                                        value={getTarifValue(tariff, 'prixHT')}
+                                        onChange={(e) => handleTarifChange(tariff.key, 'prixHT', e.target.value)}
+                                        className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
+                                        disabled={isLoading}
+                                      />
+                                    </td>
+                                    <td className="modele-col-minimum">
+                                      <input
+                                        type="number"
+                                        step="0.01"
+                                        value={getTarifValue(tariff, 'minimumFacturation')}
+                                        onChange={(e) => handleTarifChange(tariff.key, 'minimumFacturation', e.target.value)}
+                                        className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
+                                        disabled={isLoading}
+                                      />
+                                    </td>
+                                    <td className="modele-col-id">
+                                      <input
+                                        type="text"
+                                        value={getTarifValue(tariff, 'idArticle')}
+                                        onChange={(e) => handleTarifChange(tariff.key, 'idArticle', e.target.value)}
+                                        className={`tarif-input ${hasChanges(tariff) ? 'dirty' : ''}`}
+                                        disabled={isLoading}
+                                        placeholder="-"
+                                      />
+                                    </td>
+                                    <td className="modele-col-action">
+                                      <button
+                                        onClick={() => handleSaveTarif(tariff)}
+                                        disabled={!hasChanges(tariff) || isLoading}
+                                        className={`btn btn-small ${hasChanges(tariff) ? 'btn-success' : 'btn-disabled'}`}
+                                      >
+                                        {hasChanges(tariff) ? '💾 MAJ' : '✓'}
+                                      </button>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })}
             </tbody>
           </table>
         </div>
