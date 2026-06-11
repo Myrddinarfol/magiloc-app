@@ -166,7 +166,6 @@ const transformedData = results.data
             }}
             onMouseOver={(e) => e.target.style.transform = 'scale(1.2)'}
             onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
-            title="Fermer"
           >
             ✕
           </button>
