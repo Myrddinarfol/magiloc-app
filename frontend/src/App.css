@@ -1145,7 +1145,7 @@ body.modal-open {
   align-items: center;
   gap: 10px;
   padding-bottom: 12px;
-  border-bottom: 2px solid rgba(34, 197, 94, 0.3);
+  border-bottom: 2px solid rgba(220, 38, 38, 0.3);
 }
 
 .featured-equipment h3::before {
@@ -1153,7 +1153,7 @@ body.modal-open {
   display: inline-block;
   width: 4px;
   height: 24px;
-  background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+  background: linear-gradient(180deg, #dc2626 0%, #991b1b 100%);
   border-radius: 2px;
 }
 
@@ -1173,14 +1173,13 @@ body.modal-open {
 }
 
 .featured-item {
-  padding: 15px;
+  padding: 16px;
   background: linear-gradient(135deg, rgba(75, 85, 99, 0.08), rgba(107, 114, 128, 0.04));
   border-radius: 12px;
   border: 1px solid rgba(107, 114, 128, 0.15);
-  border-left: 4px solid var(--color-primary);
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1190,36 +1189,36 @@ body.modal-open {
 
 .featured-item:hover {
   background: linear-gradient(135deg, rgba(75, 85, 99, 0.12), rgba(107, 114, 128, 0.08));
-  transform: translateY(-3px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-  border-color: rgba(107, 114, 128, 0.25);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(220, 38, 38, 0.15);
+  border-color: rgba(220, 38, 38, 0.25);
 }
 
 .featured-item.featured-success {
-  border-left-color: var(--color-success);
+  border-top: 2px solid rgba(22, 163, 74, 0.3);
 }
 
 .featured-item.featured-success:hover {
-  background: linear-gradient(135deg, rgba(22, 163, 74, 0.08), rgba(22, 163, 74, 0.04));
-  box-shadow: 0 4px 16px rgba(22, 163, 74, 0.2);
+  border-top-color: rgba(22, 163, 74, 0.5);
+  box-shadow: 0 8px 20px rgba(22, 163, 74, 0.12);
 }
 
 .featured-item.featured-warning {
-  border-left-color: var(--color-warning);
+  border-top: 2px solid rgba(245, 158, 11, 0.3);
 }
 
 .featured-item.featured-warning:hover {
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.04));
-  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.2);
+  border-top-color: rgba(245, 158, 11, 0.5);
+  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.12);
 }
 
 .featured-item.featured-danger {
-  border-left-color: var(--color-danger);
+  border-top: 2px solid rgba(220, 38, 38, 0.3);
 }
 
 .featured-item.featured-danger:hover {
-  background: linear-gradient(135deg, rgba(220, 38, 38, 0.08), rgba(220, 38, 38, 0.04));
-  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.2);
+  border-top-color: rgba(220, 38, 38, 0.5);
+  box-shadow: 0 8px 20px rgba(220, 38, 38, 0.12);
 }
 
 .featured-header {
@@ -1271,7 +1270,7 @@ body.modal-open {
 .featured-count {
   font-size: 16px;
   font-weight: 700;
-  color: var(--color-primary);
+  color: var(--text-primary);
 }
 
 .featured-label {
@@ -1280,21 +1279,22 @@ body.modal-open {
 }
 
 .featured-gauge {
-  height: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
+  height: 10px;
+  background: rgba(107, 114, 128, 0.15);
+  border-radius: 5px;
   overflow: hidden;
   position: relative;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .featured-gauge-bar {
   height: 100%;
-  border-radius: 4px;
-  transition: width 0.8s ease-in-out;
+  border-radius: 5px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
-  box-shadow: 0 0 4px currentColor;
-  opacity: 0.9;
+  background: linear-gradient(90deg, #dc2626 0%, #ea580c 50%, #eab308 100%);
+  box-shadow: 0 0 8px rgba(220, 38, 38, 0.4);
+  opacity: 0.95;
 }
 
 .featured-gauge-bar::after {
@@ -1304,14 +1304,16 @@ body.modal-open {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  border-radius: 5px;
 }
 
 .featured-percentage {
   text-align: right;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--text-primary);
+  margin-top: 2px;
 }
 
 /* Analytics Page */
