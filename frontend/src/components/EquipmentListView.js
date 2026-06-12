@@ -41,30 +41,56 @@ function EquipmentListView({
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // 🔄 Réinitialiser les filtres si un drapeau l'indique
+  // Fonction pour effacer tous les filtres
+  const clearAllFilters = () => {
+    setSearchTerm('');
+    setFilterDesignation('');
+    setFilterCMU('');
+    setFilterLongueur('');
+    setSearchParams(new URLSearchParams());
+    setEquipmentFilter(null);
+    sessionStorage.removeItem('shouldRestoreEquipmentFilters');
+  };
+
+  // 🔄 Réinitialiser les filtres si un drapeau l'indique (quand on revient d'une autre page)
   useEffect(() => {
     if (shouldResetEquipmentListFilters) {
-      setSearchTerm('');
-      setFilterDesignation('');
-      setFilterCMU('');
-      setFilterLongueur('');
-      setSearchParams(new URLSearchParams());
+      clearAllFilters();
+      sessionStorage.removeItem('shouldRestoreEquipmentFilters');
       setShouldResetEquipmentListFilters(false);
     }
-  }, [shouldResetEquipmentListFilters, setShouldResetEquipmentListFilters, setSearchParams]);
+  }, [shouldResetEquipmentListFilters, setShouldResetEquipmentListFilters]);
 
-  // 🔄 Initialiser les filtres depuis l'URL au mount
+  // 🔄 Initialiser les filtres depuis l'URL au mount (seulement s'ils étaient persistés avant)
   useEffect(() => {
-    const searchFromUrl = searchParams.get('search') || '';
-    const designationFromUrl = searchParams.get('designation') || '';
-    const cmuFromUrl = searchParams.get('cmu') || '';
-    const longueurFromUrl = searchParams.get('longueur') || '';
+    // Vérifier si on doit restaurer les filtres (sessionStorage persiste entre retours de fiche)
+    const shouldRestoreFilters = sessionStorage.getItem('shouldRestoreEquipmentFilters') === 'true';
 
-    setSearchTerm(searchFromUrl);
-    setFilterDesignation(designationFromUrl);
-    setFilterCMU(cmuFromUrl);
-    setFilterLongueur(longueurFromUrl);
+    if (shouldRestoreFilters) {
+      // Restaurer depuis l'URL
+      const searchFromUrl = searchParams.get('search') || '';
+      const designationFromUrl = searchParams.get('designation') || '';
+      const cmuFromUrl = searchParams.get('cmu') || '';
+      const longueurFromUrl = searchParams.get('longueur') || '';
+
+      setSearchTerm(searchFromUrl);
+      setFilterDesignation(designationFromUrl);
+      setFilterCMU(cmuFromUrl);
+      setFilterLongueur(longueurFromUrl);
+    } else {
+      // Sinon, effacer tous les filtres (cas d'actualisation de page)
+      clearAllFilters();
+    }
   }, []); // ⚠️ Uniquement au mount
+
+  // Sauvegarder le flag de restauration quand les filtres changent
+  useEffect(() => {
+    if (searchTerm || filterDesignation || filterCMU || filterLongueur) {
+      sessionStorage.setItem('shouldRestoreEquipmentFilters', 'true');
+    } else {
+      sessionStorage.removeItem('shouldRestoreEquipmentFilters');
+    }
+  }, [searchTerm, filterDesignation, filterCMU, filterLongueur]);
 
   // 🔄 Restaurer les filtres depuis l'URL après avoir quitté une fiche
   useEffect(() => {
@@ -431,11 +457,7 @@ function EquipmentListView({
 
               {(filterDesignation || filterCMU || filterLongueur) && (
                 <button
-                  onClick={() => {
-                    setFilterDesignation('');
-                    setFilterCMU('');
-                    setFilterLongueur('');
-                  }}
+                  onClick={clearAllFilters}
                   style={{
                     padding: '10px 18px',
                     borderRadius: '8px',
@@ -471,13 +493,7 @@ function EquipmentListView({
                   📥 CSV
                 </button>
                 <button
-                  onClick={() => {
-                    setSearchTerm('');
-                    setEquipmentFilter(null);
-                    setFilterDesignation('');
-                    setFilterCMU('');
-                    setFilterLongueur('');
-                  }}
+                  onClick={clearAllFilters}
                   className="btn btn-reset parc-loc-btn"
                 >
                   🔄 Réinit
