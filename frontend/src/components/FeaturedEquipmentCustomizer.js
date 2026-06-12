@@ -93,7 +93,7 @@ function FeaturedEquipmentCustomizer({
       // Désélectionner si déjà sélectionné
       setSelectedPeriod(null);
     } else {
-      const topModels = getTopRentalModels(equipmentData, days, 8);
+      const topModels = getTopRentalModels(equipmentData, days, maxItemsState);
       setManualSelection(topModels);
       setSelectedPeriod(days);
       setSearchTerm('');
