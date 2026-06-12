@@ -52,7 +52,18 @@ function EquipmentListView({
     setFilterDesignation(designationFromUrl);
     setFilterCMU(cmuFromUrl);
     setFilterLongueur(longueurFromUrl);
-  }, []); // ⚠️ Uniquement au mount, pas à chaque changement d'URL
+  }, []); // ⚠️ Uniquement au mount
+
+  // 🔄 Restaurer les filtres depuis l'URL après avoir quitté une fiche
+  useEffect(() => {
+    if (currentPage === 'sur-parc' || currentPage === 'parc-loc') {
+      const cmuFromUrl = searchParams.get('cmu') || '';
+      const longueurFromUrl = searchParams.get('longueur') || '';
+      // Restaurer CMU et longueur depuis l'URL (ils ont pu être sauvegardés avant)
+      if (cmuFromUrl) setFilterCMU(cmuFromUrl);
+      if (longueurFromUrl) setFilterLongueur(longueurFromUrl);
+    }
+  }, [currentPage]); // Quand on revient à sur-parc
 
   // 🔄 Mettre à jour l'URL quand les filtres changent
   useEffect(() => {
@@ -67,18 +78,19 @@ function EquipmentListView({
     setSearchParams(newParams);
   }, [searchTerm, filterDesignation, filterCMU, filterLongueur, setSearchParams]);
 
-  // Auto-reset filter when leaving sur-parc
+  // Auto-reset filter when leaving sur-parc via menu
   useEffect(() => {
-    if (currentPage !== 'sur-parc' && equipmentFilter) {
+    if (currentPage !== 'sur-parc' && currentPage !== 'parc-loc' && equipmentFilter) {
       setEquipmentFilter(null);
     }
   }, [currentPage, equipmentFilter, setEquipmentFilter]);
 
-  // Réinitialiser les filtres CMU et longueur lorsque la désignation change
-  useEffect(() => {
+  // Réinitialiser les filtres CMU et longueur lorsque la désignation change via l'utilisateur
+  const handleDesignationChange = (newDesignation) => {
+    setFilterDesignation(newDesignation);
     setFilterCMU('');
     setFilterLongueur('');
-  }, [filterDesignation]);
+  };
 
   // Fonction pour calculer l'état du VGP avec date affichée
   const getVGPStatus = (prochainVGP) => {
@@ -350,7 +362,7 @@ function EquipmentListView({
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center', flex: 1 }}>
               <select
                 value={filterDesignation}
-                onChange={(e) => setFilterDesignation(e.target.value)}
+                onChange={(e) => handleDesignationChange(e.target.value)}
                 style={{
                   padding: '10px 14px',
                   borderRadius: '8px',
