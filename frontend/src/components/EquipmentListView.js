@@ -80,10 +80,20 @@ function EquipmentListView({
 
   // Auto-reset filter when leaving sur-parc via menu
   useEffect(() => {
-    if (currentPage !== 'sur-parc' && currentPage !== 'parc-loc' && equipmentFilter) {
-      setEquipmentFilter(null);
+    if (currentPage !== 'sur-parc' && currentPage !== 'parc-loc') {
+      // Effacer les filtres du state
+      setSearchTerm('');
+      setFilterDesignation('');
+      setFilterCMU('');
+      setFilterLongueur('');
+      // Effacer les searchParams de l'URL
+      setSearchParams(new URLSearchParams());
+      // Effacer le filtre de matériels phares du UIContext
+      if (equipmentFilter) {
+        setEquipmentFilter(null);
+      }
     }
-  }, [currentPage, equipmentFilter, setEquipmentFilter]);
+  }, [currentPage, equipmentFilter, setEquipmentFilter, setSearchParams]);
 
   // Réinitialiser les filtres CMU et longueur lorsque la désignation change via l'utilisateur
   const handleDesignationChange = (newDesignation) => {
