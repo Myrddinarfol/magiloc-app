@@ -192,8 +192,10 @@ const CAModule = () => {
         console.log('📊 Calcul stats pour', selectedMonth, '/', selectedYear);
         console.log('📈 Récupération historique CA...');
 
-        const [caHistory, yearlyCAData, breakdown] = await Promise.all([
-          analyticsService.getAllMonthsCAData(equipmentData),
+        // Vider le cache d'historiques pour recharger des données fraîches
+        analyticsService.clearHistoryCache();
+
+        const [yearlyCAData, breakdown] = await Promise.all([
           analyticsService.getYearlyCAData(equipmentData),
           analyticsService.getMonthLocationBreakdown(equipmentData, selectedMonth, selectedYear)
         ]);
@@ -215,8 +217,6 @@ const CAModule = () => {
         };
 
         console.log('✅ Stats calculées (depuis breakdown):', monthStats);
-        console.log('✅ Historique récupéré:', Object.keys(caHistory).length, 'mois');
-        console.log('📋 Clés caHistory:', Object.keys(caHistory).sort());
         console.log('📊 Breakdown locations:', breakdown);
         setStats(monthStats);
         setMonthLocationBreakdown(breakdown);

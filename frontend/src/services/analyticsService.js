@@ -9,7 +9,20 @@ import { calculateBusinessDays, calculateBusinessDaysByMonth, convertFrenchToISO
  * 2. L'API location-history (locations CLÔTURÉES avec tarifs archivés)
  */
 
+// Cache des historiques de location par équipement (durée de vie : un cycle de
+// chargement Analytics). Sans lui, chaque fonction du service refait les mêmes
+// appels HTTP pour tous les équipements → plus de 1000 requêtes par affichage.
+// CAModule appelle clearHistoryCache() au début de chaque chargement.
+const locationHistoryCache = new Map();
+
 export const analyticsService = {
+  /**
+   * Vide le cache des historiques (à appeler avant un rechargement des données)
+   */
+  clearHistoryCache() {
+    locationHistoryCache.clear();
+  },
+
   /**
    * Filtre les équipements pour Analytics
    * NOTE: L'exclusion automatique des clients "CLIENT TEST" a été retirée :
@@ -33,16 +46,27 @@ export const analyticsService = {
 
   /**
    * Récupère l'historique de locations d'un équipement
+   * Le résultat (la promesse) est mis en cache : les appels simultanés ou
+   * répétés pour le même équipement partagent une seule requête HTTP.
    */
-  async getEquipmentLocationHistory(equipmentId) {
-    try {
-      const response = await fetch(`${API_URL}/api/equipment/${equipmentId}/location-history`);
-      if (!response.ok) return [];
-      return response.json();
-    } catch (error) {
-      console.warn(`Erreur historique équipement ${equipmentId}:`, error);
-      return [];
+  getEquipmentLocationHistory(equipmentId) {
+    if (locationHistoryCache.has(equipmentId)) {
+      return locationHistoryCache.get(equipmentId);
     }
+
+    const promise = (async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/equipment/${equipmentId}/location-history`);
+        if (!response.ok) return [];
+        return response.json();
+      } catch (error) {
+        console.warn(`Erreur historique équipement ${equipmentId}:`, error);
+        return [];
+      }
+    })();
+
+    locationHistoryCache.set(equipmentId, promise);
+    return promise;
   },
 
   /**
@@ -1030,12 +1054,17 @@ export const analyticsService = {
     }
 
     // 2. Récupérer les locations fermées ce mois (location_history)
-    // Fetch location history from all equipment
+    // Requêtes lancées en parallèle (et partagées via le cache d'historiques)
+    const historiesByEquipment = await Promise.all(
+      filteredEquipment.map(async (equipment) => ({
+        equipment,
+        history: await this.getEquipmentLocationHistory(equipment.id)
+      }))
+    );
+
     const allHistoricalLocations = [];
-    for (const equipment of filteredEquipment) {
-      const history = await this.getEquipmentLocationHistory(equipment.id);
+    for (const { equipment, history } of historiesByEquipment) {
       if (history && history.length > 0) {
-        // Filtrer les locations CLIENT TEST (sécurité supplémentaire)
         const filteredHistory = this.filterTestLocations(history);
         // Ajouter l'ID de l'équipement et ses détails à chaque location
         for (const loc of filteredHistory) {

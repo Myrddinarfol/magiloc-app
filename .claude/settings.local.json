@@ -51,7 +51,8 @@
       "Bash(pkill -9 -f \"node\")",
       "Bash(npm run *)",
       "PowerShell(Get-Process | Where-Object { $_.Name -eq \"node\" } | Stop-Process -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 3)",
-      "PowerShell(foreach \\($id in @\\(1, 3, 6\\)\\) { Write-Host \"=== Equipment $id ===\"; try { $h = Invoke-RestMethod -Uri \"http://localhost:5000/api/equipment/$id/location-history\" -Method Get -TimeoutSec 10; Write-Host \"Locations historiques: $\\($h.Count\\)\"; $h | Select-Object id, client, date_debut, date_retour_reel, duree_jours_ouvres, prix_ht_jour, ca_total_ht, est_pret | Format-Table -AutoSize | Out-String -Width 220 } catch { Write-Host \"ERREUR: $\\($_.Exception.Message\\)\" } })"
+      "PowerShell(foreach \\($id in @\\(1, 3, 6\\)\\) { Write-Host \"=== Equipment $id ===\"; try { $h = Invoke-RestMethod -Uri \"http://localhost:5000/api/equipment/$id/location-history\" -Method Get -TimeoutSec 10; Write-Host \"Locations historiques: $\\($h.Count\\)\"; $h | Select-Object id, client, date_debut, date_retour_reel, duree_jours_ouvres, prix_ht_jour, ca_total_ht, est_pret | Format-Table -AutoSize | Out-String -Width 220 } catch { Write-Host \"ERREUR: $\\($_.Exception.Message\\)\" } })",
+      "PowerShell(cd \"c:\\\\Users\\\\atelier\\\\Desktop\\\\MagiLoc\\\\magiloc-app\" ; Write-Host \"=== fichiers build trackes ===\" ; git ls-files frontend/build ; Write-Host \"=== table locations utilisee? ===\" ; \\(Select-String -Path backend\\\\server.js -Pattern 'FROM locations|INTO locations|UPDATE locations' -AllMatches\\).Count)"
     ],
     "deny": [],
     "ask": []

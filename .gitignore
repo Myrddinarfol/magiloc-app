@@ -45,3 +45,7 @@ coverage/
 
 # Sauvegardes locales de la base de donnees (ne jamais commiter)
 backups/
+
+# Secrets et build (ne jamais commiter)
+backend/.env
+frontend/build/
