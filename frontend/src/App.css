@@ -1135,6 +1135,32 @@ body.modal-open {
   flex-direction: column;
 }
 
+.featured-equipment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.featured-customize-btn {
+  background: rgba(220, 38, 38, 0.15);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 16px;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.featured-customize-btn:hover {
+  background: rgba(220, 38, 38, 0.25);
+  border-color: rgba(220, 38, 38, 0.4);
+  transform: scale(1.1);
+}
+
 .featured-equipment h3 {
   color: var(--text-primary);
   margin: 0 0 8px 0;
@@ -1167,7 +1193,7 @@ body.modal-open {
 
 .featured-list {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 10px;
   flex: 1;
 }

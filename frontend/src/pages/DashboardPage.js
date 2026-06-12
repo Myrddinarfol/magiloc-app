@@ -1,12 +1,26 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useEquipment } from '../hooks/useEquipment';
 import { useUI } from '../hooks/useUI';
 import PageHeader from '../components/common/PageHeader';
+import FeaturedEquipmentCustomizer from '../components/FeaturedEquipmentCustomizer';
+import { getTopRentalModels, DEFAULT_FEATURED_MODELS } from '../utils/featuredEquipmentUtils';
 import './DashboardPage.css';
 
 const DashboardPage = () => {
   const { stats, equipmentData } = useEquipment();
   const { setCurrentPage, setEquipmentFilter, handleNavigate } = useUI();
+  const [showCustomizer, setShowCustomizer] = useState(false);
+  const [selectedFeaturedModels, setSelectedFeaturedModels] = useState(() => {
+    // Charger depuis localStorage ou utiliser les defaults
+    const saved = localStorage.getItem('featuredEquipmentModels');
+    return saved ? JSON.parse(saved) : DEFAULT_FEATURED_MODELS;
+  });
+
+  // Sauvegarder les matériels sélectionnés
+  const handleSaveFeatured = (models) => {
+    setSelectedFeaturedModels(models);
+    localStorage.setItem('featuredEquipmentModels', JSON.stringify(models));
+  };
 
   // Calcul des alertes
   const alerts = useMemo(() => {
@@ -111,77 +125,67 @@ const DashboardPage = () => {
 
   // Matériels phares - Disponibilité
   const featuredEquipment = useMemo(() => {
-    const featured = [
-      {
-        title: 'TR30S / LM300+',
-        subtitle: 'Treuil 300kg',
-        models: ['TR30S', 'TR30', 'LM300+', 'LM 300+', 'LM300'],
-        icon: '⚡',
-        color: '#f59e0b'
-      },
-      {
-        title: 'TR50 / LM500+',
-        subtitle: 'Treuil 500kg',
-        models: ['TR50', 'LM500+', 'LM 500+', 'LM500'],
-        icon: '⚡',
-        color: '#dc2626'
-      },
-      {
-        title: 'TE3000',
-        subtitle: 'Treuil électrique 3000kg',
-        models: ['TE3000', 'TE 3000'],
-        icon: '⚡',
-        color: '#8b5cf6'
-      },
-      {
-        title: 'TE1600',
-        subtitle: 'Treuil électrique 1600kg',
-        models: ['TE1600', 'TE 1600'],
-        icon: '⚡',
-        color: '#06b6d4'
+    // Tous les modèles disponibles avec leurs informations
+    const allAvailableModels = {};
+    const uniqueModels = [...new Set(equipmentData.map(eq => eq.modele).filter(Boolean))];
+
+    uniqueModels.forEach(modele => {
+      const modelUpper = modele.toUpperCase().trim();
+      if (!allAvailableModels[modelUpper]) {
+        allAvailableModels[modelUpper] = {
+          title: modelUpper,
+          subtitle: modelUpper,
+          models: [modelUpper],
+          icon: '⚡'
+        };
       }
-    ];
-
-    return featured.map(item => {
-      // Compter tous les équipements de ce modèle dans PARC LOC
-      const allEquipment = equipmentData.filter(eq => {
-        if (!eq.modele) return false;
-        const modeleUpper = eq.modele.toUpperCase().trim();
-        return item.models.some(model => {
-          const modelUpper = model.toUpperCase().trim();
-          // Match exact ou contient le modèle
-          return modeleUpper === modelUpper || modeleUpper.includes(modelUpper);
-        });
-      });
-
-      // Compter ceux qui sont disponibles (Sur Parc)
-      const available = allEquipment.filter(eq => eq.statut === 'Sur Parc');
-
-      // Total = nombre total d'équipements de ce modèle dans le parc
-      const total = allEquipment.length;
-      const availableCount = available.length;
-      const percentage = total > 0 ? ((availableCount / total) * 100).toFixed(0) : 0;
-
-      let status = 'success';
-      let statusIcon = '🟢';
-      if (percentage < 20) {
-        status = 'danger';
-        statusIcon = '🔴';
-      } else if (percentage < 50) {
-        status = 'warning';
-        statusIcon = '🟡';
-      }
-
-      return {
-        ...item,
-        total,
-        available: availableCount,
-        percentage,
-        status,
-        statusIcon
-      };
     });
-  }, [equipmentData]);
+
+    // Filtrer pour ne garder que les modèles sélectionnés
+    return selectedFeaturedModels
+      .map(modelName => {
+        const modelUpper = modelName.toUpperCase().trim();
+        const itemInfo = allAvailableModels[modelUpper] || {
+          title: modelUpper,
+          subtitle: modelUpper,
+          models: [modelUpper],
+          icon: '⚡'
+        };
+
+        // Compter les équipements pour ce modèle
+        const allEquipment = equipmentData.filter(eq => {
+          if (!eq.modele) return false;
+          const eqModelUpper = eq.modele.toUpperCase().trim();
+          return itemInfo.models.some(model => {
+            const m = model.toUpperCase().trim();
+            return eqModelUpper === m || eqModelUpper.includes(m);
+          });
+        });
+
+        const available = allEquipment.filter(eq => eq.statut === 'Sur Parc');
+        const total = allEquipment.length;
+        const percentage = total > 0 ? ((available.length / total) * 100).toFixed(0) : 0;
+
+        let status = 'success';
+        let statusIcon = '🟢';
+        if (percentage < 20) {
+          status = 'danger';
+          statusIcon = '🔴';
+        } else if (percentage < 50) {
+          status = 'warning';
+          statusIcon = '🟡';
+        }
+
+        return {
+          ...itemInfo,
+          total,
+          available: available.length,
+          percentage,
+          status,
+          statusIcon
+        };
+      });
+  }, [equipmentData, selectedFeaturedModels]);
 
   // Fonction pour filtrer et naviguer vers les matériels phares
   const handleFeaturedClick = (models) => {
@@ -279,8 +283,19 @@ const DashboardPage = () => {
 
         {/* Matériels Phares */}
         <div className="featured-equipment">
-          <h3>🔥 Matériels Phares</h3>
-          <p className="featured-subtitle">Équipements les plus demandés</p>
+          <div className="featured-equipment-header">
+            <div>
+              <h3>🔥 Matériels Phares</h3>
+              <p className="featured-subtitle">Équipements les plus demandés</p>
+            </div>
+            <button
+              className="featured-customize-btn"
+              onClick={() => setShowCustomizer(true)}
+              data-tooltip="Personnaliser"
+            >
+              ⚙️
+            </button>
+          </div>
           <div className="featured-list">
             {featuredEquipment.map((item, index) => (
               <div
@@ -434,6 +449,15 @@ const DashboardPage = () => {
           )}
         </div>
       </div>
+
+      {/* Customizer Modal */}
+      <FeaturedEquipmentCustomizer
+        isOpen={showCustomizer}
+        onClose={() => setShowCustomizer(false)}
+        equipmentData={equipmentData}
+        selectedModels={selectedFeaturedModels}
+        onSave={handleSaveFeatured}
+      />
     </div>
   );
 };
