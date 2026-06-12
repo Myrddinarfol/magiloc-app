@@ -63,6 +63,8 @@ export const UIProvider = ({ children }) => {
     // Si on quitte sur-parc ou parc-loc, signaler qu'on doit reset les filtres
     if ((currentPage === 'sur-parc' || currentPage === 'parc-loc') && page !== 'sur-parc' && page !== 'parc-loc') {
       setShouldResetEquipmentListFilters(true);
+      // Vider sessionStorage pour que les filtres ne soient pas restaurés au retour
+      sessionStorage.removeItem('shouldRestoreEquipmentFilters');
     }
 
     setCurrentPage(page);
