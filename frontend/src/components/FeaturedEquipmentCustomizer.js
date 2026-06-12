@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import { FEATURED_EQUIPMENT_PERIODS, getTopRentalModels } from '../utils/featuredEquipmentUtils';
-import { smartSearch } from '../utils/smartSearch';
 import './FeaturedEquipmentCustomizer.css';
 
 function FeaturedEquipmentCustomizer({
@@ -13,7 +12,10 @@ function FeaturedEquipmentCustomizer({
   const [selectedPeriod, setSelectedPeriod] = useState(null);
   const [manualSelection, setManualSelection] = useState(selectedModels);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState('all'); // all, designation, model, cmu, length
+  const [designationFilter, setDesignationFilter] = useState('');
+  const [modelFilter, setModelFilter] = useState('');
+  const [cmuFilter, setCmuFilter] = useState('');
+  const [lengthFilter, setLengthFilter] = useState('');
 
   // Obtenir les équipements uniques avec infos, groupés par désignation
   const uniqueEquipment = useMemo(() => {
@@ -36,22 +38,34 @@ function FeaturedEquipmentCustomizer({
       }
     });
 
-    // Trier par désignation d'abord, puis par modèle
     return items.sort((a, b) => {
       const designationCompare = a.designation.localeCompare(b.designation);
       return designationCompare !== 0 ? designationCompare : a.modele.localeCompare(b.modele);
     });
   }, [equipmentData]);
 
+  // Obtenir les valeurs uniques pour les dropdowns
+  const filterOptions = useMemo(() => {
+    return {
+      designations: [...new Set(uniqueEquipment.map(eq => eq.designation))].sort(),
+      models: [...new Set(uniqueEquipment.map(eq => eq.modele))].sort(),
+      cmus: [...new Set(uniqueEquipment.map(eq => eq.cmu).filter(Boolean))].sort(),
+      lengths: [...new Set(uniqueEquipment.map(eq => eq.longueur).filter(Boolean))].sort()
+    };
+  }, [uniqueEquipment]);
+
   // Filtrer et rechercher
   const filteredEquipment = useMemo(() => {
-    if (!searchTerm) return uniqueEquipment;
-
     return uniqueEquipment.filter(eq => {
-      const searchLower = searchTerm.toLowerCase();
+      // Appliquer les filtres déroulants
+      if (designationFilter && eq.designation !== designationFilter) return false;
+      if (modelFilter && eq.modele !== modelFilter) return false;
+      if (cmuFilter && eq.cmu !== cmuFilter) return false;
+      if (lengthFilter && eq.longueur !== lengthFilter) return false;
 
-      if (filterType === 'all') {
-        // Chercher dans tous les champs
+      // Appliquer la recherche
+      if (searchTerm) {
+        const searchLower = searchTerm.toLowerCase();
         return (
           eq.designation.toLowerCase().includes(searchLower) ||
           eq.modele.toLowerCase().includes(searchLower) ||
@@ -60,20 +74,17 @@ function FeaturedEquipmentCustomizer({
         );
       }
 
-      switch (filterType) {
-        case 'designation':
-          return eq.designation.toLowerCase().includes(searchLower);
-        case 'model':
-          return eq.modele.toLowerCase().includes(searchLower);
-        case 'cmu':
-          return eq.cmu.toLowerCase().includes(searchLower);
-        case 'length':
-          return eq.longueur.toLowerCase().includes(searchLower);
-        default:
-          return true;
-      }
+      return true;
     });
-  }, [uniqueEquipment, searchTerm, filterType]);
+  }, [uniqueEquipment, searchTerm, designationFilter, modelFilter, cmuFilter, lengthFilter]);
+
+  const handleClearFilters = () => {
+    setSearchTerm('');
+    setDesignationFilter('');
+    setModelFilter('');
+    setCmuFilter('');
+    setLengthFilter('');
+  };
 
   const handlePeriodClick = (days) => {
     if (selectedPeriod === days) {
@@ -138,49 +149,78 @@ function FeaturedEquipmentCustomizer({
 
           {/* Sélection manuelle */}
           <div className="customizer-section">
-            <h3>Ou sélectionner manuellement (max 8)</h3>
+            <h3>Sélectionner manuellement (max 8)</h3>
 
             {/* Barre de recherche */}
-            <div className="search-section">
-              <input
-                type="text"
-                placeholder="Rechercher par modèle, désignation, CMU, longueur..."
-                className="search-input"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <div className="filter-tabs">
-                <button
-                  className={`filter-tab ${filterType === 'all' ? 'active' : ''}`}
-                  onClick={() => setFilterType('all')}
+            <input
+              type="text"
+              placeholder="Rechercher par modèle, désignation, CMU, longueur..."
+              className="search-input"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+
+            {/* Filtres déroulants */}
+            <div className="filters-container customizer-filters">
+              <div className="filter-group">
+                <label>Désignation</label>
+                <select
+                  className="filter-select"
+                  value={designationFilter}
+                  onChange={(e) => setDesignationFilter(e.target.value)}
                 >
-                  Tous
-                </button>
-                <button
-                  className={`filter-tab ${filterType === 'model' ? 'active' : ''}`}
-                  onClick={() => setFilterType('model')}
-                >
-                  Modèle
-                </button>
-                <button
-                  className={`filter-tab ${filterType === 'designation' ? 'active' : ''}`}
-                  onClick={() => setFilterType('designation')}
-                >
-                  Désignation
-                </button>
-                <button
-                  className={`filter-tab ${filterType === 'cmu' ? 'active' : ''}`}
-                  onClick={() => setFilterType('cmu')}
-                >
-                  CMU
-                </button>
-                <button
-                  className={`filter-tab ${filterType === 'length' ? 'active' : ''}`}
-                  onClick={() => setFilterType('length')}
-                >
-                  Longueur
-                </button>
+                  <option value="">Tous</option>
+                  {filterOptions.designations.map(d => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
               </div>
+
+              <div className="filter-group">
+                <label>Modèle</label>
+                <select
+                  className="filter-select"
+                  value={modelFilter}
+                  onChange={(e) => setModelFilter(e.target.value)}
+                >
+                  <option value="">Tous</option>
+                  {filterOptions.models.map(m => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="filter-group">
+                <label>CMU</label>
+                <select
+                  className="filter-select"
+                  value={cmuFilter}
+                  onChange={(e) => setCmuFilter(e.target.value)}
+                >
+                  <option value="">Tous</option>
+                  {filterOptions.cmus.map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="filter-group">
+                <label>Longueur</label>
+                <select
+                  className="filter-select"
+                  value={lengthFilter}
+                  onChange={(e) => setLengthFilter(e.target.value)}
+                >
+                  <option value="">Tous</option>
+                  {filterOptions.lengths.map(l => (
+                    <option key={l} value={l}>{l}</option>
+                  ))}
+                </select>
+              </div>
+
+              <button className="btn-clear-filters" onClick={handleClearFilters} data-tooltip="Réinitialiser les filtres">
+                ✕ Clear
+              </button>
             </div>
 
             <p className="selection-info">
