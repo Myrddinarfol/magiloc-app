@@ -129,7 +129,7 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { showToast, maintenanceData: contextMaintenanceData, setMaintenanceData: setContextMaintenanceData } = useUI();
-  const { setEquipmentData: setContextEquipmentData } = useEquipment();
+  const { setEquipmentData: setContextEquipmentData, loadEquipments } = useEquipment();
 
   const [equipment, setEquipment] = useState(null);
   const [showValidateModal, setShowValidateModal] = useState(false);
@@ -234,6 +234,11 @@ const MaintenanceDetailPage = ({ equipmentData = [] }) => {
         // Mettre à jour le cache aussi
         cacheService.set(updatedEquipmentList);
         console.log('✅ Cache d\'équipement mis à jour');
+
+        // 🔄 Rafraîchir les données depuis le contexte (utilise le cache mis à jour)
+        // Cela assure que TOUS les composants (SUR PARC, etc.) voient les données à jour
+        await loadEquipments(1, false, true);
+        console.log('✅ Rafraîchissement complet des équipements effectué');
       }
 
       showToast('✅ Maintenance validée avec succès', 'success');
