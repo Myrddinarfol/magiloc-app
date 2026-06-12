@@ -405,36 +405,33 @@ const DashboardPage = () => {
         </div>
       </div>
 
-      {/* Panneau Ruptures de Stock */}
-      <div className="dashboard-section">
-        <div className="ruptures-panel">
-          <h2>📦 Ruptures de Disponibilité</h2>
-          <p className="ruptures-subtitle">Matériels avec 0 disponible sur parc</p>
-          <div className="ruptures-grid">
-            {stockAlerts.length === 0 ? (
-              <div className="ruptures-empty">
-                <span className="ruptures-empty-icon">✅</span>
-                <p>Aucune alerte de disponibilité</p>
-              </div>
-            ) : (
-              stockAlerts.map((item, index) => (
-                <div key={index} className={`rupture-item rupture-level-${item.available}`}>
-                  <div className="rupture-icon">
-                    {item.available === 0 ? '🔴' : '🟠'}
-                  </div>
-                  <div className="rupture-info">
-                    <div className="rupture-model">{item.model}</div>
-                    <div className="rupture-stock">
-                      <span className="rupture-available">{item.available}</span> / {item.total} disponible{item.available > 1 ? 's' : ''}
-                    </div>
-                  </div>
-                  <div className="rupture-badge">
-                    {item.available === 0 ? 'RUPTURE' : 'CRITIQUE'}
+      {/* Panneau Ruptures de Disponibilité */}
+      <div className="ruptures-section">
+        <h2>📦 Ruptures de Disponibilité</h2>
+        <div className="ruptures-grid">
+          {stockAlerts.length === 0 ? (
+            <div className="ruptures-empty">
+              <span className="ruptures-empty-icon">✅</span>
+              <p>Aucune alerte de disponibilité</p>
+            </div>
+          ) : (
+            stockAlerts.map((item, index) => (
+              <div key={index} className={`rupture-capsule rupture-level-${item.available}`}>
+                <div className="rupture-icon">
+                  {item.available === 0 ? '🔴' : '🟠'}
+                </div>
+                <div className="rupture-content">
+                  <div className="rupture-model">{item.model}</div>
+                  <div className="rupture-stock">
+                    <span className="rupture-available">{item.available}</span> / {item.total}
                   </div>
                 </div>
-              ))
-            )}
-          </div>
+                <div className="rupture-badge">
+                  {item.available === 0 ? 'RUPTURE' : 'CRITIQUE'}
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

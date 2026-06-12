@@ -264,16 +264,17 @@
   border: 2px solid #10b981;
 }
 
-/* Panneau Ruptures */
-.ruptures-panel {
-  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
-  border: 2px solid rgba(220, 38, 38, 0.35);
-  border-radius: var(--radius-lg);
+/* Section Ruptures de Disponibilité */
+.ruptures-section {
+  margin: 30px 0;
   padding: 20px;
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+  border-radius: var(--radius-lg);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 20px rgba(220, 38, 38, 0.15);
+  border: 2px solid rgba(220, 38, 38, 0.35);
 }
 
-.ruptures-panel h2 {
+.ruptures-section h2 {
   color: var(--text-primary);
   font-size: 18px;
   margin: 0 0 12px 0;
@@ -286,7 +287,7 @@
   border-bottom: 2px solid rgba(220, 38, 38, 0.3);
 }
 
-.ruptures-panel h2::before {
+.ruptures-section h2::before {
   content: '';
   display: inline-block;
   width: 4px;
@@ -295,18 +296,11 @@
   border-radius: 2px;
 }
 
-.ruptures-subtitle {
-  color: var(--text-muted);
-  font-size: 12px;
-  margin-bottom: 16px;
-  font-weight: 400;
-  letter-spacing: 0.2px;
-}
-
 .ruptures-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
+  margin: 0;
 }
 
 .ruptures-empty {
@@ -321,21 +315,25 @@
   margin-bottom: 12px;
 }
 
-.rupture-item {
+.rupture-capsule {
   background: linear-gradient(135deg, rgba(75, 85, 99, 0.08), rgba(107, 114, 128, 0.04));
   border: 1px solid rgba(107, 114, 128, 0.15);
   border-radius: 12px;
-  padding: 14px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  padding: 16px;
+  position: relative;
   transition: all 0.3s ease;
+  cursor: default;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
 
-.rupture-item:hover {
-  transform: translateX(2px);
+.rupture-capsule:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   border-color: rgba(107, 114, 128, 0.25);
-  background: linear-gradient(135deg, rgba(75, 85, 99, 0.12), rgba(107, 114, 128, 0.08));
 }
 
 .rupture-level-0 {
@@ -345,7 +343,7 @@
 
 .rupture-level-0:hover {
   border-color: rgba(220, 38, 38, 0.4);
-  background: linear-gradient(135deg, rgba(220, 38, 38, 0.12), rgba(220, 38, 38, 0.08));
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
 }
 
 .rupture-level-1 {
@@ -355,7 +353,7 @@
 
 .rupture-level-1:hover {
   border-color: rgba(245, 158, 11, 0.4);
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(245, 158, 11, 0.08));
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
 }
 
 .rupture-level-2 {
@@ -365,53 +363,61 @@
 
 .rupture-level-2:hover {
   border-color: rgba(234, 179, 8, 0.4);
-  background: linear-gradient(135deg, rgba(234, 179, 8, 0.12), rgba(234, 179, 8, 0.08));
+  box-shadow: 0 4px 12px rgba(234, 179, 8, 0.15);
 }
 
 .rupture-icon {
-  font-size: 32px;
-  flex-shrink: 0;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.rupture-info {
+.rupture-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
   flex: 1;
 }
 
 .rupture-model {
-  font-weight: bold;
-  font-size: 15px;
-  color: #fff;
-  margin-bottom: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .rupture-stock {
-  font-size: 13px;
-  color: #9ca3af;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
 }
 
 .rupture-available {
-  font-weight: bold;
-  font-size: 16px;
-  color: #fff;
+  font-weight: 700;
+  color: var(--color-danger);
 }
 
 .rupture-badge {
-  background: linear-gradient(135deg, #dc2626, #b91c1c);
-  color: white;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: bold;
-  letter-spacing: 1px;
-  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 8px;
+  background: rgba(220, 38, 38, 0.15);
+  color: var(--color-danger);
+  border-radius: 4px;
 }
 
 .rupture-level-1 .rupture-badge {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
+  background: rgba(245, 158, 11, 0.15);
+  color: rgba(245, 158, 11, 0.9);
 }
 
 .rupture-level-2 .rupture-badge {
-  background: linear-gradient(135deg, #eab308, #ca8a04);
+  background: rgba(234, 179, 8, 0.15);
+  color: rgba(234, 179, 8, 0.9);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
@@ -472,41 +478,37 @@ body.light-theme .alert-badge-round {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
-body.light-theme .ruptures-panel {
+body.light-theme .ruptures-section {
   background: linear-gradient(135deg, #ffffff, #f8fafc);
-  border: 2px solid var(--color-primary);
-  box-shadow: 0 4px 25px rgba(220, 38, 38, 0.1);
+  border: 2px solid rgba(220, 38, 38, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 0 20px rgba(220, 38, 38, 0.08);
 }
 
-body.light-theme .ruptures-panel h2 {
+body.light-theme .ruptures-section h2 {
   color: var(--color-primary);
-}
-
-body.light-theme .ruptures-subtitle {
-  color: var(--text-secondary);
 }
 
 body.light-theme .ruptures-empty {
   color: var(--text-secondary);
 }
 
-body.light-theme .rupture-item {
+body.light-theme .rupture-capsule {
   background: linear-gradient(135deg, #ffffff, #f8fafc);
-  border: 2px solid var(--border-color);
+  border: 1px solid rgba(107, 114, 128, 0.15);
 }
 
-body.light-theme .rupture-item:hover {
-  border-color: #d1d5db;
+body.light-theme .rupture-capsule:hover {
+  border-color: rgba(107, 114, 128, 0.25);
   background: linear-gradient(135deg, #f3f4f6, #f1f5f9);
 }
 
 body.light-theme .rupture-level-0 {
-  border-color: rgba(220, 38, 38, 0.5);
+  border-color: rgba(220, 38, 38, 0.3);
   background: linear-gradient(135deg, #fef2f2, #fee2e2);
 }
 
 body.light-theme .rupture-level-0:hover {
-  background: linear-gradient(135deg, #fecaca, #fca5a5);
+  border-color: rgba(220, 38, 38, 0.4);
 }
 
 body.light-theme .rupture-level-1 {
