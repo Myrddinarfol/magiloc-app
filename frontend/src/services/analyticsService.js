@@ -11,42 +11,24 @@ import { calculateBusinessDays, calculateBusinessDaysByMonth, convertFrenchToISO
 
 export const analyticsService = {
   /**
-   * Filtre les équipements TEST et locations CLIENT TEST
-   * Exclut tout ce qui contient "TEST" dans le nom ou le client
+   * Filtre les équipements pour Analytics
+   * NOTE: L'exclusion automatique des clients "CLIENT TEST" a été retirée :
+   * elle masquait silencieusement toutes les locations de test et donnait
+   * l'impression qu'Analytics était cassé. Pour purger des données de test,
+   * utiliser les scripts backend (cleanup-test-data.js) plutôt qu'un filtre caché.
    */
   filterTestData(equipmentList) {
     if (!equipmentList) return [];
-
-    return equipmentList.filter(equipment => {
-      // Exclure si le nom de l'équipement contient "TEST"
-      if (equipment.nom && equipment.nom.toUpperCase().includes('TEST')) {
-        return false;
-      }
-
-      // Exclure si le client est "CLIENT TEST"
-      if (equipment.client && equipment.client.toUpperCase().includes('CLIENT TEST')) {
-        return false;
-      }
-
-      return true;
-    });
+    return equipmentList;
   },
 
   /**
-   * Filtre les locations d'historique pour exclure les TEST
-   * Exclut les locations avec client "CLIENT TEST"
+   * Filtre les locations d'historique pour Analytics
+   * NOTE: exclusion "CLIENT TEST" retirée (voir filterTestData)
    */
   filterTestLocations(locationHistory) {
     if (!locationHistory) return [];
-
-    return locationHistory.filter(location => {
-      // Exclure si le client est "CLIENT TEST"
-      if (location.client && location.client.toUpperCase().includes('CLIENT TEST')) {
-        return false;
-      }
-
-      return true;
-    });
+    return locationHistory;
   },
 
   /**
