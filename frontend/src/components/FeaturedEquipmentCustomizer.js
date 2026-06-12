@@ -15,25 +15,32 @@ function FeaturedEquipmentCustomizer({
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all'); // all, designation, model, cmu, length
 
-  // Obtenir les équipements uniques avec infos
+  // Obtenir les équipements uniques avec infos, groupés par désignation
   const uniqueEquipment = useMemo(() => {
     const seen = new Set();
     const items = [];
 
     equipmentData.forEach(eq => {
-      const key = eq.modele?.toUpperCase().trim() || '';
-      if (key && !seen.has(key)) {
+      const designation = eq.designation?.trim() || '';
+      const modele = eq.modele?.toUpperCase().trim() || '';
+      const key = `${designation}|${modele}`;
+
+      if (designation && modele && !seen.has(key)) {
         seen.add(key);
         items.push({
-          modele: key,
-          designation: eq.designation || '',
+          designation: designation,
+          modele: modele,
           cmu: eq.cmu || '',
           longueur: eq.longueur || ''
         });
       }
     });
 
-    return items.sort((a, b) => a.modele.localeCompare(b.modele));
+    // Trier par désignation d'abord, puis par modèle
+    return items.sort((a, b) => {
+      const designationCompare = a.designation.localeCompare(b.designation);
+      return designationCompare !== 0 ? designationCompare : a.modele.localeCompare(b.modele);
+    });
   }, [equipmentData]);
 
   // Filtrer et rechercher
@@ -44,7 +51,13 @@ function FeaturedEquipmentCustomizer({
       const searchLower = searchTerm.toLowerCase();
 
       if (filterType === 'all') {
-        return smartSearch(eq, searchTerm);
+        // Chercher dans tous les champs
+        return (
+          eq.designation.toLowerCase().includes(searchLower) ||
+          eq.modele.toLowerCase().includes(searchLower) ||
+          eq.cmu.toLowerCase().includes(searchLower) ||
+          eq.longueur.toLowerCase().includes(searchLower)
+        );
       }
 
       switch (filterType) {
@@ -179,7 +192,7 @@ function FeaturedEquipmentCustomizer({
               {filteredEquipment.length > 0 ? (
                 filteredEquipment.map(eq => (
                   <div
-                    key={eq.modele}
+                    key={`${eq.designation}|${eq.modele}`}
                     className={`equipment-item ${manualSelection.includes(eq.modele) ? 'selected' : ''} ${manualSelection.length >= 8 && !manualSelection.includes(eq.modele) ? 'disabled' : ''}`}
                     onClick={() => toggleModel(eq.modele)}
                   >
@@ -187,8 +200,8 @@ function FeaturedEquipmentCustomizer({
                       {manualSelection.includes(eq.modele) ? '✓' : ''}
                     </div>
                     <div className="equipment-info">
-                      <div className="equipment-model">{eq.modele}</div>
-                      {eq.designation && <div className="equipment-detail">📋 {eq.designation}</div>}
+                      <div className="equipment-designation">{eq.designation}</div>
+                      <div className="equipment-model">🔧 {eq.modele}</div>
                       <div className="equipment-specs">
                         {eq.cmu && <span className="spec-badge">CMU: {eq.cmu}</span>}
                         {eq.longueur && <span className="spec-badge">L: {eq.longueur}</span>}

@@ -127,13 +127,12 @@ const DashboardPage = () => {
   const featuredEquipment = useMemo(() => {
     // Tous les modèles disponibles avec leurs informations
     const allAvailableModels = {};
-    const uniqueModels = [...new Set(equipmentData.map(eq => eq.modele).filter(Boolean))];
 
-    uniqueModels.forEach(modele => {
-      const modelUpper = modele.toUpperCase().trim();
-      if (!allAvailableModels[modelUpper]) {
+    equipmentData.forEach(eq => {
+      const modelUpper = eq.modele?.toUpperCase().trim();
+      if (modelUpper && !allAvailableModels[modelUpper]) {
         allAvailableModels[modelUpper] = {
-          title: modelUpper,
+          title: eq.designation || modelUpper,
           subtitle: modelUpper,
           models: [modelUpper],
           icon: '⚡'
