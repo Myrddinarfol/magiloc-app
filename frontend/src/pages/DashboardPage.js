@@ -135,7 +135,9 @@ const DashboardPage = () => {
           title: eq.designation || modelUpper,
           subtitle: modelUpper,
           models: [modelUpper],
-          icon: '⚡'
+          icon: '⚡',
+          cmu: eq.cmu || '',
+          longueur: eq.longueur || ''
         };
       }
     });
@@ -307,6 +309,12 @@ const DashboardPage = () => {
                   <div className="featured-info">
                     <div className="featured-name">{item.title}</div>
                     <div className="featured-models">{item.subtitle}</div>
+                    {(item.cmu || item.longueur) && (
+                      <div className="featured-specs">
+                        {item.cmu && <span className="spec-badge">CMU: {item.cmu}</span>}
+                        {item.longueur && <span className="spec-badge">L: {item.longueur}</span>}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="featured-stats">

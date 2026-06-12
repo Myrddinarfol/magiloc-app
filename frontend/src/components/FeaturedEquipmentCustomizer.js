@@ -223,9 +223,45 @@ function FeaturedEquipmentCustomizer({
               </button>
             </div>
 
-            <p className="selection-info">
-              Sélectionnés: {manualSelection.length}/8 | Résultats: {filteredEquipment.length}
-            </p>
+            <div className="selection-header">
+              <p className="selection-info">
+                Sélectionnés: {manualSelection.length}/8 | Résultats: {filteredEquipment.length}
+              </p>
+              {manualSelection.length > 0 && (
+                <button className="btn-clear-all" onClick={() => setManualSelection([])}>
+                  Désélectionner tout
+                </button>
+              )}
+            </div>
+
+            {/* Tableau récapitulatif */}
+            {manualSelection.length > 0 && (
+              <div className="selection-summary">
+                <h4>Matériels sélectionnés</h4>
+                <div className="summary-table">
+                  {manualSelection.map(modelName => {
+                    const eq = uniqueEquipment.find(e => e.modele === modelName);
+                    return (
+                      <div key={modelName} className="summary-row">
+                        <input
+                          type="checkbox"
+                          checked={true}
+                          onChange={() => toggleModel(modelName)}
+                          className="summary-checkbox"
+                        />
+                        <div className="summary-info">
+                          <div className="summary-designation">{eq?.designation || modelName}</div>
+                          <div className="summary-specs">
+                            {eq?.cmu && <span>{eq.cmu}</span>}
+                            {eq?.longueur && <span>{eq.longueur}</span>}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Grille d'équipement */}
             <div className="equipment-list">

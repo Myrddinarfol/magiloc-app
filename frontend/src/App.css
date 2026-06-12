@@ -1279,6 +1279,23 @@ body.modal-open {
   opacity: 0.85;
 }
 
+.featured-specs {
+  display: flex;
+  gap: 8px;
+  font-size: 11px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.spec-badge {
+  font-size: 11px;
+  background: rgba(220, 38, 38, 0.1);
+  color: rgba(220, 38, 38, 0.9);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
 .featured-stats {
   display: flex;
   flex-direction: column;

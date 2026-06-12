@@ -176,11 +176,111 @@
 }
 
 /* Selection Info */
+.selection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 12px 0;
+}
+
 .selection-info {
   font-size: 13px;
   color: var(--text-secondary, #9ca3af);
-  margin: 12px 0;
+  margin: 0;
   font-weight: 500;
+}
+
+.btn-clear-all {
+  padding: 6px 12px;
+  background: rgba(220, 38, 38, 0.15);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  border-radius: 4px;
+  color: #dc2626;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-clear-all:hover {
+  background: rgba(220, 38, 38, 0.25);
+  border-color: rgba(220, 38, 38, 0.4);
+}
+
+/* Selection Summary */
+.selection-summary {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: linear-gradient(135deg, rgba(75, 85, 99, 0.06), rgba(107, 114, 128, 0.02));
+  border: 1px solid rgba(107, 114, 128, 0.1);
+  border-radius: 8px;
+}
+
+.selection-summary h4 {
+  margin: 0 0 10px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary, #f3f4f6);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.summary-table {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summary-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(107, 114, 128, 0.08);
+  border: 1px solid rgba(107, 114, 128, 0.1);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.summary-row:hover {
+  background: rgba(107, 114, 128, 0.12);
+  border-color: rgba(107, 114, 128, 0.15);
+}
+
+.summary-checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #dc2626;
+  flex-shrink: 0;
+}
+
+.summary-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.summary-designation {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary, #f3f4f6);
+}
+
+.summary-specs {
+  display: flex;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-secondary, #9ca3af);
+}
+
+.summary-specs span {
+  background: rgba(220, 38, 38, 0.1);
+  padding: 2px 6px;
+  border-radius: 3px;
 }
 
 /* Equipment List */
