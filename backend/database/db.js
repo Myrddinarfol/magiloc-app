@@ -43,7 +43,9 @@ const pool = new Pool(poolConfig);
 
 // Log simple au démarrage
 console.log('🗄️  PostgreSQL Pool initialisé (max: 10 connexions)');
-console.log('📍 Mode:', process.env.DATABASE_URL ? 'PRODUCTION (Render)' : 'LOCAL');
+const dbUrl = process.env.DATABASE_URL || '';
+const isLocalDb = !dbUrl || dbUrl.includes('localhost') || dbUrl.includes('127.0.0.1');
+console.log('📍 Mode:', isLocalDb ? 'LOCAL (localhost)' : 'DISTANT (Render/cloud)');
 
 // Gestion améliorée des erreurs du pool
 pool.on('error', (err) => {

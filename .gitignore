@@ -42,3 +42,6 @@ coverage/
 # Temporary files
 *.tmp
 *.temp
+
+# Sauvegardes locales de la base de donnees (ne jamais commiter)
+backups/
