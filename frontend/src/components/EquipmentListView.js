@@ -90,13 +90,19 @@ function EquipmentListView({
   }, []); // ⚠️ Uniquement au mount
 
   // Sauvegarder le flag de restauration quand les filtres changent
+  // MAIS ne pas le remettre à true si on est en train de quitter la page
   useEffect(() => {
+    if (shouldResetEquipmentListFilters) {
+      // On est en train de quitter la page, ne pas sauvegarder les filtres
+      return;
+    }
+
     if (searchTerm || filterDesignation || filterCMU || filterLongueur) {
       sessionStorage.setItem('shouldRestoreEquipmentFilters', 'true');
     } else {
       sessionStorage.removeItem('shouldRestoreEquipmentFilters');
     }
-  }, [searchTerm, filterDesignation, filterCMU, filterLongueur]);
+  }, [searchTerm, filterDesignation, filterCMU, filterLongueur, shouldResetEquipmentListFilters]);
 
   // 🔄 Restaurer les filtres depuis l'URL après avoir quitté une fiche
   useEffect(() => {
