@@ -15,11 +15,17 @@ const DashboardPage = () => {
     const saved = localStorage.getItem('featuredEquipmentModels');
     return saved ? JSON.parse(saved) : DEFAULT_FEATURED_MODELS;
   });
+  const [maxFeaturedItems, setMaxFeaturedItems] = useState(() => {
+    const saved = localStorage.getItem('maxFeaturedItems');
+    return saved ? parseInt(saved) : 8;
+  });
 
-  // Sauvegarder les matériels sélectionnés
-  const handleSaveFeatured = (models) => {
+  // Sauvegarder les matériels sélectionnés et le nombre max
+  const handleSaveFeatured = (models, maxItems) => {
     setSelectedFeaturedModels(models);
+    setMaxFeaturedItems(maxItems || 8);
     localStorage.setItem('featuredEquipmentModels', JSON.stringify(models));
+    localStorage.setItem('maxFeaturedItems', String(maxItems || 8));
   };
 
   // Calcul des alertes
@@ -185,8 +191,9 @@ const DashboardPage = () => {
           status,
           statusIcon
         };
-      });
-  }, [equipmentData, selectedFeaturedModels]);
+      })
+      .slice(0, maxFeaturedItems);
+  }, [equipmentData, selectedFeaturedModels, maxFeaturedItems]);
 
   // Fonction pour filtrer et naviguer vers les matériels phares
   const handleFeaturedClick = (models) => {
@@ -463,6 +470,7 @@ const DashboardPage = () => {
         onClose={() => setShowCustomizer(false)}
         equipmentData={equipmentData}
         selectedModels={selectedFeaturedModels}
+        maxItems={maxFeaturedItems}
         onSave={handleSaveFeatured}
       />
     </div>

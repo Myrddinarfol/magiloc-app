@@ -7,6 +7,7 @@ function FeaturedEquipmentCustomizer({
   onClose,
   equipmentData,
   selectedModels,
+  maxItems,
   onSave
 }) {
   const [selectedPeriod, setSelectedPeriod] = useState(null);
@@ -16,6 +17,7 @@ function FeaturedEquipmentCustomizer({
   const [modelFilter, setModelFilter] = useState('');
   const [cmuFilter, setCmuFilter] = useState('');
   const [lengthFilter, setLengthFilter] = useState('');
+  const [maxItemsState, setMaxItemsState] = useState(maxItems || 8);
 
   // Obtenir les équipements uniques avec infos, groupés par désignation
   const uniqueEquipment = useMemo(() => {
@@ -102,7 +104,7 @@ function FeaturedEquipmentCustomizer({
     setManualSelection(prev => {
       if (prev.includes(model)) {
         return prev.filter(m => m !== model);
-      } else if (prev.length < 8) {
+      } else if (prev.length < maxItemsState) {
         return [...prev, model];
       }
       return prev;
@@ -110,7 +112,7 @@ function FeaturedEquipmentCustomizer({
   };
 
   const handleSave = () => {
-    onSave(manualSelection);
+    onSave(manualSelection, maxItemsState);
     onClose();
   };
 
@@ -147,9 +149,30 @@ function FeaturedEquipmentCustomizer({
             </div>
           </div>
 
+          {/* Nombre maximum d'éléments */}
+          <div className="customizer-section">
+            <h3>Nombre de matériels à afficher</h3>
+            <div className="max-items-selector">
+              <label htmlFor="max-items">Maximum d'éléments: <strong>{maxItemsState}</strong></label>
+              <input
+                id="max-items"
+                type="range"
+                min="1"
+                max="10"
+                value={maxItemsState}
+                onChange={(e) => setMaxItemsState(parseInt(e.target.value))}
+                className="max-items-slider"
+              />
+              <div className="max-items-labels">
+                <span>1</span>
+                <span>10</span>
+              </div>
+            </div>
+          </div>
+
           {/* Sélection manuelle */}
           <div className="customizer-section">
-            <h3>Sélectionner manuellement (max 8)</h3>
+            <h3>Sélectionner manuellement (max {maxItemsState})</h3>
 
             {/* Barre de recherche */}
             <input
@@ -225,7 +248,7 @@ function FeaturedEquipmentCustomizer({
 
             <div className="selection-header">
               <p className="selection-info">
-                Sélectionnés: {manualSelection.length}/8 | Résultats: {filteredEquipment.length}
+                Sélectionnés: {manualSelection.length}/{maxItemsState} | Résultats: {filteredEquipment.length}
               </p>
               {manualSelection.length > 0 && (
                 <button className="btn-clear-all" onClick={() => setManualSelection([])}>
@@ -269,7 +292,7 @@ function FeaturedEquipmentCustomizer({
                 filteredEquipment.map(eq => (
                   <div
                     key={`${eq.designation}|${eq.modele}`}
-                    className={`equipment-item ${manualSelection.includes(eq.modele) ? 'selected' : ''} ${manualSelection.length >= 8 && !manualSelection.includes(eq.modele) ? 'disabled' : ''}`}
+                    className={`equipment-item ${manualSelection.includes(eq.modele) ? 'selected' : ''} ${manualSelection.length >= maxItemsState && !manualSelection.includes(eq.modele) ? 'disabled' : ''}`}
                     onClick={() => toggleModel(eq.modele)}
                   >
                     <div className="equipment-checkbox">
