@@ -37,9 +37,21 @@ function EquipmentListView({
   const [equipmentToReserve, setEquipmentToReserve] = useState(null);
   const [showExchangeModal, setShowExchangeModal] = useState(false);
   const [equipmentToExchange, setEquipmentToExchange] = useState(null);
-  const { equipmentFilter, setEquipmentFilter } = useUI();
+  const { equipmentFilter, setEquipmentFilter, shouldResetEquipmentListFilters, setShouldResetEquipmentListFilters } = useUI();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  // 🔄 Réinitialiser les filtres si un drapeau l'indique
+  useEffect(() => {
+    if (shouldResetEquipmentListFilters) {
+      setSearchTerm('');
+      setFilterDesignation('');
+      setFilterCMU('');
+      setFilterLongueur('');
+      setSearchParams(new URLSearchParams());
+      setShouldResetEquipmentListFilters(false);
+    }
+  }, [shouldResetEquipmentListFilters, setShouldResetEquipmentListFilters, setSearchParams]);
 
   // 🔄 Initialiser les filtres depuis l'URL au mount
   useEffect(() => {
@@ -78,22 +90,6 @@ function EquipmentListView({
     setSearchParams(newParams);
   }, [searchTerm, filterDesignation, filterCMU, filterLongueur, setSearchParams]);
 
-  // Auto-reset filter when leaving sur-parc via menu
-  useEffect(() => {
-    if (currentPage !== 'sur-parc' && currentPage !== 'parc-loc') {
-      // Effacer les filtres du state
-      setSearchTerm('');
-      setFilterDesignation('');
-      setFilterCMU('');
-      setFilterLongueur('');
-      // Effacer les searchParams de l'URL
-      setSearchParams(new URLSearchParams());
-      // Effacer le filtre de matériels phares du UIContext
-      if (equipmentFilter) {
-        setEquipmentFilter(null);
-      }
-    }
-  }, [currentPage, equipmentFilter, setEquipmentFilter, setSearchParams]);
 
   // Réinitialiser les filtres CMU et longueur lorsque la désignation change via l'utilisateur
   const handleDesignationChange = (newDesignation) => {

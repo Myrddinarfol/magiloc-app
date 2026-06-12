@@ -110,10 +110,19 @@ const MainApp = ({ shouldStartTour }) => {
     handleGoBack,
     handleOpenEquipmentDetail,
     toasts,
-    showToast
+    showToast,
+    equipmentFilter,
+    setEquipmentFilter
   } = useUI();
 
   const { locationHistory, maintenanceHistory, loadLocationHistory, loadMaintenanceHistory } = useHistory();
+
+  // Reset equipment filters when leaving sur-parc or parc-loc pages
+  React.useEffect(() => {
+    if (currentPage !== 'sur-parc' && currentPage !== 'parc-loc' && equipmentFilter) {
+      setEquipmentFilter(null);
+    }
+  }, [currentPage, equipmentFilter, setEquipmentFilter]);
 
   // State local pour le modal de confirmation de suppression
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);

@@ -35,6 +35,9 @@ export const UIProvider = ({ children }) => {
   // Filtre pour les équipements (modèles)
   const [equipmentFilter, setEquipmentFilter] = useState(null);
 
+  // Flag pour réinitialiser les filtres de liste quand on quitte sur-parc/parc-loc
+  const [shouldResetEquipmentListFilters, setShouldResetEquipmentListFilters] = useState(false);
+
   // Données de maintenance (pour passer les notes de retour vers la fiche de maintenance)
   const [maintenanceData, setMaintenanceData] = useState({
     motif: '',
@@ -56,6 +59,12 @@ export const UIProvider = ({ children }) => {
   const handleNavigate = (page) => {
     setSelectedEquipment(null);
     setPreviousPage(currentPage); // Mémoriser la page actuelle avant de naviguer
+
+    // Si on quitte sur-parc ou parc-loc, signaler qu'on doit reset les filtres
+    if ((currentPage === 'sur-parc' || currentPage === 'parc-loc') && page !== 'sur-parc' && page !== 'parc-loc') {
+      setShouldResetEquipmentListFilters(true);
+    }
+
     setCurrentPage(page);
   };
 
@@ -148,6 +157,8 @@ export const UIProvider = ({ children }) => {
       showToast,
       equipmentFilter,
       setEquipmentFilter,
+      shouldResetEquipmentListFilters,
+      setShouldResetEquipmentListFilters,
       maintenanceData,
       setMaintenanceData,
       reservationFormData,
