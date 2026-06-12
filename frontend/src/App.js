@@ -232,7 +232,7 @@ const MainApp = ({ shouldStartTour }) => {
   };
 
   // Gestionnaire de démarrage de location
-  const handleStartLocation = async (equipment, startDate, startTime, reservationData) => {
+  const handleStartLocation = async (equipment, startDate, startTime, reservationData, returnPage) => {
     if (!equipment || !startDate) return;
 
     try {
@@ -263,11 +263,23 @@ const MainApp = ({ shouldStartTour }) => {
 
       await equipmentService.update(equipment.id, updateData);
       showToast('Location démarrée avec succès !', 'success');
-      await loadEquipments();
-      // Rafraîchir selectedEquipment avec les données à jour
-      const updatedEquipment = equipmentData.find(eq => eq.id === equipment.id);
-      if (updatedEquipment) {
-        setSelectedEquipment(updatedEquipment);
+
+      // Vider le cache pour forcer le rechargement depuis l'API
+      const { cacheService } = await import('./services/cacheService');
+      cacheService.clear();
+
+      await loadEquipments(1, false, true);
+
+      // Fermer le modal
+      setShowStartLocationModal(false);
+
+      // Fermer la fiche détail
+      setSelectedEquipment(null);
+
+      // Naviguer vers la page précédente si elle existe
+      if (returnPage && returnPage !== 'stay-on-detail') {
+        setCurrentPage(returnPage);
+        setPreviousPage(null);
       }
     } catch (error) {
       console.error('❌ Erreur démarrage location:', error);
@@ -593,9 +605,12 @@ const MainApp = ({ shouldStartTour }) => {
 
       {showStartLocationModal && selectedEquipment && (
         <StartLocationModal
+          show={showStartLocationModal}
           equipment={selectedEquipment}
-          onClose={() => setShowStartLocationModal(false)}
-          onSuccess={handleModalSuccess}
+          onCancel={() => setShowStartLocationModal(false)}
+          onConfirm={(startDate, startTime, locationData) => {
+            handleStartLocation(selectedEquipment.id, startDate, startTime, locationData, previousPage);
+          }}
         />
       )}
 
