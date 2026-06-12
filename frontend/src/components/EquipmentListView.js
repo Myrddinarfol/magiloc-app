@@ -55,11 +55,17 @@ function EquipmentListView({
   // 🔄 Réinitialiser les filtres si un drapeau l'indique (quand on revient d'une autre page)
   useEffect(() => {
     if (shouldResetEquipmentListFilters) {
-      clearAllFilters();
+      // Appeler directement pour assurer tous les états sont vidés en même temps
+      setSearchTerm('');
+      setFilterDesignation('');
+      setFilterCMU('');
+      setFilterLongueur('');
+      setSearchParams(new URLSearchParams());
+      setEquipmentFilter(null);
       sessionStorage.removeItem('shouldRestoreEquipmentFilters');
       setShouldResetEquipmentListFilters(false);
     }
-  }, [shouldResetEquipmentListFilters, setShouldResetEquipmentListFilters]);
+  }, [shouldResetEquipmentListFilters]);
 
   // 🔄 Initialiser les filtres depuis l'URL au mount (seulement s'ils étaient persistés avant)
   useEffect(() => {
