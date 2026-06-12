@@ -988,6 +988,7 @@ const EquipmentDetailView = ({
         <EditLocationModal
           equipment={equipment}
           onClose={() => setShowEditLocationModal(false)}
+          returnToPage={previousPage}
           onSuccess={(action) => {
             setShowEditLocationModal(false);
             if (onEditLocationInfo) {

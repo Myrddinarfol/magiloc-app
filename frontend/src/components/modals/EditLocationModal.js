@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { equipmentService } from '../../services/equipmentService';
 import { useUI } from '../../hooks/useUI';
 
-const EditLocationModal = ({ equipment, onClose, onSuccess }) => {
-  const { showToast, editTechInfoFormData, setEditTechInfoFormData } = useUI();
+const EditLocationModal = ({ equipment, onClose, onSuccess, returnToPage }) => {
+  const { showToast, editTechInfoFormData, setEditTechInfoFormData, previousPage } = useUI();
   const defaultForm = {
     client: '',
     debutLocation: '',
@@ -84,7 +84,11 @@ const EditLocationModal = ({ equipment, onClose, onSuccess }) => {
       showToast('Informations de location modifiées avec succès !', 'success');
       setEditTechInfoFormData(null); // Clear preserved data on success
       onClose();
-      if (onSuccess) onSuccess('stay-on-detail'); // Rester sur la fiche détail
+      // Retourner à la page précédente, ou rester sur la fiche si on vient de SUR PARC/PARC LOC
+      if (onSuccess) {
+        const pageToReturn = returnToPage || previousPage || 'stay-on-detail';
+        onSuccess(pageToReturn);
+      }
     } catch (error) {
       console.error('❌ Erreur:', error);
       showToast(`Erreur lors de la modification: ${error.message}`, 'error');
