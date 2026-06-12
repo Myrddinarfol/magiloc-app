@@ -35,8 +35,21 @@ export const UIProvider = ({ children }) => {
   // Filtre pour les équipements (modèles)
   const [equipmentFilter, setEquipmentFilter] = useState(null);
 
-  // Flag pour réinitialiser les filtres de liste quand on quitte sur-parc/parc-loc
-  const [shouldResetEquipmentListFilters, setShouldResetEquipmentListFilters] = useState(false);
+  // Filtres de la liste d'équipements (centralisés ici pour survivre au
+  // démontage du composant quand on ouvre une fiche détail).
+  // Un refresh de page réinitialise naturellement ce state.
+  const initialEquipmentListFilters = {
+    searchTerm: '',
+    designation: '',
+    cmu: '',
+    longueur: ''
+  };
+  const [equipmentListFilters, setEquipmentListFilters] = useState(initialEquipmentListFilters);
+
+  const resetEquipmentListFilters = () => {
+    setEquipmentListFilters(initialEquipmentListFilters);
+    setEquipmentFilter(null);
+  };
 
   // Données de maintenance (pour passer les notes de retour vers la fiche de maintenance)
   const [maintenanceData, setMaintenanceData] = useState({
@@ -56,17 +69,11 @@ export const UIProvider = ({ children }) => {
   });
 
   // Fonction pour gérer la navigation (ferme la fiche détaillée automatiquement)
+  // Tout changement d'onglet via le menu réinitialise les filtres de liste.
   const handleNavigate = (page) => {
     setSelectedEquipment(null);
     setPreviousPage(currentPage); // Mémoriser la page actuelle avant de naviguer
-
-    // Si on quitte sur-parc ou parc-loc, signaler qu'on doit reset les filtres
-    if ((currentPage === 'sur-parc' || currentPage === 'parc-loc') && page !== 'sur-parc' && page !== 'parc-loc') {
-      setShouldResetEquipmentListFilters(true);
-      // Vider sessionStorage pour que les filtres ne soient pas restaurés au retour
-      sessionStorage.removeItem('shouldRestoreEquipmentFilters');
-    }
-
+    resetEquipmentListFilters();
     setCurrentPage(page);
   };
 
@@ -159,8 +166,9 @@ export const UIProvider = ({ children }) => {
       showToast,
       equipmentFilter,
       setEquipmentFilter,
-      shouldResetEquipmentListFilters,
-      setShouldResetEquipmentListFilters,
+      equipmentListFilters,
+      setEquipmentListFilters,
+      resetEquipmentListFilters,
       maintenanceData,
       setMaintenanceData,
       reservationFormData,

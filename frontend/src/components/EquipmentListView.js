@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useUI } from '../hooks/useUI';
 import PageHeader from './common/PageHeader';
 import VGPBadgeCompact from './common/VGPBadgeCompact';
@@ -23,10 +23,6 @@ function EquipmentListView({
   onReturnLocation,
   onStartLocation
 }) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterDesignation, setFilterDesignation] = useState('');
-  const [filterCMU, setFilterCMU] = useState('');
-  const [filterLongueur, setFilterLongueur] = useState('');
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [equipmentToCancel, setEquipmentToCancel] = useState(null);
   const [showStartModal, setShowStartModal] = useState(false);
@@ -37,104 +33,35 @@ function EquipmentListView({
   const [equipmentToReserve, setEquipmentToReserve] = useState(null);
   const [showExchangeModal, setShowExchangeModal] = useState(false);
   const [equipmentToExchange, setEquipmentToExchange] = useState(null);
-  const { equipmentFilter, setEquipmentFilter, shouldResetEquipmentListFilters, setShouldResetEquipmentListFilters } = useUI();
+  const { equipmentFilter, setEquipmentFilter, equipmentListFilters, setEquipmentListFilters, resetEquipmentListFilters } = useUI();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
 
-  // Fonction pour effacer tous les filtres
-  const clearAllFilters = () => {
-    setSearchTerm('');
-    setFilterDesignation('');
-    setFilterCMU('');
-    setFilterLongueur('');
-    setSearchParams(new URLSearchParams());
-    setEquipmentFilter(null);
-    sessionStorage.removeItem('shouldRestoreEquipmentFilters');
-  };
+  // Filtres centralisés dans UIContext : ils survivent à l'ouverture d'une
+  // fiche détail (le composant est démonté) et sont vidés par handleNavigate
+  // lors d'un changement d'onglet, ou par un refresh de page.
+  const searchTerm = equipmentListFilters.searchTerm;
+  const filterDesignation = equipmentListFilters.designation;
+  const filterCMU = equipmentListFilters.cmu;
+  const filterLongueur = equipmentListFilters.longueur;
 
-  // 🔄 Réinitialiser les filtres si un drapeau l'indique (quand on revient d'une autre page)
-  useEffect(() => {
-    if (shouldResetEquipmentListFilters) {
-      // Appeler directement pour assurer tous les états sont vidés en même temps
-      setSearchTerm('');
-      setFilterDesignation('');
-      setFilterCMU('');
-      setFilterLongueur('');
-      setSearchParams(new URLSearchParams());
-      setEquipmentFilter(null);
-      sessionStorage.removeItem('shouldRestoreEquipmentFilters');
-      setShouldResetEquipmentListFilters(false);
-    }
-  }, [shouldResetEquipmentListFilters]);
+  const setSearchTerm = (value) =>
+    setEquipmentListFilters(prev => ({ ...prev, searchTerm: value }));
+  const setFilterCMU = (value) =>
+    setEquipmentListFilters(prev => ({ ...prev, cmu: value }));
+  const setFilterLongueur = (value) =>
+    setEquipmentListFilters(prev => ({ ...prev, longueur: value }));
 
-  // 🔄 Initialiser les filtres depuis l'URL au mount (seulement s'ils étaient persistés avant)
-  useEffect(() => {
-    // Vérifier si on doit restaurer les filtres (sessionStorage persiste entre retours de fiche)
-    const shouldRestoreFilters = sessionStorage.getItem('shouldRestoreEquipmentFilters') === 'true';
+  // Changer la désignation réinitialise CMU et longueur (dépendants d'elle)
+  const handleDesignationChange = (newDesignation) =>
+    setEquipmentListFilters(prev => ({
+      ...prev,
+      designation: newDesignation,
+      cmu: '',
+      longueur: ''
+    }));
 
-    if (shouldRestoreFilters) {
-      // Restaurer depuis l'URL
-      const searchFromUrl = searchParams.get('search') || '';
-      const designationFromUrl = searchParams.get('designation') || '';
-      const cmuFromUrl = searchParams.get('cmu') || '';
-      const longueurFromUrl = searchParams.get('longueur') || '';
-
-      setSearchTerm(searchFromUrl);
-      setFilterDesignation(designationFromUrl);
-      setFilterCMU(cmuFromUrl);
-      setFilterLongueur(longueurFromUrl);
-    } else {
-      // Sinon, effacer tous les filtres (cas d'actualisation de page)
-      clearAllFilters();
-    }
-  }, []); // ⚠️ Uniquement au mount
-
-  // Sauvegarder le flag de restauration quand les filtres changent
-  // MAIS ne pas le remettre à true si on est en train de quitter la page
-  useEffect(() => {
-    if (shouldResetEquipmentListFilters) {
-      // On est en train de quitter la page, ne pas sauvegarder les filtres
-      return;
-    }
-
-    if (searchTerm || filterDesignation || filterCMU || filterLongueur) {
-      sessionStorage.setItem('shouldRestoreEquipmentFilters', 'true');
-    } else {
-      sessionStorage.removeItem('shouldRestoreEquipmentFilters');
-    }
-  }, [searchTerm, filterDesignation, filterCMU, filterLongueur, shouldResetEquipmentListFilters]);
-
-  // 🔄 Restaurer les filtres depuis l'URL après avoir quitté une fiche
-  useEffect(() => {
-    if (currentPage === 'sur-parc' || currentPage === 'parc-loc') {
-      const cmuFromUrl = searchParams.get('cmu') || '';
-      const longueurFromUrl = searchParams.get('longueur') || '';
-      // Restaurer CMU et longueur depuis l'URL (ils ont pu être sauvegardés avant)
-      if (cmuFromUrl) setFilterCMU(cmuFromUrl);
-      if (longueurFromUrl) setFilterLongueur(longueurFromUrl);
-    }
-  }, [currentPage]); // Quand on revient à sur-parc
-
-  // 🔄 Mettre à jour l'URL quand les filtres changent
-  useEffect(() => {
-    const newParams = new URLSearchParams();
-
-    if (searchTerm) newParams.set('search', searchTerm);
-    if (filterDesignation) newParams.set('designation', filterDesignation);
-    if (filterCMU) newParams.set('cmu', filterCMU);
-    if (filterLongueur) newParams.set('longueur', filterLongueur);
-
-    // Mettre à jour l'URL sans recharger la page
-    setSearchParams(newParams);
-  }, [searchTerm, filterDesignation, filterCMU, filterLongueur]);
-
-
-  // Réinitialiser les filtres CMU et longueur lorsque la désignation change via l'utilisateur
-  const handleDesignationChange = (newDesignation) => {
-    setFilterDesignation(newDesignation);
-    setFilterCMU('');
-    setFilterLongueur('');
-  };
+  // Fonction pour effacer tous les filtres (bouton "Effacer filtres" / "Réinit")
+  const clearAllFilters = resetEquipmentListFilters;
 
   // Fonction pour calculer l'état du VGP avec date affichée
   const getVGPStatus = (prochainVGP) => {
