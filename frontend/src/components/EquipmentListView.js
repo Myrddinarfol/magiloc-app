@@ -120,7 +120,7 @@ function EquipmentListView({
 
     // Mettre à jour l'URL sans recharger la page
     setSearchParams(newParams);
-  }, [searchTerm, filterDesignation, filterCMU, filterLongueur, setSearchParams]);
+  }, [searchTerm, filterDesignation, filterCMU, filterLongueur]);
 
 
   // Réinitialiser les filtres CMU et longueur lorsque la désignation change via l'utilisateur
