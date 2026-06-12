@@ -2184,6 +2184,29 @@ app.post("/api/maintenance-pieces/import", async (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// ADMINISTRATION - DONNÉES DE TEST
+// ═══════════════════════════════════════════════════════════════════════════
+
+// DELETE: Purger les locations CLIENT TEST de l'historique (utilisé par Analytics)
+app.delete("/api/admin/cleanup-client-test", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `DELETE FROM location_history WHERE UPPER(client) LIKE '%CLIENT TEST%'`
+    );
+
+    console.log(`🧹 Purge CLIENT TEST: ${result.rowCount} location(s) supprimée(s) de l'historique`);
+
+    res.json({
+      message: "Données CLIENT TEST purgées avec succès",
+      deletedLocations: result.rowCount
+    });
+  } catch (err) {
+    console.error("❌ Erreur purge CLIENT TEST:", err.message);
+    res.status(500).json({ error: "Erreur lors de la purge", details: err.message });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
 // GESTION DES TARIFS MANQUANTS DANS L'HISTORIQUE
 // ═══════════════════════════════════════════════════════════════════════════
 

@@ -16,6 +16,8 @@ import {
 } from 'chart.js';
 import analyticsService from '../../services/analyticsService';
 import { useEquipment } from '../../hooks/useEquipment';
+import { useUI } from '../../hooks/useUI';
+import { API_URL } from '../../config/constants';
 import CADetailsModal from './CADetailsModal';
 import MissingPricesModal from './MissingPricesModal';
 import CALoadingModal from './CALoadingModal';
@@ -29,8 +31,45 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarEleme
 
 const CAModule = () => {
   const { equipmentData } = useEquipment();
+  const { showToast } = useUI();
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  // Menu paramètres (roue crantée) + clé de rafraîchissement des données
+  const [showSettingsMenu, setShowSettingsMenu] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [isCleaningTestData, setIsCleaningTestData] = useState(false);
+
+  // Purge les locations CLIENT TEST de l'historique puis recharge les données
+  const handleCleanupClientTest = async () => {
+    setShowSettingsMenu(false);
+
+    const confirmed = window.confirm(
+      "Supprimer définitivement toutes les locations CLIENT TEST de l'historique ?\n\n" +
+      "Cette action est irréversible et retirera ces locations des calculs Analytics."
+    );
+    if (!confirmed) return;
+
+    try {
+      setIsCleaningTestData(true);
+      const response = await fetch(`${API_URL}/api/admin/cleanup-client-test`, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || `Erreur HTTP ${response.status}`);
+      }
+
+      const result = await response.json();
+      showToast(`🧹 ${result.deletedLocations} location(s) CLIENT TEST supprimée(s) de l'historique`, 'success');
+      setRefreshKey(k => k + 1); // Recharger les données Analytics
+    } catch (error) {
+      console.error('❌ Erreur purge CLIENT TEST:', error);
+      showToast(`Erreur lors de la purge: ${error.message}`, 'error');
+    } finally {
+      setIsCleaningTestData(false);
+    }
+  };
   const [stats, setStats] = useState(null);
   const [chartData, setChartData] = useState(null);
   const [barChartData, setBarChartData] = useState(null);
@@ -363,7 +402,7 @@ const CAModule = () => {
     if (equipmentData && equipmentData.length > 0) {
       fetchData();
     }
-  }, [equipmentData, selectedMonth, selectedYear]);
+  }, [equipmentData, selectedMonth, selectedYear, refreshKey]);
 
   const handleMonthChange = (e) => {
     setSelectedMonth(parseInt(e.target.value));
@@ -605,7 +644,7 @@ const CAModule = () => {
       setClientChartData(null);
       setEquipmentChartData(null);
     }
-  }, [equipmentData, pieChartMode, pieChartMonth, pieChartYear, chartPalette, isDarkTheme]);
+  }, [equipmentData, pieChartMode, pieChartMonth, pieChartYear, chartPalette, isDarkTheme, refreshKey]);
 
   const monthName = new Date(selectedYear, selectedMonth, 1).toLocaleDateString('fr-FR', {
     month: 'long',
@@ -664,6 +703,33 @@ const CAModule = () => {
           </div>
 
           <div className="filter-period">{monthName}</div>
+
+          {/* Menu paramètres (roue crantée) */}
+          <div className="ca-settings">
+            <button
+              className="ca-settings-btn"
+              onClick={() => setShowSettingsMenu(prev => !prev)}
+              disabled={isCleaningTestData}
+              title="Paramètres Analytics"
+            >
+              ⚙️
+            </button>
+
+            {showSettingsMenu && (
+              <>
+                <div className="ca-settings-backdrop" onClick={() => setShowSettingsMenu(false)} />
+                <div className="ca-settings-menu">
+                  <button
+                    className="ca-settings-item danger"
+                    onClick={handleCleanupClientTest}
+                    disabled={isCleaningTestData}
+                  >
+                    🗑️ Purger les données CLIENT TEST
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
